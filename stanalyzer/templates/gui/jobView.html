@@ -1,0 +1,134 @@
+<!-- for Job Viewer -->
+<link rel="stylesheet" href="/static/jqGrid_master/themes/ui.multiselect.css" />
+<link rel="stylesheet" href="/static/jqGrid_master/themes/ui.jqgrid.css" />
+
+<script src="/static/jqGrid_master/themes/js/jquery.layout.js" type="text/javascript"></script>
+<script src="/static/jqGrid_master/js/i18n/grid.locale-en.js" type="text/javascript"></script>
+<script src="/static/jqGrid_master/themes/js/ui.multiselect.js" type="text/javascript"></script>
+<script src="/static/jqGrid_master/themes/js/jquery.jqGrid.min.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+
+$j(document).ready(function(){
+    datePick = function(elem)
+    {
+       jQuery(elem).datepicker();
+    }
+    /* ******************************************************
+     * Defining top grid (i.e. gui_project)
+     * ******************************************************/ 
+    $j("#prjTable").jqGrid({
+	url		:'/gui/jobView_jqGrid_prj/',
+	datatype	: 'json',
+	mtype		: 'GET',
+	colNames	:['ID','User', 'Title', 'Date','PBS'],
+	colModel:[
+		{name:'id',index:'id', width:55, key:true},
+		{name:'user_id',index:'user_id', width:70},
+		{name:'name',index:'name', width:200},
+		{name:'date',index:'date', width:170, align:"left"},
+		{name:'pbs',index:'pbs', width:200, align:"left"},		
+	    ],
+	rowNum		:20,
+	rowList		:[10,20,30],
+	pager		: "#prj_pager",
+	sortname	: "id",
+	//viewrecords	: true,
+	sortorder	: "desc",
+	//gridview	: true,
+	caption		:"Project Retrieval",
+	width		: 895,
+	height		: 495,
+	//multiselect	: false,
+	
+	/* ******************************************************
+	 * Defining second grid (i.e. gui_job)
+	 * ******************************************************/ 
+	subGrid		: true,
+	// define the icons in subgrid
+	subGridOptions: {
+		"plusicon"  : "ui-icon-triangle-1-e",
+		"minusicon" : "ui-icon-triangle-1-s",
+		"openicon"  : "ui-icon-arrowreturn-1-e"
+	},
+	subGridRowExpanded: function(subgrid_id, row_id) {
+		var subgrid_table_id, pager_id;
+		subgrid_table_id = subgrid_id+"_t";
+		pager_id = "p_"+subgrid_table_id;
+		$j("#"+subgrid_id).html("<table id='"+subgrid_table_id+"' class='scroll'></table><div id='"+pager_id+"' class='scroll'></div>");
+		$j("#"+subgrid_table_id).jqGrid({
+		    url:"/gui/jobView_jqGrid_job/?prj_id="+row_id,
+		    datatype: "json",
+		    //colNames: ['ID','PROJ_ID', 'Title','Analyzer','Status','Output', 'Start', 'End'],
+		    colNames: ['ID','Title','Analyzer','Status','Output', 'Start', 'End'],
+		    colModel: [
+			    {name:"id",index:"id",width:30,key:true},
+			    //{name:"proj_id",index:"proj_id",width:80,key:true},
+			    {name:"name",index:"name",width:80},
+			    {name:"anaz",index:"anaz",width:80,align:"left"},
+			    {name:"status",index:"status",width:60,align:"left"},
+			    {name:"output",index:"output",width:100,align:"left",sortable:false},
+			    {name:"stime",index:"stime",width:80,align:"left"},
+			    {name:"etime",index:"etime",width:80,align:"left"},
+		    ],
+		    rowNum	:20,
+		    pager	: pager_id,
+		    sortname	: 'id',
+		    sortorder	: "asc",
+		    caption	:"Job Retrieval",
+		    height	: '100%',
+		    width 	: 800,
+		    
+		/* ******************************************************
+		 * Defining third grid (i.e. gui_parameter)
+		 * ******************************************************/ 
+		    subGrid		: true,
+		    // define the icons in subgrid
+		    subGridOptions: {
+			    "plusicon"  : "ui-icon-triangle-1-e",
+			    "minusicon" : "ui-icon-triangle-1-s",
+			    "openicon"  : "ui-icon-arrowreturn-1-e"
+		    },
+		    subGridRowExpanded: function(subgrid_id, row_id) {
+			    var subgrid_table_id, pager_id;
+			    subgrid_table_id = subgrid_id+"_t";
+			    pager_id = "p_"+subgrid_table_id;
+			    $j("#"+subgrid_id).html("<table id='"+subgrid_table_id+"' class='scroll'></table><div id='"+pager_id+"' class='scroll'></div>");
+			    $j("#"+subgrid_table_id).jqGrid({
+				url:"/gui/jobView_jqGrid_para/?job_id="+row_id,
+				datatype: "json",
+				//colNames: ['ID','Job ID','Analyzer','Variable', 'Value', 'Status'],
+				colNames: ['ID','Analyzer','Variable', 'Value', 'Status'],
+				colModel: [
+					{name:"id",index:"id",width:30,key:true},
+					//{name:"job_id",index:"job_id",width:30,key:true},
+					{name:"anaz",index:"anaz",width:50,align:"left"},
+					{name:"para",index:"para",width:50,align:"left"},
+					{name:"val",index:"val",width:30,align:"left"},
+					{name:"status",index:"status",width:60,align:"left"},
+				],
+				rowNum	:20,
+				pager	: pager_id,
+				sortname	: 'id',
+				sortorder	: "asc",
+				caption	:"Parameter Retrieval",
+				height	: '100%',
+				width 	: 700,
+			    });
+			    //$j("#"+subgrid_table_id).jqGrid('navGrid',"#"+pager_id,{edit:false,add:false,del:false, search:true})
+			    $j("#"+subgrid_table_id).jqGrid('filterToolbar', {stringResult: true, searchOnEnter: false});
+		    },
+	    });
+	    //$j("#"+subgrid_table_id).jqGrid('navGrid',"#"+pager_id,{edit:false,add:false,del:false, search:true})
+	    $j("#"+subgrid_table_id).jqGrid('filterToolbar', {stringResult: true, searchOnEnter: false});
+	},
+    });
+    //$j("#prjTable").jqGrid('navGrid','#prj_pager',{edit:false,add:false,del:false, search:true});
+    $j("#prjTable").jqGrid('filterToolbar', {stringResult: true, searchOnEnter: false});
+
+});
+    
+</script>	
+<table id="prjTable"></table>
+<div id="prj_pager"></div>

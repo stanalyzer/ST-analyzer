@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/asmselect/asmselect/jquery.asmselect.css" >
+
+{% endblock %}
+
+        
+{% block jscript %}
+<script src="/static/asmselect/asmselect/jquery.asmselect.js"></script>f
+
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+
+$j(document).ready(function() {
+    $j("#rpaths").asmSelect({
+            animate: true,
+            highlight: true,
+            sortable: true
+    });
+
+    $j("#add_path").click(function() {
+            var rpath = $j("#rpath").val();
+            var $option = $j("<option></option>").text(rpath).attr("selected", true); 
+            $j("#rpaths").append($option).change();
+            $j("#rpath").val('');
+            return false; 
+    });
+    
+    // Default PBS message 
+    var msg = "#!/bin/bash \r\n#PBS -q your_queue \r\n#PBS -N name_of_job \r\n#PBS -m abe \r\n#PBS -W wall_time \r\n#PBS -l nodes=1:ppn=2 \r\n";
+    $j("#pbs").val(msg);
+    
+    $j("#frm_setPrj").submit(function(){
+        var sndData = {
+	    'title'     : $j('input[name|="title"]').val(),
+	    'rpaths[]'  : $j("#rpaths").val(),
+            'pbs'       : $j("#pbs").val(),
+        }
+        
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/project_new/',
+        cache: false,
+        data: sndData,
+        });
+
+        request.done(function(Jdata) {
+          var obj = $j.parseJSON(Jdata);
+          alert("Project has been created!");
+          window.location ="/gui/project_new";
+        });
+      
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#msg").append(textStatus); 
+        });
+        return false;
+    });
+}); 
+
+</script>
+{% endblock %}
+
+{% block body %}
+<h1> CREATE NEW PROJECT</h1>
+<form id="frm_setPrj" method='post'>
+{% csrf_token %}
+<table width="800">
+    <tr><td class="prj_caption">Title</td><td class="prj_iform"><input type="text" name="title" size="100"></td></tr>
+    <tr><td class="prj_caption">Path</td><td class="prj_iform"><input type="text" name="rpath" size="100" id="rpath"><button id="add_path">ADD</button></td></tr>
+    <tr>
+        <td class="prj_caption"></td>
+        <td class="prj_iform">
+            <select id="rpaths" multiple="multiple" name="rpaths[]" >
+                <option></option>
+            </select>
+        </td>
+    </tr>
+    <tr><td class="prj_caption">PBS</td><td class="prj_iform"><textarea id="pbs" name="pbs" rows="10" cols="80"></textarea></td></tr>
+</table>
+<input id="setPrj" type="submit" value="Submit">
+<p id="msg"></p>
+</form>
+
+{% endblock %}

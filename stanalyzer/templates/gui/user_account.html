@@ -1,0 +1,497 @@
+<!-- for Job Viewer -->
+<link rel="stylesheet" href="/static/jqGrid_master/themes/ui.multiselect.css" />
+<link rel="stylesheet" href="/static/jqGrid_master/themes/ui.jqgrid.css" />
+
+<script src="/static/jqGrid_master/themes/js/jquery.layout.js" type="text/javascript"></script>
+<script src="/static/jqGrid_master/js/i18n/grid.locale-en.js" type="text/javascript"></script>
+<script src="/static/jqGrid_master/themes/js/ui.multiselect.js" type="text/javascript"></script>
+<script src="/static/jqGrid_master/themes/js/jquery.jqGrid.min.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+
+function myInfo() {
+    var myID = '{{user}}';
+    var rows = $j('#usrTable').jqGrid('getRowData');
+    userIDs = [];
+    eMails  = [];
+    Levels  = [];
+    for (var i=0; i < rows.length; i++) {
+	userIDs.push(rows[i]['uid']);
+	eMails.push(rows[i]['email']);
+	Levels.push(rows[i]['level']);
+    }
+    tmp = $j.inArray(myID, userIDs);
+    myEmail = eMails[tmp];
+    myLevel = Levels[tmp];
+    return [myID, myEmail, myLevel];
+}
+
+function valid_userNew() {
+    $j("#user_err_msg").empty();
+
+    var txt = $j("#new_userID").val();
+    if (txt.trim().length < 1) {
+	var msg = "<center><span class='st_color4'><b> *** WARNING ***</b><br/>User ID should be given!</span></center>";
+	$j("#user_err_msg").empty().html(msg)
+	$j("#new_userID").focus().select();
+	return ['User ID'];
+    }else {
+	user = txt.trim();
+	var rows = $j('#usrTable').jqGrid('getRowData');
+	usrIDs = [];
+	for (var i=0; i < rows.length; i++){
+	    usrIDs.push(rows[i]['uid']);
+	}
+	tmp = $j.inArray(user, usrIDs);
+	if (tmp >= 0){
+	    //alert(user + ' already exists!');
+	    $j("#new_userID").focus().select();
+	    var msg = "<center><span class='st_color4'><b> *** WARNING ***</b><br/><b>" + user + "</b> already exists!</span></center>";
+	    $j("#user_err_msg").empty().html(msg)
+	    return ['Existing ID'];
+	}
+    }
+    
+    var txt = $j("#new_pwd").val();
+    var txt2 = $j("#new_pwd2").val();
+    if (txt.trim().length < 1) {
+	var msg = "<center><span class='st_color4'><b> *** WARNING ***</b><br/>Password should be given!</span></center>";
+	$j("#user_err_msg").empty().html(msg)
+	$j("#new_pwd").focus().select();
+	return ['Password'];
+    }
+
+    if (txt.trim() != txt2.trim()) {
+	var msg = "<center><span class='st_color4'><b> *** WARNING ***</b><br/>Password mismatched!</span></center>";
+	$j("#user_err_msg").empty().html(msg)
+	$j("#new_pwd").focus().select();
+	return ['Password'];
+    }
+    
+    var txt = $j("#new_email").val();
+    if (txt.trim().length < 1) {
+	var msg = "<center><span class='st_color4'><b> *** WARNING ***</b><br/>E-mail should be given!</span></center>";
+	$j("#user_err_msg").empty().html(msg)
+	$j("#new_email").focus().select();
+	return ['Email'];
+    }
+    $j("#user_err_msg").empty();
+    return ['clean'];
+}
+
+function valid_userEdit() {
+    $j("#user_err_msg").empty();
+
+    var txt = $j("#edit_userID").val();
+    if (txt.trim().length < 1) {
+	var msg = "<center><span class='st_color4'><b> *** WARNING ***</b><br/>User ID should be given!</span></center>";
+	$j("#user_err_msg").empty().html(msg)
+	$j("#edit_userID").focus().select();
+	return ['User ID'];
+    } 
+
+    var txt = $j("#edit_pwd").val();
+    var txt2 = $j("#edit_pwd2").val();
+    if (txt.trim().length < 1) {
+	var msg = "<center><span class='st_color4'><b> *** WARNING ***</b><br/>Password should be given!</span></center>";
+	$j("#user_err_msg").empty().html(msg)
+	$j("#edit_pwd").focus().select();
+	return ['Password'];
+    }
+
+    if (txt.trim() != txt2.trim()) {
+	var msg = "<center><span class='st_color4'><b> *** WARNING ***</b><br/>Password mismatched!</span></center>";
+	$j("#user_err_msg").empty().html(msg)
+	$j("#edit_pwd").focus().select();
+	return ['Password'];
+    }
+    
+    var txt = $j("#edit_email").val();
+    if (txt.trim().length < 1) {
+	var msg = "<center><span class='st_color4'><b> *** WARNING ***</b><br/>E-mail should be given!</span></center>";
+	$j("#user_err_msg").empty().html(msg)
+	$j("#edit_email").focus().select();
+	return ['Email'];
+    }
+    $j("#user_err_msg").empty();
+    return ['clean'];
+}
+
+
+
+var flg_usr_frmNew = 0;
+var flg_usr_frmEdit = 0;
+
+$j(document).ready(function(){
+    $j("#usr_frmNew").hide();
+    $j("#usr_frmEdit").hide();
+
+    $j("#btn_usrNew").click(function(){
+	if (flg_usr_frmNew == 0) {
+	    if ( flg_usr_frmEdit == 1) {
+		$j("#usr_frmEdit").slideUp("slow");
+		$j("#btn_usrEdit").empty();
+		$j("#btn_usrEdit").append("EDIT");
+		flg_usr_frmEdit = 0;
+	    }
+	    $j("#usr_frmNew").slideDown("slow");
+	    $j("#btn_usrNew").empty();
+	    $j("#btn_usrNew").append("HIDE");
+	    $j("#usr_frmNew #new_userID").focus();
+	    flg_usr_frmNew = 1;
+	    
+	    // Get information about level
+	    var sndData = {
+		'cmd'               : 'get_level',
+		'user'     		: '{{user}}',
+	    }
+	    var request = $j.ajax({
+		type: "POST",
+		url: '/gui/create_user/',
+		cache: false,
+		data: sndData,
+		//async: false,
+	      });
+	      request.done(function(Jdata) {
+		    var obj = $j.parseJSON(Jdata);
+		    // adding level option based on the current users level
+		    level = parseInt(obj.level);
+		    var option_level = "";
+		    for (var i=level; i >= 0; i--) {
+		      option_level = option_level + "<option value=" + i + ">" + i + "</option>";
+		    }
+		    $j("#new_level").empty().append(option_level).change();
+	      });
+	    
+	      request.error(function(jqXHR, textStatus, errorThrown) {
+		  $j("#usr_msg").append(textStatus); 
+	      });
+	    
+	} else {
+	    $j("#user_err_msg").empty();
+	    $j("#usr_frmNew").slideUp("slow");
+	    $j("#btn_usrNew").empty();
+	    $j("#btn_usrNew").append("NEW");
+	    flg_usr_frmNew = 0;
+	}
+	return false;	
+    });        
+
+    $j("#btn_usrCreate").click(function(){
+	vcode = valid_userNew();
+	if (vcode[0] == 'clean') {
+	    txt = $j("#new_userID").val();
+	    user_id = txt.trim();
+	    
+	    txt = $j("#new_pwd").val();
+	    pwd = txt.trim();
+	    
+	    txt = $j("#new_email").val();
+	    email = txt.trim();
+	    
+	    level = $j("#new_level option:selected").text();
+
+	    // Update DB and JQgrid
+	    var sndData = {
+		'cmd' 	: 'newUser',
+		'user'	: user_id,
+		'pwd'	: pwd,
+		'email'	: email,
+		'level'	: level,
+	    }
+	    var request = $j.ajax({
+		type: "POST",
+		url: '/gui/create_user/',
+		cache: false,
+		data: sndData,
+		//async: false,
+	      });
+	      request.done(function(Jdata) {
+		var obj = $j.parseJSON(Jdata);
+		$j("#usrTable").trigger( 'reloadGrid' );
+		$j("#new_userID").val('');
+		$j("#new_pwd").val('');
+		$j("#new_email").val('');
+		$j("#new_userID").focus().select();
+	      });
+	      request.error(function(jqXHR, textStatus, errorThrown) {
+		  $j("#usr_msg").append(textStatus); 
+	      });
+	}
+    });
+    
+    $j("#btn_usrEdit").click(function(){
+	if (flg_usr_frmEdit == 0) {
+	    if (flg_usr_frmNew == 1) {
+		$j("#usr_frmNew").slideUp("slow");
+		$j("#btn_usrNew").empty();
+		$j("#btn_usrNew").append("NEW");
+		flg_usr_frmNew = 0;
+	    }
+	    $j("#usr_frmEdit").slideDown("slow");
+	    $j("#btn_usrEdit").empty();
+	    $j("#btn_usrEdit").append("HIDE");
+	    $j("#usr_frmEdit #edit_userID").focus();
+	    flg_usr_frmEdit = 1;
+	} else {
+	    $j("#user_err_msg").empty();
+	    $j("#usr_frmEdit").slideUp("slow");
+	    $j("#btn_usrEdit").empty();
+	    $j("#btn_usrEdit").append("EDIT");
+	    flg_usr_frmEdit = 0;
+	}
+	return false;
+    });        
+    
+    $j("#btn_usrUdate").click(function(){
+	vcode = valid_userEdit();
+	if (vcode[0] == 'clean') {
+	    txt = $j("#edit_userID").val();
+	    user_id = txt.trim();
+	    
+	    txt = $j("#edit_pwd").val();
+	    pwd = txt.trim();
+	    
+	    txt = $j("#edit_email").val();
+	    email = txt.trim();
+	    
+	    level = $j("#edit_level option:selected").text();
+
+	    // Update DB and JQgrid
+	    var sndData = {
+		'cmd' 	: 'editUser',
+		'user'	: user_id,
+		'pwd'	: pwd,
+		'email'	: email,
+		'level'	: level,
+	    }
+	    var request = $j.ajax({
+		type: "POST",
+		url: '/gui/update_user/',
+		cache: false,
+		data: sndData,
+		//async: false,
+	      });
+	      request.done(function(Jdata) {
+		var obj = $j.parseJSON(Jdata);
+		$j("#usrTable").trigger( 'reloadGrid' );
+		$j("#new_userID").focus().select();
+	      });
+	      request.error(function(jqXHR, textStatus, errorThrown) {
+		  $j("#usr_msg").append(textStatus); 
+	      });
+	}
+    });
+
+    /* ******************************************************
+     * Defining top grid (i.e. gui_user)
+     * ******************************************************/ 
+    $j("#usrTable").jqGrid({
+	url		:'/gui/usrView_jqGrid_usr/',
+	datatype	: 'json',
+	mtype		: 'GET',
+	colNames	:['ID','E-mail', 'Level', 'Delete', 'Edit'],
+	colModel:[
+		{name:'uid',index:'uid', width:200, key:true},
+		{name:'email',index:'email', formatter:'email', classes:'email_link', width:200},
+		{name:'level',index:'level', align:'right', width:40},
+		{name:'delete',index:'delete', align:'center', search:false, sortable:false, formatter:'checkbox', editable:true, edittype:'checkbox', editoptions:{value:'True:False'}, formatoptions: {disabled: false}, 
+		loadComplete: $j("#usr_buttons #btn_usrDelete").click(function(){
+		    var rows = $j('#usrTable').jqGrid('getRowData');
+		    var chkarray = [];
+		    var rowIdx = [];
+		    var uid   = [];
+		    $j("#usrTable input:checkbox").each(function() {
+			chkarray.push($j(this).attr('checked'));
+			});
+		    tmp = $j.inArray('checked', chkarray);
+		    if (tmp >= 0){
+			uid.push(rows[tmp]['uid']);
+			for (var i=tmp; i < chkarray.length-1; i++ ) {
+			    tmp2 = $j.inArray('checked', chkarray, i+1);
+	    		    if (tmp2 >= 0){
+				uid.push(rows[tmp2]['uid']);
+			    }
+			}
+			uid = $j.unique(uid);
+			uid.sort();
+			
+			delUserList = "";
+			for (var i=0; i < uid.length; i++) {
+			    delUserList = delUserList + "<li><b>" + uid[i] + "</b></li>";
+			}
+			var msg = "You are trying to DELETE following users:<br/><ul>" + delUserList + "</ul>" + "<br/>Do you want to proceed anyway?";
+			$j("#dlg_confirm #dlg_msg").empty().append(msg).change();
+			$j( "#dlg_confirm" ).dialog({
+			    resizable: true,
+			    height:200,
+			    modal: true,
+			    buttons: {
+				Okay: function() {
+					
+					//alert("match found in " + uid);
+					var sndData = {
+					    'cmd'               : 'del_user',
+					    'user'     		: '{{user}}',
+					    'uid[]' 	 	: uid,
+					}
+					var request = $j.ajax({
+					  type: "POST",
+					  url: '/gui/del_user/',
+					  cache: false,
+					  data: sndData,
+					  async: false,
+					  });
+					  request.done(function(Jdata) {
+					      var obj = $j.parseJSON(Jdata);
+					      var userList = "";
+					      if (obj.fUsers.length > 0) {
+						for (var i=0; i < obj.fUsers.length; i++) {
+						    userList = userList + "<li><b>" + obj.fUsers[i] +"</b></li>";
+						}
+						var msg = "You do not have permission to DELETE following users:<br/><ul>" + userList + "</ul>" ;
+						$j("#dlg_confirm #dlg_msg").empty().append(msg).change();
+						$j( "#dlg_confirm" ).dialog({
+						    resizable: true,
+						    height:200,
+						    modal: true,
+						    buttons: {
+							Okay: function() {
+							    $j( this ).dialog( "close" );
+							    $j("#usrTable").trigger( 'reloadGrid' );
+							},
+						    }
+						});
+						}
+					  });
+					
+					  request.error(function(jqXHR, textStatus, errorThrown) {
+					      $j("#usr_msg").append(textStatus); 
+					  });
+					  
+					$j( this ).dialog( "close" );
+					$j("#usrTable").trigger( 'reloadGrid' );
+				    },
+				Cancel: function(){
+				    $j( this ).dialog( "close" );
+				},
+			    }
+			});
+	    
+		    } else {
+			alert("No account has been selected!");
+		    }
+		    }),
+		width:40},
+		{name:'edit',index:'edit', align:'center', search:false, sortable:false, width:40,
+		formatter:function radioButtonFormatter(cellValue, options, rowObject) {
+			    curr_user = '{{user}}';
+			    if (rowObject[0] == curr_user){
+				var msg = "cellValue=" + cellValue + ", options=" + options + ", rowObject=" + rowObject[0];
+				//var radioHtml = '<input style="width:25px" type="radio" value=' + rowObject[0] + ' name="radio_usr" checked="checked"></input>';
+				var radioHtml = '<input style="width:25px" type="radio" value=' + rowObject[0] + ' name="radio_usr" ></input>';
+			    } else {
+			    var radioHtml = '<input style="width:25px" type="radio" value=' + rowObject[0] + ' name="radio_usr" ></input>';
+			    }
+			    return radioHtml;
+			},
+		},
+		],
+	beforeSelectRow: function (rowid, e) {
+	    var rows = $j('#usrTable').jqGrid('getRowData');
+	    userIDs = [];
+	    eMails  = [];
+	    Levels  = [];
+	    for (var i=0; i < rows.length; i++) {
+		userIDs.push(rows[i]['uid']);
+		eMails.push(rows[i]['email']);
+		Levels.push(rows[i]['level']);
+		
+	    }
+	    curr_user = '{{user}}';
+	    myAccount = myInfo();
+	    if ($j(e.target).is("input:radio[name^='radio_']:checked")) {
+		tmp = $j.inArray(rowid, userIDs);
+		if ((parseInt(myAccount[2]) > parseInt(Levels[tmp])) || (parseInt(myAccount[2]) >= 10) || (curr_user == userIDs[tmp])) {
+		    //var msg = "USERID=" + userIDs[tmp] + ", email=" + eMails[tmp] + ", Level=" + Levels[tmp];
+		    // Disable user ID! so ID cannot be changed!!!!!!
+		    $j("#usr_buttons #usr_frmEdit #edit_userID").val(userIDs[tmp]).css("color", "gray").attr("disabled",true);
+		    $j("#usr_buttons #usr_frmEdit #edit_email").val(eMails[tmp]).css("color", "gray");
+		    option_level = "";
+		    for (var i=parseInt(Levels[tmp]); i >= 0 ; i--) {
+			option_level = option_level + "<option value=" + i + ">" + i + "</option>";
+		    }
+		    $j("#usr_buttons #usr_frmEdit #edit_level").empty().append(option_level).change();
+		} else {
+		    alert("You do not have permission to modify this account!");
+		}
+		
+	    }
+	    return true; // allow row selection
+	},
+	rowNum		:10,
+	rowList		:[10,20,30],
+	pager		: "#usr_pager",
+	sortname	: "uid",
+	sortorder	: "asc",
+	caption		:"USER accounts",
+	width		: 895,
+	height		: 250,
+    });
+    $j("#usrTable").jqGrid('filterToolbar', {stringResult: true, searchOnEnter: false});
+    
+    
+});
+    
+</script>	
+<table id="usrTable"></table>
+<div id="usr_pager"></div>
+<div id="usr_buttons">
+    <br/>
+    <div id="user_err_msg"></div>
+    <center>
+	<table>
+	    <tr>
+		<td class="w110"><button id="btn_usrNew">NEW</button></td>
+		<td class="w110"><button id="btn_usrDelete">DELETE</button></td>
+		<td class="w110"><button id="btn_usrEdit">EDIT</button></td>
+	    </tr>
+	    <tr>
+		<td colspan="3">
+		    <div id="usr_frmNew">
+		    <table>
+			<tr><td colspan=2 class="left"><span class="st_font1 st_size3 st_color3">Username:</span></td></tr>
+			<tr><td colspan=2 ><input id="new_userID" name="new_userID" type="text" size=60></td></tr>
+			<tr><td colspan=2 calss ="left"><span class="st_font1 st_size3 st_color3">Password:</span></td></tr>
+			<tr><td colspan=2 ><input id="new_pwd" name="new_pwd" type="password" size=60></td></tr>
+			<tr><td colspan=2 calss ="left"><span class="st_font1 st_size3 st_color3">Password Confirm:</span></td></tr>
+			<tr><td colspan=2 ><input id="new_pwd2" name="new_pwd2" type="password" size=60></td></tr>
+			<tr><td calss ="left"><span class="st_font1 st_size3 st_color3">E-mail:</span></td><td calss ="left"><span class="st_font1 st_size3 st_color3">Level:</span></td></tr>
+			<tr><td><input id="new_email" name="new_email" type="text" size=40></td><td><select id="new_level"></select></td></tr>
+			<tr><td colspan=2 class="center"><button id="btn_usrCreate">CREATE</button></td></tr>
+		    </table>
+		    </div>
+		</td>
+	    </tr>
+	    <tr>
+		<td colspan="3">
+		    <div id="usr_frmEdit">
+		    <table>
+			<tr><td colspan=2 class="left"><span class="st_font1 st_size3 st_color3">Username:</span></td></tr>
+			<tr><td colspan=2 ><input id="edit_userID" name="edit_userID" type="text" size=60></td></tr>
+			<tr><td colspan=2 calss ="left"><span class="st_font1 st_size3 st_color3">Password:</span></td></tr>
+			<tr><td colspan=2 ><input id="edit_pwd" name="edit_pwd" type="password" size=60></td></tr>
+			<tr><td colspan=2 calss ="left"><span class="st_font1 st_size3 st_color3">Password Confirm:</span></td></tr>
+			<tr><td colspan=2 ><input id="edit_pwd2" name="edit_pwd2" type="password" size=60></td></tr>
+			<tr><td calss ="left"><span class="st_font1 st_size3 st_color3">E-mail:</span></td><td calss ="left"><span class="st_font1 st_size3 st_color3">Level:</span></td></tr>
+			<tr><td><input id="edit_email" name="edit_email" type="text" size=40></td><td><select id="edit_level"><option></option></select></td></tr>
+			<tr><td colspan=2 class="center"><button id="btn_usrUdate">UPDATE</button></td></tr>
+		    </table>
+		    </div>
+		</td>
+	    </tr>
+	</table>
+	<div id="usr_msg"></div>
+    </center>
+</div>

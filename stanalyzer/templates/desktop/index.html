@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge, chrome=1" />
+<meta name="description" content="JavaScript desktop environment built with jQuery." />
+<title>ST-Analyzer</title>
+<link rel="stylesheet" href="/static/css/stanalyzer.css" >
+<link rel="stylesheet" href="/static/css/start/jquery-ui-1.9.2.custom.css" >
+
+<!-- for stanalyzer -->
+<link rel="stylesheet" href="/static/asmselect/asmselect/jquery.asmselect.css" >
+<link rel="stylesheet" href="/static/chosen_master/chosen/chosen.css" />
+
+<!-- Here ADMIN_MEDIA_PREFIX is path to django admin media -->
+<script type="text/javascript" src="/static/admin/js/core.js"></script>
+<script type="text/javascript" src="/static/admin/js/getElementsBySelector.js"></script>
+<script type="text/javascript" src="/static/admin/js/actions.js"></script>
+<script type="text/javascript" src="/static/admin/js/SelectBox.js"></script>
+<script type="text/javascript" src="/static/admin/js/SelectFilter2.js"></script>
+<script type="text/javascript" src="/static/js/jsi18n.js"></script>
+    
+<script type="text/javascript" src="/static/js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery.tinysort.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery.tinysort.charorder.min.js"></script>
+
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+
+
+  $j(document).ready(function(){
+       /*--------------------------------------------------------------------*/
+       /*--- Get around using csrftoken while using ajax  for Django 1.4  ---*/
+       /*--- https://docs.djangoproject.com/en/1.4/ref/contrib/csrf/ ---*/
+       /*--------------------------------------------------------------------*/
+       function getCookie(name) {
+           var cookieValue = null;
+           if (document.cookie && document.cookie != '') {
+               var cookies = document.cookie.split(';');
+               for (var i = 0; i < cookies.length; i++) {
+                   var cookie = jQuery.trim(cookies[i]);
+                   // Does this cookie string begin with the name we want?
+                   if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                       cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                       break;
+                   }
+               }
+           }
+           return cookieValue;
+       }
+       var csrftoken = getCookie('csrftoken');
+
+        function csrfSafeMethod(method) {
+           // these HTTP methods do not require CSRF protection
+           return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+       $j.ajaxSetup({
+           crossDomain: false, // obviates need for sameOrigin test
+           beforeSend: function(xhr, settings) {
+               if (!csrfSafeMethod(settings.type)) {
+                   xhr.setRequestHeader("X-CSRFToken", csrftoken);
+               }
+           }
+       });
+   
+       /*---------------------------------------------------*/
+       
+  });
+</script>
+
+<script src="/static/chosen_master/chosen/chosen.jquery.js" type="text/javascript"></script>
+
+<script src="/static/asmselect/asmselect/jquery.asmselect.js"></script>f
+
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+
+orgOption = "{% for fname in fList %}<option value='{{ fname }}'>{{ fname }}</option>{% endfor %}";
+org_out_path = "{{ MEDIA_HOME }}/{{ user }}";
+org_python = "python";
+
+/* ====================================
+ * Validating forms
+ * ====================================
+ */
+
+/* STEP1: submit for to define ROOT PATH */
+function eval_step1() {
+    $j("#temp_output").empty();
+    $j("#err_root").empty();
+
+    var txt = $j("#job_title").val();
+    if (txt.trim().length < 1) {
+	return ['job_title'];
+    }
+
+    var txt = $j("#prj option:selected").text();
+    if (txt.trim().length < 1) {
+	return ['prj'];
+    }
+    
+    var txt = $j("#proot option:selected").text();
+    if (txt.trim().length < 1) {
+	return ['proot'];
+    }
+
+    var txt = $j("#stfile option:selected").text();
+    if (txt.trim().length < 1) {
+	return ['stfile'];
+    }
+    
+    var txt = $j("#select_trj2").text();
+    //alert("length = " + txt.trim().length + "MSG = " + txt);
+    if (txt.trim().length < 1) {
+	return ['select_trj1'];
+    }
+
+    return false;
+}
+
+/* ************************************************************************************
+ * 
+ * Modifying eval_step2 is required to add new job or function of ST analyzer
+ * 
+ * ***********************************************************************************/
+function eval_step2() {
+    // Check out box calculation
+    // *** Strings in JOBs shoudl be matched with the name of python's function ***
+    var idx0 = 'Number of Parameters';
+    var JOBs = [];			// this should be match with name of the function
+    var PARinfo = [];			// the order of parameter information should be same as PARs ** zero index should be 'Number of Parameters'
+    var PARs = [];			// this contains actual parameter values ** zero index should contain the number of parameters
+    
+    /* calculating Box */
+    var chk = $j('#box_title').prop('checked');
+    if (chk == true) {
+	JOBs.push('box');
+	
+	// Storing parameters and JOBs
+	//para = {'num_para':0};
+	para = [0];
+	para_info = idx0;
+	PARs.push(para);
+	PARinfo.push(para_info);
+    }
+
+    /* calculating the tilt of helix */
+    var chk = $j('#helix_tilt_title').prop('checked');
+    if (chk == true) {
+	// Check out the associated forms
+	segID 	= $j('#helix_tilt_form #segID option:selected').val();
+	segName = $j('#helix_tilt_form #segID option:selected').text();
+	stRes 	= $j('#helix_tilt_form #stRes option:selected').val();
+	edRes	= $j('#helix_tilt_form #edRes option:selected').val();
+	
+	JOBs.push('helix_tilt');
+	//para = JSON.stringify({'num_para':3, 'segID': segID, 'stRes':stRes, 'edRes':edRes});
+	para = [4, segID, segName, stRes, edRes];
+	para_info = [idx0, 'Segment ID', 'Segment Name', 'Start Residue', 'Terminal Residue'];
+	PARs.push(para);
+	PARinfo.push(para_info);
+	//alert("PARAS:" + PARs[1]['num_para']);
+    }
+
+    return [JOBs, PARs, PARinfo];
+}
+
+/* get most recent PBS script */
+function getPBS() {
+   
+    var sndData = {
+	'cmd'     : 'get_recent_pbs',
+    }
+    var request = $j.ajax({
+    type: "POST",
+    url: '/gui/getdb/',
+    cache: false,
+    data: sndData,
+    });
+    
+    request.done(function(Jdata) {
+	var obj = $j.parseJSON(Jdata);
+	var val_pbs = obj.pbs;
+	//val_pbs = val_pbs.replace(/\n\r?/g, '<br />');
+	$j("#frm_newPrj #pbs, #frm_editPrj #pbs").empty();
+	$j("#frm_newPrj #pbs, #frm_editPrj #pbs").val(val_pbs);
+        
+     });
+
+    request.error(function(jqXHR, textStatus, errorThrown) {
+	$j("#msg").append(textStatus); 
+    });
+    
+}
+
+/* Check validations in system */
+function path_validation($given_path) {
+    var status = 'false';
+    var sndData = {
+	'cmd'     : 'path_validation',
+	'path'	  : $j.trim($given_path),
+    }
+    var request = $j.ajax({
+    type: "POST",
+    url: '/gui/path_validation/',
+    cache: false,
+    data: sndData,
+    async: false,
+    });
+    
+    request.done(function(Jdata) {
+	var obj = $j.parseJSON(Jdata);
+	var fstatus = obj.type;
+	if (fstatus.length > 0) {
+	    status = fstatus[0];
+	} else {
+	    status = 'false';
+	}
+     });
+
+    request.error(function(jqXHR, textStatus, errorThrown) {
+	$j("#msg").append(textStatus);
+    });
+    
+    return status;
+}
+
+/* Check validations in system */
+function permission_write($given_path) {
+    var status = [];
+    var sndData = {
+	'cmd'     : 'permission_write',
+	'path'	  : $j.trim($given_path),
+    }
+    var request = $j.ajax({
+    type: "POST",
+    url: '/gui/permission_write/',
+    cache: false,
+    data: sndData,
+    async: false,
+    });
+    
+    request.done(function(Jdata) {
+	var obj = $j.parseJSON(Jdata);
+	var fstatus = obj.write_info;
+	status = fstatus;
+     });
+
+    request.error(function(jqXHR, textStatus, errorThrown) {
+	$j("#msg").append(textStatus);
+    });
+    
+    return status;
+}
+
+function permission_exec($given_path) {
+    var status = [];
+    var sndData = {
+	'cmd'     : 'permission_exec',
+	'path'	  : $j.trim($given_path),
+    }
+    var request = $j.ajax({
+    type: "POST",
+    url: '/gui/permission_exec/',
+    cache: false,
+    data: sndData,
+    async: false,
+    });
+    
+    request.done(function(Jdata) {
+	var obj = $j.parseJSON(Jdata);
+	var fstatus = obj.exec_info;
+	status = fstatus;
+     });
+
+    request.error(function(jqXHR, textStatus, errorThrown) {
+	$j("#msg").append(textStatus);
+    });
+    
+    return status;
+}
+
+function dialog_warning($message) {
+  $j("#dlg_confirm #dlg_msg").empty().append($message);
+  $j( "#dlg_confirm" ).dialog({
+      resizable: false,
+      height:150,
+      modal: true,
+      buttons: {
+          Okay: function() {
+              $j( this ).dialog( "close" );
+          },
+          Cancel: function() {
+              $j( this ).dialog( "close" );
+          }
+      }
+  });
+  return false; 
+}
+
+function dialog_logout($message) {
+  $j("#dlg_confirm #dlg_msg").empty().append($message);
+  $j( "#dlg_confirm" ).dialog({
+      resizable: false,
+      height:150,
+      modal: true,
+      buttons: {
+          Okay: function() {
+              $j( this ).dialog( "close" );
+              window.location = "/gui/logout/";
+          },
+          Cancel: function() {
+              $j( this ).dialog( "close" );
+          }
+      }
+  });
+  return false; 
+}
+
+
+    
+var flg_newPrj = 0;
+var flg_editPrj = 0;
+
+$j(document).ready(function(){
+    $j(".chzn-select").chosen({search_contains:true});
+    
+    /* Initializing tabs */
+    $j("#tabs").tabs();
+    $j( "#tabs" ).tabs( "option", "disabled", [1] );
+
+    /* Filtering trajectory files */
+    $j('#job_title').val('analyzing trajectory').css("color", "gray");
+    $j('#job_title').focus(function() {
+	       this.value = "";
+	       $j(this).css("color","black");
+	});
+    $j("#job_title").focusout(function () {
+	$j(this).css("color","gray");;
+	});
+
+    $j("#frm_newPrj").hide();
+    $j("#frm_editPrj").hide();
+    getPBS();
+	
+    /* fill out project menu */
+    
+    {% for pt in ptitle %}
+      var tName = "<option pkey='{{ pt.0 }}'>" + "{{pt.1}}" + "</option>"
+      $j("#prj").append(tName)
+    {% endfor%}
+
+    $j("#prj").live("change", function() {
+	var options = $j("#prj option");
+	var idx = $j("#prj option:selected").attr("pkey");
+	var sndData = {
+	    'cmd'	: 'path',
+	    'pkey'	:  idx,	
+	}
+	var request = $j.ajax({
+	type: "POST",
+	url: '/gui/stanalyzer/',
+	cache: false,
+	data: sndData,
+	});
+	
+	request.done(function(Jdata) {
+	    $j("#step1 #proot").empty();
+	    $j("#step1 #proot").val("");
+	    $j("#step1 #poutput").empty();
+	    $j("#step1 #poutput").val("");
+	    $j("#step1 #ppython").empty();
+	    $j("#step1 #ppython").val("");
+	    $j("#step1 #prjInfo").empty();
+	    $j("#step1 #prjInfo").val("");
+	    
+	    var obj = $j.parseJSON(Jdata);
+	    /* store project data into hidden type
+	     * fill out the drop box menu in  #proot*/
+	    var tag_prjInfo = "";
+	    var tag_proot   = "";
+	    var tag_poutput = "";
+	    var tag_ppython = "";
+	    
+	    // pkey
+	    for (var i=0; i < obj.pkey.length; i++) {
+		tag_prjInfo = tag_prjInfo + "<input type='hidden' name='pkey' value='" + obj.pkey[i] + "' /><br />";
+	    }
+	    // title
+	    for (var i=0; i < obj.title.length; i++) {
+		tag_prjInfo = tag_prjInfo + "<input type='hidden' name='title' value='" + obj.title[i] + "' /><br />";
+	    }
+	    // input path
+	    for (var i=0; i < obj.path_inputs_path.length; i++) {
+		if (obj.path_inputs_path[i] != null) {
+		    tag_prjInfo = tag_prjInfo + "<input type='hidden' name='path1' value='" + obj.path_inputs_path[i] + "' /><br />";
+		    tag_proot = tag_proot + "<option value='" + obj.path_inputs_path[i] + "'>" + obj.path_inputs_path[i] + "</option>";
+		}
+	    }
+	    // output path
+	    for (var i=0; i < obj.path_outputs_path.length; i++) {
+		if (obj.path_outputs_path[i] != null) {
+		    tag_prjInfo = tag_prjInfo + "<input type='hidden' name='path_outputs_path' value='" + obj.path_outputs_path[i] + "' /><br />";
+		    tag_poutput = tag_poutput + "<option value='" + obj.path_outputs_path[i] + "'>" + obj.path_outputs_path[i] + "</option>";
+		}
+	    }
+	    // python path
+	    for (var i=0; i < obj.path_pythons_path.length; i++) {
+		if (obj.path_pythons_path[i] != null) {
+		    tag_prjInfo = tag_prjInfo + "<input type='hidden' name='path_pythons_path' value='" + obj.path_pythons_path[i] + "' /><br />";
+		    tag_ppython = tag_ppython + "<option value='" + obj.path_pythons_path[i] + "'>" + obj.path_pythons_path[i] + "</option>";
+		}
+	    }
+	    // pbs
+	    for (var i=0; i < obj.pbs.length; i++) {
+		tag_prjInfo = tag_prjInfo + "<input type='hidden' name='pbs' value='" + obj.pbs[i] + "' /><br />";
+	    }
+	    // date
+	    for (var i=0; i < obj.date.length; i++) {
+		tag_prjInfo = tag_prjInfo + "<input type='hidden' name='title' value='" + obj.date[i] + "' /><br />";
+	    }
+	    // numRec
+	    for (var i=0; i < obj.numRec.length; i++) {
+		tag_prjInfo = tag_prjInfo + "<input type='hidden' name='numRec' value='" + obj.numRec[i] + "' /><br />";
+	    }
+	    
+	    //alert(tag_proot);
+	    // add hidden information 
+	    //$j("#prjInfo").empty().append(tag_prjInfo);
+	    // Display path information
+	    $j("#step1 #proot").empty().append(tag_proot).change();
+	    $j("#step1 #poutput").empty().append(tag_poutput).change();
+	    $j("#step1 #ppython").empty().append(tag_ppython).change();
+            // Edit menu
+            $j("#frm_editPrj #title").val('');
+            var new_title = $j("#prj option:selected").text();
+            $j("#frm_editPrj #title").val(new_title).change();
+            $j("#frm_editPrj #rpaths").empty().append(tag_proot).change();
+            $j("#frm_editPrj #rpaths option").attr("selected", "selected").change();
+            $j("#frm_editPrj #out_paths").empty().append(tag_poutput).change();
+            $j("#frm_editPrj #out_paths option").attr("selected", "selected").change();
+            $j("#frm_editPrj #python_paths").empty().append(tag_ppython).change();
+            $j("#frm_editPrj #python_paths option").attr("selected", "selected").change();
+            getPBS();
+	});
+    
+	request.error(function(jqXHR, textStatus, errorThrown) {
+	    $j("#err_root").append(textStatus); 
+	});
+	return false;
+    });
+    
+    /*************************************************************************************
+     *
+     *	Add new project
+     *	
+     *************************************************************************************/
+    $j("#btn_newPrj").click(function(){
+	if (flg_newPrj == 0) {
+          if (flg_editPrj == 1) {
+	    $j("#frm_editPrj").slideUp("slow");
+	    $j("#btn_editPrj").empty();
+	    $j("#btn_editPrj").append("EDIT");
+	    flg_editPrj = 0;
+          }
+	    $j("#frm_newPrj").slideDown("slow");
+	    getPBS();
+	    $j("#btn_newPrj").empty();
+	    $j("#btn_newPrj").append("HIDE");
+	    $j("#frm_newPrj #title").focus();
+	    $j("#frm_newPrj #out_path").focusout().change();
+	    $j("#frm_newPrj #python_path").focusout().change();
+	    flg_newPrj = 1;
+	} else {
+	    $j("#frm_newPrj").slideUp("slow");
+	    $j("#btn_newPrj").empty();
+	    $j("#btn_newPrj").append("NEW");
+	    flg_newPrj = 0;
+	}
+	return false;
+    });    
+
+ 
+    /* Sub-form for adding project */
+    $j("#frm_newPrj #rpaths, #frm_newPrj #out_paths, #frm_newPrj #python_paths").asmSelect({
+	animate: true,
+	highlight: true,
+	sortable: true
+    });
+    
+    $j("#frm_newPrj #add_path").click(function() {
+	var rpath = $j("#frm_newPrj #rpath").val();
+	fstatus = path_validation(rpath);
+	if (fstatus != 'false') {
+	    var $option = $j("<option></option>").text(rpath).attr("selected", true);
+	    $j("#frm_newPrj #rpaths").append($option).change();
+	    $j("#frm_newPrj #rpath").val('');
+	} else {
+	    $j("#dlg_confirm #dlg_msg").empty().append("This path does not exist!\nWould you like to proceed anyway?");
+	    $j( "#dlg_confirm" ).dialog({
+		resizable: false,
+		height:150,
+		modal: true,
+		buttons: {
+		    Okay: function() {
+			$j( this ).dialog( "close" );
+			var $option = $j("<option></option>").text(rpath).attr("selected", true);
+			$j("#frm_newPrj #rpaths").append($option).change();
+			$j("#frm_newPrj #rpath").val('');
+		    },
+		    Cancel: function() {
+			$j( this ).dialog( "close" );
+		    }
+		}
+	    });
+	    
+	}
+	return false; 
+    });
+
+    $j('#frm_newPrj #out_path').attr("value", org_out_path).change();
+
+    //str_out_path = $j("#out_path").val();
+    //var $str_out_path_option = $j("<option></option>").text(str_out_path).attr("selected", true);
+    //$j("#out_paths").append($str_out_path_option).change();
+    
+    $j('#frm_newPrj #out_path').focus(function() {
+	$j(this).val('');
+	$j(this).css("color","black");
+    });
+
+    $j("#frm_newPrj #out_path").focusout(function () {
+	$j(this).css("color","gray");;
+    });
+
+    $j("#frm_newPrj #out_path").keyup(function(e) {
+	var key = e.which;
+	//alert(key);
+	if (key == 27 ) {
+	    $j(this).val('');
+	    $j(this).val(org_out_path);
+	}
+	return false;
+    });
+
+    $j("#frm_newPrj #chk_out_path").click(function() {
+	var out_path = $j("#frm_newPrj #out_path").val();
+	if (out_path == org_out_path) {
+	    var $option = $j("<option></option>").text(out_path).attr("selected", true);
+	    $j("#frm_newPrj #out_paths").append($option).change();
+	    $j("#frm_newPrj #out_path").val('');
+	} else {
+	    fstatus = path_validation(out_path);
+	    if (fstatus != 'false') {
+		pstatus = permission_write(out_path);
+		var idx = $j.inArray(false, pstatus);
+		//alert("IDX=" + idx);
+		if (idx >= 0) {
+		    var msg = "Permission issue can occur if you do not have permission to WRITE this directory. The current WRITABLE permission of given path is shown below<hr/>"
+				+ "Owner: " + pstatus[0]
+				+ ", Group: " + pstatus[1]
+				+ ", Other: " + pstatus[2] + "<hr/>"
+				+ "Do you want to proceed anyway?"
+		    $j("#dlg_confirm #dlg_msg").empty().append(msg);
+		    $j( "#dlg_confirm" ).dialog({
+			resizable: true,
+			height:250,
+			modal: true,
+			buttons: {
+			    Okay: function() {
+				$j( this ).dialog( "close" );
+				var $option = $j("<option></option>").text(out_path).attr("selected", true);
+				$j("#frm_newPrj #out_paths").append($option).change();
+				$j("#frm_newPrj #out_path").val('');
+			    },
+			    Cancel: function() {
+				$j( this ).dialog( "close" );
+			    }
+			}
+		    });
+		} else {
+		    var $option = $j("<option></option>").text(out_path).attr("selected", true);
+		    $j("#frm_newPrj #out_paths").append($option).change();
+		    $j("#frm_newPrj #out_path").val('');
+		}
+	    } else {
+		    var msg = "The directory in the path does not exist! Please verify the path and make sure the target directory has  WRITABLE permission (i.e, chmod 777)!"
+		    $j("#dlg_confirm #dlg_msg").empty().append(msg);
+		    $j( "#dlg_confirm" ).dialog({
+			resizable: true,
+			height:250,
+			modal: true,
+			buttons: {
+			    Okay: function() {
+				$j( this ).dialog( "close" );
+			    }
+			}
+		    });
+	    }
+	}
+	return false; 
+
+    });
+
+    $j("#frm_newPrj #chk_python_path").click(function() {
+	var python_path = $j("#frm_newPrj #python_path").val();
+	if (python_path == org_python) {
+	    var $option = $j("<option></option>").text(python_path).attr("selected", true);
+	    $j("#frm_newPrj #python_paths").append($option).change();
+	    $j("#frm_newPrj #python_path").val('');
+	} else {
+	    fstatus = path_validation(python_path);
+	    //alert("FSTATUS: " + fstatus);
+	    if (fstatus != 'false') {
+		pstatus = permission_exec(python_path);
+		//alert(pstatus);
+		var idx = $j.inArray(false, pstatus);
+		//alert("IDX=" + idx);
+		if (idx >= 0) {
+		    var msg = "Permission issue can occur if you do not have permission to EXECUTE the file. The current EXECUTABLE permission of given path is shown below<hr/>"
+				+ "Owner: " + pstatus[0]
+				+ ", Group: " + pstatus[1]
+				+ ", Other: " + pstatus[2] + "<hr/>"
+				+ "Do you want to proceed anyway?"
+		    $j("#dlg_confirm #dlg_msg").empty().append(msg);
+		    $j( "#dlg_confirm" ).dialog({
+			resizable: true,
+			height:250,
+			modal: true,
+			buttons: {
+			    Okay: function() {
+				$j( this ).dialog( "close" );
+				var $option = $j("<option></option>").text(python_path).attr("selected", true);
+				$j("#frm_newPrj #python_paths").append($option).change();
+				$j("#frm_newPrj #python_path").val('');
+			    },
+			    Cancel: function() {
+				$j( this ).dialog( "close" );
+			    }
+			}
+		    });
+		} else {
+		    var $option = $j("<option></option>").text(python_path).attr("selected", true);
+		    $j("#frm_newPrj #python_paths").append($option).change();
+		    $j("#frm_newPrj #python_path").val('');
+		}
+	    } else {
+		    var msg = "The file does not exist! Please verify the path and make sure the target file is EXECUTABLE!"
+		    $j("#dlg_confirm #dlg_msg").empty().append(msg);
+		    $j( "#dlg_confirm" ).dialog({
+			resizable: true,
+			height:250,
+			modal: true,
+			buttons: {
+			    Okay: function() {
+				$j( this ).dialog( "close" );
+			    }
+			}
+		    });
+	    }
+	}
+	return false; 
+
+    });
+
+    
+    $j('#frm_newPrj #python_path').attr("value", org_python).change();
+    //str_out_path = $j("#python_path").val();
+    //var $str_python_path_option = $j("<option></option>").text(str_python_path).attr("selected", true);
+    //$j("#pythons_paths").append($str_python_path_option).change();
+    
+    $j('#frm_newPrj #python_path').focus(function() {
+	$j(this).val('');
+	$j(this).css("color","black");
+    });
+    
+    $j("#frm_newPrj #python_path").focusout(function () {
+	$j(this).css("color","gray");;
+    });
+
+    $j("#frm_newPrj #python_path").keyup(function(e) {
+	var key = e.which;
+	//alert(key);
+	if (key == 27 ) {
+	    $j(this).val('');
+	    $j(this).val(org_python);
+	}
+	return false;
+    });
+
+    // Default PBS message 
+    //var msg = "#!/bin/bash \r\n#PBS -q your_queue \r\n#PBS -N name_of_job \r\n#PBS -m abe \r\n#PBS -W wall_time \r\n#PBS -l nodes=1:ppn=2 \r\n";
+    //$j("#pbs").val(msg);
+    
+    
+    // Sending new project form from sub menu!
+    $j("#frm_newPrj #btn_setPrj").click(function(){
+	title  = $j('#frm_newPrj input[name|="title"]').val();
+	rpaths = $j("#frm_newPrj #rpaths").val();
+	pbs    = $j("#frm_newPrj #pbs").val();
+	
+	title = $j.trim(title);
+	if (title.length < 1) {
+	    alert('title should be given!');
+	    $j('#frm_newPrj input[name|="title"]').focus();
+	    return false;
+	}
+
+	cpath = $j("#frm_newPrj #rpaths :selected").length;
+	if (cpath < 1) {
+	    alert('Input path should be given!');
+	    $j('#frm_newPrj #rpath').focus();
+	    return false;
+	}
+
+	len_out_paths = $j("#frm_newPrj #out_paths :selected").length;
+	if (len_out_paths < 1) {
+	    str_out_path_option = $j("<option></option>").text(org_out_path).attr("selected", true);
+	    $j("#frm_newPrj #out_paths").append(str_out_path_option).change();
+	}
+
+	len_pythons = $j("#frm_newPrj #python_paths :selected").length;
+	if (len_pythons < 1) {
+	    str_python_option = $j("<option></option>").text(org_python).attr("selected", true);
+	    $j("#frm_newPrj #python_paths").append(str_python_option).change();
+	}
+	
+	if (pbs.length < 1) {
+	    alert('PBS should be given!');
+	    $j('#frm_newPrj #pbs').focus();
+	    return false;
+	}
+
+	out_paths = $j("#frm_newPrj #out_paths").val();
+	pythons   = $j("#frm_newPrj #python_paths").val();
+        
+        msg = "rpaths=" + rpaths + ", out_paths=" + out_paths + ", pythons=" + pythons;
+        //alert(msg);
+        
+        var sndData = {
+            'cmd'               : 'reload',
+	    'title'     	: title,
+	    'rpaths[]'  	: rpaths,
+	    'out_paths[]'	: out_paths,
+	    'ex_pythons[]'	: pythons,
+            'pbs'       	: pbs,
+        }
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/project_new/',
+        cache: false,
+        data: sndData,
+        async: false,
+        });
+
+        request.done(function(Jdata) {
+	    var obj = $j.parseJSON(Jdata);
+	    //window.location ="/gui/stanalyzer/";
+            // Reloading jqGrid
+            
+/*-------Real time update of new project ------------*/
+            var request2 = $j.ajax({
+            type: "POST",
+            url: '/gui/stanalyzer/',
+            cache: false,
+            data: sndData,
+            async: false,
+            });
+            request2.done(function(J2data) {
+                var obj2 = $j.parseJSON(J2data);
+                var prj_option = "";
+                
+                for (prj_cnt = 0; prj_cnt < obj2.pkey.length; prj_cnt++) {
+                  prj_option = prj_option + "<option pkey='" + obj2.pkey[prj_cnt] + "'>" + obj2.title[prj_cnt]+ "</option>";
+                }
+                $j("#step1 #prj").empty().append(prj_option).change();
+                $j("#step1 #frm_editPrj #title").attr("pkey", obj2.pkey[0]).change();
+                $j("#step1 #frm_editPrj #title").attr("value", obj2.title[0]).change();
+            });
+          
+            request2.error(function(jqXHR, textStatus, errorThrown) {
+                $j("#msg").append(textStatus); 
+            });
+/*----------------------------------------------------*/
+            // Initializing form
+            $j("#frm_newPrj #title").val('');
+            $j("#frm_newPrj #rpath").val('');
+            $j("#frm_newPrj #rpaths").empty().change();
+            $("#frm_newPrj #rpaths option:selected").prop("selected", false)
+            $j("#frm_newPrj #out_path").val('');
+            $j("#frm_newPrj #out_path").val(org_out_path);
+            $j("#frm_newPrj #out_paths").empty().change();
+            $("#frm_newPrj #out_paths option:selected").prop("selected", false)
+            $j('#frm_newPrj #python_path').val('');
+            $j('#frm_newPrj #python_path').val(org_python);
+            $j('#frm_newPrj #python_paths').empty().change();
+            $("#frm_newPrj #python_paths option:selected").prop("selected", false)
+            $j('#frm_newPrj input[name|="title"]').focus();
+            
+            // syncronize jqGrid
+            $j("#prjTable").trigger( 'reloadGrid' );
+        });
+      
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#msg").append(textStatus); 
+        });
+        return false;
+    });
+
+        
+    /*************************************************************************************
+     *
+     *	Edit project
+     *	
+     *************************************************************************************/
+    $j("#btn_editPrj").click(function(){
+	if (flg_editPrj == 0) {
+          if (flg_newPrj == 1) {
+	    $j("#frm_newPrj").slideUp("slow");
+	    $j("#btn_newPrj").empty();
+	    $j("#btn_newPrj").append("NEW");
+	    flg_newPrj = 0;
+          }
+	    $j("#frm_editPrj").slideDown("slow");
+	    getPBS();
+	    $j("#btn_editPrj").empty();
+	    $j("#btn_editPrj").append("HIDE");
+	    $j("#frm_editPrj #title").focus();
+	    $j("#frm_editPrj #out_path").focusout().change();
+	    $j("#frm_editPrj #python_path").focusout().change();
+	    flg_editPrj = 1;
+            /* display current record into #frm_editPrj */
+            var pkey = $j("#prj option:selected").attr("pkey");
+            var title = $j("#prj option:selected").text();
+            $j("#frm_editPrj #title").val("");
+            $j("#frm_editPrj #title").attr("value", title).change();
+            $j("#frm_editPrj #rpaths option").attr("selected", "selected").change();
+            $j("#frm_editPrj #out_paths option").attr("selected", "selected").change();
+            $j("#frm_editPrj #python_paths option").attr("selected", "selected").change();
+
+	} else {
+	    $j("#frm_editPrj").slideUp("slow");
+	    $j("#btn_editPrj").empty();
+	    $j("#btn_editPrj").append("EDIT");
+	    flg_editPrj = 0;
+	}
+	return false;
+    });    
+
+ 
+    /* Sub-form for adding project */
+    $j("#frm_editPrj #rpaths, #frm_editPrj #out_paths, #frm_editPrj #python_paths").asmSelect({
+	animate: true,
+	highlight: true,
+	sortable: true
+    });
+    
+    $j("#frm_editPrj #add_path").click(function() {
+	var rpath = $j("#frm_editPrj #rpath").val();
+	fstatus = path_validation(rpath);
+	if (fstatus != 'false') {
+	    var $option = $j("<option></option>").text(rpath).attr("selected", true);
+	    $j("#frm_editPrj #rpaths").append($option).change();
+	    $j("#frm_editPrj #rpath").val('');
+	} else {
+	    $j("#dlg_confirm #dlg_msg").empty().append("This path does not exist!\nWould you like to proceed anyway?");
+	    $j( "#dlg_confirm" ).dialog({
+		resizable: false,
+		height:150,
+		modal: true,
+		buttons: {
+		    Okay: function() {
+			$j( this ).dialog( "close" );
+			var $option = $j("<option></option>").text(rpath).attr("selected", true);
+			$j("#frm_editPrj #rpaths").append($option).change();
+			$j("#frm_editPrj #rpath").val('');
+		    },
+		    Cancel: function() {
+			$j( this ).dialog( "close" );
+		    }
+		}
+	    });
+	    
+	}
+	return false; 
+    });
+
+    $j('#frm_editPrj #out_path').attr("value", org_out_path).change();
+
+    //str_out_path = $j("#out_path").val();
+    //var $str_out_path_option = $j("<option></option>").text(str_out_path).attr("selected", true);
+    //$j("#out_paths").append($str_out_path_option).change();
+    
+    $j('#frm_editPrj #out_path').focus(function() {
+	$j(this).val('');
+	$j(this).css("color","black");
+    });
+
+    $j("#frm_editPrj #out_path").focusout(function () {
+	$j(this).css("color","gray");;
+    });
+
+    $j("#frm_editPrj #out_path").keyup(function(e) {
+	var key = e.which;
+	//alert(key);
+	if (key == 27 ) {
+	    $j(this).val('');
+	    $j(this).val(org_out_path);
+	}
+	return false;
+    });
+
+    $j("#frm_editPrj #chk_out_path").click(function() {
+	var out_path = $j("#frm_editPrj #out_path").val();
+	if (out_path == org_out_path) {
+	    var $option = $j("<option></option>").text(out_path).attr("selected", true);
+	    $j("#frm_editPrj #out_paths").append($option).change();
+	    $j("#frm_editPrj #out_path").val('');
+	} else {
+	    fstatus = path_validation(out_path);
+	    if (fstatus != 'false') {
+		pstatus = permission_write(out_path);
+		var idx = $j.inArray(false, pstatus);
+		//alert("IDX=" + idx);
+		if (idx >= 0) {
+		    var msg = "Permission issue can occur if you do not have permission to WRITE this directory. The current WRITABLE permission of given path is shown below<hr/>"
+				+ "Owner: " + pstatus[0]
+				+ ", Group: " + pstatus[1]
+				+ ", Other: " + pstatus[2] + "<hr/>"
+				+ "Do you want to proceed anyway?"
+		    $j("#dlg_confirm #dlg_msg").empty().append(msg);
+		    $j( "#dlg_confirm" ).dialog({
+			resizable: true,
+			height:250,
+			modal: true,
+			buttons: {
+			    Okay: function() {
+				$j( this ).dialog( "close" );
+				var $option = $j("<option></option>").text(out_path).attr("selected", true);
+				$j("#frm_editPrj #out_paths").append($option).change();
+				$j("#frm_editPrj #out_path").val('');
+			    },
+			    Cancel: function() {
+				$j( this ).dialog( "close" );
+			    }
+			}
+		    });
+		} else {
+		    var $option = $j("<option></option>").text(out_path).attr("selected", true);
+		    $j("#frm_editPrj #out_paths").append($option).change();
+		    $j("#frm_editPrj #out_path").val('');
+		}
+	    } else {
+		    var msg = "The directory in the path does not exist! Please verify the path and make sure the target directory has  WRITABLE permission (i.e, chmod 777)!"
+		    $j("#dlg_confirm #dlg_msg").empty().append(msg);
+		    $j( "#dlg_confirm" ).dialog({
+			resizable: true,
+			height:250,
+			modal: true,
+			buttons: {
+			    Okay: function() {
+				$j( this ).dialog( "close" );
+			    }
+			}
+		    });
+	    }
+	}
+	return false; 
+
+    });
+
+    $j("#frm_editPrj #chk_python_path").click(function() {
+	var python_path = $j("#frm_editPrj #python_path").val();
+	if (python_path == org_python) {
+	    var $option = $j("<option></option>").text(python_path).attr("selected", true);
+	    $j("#frm_editPrj #python_paths").append($option).change();
+	    $j("#frm_editPrj #python_path").val('');
+	} else {
+	    fstatus = path_validation(python_path);
+	    //alert("FSTATUS: " + fstatus);
+	    if (fstatus != 'false') {
+		pstatus = permission_exec(python_path);
+		//alert(pstatus);
+		var idx = $j.inArray(false, pstatus);
+		//alert("IDX=" + idx);
+		if (idx >= 0) {
+		    var msg = "Permission issue can occur if you do not have permission to EXECUTE the file. The current EXECUTABLE permission of given path is shown below<hr/>"
+				+ "Owner: " + pstatus[0]
+				+ ", Group: " + pstatus[1]
+				+ ", Other: " + pstatus[2] + "<hr/>"
+				+ "Do you want to proceed anyway?"
+		    $j("#dlg_confirm #dlg_msg").empty().append(msg);
+		    $j( "#dlg_confirm" ).dialog({
+			resizable: true,
+			height:250,
+			modal: true,
+			buttons: {
+			    Okay: function() {
+				$j( this ).dialog( "close" );
+				var $option = $j("<option></option>").text(python_path).attr("selected", true);
+				$j("#frm_editPrj #python_paths").append($option).change();
+				$j("#frm_editPrj #python_path").val('');
+			    },
+			    Cancel: function() {
+				$j( this ).dialog( "close" );
+			    }
+			}
+		    });
+		} else {
+		    var $option = $j("<option></option>").text(python_path).attr("selected", true);
+		    $j("#frm_editPrj #python_paths").append($option).change();
+		    $j("#frm_editPrj #python_path").val('');
+		}
+	    } else {
+		    var msg = "The file does not exist! Please verify the path and make sure the target file is EXECUTABLE!"
+		    $j("#dlg_confirm #dlg_msg").empty().append(msg);
+		    $j( "#dlg_confirm" ).dialog({
+			resizable: true,
+			height:250,
+			modal: true,
+			buttons: {
+			    Okay: function() {
+				$j( this ).dialog( "close" );
+			    }
+			}
+		    });
+	    }
+	}
+	return false; 
+
+    });
+
+    
+    $j('#frm_editPrj #python_path').attr("value", org_python).change();
+    //str_out_path = $j("#python_path").val();
+    //var $str_python_path_option = $j("<option></option>").text(str_python_path).attr("selected", true);
+    //$j("#pythons_paths").append($str_python_path_option).change();
+    
+    $j('#frm_editPrj #python_path').focus(function() {
+	$j(this).val('');
+	$j(this).css("color","black");
+    });
+    
+    $j("#frm_editPrj #python_path").focusout(function () {
+	$j(this).css("color","gray");;
+    });
+
+    $j("#frm_editPrj #python_path").keyup(function(e) {
+	var key = e.which;
+	//alert(key);
+	if (key == 27 ) {
+	    $j(this).val('');
+	    $j(this).val(org_python);
+	}
+	return false;
+    });
+
+    // Default PBS message 
+    //var msg = "#!/bin/bash \r\n#PBS -q your_queue \r\n#PBS -N name_of_job \r\n#PBS -m abe \r\n#PBS -W wall_time \r\n#PBS -l nodes=1:ppn=2 \r\n";
+    //$j("#pbs").val(msg);
+    
+    
+    // Modifying project form from sub menu!
+    $j("#frm_editPrj #btn_mdfPrj").click(function(){
+        pkey   = $j("#prj option:selected").attr("pkey");
+	title  = $j('#frm_editPrj input[name|="title"]').val();
+	rpaths = $j("#frm_editPrj #rpaths").val();
+	pbs    = $j("#frm_editPrj #pbs").val();
+	
+	title = $j.trim(title);
+	if (title.length < 1) {
+	    alert('title should be given!');
+	    $j('#frm_editPrj input[name|="title"]').focus();
+	    return false;
+	}
+
+	cpath = $j("#frm_editPrj #rpaths :selected").length;
+	if (cpath < 1) {
+	    alert('Input path should be given!');
+	    $j('#frm_editPrj #rpath').focus();
+	    return false;
+	}
+
+	len_out_paths = $j("#frm_editPrj #out_paths :selected").length;
+	if (len_out_paths < 1) {
+	    str_out_path_option = $j("<option></option>").text(org_out_path).attr("selected", true);
+	    $j("#frm_editPrj #out_paths").append(str_out_path_option).change();
+	}
+
+	len_pythons = $j("#frm_editPrj #python_paths :selected").length;
+	if (len_pythons < 1) {
+	    str_python_option = $j("<option></option>").text(org_python).attr("selected", true);
+	    $j("#frm_editPrj #python_paths").append(str_python_option).change();
+	}
+	
+	if (pbs.length < 1) {
+	    alert('PBS should be given!');
+	    $j('#frm_editPrj #pbs').focus();
+	    return false;
+	}
+
+	out_paths = $j("#frm_editPrj #out_paths").val();
+	pythons   = $j("#frm_editPrj #python_paths").val();
+
+        var sndData = {
+            'cmd'               : 'reload',
+            'pkey'              : pkey,
+	    'title'     	: title,
+	    'rpaths[]'  	: rpaths,
+	    'out_paths[]'	: out_paths,
+	    'ex_pythons[]'	: pythons,
+            'pbs'       	: pbs,
+        }
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/project_update/',
+        cache: false,
+        data: sndData,
+        async: false,
+        });
+
+        request.done(function(Jdata) {
+	    var obj = $j.parseJSON(Jdata);
+	    //window.location ="/gui/stanalyzer/";
+            // Reloading jqGrid
+            
+/*-------Real time update of new project ------------*/
+            var request2 = $j.ajax({
+            type: "POST",
+            url: '/gui/stanalyzer/',
+            cache: false,
+            data: sndData,
+            async: false,
+            });
+            request2.done(function(J2data) {
+                var obj2 = $j.parseJSON(J2data);
+                var prj_option = "";
+                
+                for (prj_cnt = 0; prj_cnt < obj2.pkey.length; prj_cnt++) {
+                  prj_option = prj_option + "<option pkey='" + obj2.pkey[prj_cnt] + "'>" + obj2.title[prj_cnt]+ "</option>";
+                }
+                $j("#step1 #prj").empty().append(prj_option).change();
+                //alert(prj_option);
+            });
+          
+            request2.error(function(jqXHR, textStatus, errorThrown) {
+                $j("#msg").append(textStatus); 
+            });
+/*----------------------------------------------------*/
+            $j("#prjTable").trigger( 'reloadGrid' );
+        });
+      
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#msg").append(textStatus); 
+        });
+        return false;
+    });
+
+    
+    /*************************************************************************************
+     *
+     *	Delete project
+     *	
+     *************************************************************************************/
+    // Modifying project form from sub menu!
+    $j("#btn_delPrj").click(function(){
+      var msg = "You are trying to DELETE project! <br/> This will be resulted in deleting all related records including JOB history and RESULT<br/>"
+                  + "Do you want to proceed anyway?"
+      $j("#dlg_confirm #dlg_msg").empty().append(msg);
+      $j( "#dlg_confirm" ).dialog({
+          resizable: true,
+          height:250,
+          modal: true,
+          buttons: {
+              Okay: function() {
+                  $j( this ).dialog( "close" );
+                  pkey   = $j("#prj option:selected").attr("pkey");
+
+                  var sndData = {
+                      'cmd'             : 'prjDelete',
+                      'pkey'            : pkey,
+
+                  }
+                  var request = $j.ajax({
+                  type: "POST",
+                  url: '/gui/project_delete/',
+                  cache: false,
+                  data: sndData,
+                  async: false,
+                  });
+          
+                  request.done(function(Jdata) {
+                      var obj = $j.parseJSON(Jdata);
+                      //window.location ="/gui/stanalyzer/";
+                      // Reloading jqGrid
+                      
+          /*-------Real time update of new project ------------*/
+                      var request2 = $j.ajax({
+                      type: "POST",
+                      url: '/gui/stanalyzer/',
+                      cache: false,
+                      data: sndData,
+                      async: false,
+                      });
+                      request2.done(function(J2data) {
+                          var obj2 = $j.parseJSON(J2data);
+                          var prj_option = "";
+                          
+                          for (prj_cnt = 0; prj_cnt < obj2.pkey.length; prj_cnt++) {
+                            prj_option = prj_option + "<option pkey='" + obj2.pkey[prj_cnt] + "'>" + obj2.title[prj_cnt]+ "</option>";
+                          }
+                          $j("#step1 #prj").empty().append(prj_option).change();
+                          //alert(prj_option);
+                      });
+                    
+                      request2.error(function(jqXHR, textStatus, errorThrown) {
+                          $j("#msg").append(textStatus); 
+                      });
+          /*----------------------------------------------------*/
+                      $j("#prjTable").trigger( 'reloadGrid' );
+                  });
+                
+                  request.error(function(jqXHR, textStatus, errorThrown) {
+                      $j("#msg").append(textStatus); 
+                  });
+              },
+              Cancel: function() {
+                  $j( this ).dialog( "close" );
+              }
+          }
+      });
+      return false;
+    });
+    
+    $j("#proot").live("change", function(){
+	var options = $j("#proot option:selected").text();
+	//var idx = options.index(options.filter(":selected"));
+	//alert(options);
+	var sndData = {
+	    'cmd'	: 'get_flist',
+	    'path'	: options,
+	}
+	var request = $j.ajax({
+	type: "POST",
+	url: '/gui/get_flist/',
+	cache: false,
+	data: sndData,
+	});
+
+	request.done(function(Jdata) {
+	    var obj = $j.parseJSON(Jdata);
+	    newOptions = '';
+	    for (var i=0; i < obj.fList.length; i++) {
+		newOptions = newOptions + "<option>" + obj.fList[i] + "</option>"
+	    }
+	    //alert("Length: " + obj.fList.length + "DATA:" + newOptions);
+	    /* Updating structure file list */
+	    $j("#stfile").empty().append(newOptions).change();
+	    $j("#stfile").trigger("liszt:updated");
+	    
+	    /* Updating list of Trajectories */
+	    orgOption = newOptions;
+	    $j("#select_trj1").empty().append(newOptions).change();
+	});
+	
+	return false;
+    });
+    
+    /* Defining buttons */
+    
+    $j("#btn_add, #psf_add").button({
+	icons: { primary: "ui-icon-arrowthick-1-e" },
+	text : true,
+    });
+    
+    $j("#btn_remove, #psf_remove").button({
+	icons: { primary: "ui-icon-arrowthick-1-w" },
+	text: true,				
+    });
+    
+    $j("#btn_next").button();
+    $j("#btn_add_path").button();
+    $j("#btn_sort").button();
+    $j("#btn_all").button();
+    $j("#btn_init").button();
+    
+    /* move button back and forth */
+    $j(".ui-tabs-panel").each(function(i){
+	var totalSize = $j(".ui-tabs-panel").size() - 1;
+	if (i != 0) {
+		prev = i;
+		$j(this).append("<a href='#' class='prev-tab mover' rel='" + prev + "'>&#171; Prev</a>");
+		}
+	if (i != totalSize) {
+		next = i + 2;
+		$j(this).append("<a href='#' class='next-tab mover' rel='" + next + "'>Next &#187;</a>");
+		}
+	if (i == totalSize) {
+		$j(this).append("<button id='sendJob' class='mover submit'>SUBMIT</button>");
+		}
+    });
+    
+    $j('.next-tab, .prev-tab').button();
+    $j(".submit").button()
+
+    
+    /* defining actions of button for PSF files */
+    $j("#select_psf1 option").attr("selected", "selected");
+
+    $j("#psf_add").click(function(){
+	$j("#select_psf1 option:selected").remove().appendTo("#select_psf2");
+	return false;
+    });
+    
+    $j("#psf_remove").click(function() {
+	$j("#select_psf2 option:selected").remove().appendTo("#select_psf1");
+	return false;
+    });
+    
+    $j("#psf_sort").click(function(){
+	$j("#select_psf1 option").tsort();
+	$j("#select_psf2 option").tsort();
+	return false;
+    });
+    
+    /* defining actions of button for Trajectory*/
+    $j("#select_trj1 option").attr("selected", "selected");
+
+    $j("#btn_add").click(function(){
+	$j("#select_trj1 option:selected").remove().appendTo("#select_trj2");
+	return false;
+    });
+    
+    $j("#btn_remove").click(function() {
+	$j("#select_trj2 option:selected").remove().appendTo("#select_trj1");
+	return false;
+    });
+    
+    $j("#btn_sort").click(function(){
+	$j("#select_trj1 option").tsort();
+	$j("#select_trj2 option").tsort();
+	return false;
+    });
+
+    /* Filtering trajectory files */
+    $j('#trjFilter').val('Find files containing...').css("color", "gray");
+    $j('#trjFilter').focus(function() {
+	       this.value = "";
+	       $j(this).css("color","black");
+	});
+    $j("#trjFilter").focusout(function () {
+	$j(this).css("color","gray");;
+	});
+
+    /* search <option> and select strings containg query letters */
+    //var orgOption = "{% for fname in fList %}<option value='{{ fname }}'>{{ fname }}</option>{% endfor %}";
+    $j("#trjFilter").keyup(function(e) {
+	var key = e.which;
+	//alert(key);
+	if (key == 27 ) {
+	    $j(this).val('');
+	    $j("#select_trj1").empty().append(orgOption).change();
+	}
+	else {
+	    var kword = $j(this).val();
+	    var pattn = kword.replace(/\s+/g, '') + '+';
+	    var pattns = new RegExp(pattn, 'ig');
+	    var newOptions = '';
+	    //alert("keyword : " + kword);
+	    $j("#select_trj1 option").each(function(index){
+		    mstr = $j(this).text().match(pattns);
+		    if (mstr != null) {
+			//alert('kword[' + kword + ']: ' + index + ':' + mstr.length + ':[' + mstr + ']'+ $j(this).text());
+			newOptions = newOptions + "<option>" + $j(this).text() + "</option>";
+		    }
+		});
+	    //alert(newOptions);
+	    $j("#select_trj1").empty().append(newOptions).change();
+	}
+	return false;
+    });
+    
+    /* select all items in the list */
+    $j("#btn_all").click(function() {
+	$j("#select_trj1 option").attr("selected", "selected");
+	$j("#select_trj2 option").attr("selected", "selected");
+	return false;
+    });
+
+    /* Initialize the list */
+    $j("#btn_init").click(function() {
+	$j("#select_trj1").empty().append(orgOption).change();
+	$j("#select_trj2 option").remove().change();
+	return false;
+    });
+
+    
+    /* ---------------------------------------------------
+     *  Set all parameters of analyzer here to move STEP 2
+     * ---------------------------------------------------
+     */
+    $j("#helix_tilt_form").hide();
+    /*
+    $j("#helix_tilt_title").click(function () {
+	if ($j(this).is(":checked")) {
+	    $j("#helix_tilt_form").slideDown();
+	} else {
+		$j("#helix_tilt_form").slideUp();
+	}
+    });
+    */
+    
+    
+    $j("#helix_tilt_form").hide();
+    $j("#helix_tilt_title").click(function () {
+	$j("#helix_tilt_form").toggle(this.checked);
+	//alert($j(this).is(":checked"));
+    });
+    
+    
+    $j('.next-tab').click(function() {
+	var Idx = eval_step1();
+	if (Idx) {
+	    alert('All information is required!');
+	    var getID = "#" + Idx[0];
+	    $j(getID).focus();
+	} else {
+	    //alert("PASS!");
+	    var options = $j("#prj option");
+	    var idx = options.index(options.filter(":selected"));
+	    pkey = idx + 1;
+	    title = $j("#prj option:selected").text();
+	    bpath = $j("#proot option:selected").text();
+	    stfile = $j("#stfile option:selected").text();
+	    $j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	    $j("#select_trj2 option").tsort();				// do sort
+	    trjFile = $j("#select_trj2").val();				// get values
+	    //msg = "pkey=" + pkey + ", title=" + title + ", bpath=" + bpath + ", stfile=" + stfile + ", TRJ=" + trjFile;
+	    //alert(msg);
+	    
+	    //----------------------< setup step 2 : START>--------------------------------------
+	    
+	    var sndData = {
+		'cmd'		: 'get_structure',
+		'pkey'		: pkey,
+		'title'  	: title,
+		'bpath'		: bpath,
+		'stfile'	: stfile,
+		'trjFile[]'	: trjFile,
+	    }
+	    
+	    var request = $j.ajax({
+	    type: "POST",
+	    url: '/gui/get_structure/',
+	    cache: false,
+	    data: sndData,
+	    });
+    
+	    request.done(function(Jdata) {
+		var obj = $j.parseJSON(Jdata);
+		$j("#segID").empty();
+		for (var i = 0; i < obj.segList.length; i++) {
+		    addStr = "<option value='" + i + "'>" + obj.segList[i] + "</option>";
+		    $j("#segID").append(addStr);
+		    };
+		
+		$j("#stRes, #edRes").empty();
+		for (var i = 0; i < obj.resList.length; i++) {
+		    addStr = "<option value='" + obj.resID[i] + "'>" + i + "-" + obj.resList[i] + "</option>";
+		    $j("#stRes, #edRes").append(addStr);
+		    };
+		$j("#stRes, #edRes").change();
+		$j("#segID, #stRes, #edRes").trigger("liszt:updated");
+	    });
+	  
+	    request.error(function(jqXHR, textStatus, errorThrown) {
+		$j("#msg").append(textStatus); 
+	    });
+	    //----------------------< setup step 2 : END>----------------------------------------
+	    
+	    // active step2 and move into step2
+	    $j( "#tabs" ).tabs( "enable", 1 );
+	    $j(this).parent().parent().tabs('select',$j(this).attr("rel")-1);
+	}
+	return false;
+    });
+    
+    $j('.prev-tab').click(function() {
+	//$j( "#tabs" ).tabs( "option", "enable", [0] );
+	$j(this).parent().parent().tabs('select',$j(this).attr("rel")-1);
+	//$j( "#tabs" ).tabs( "option", "disabled", 1 );
+	return false;
+    });
+
+    
+    
+/*---------------------------------------------------------
+ *    Handling events for each JOB
+ *---------------------------------------------------------*/
+    $j("#step2 #cluster").attr('checked', 'checked');
+    
+/* [[[[[[[[[[[[[[[ JOB: helix tilt ]]]]]]]]]]] */
+/* Dynamic change on segment selection */
+    $j("#segID").live("change", function(){
+	
+	// var options = $j("#prj option");
+	// var idx = options.index(options.filter(":selected"));
+	// pkey = idx + 1;
+	// title = $j("#prj option:selected").text();
+	bpath = $j("#proot option:selected").text();
+	stfile = $j("#stfile option:selected").text();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	$j("#select_trj2 option").tsort();				// do sort
+	trjFile = $j("#select_trj2").val();				// get values
+	segID = $j('#segID').val();
+	var sndData = {
+	    'cmd'   	: 'get_segment',
+	    'segID' 	: segID,
+	    'bpath' 	: bpath,
+	    'stfile'	: stfile, 
+	    'trjFile[]'	: trjFile,
+	}
+	
+	var request = $j.ajax({
+	type: "post",
+	url: '/gui/get_segment/',
+	cache: false,
+	data: sndData,
+	});
+	    
+	request.done(function(Jdata) {
+	    var obj = $j.parseJSON(Jdata);
+	    /* Display segments */
+	    $j("#stRes, #edRes").empty();
+	    for (var i = 0; i < obj.resList.length; i++) {
+		addStr = "<option value='" + obj.resID[i] + "'>" + i + "-" + obj.resList[i] + "</option>";
+		$j("#stRes, #edRes").append(addStr);
+		};
+	    $j("#stRes, #edRes").change();
+	    $j("#stRes, #edRes").trigger("liszt:updated");
+
+	});
+	return false;
+    });
+
+/*---------------------------------------------------------
+ *    Submitting JOBs
+ *---------------------------------------------------------*/
+    rdio_machine = $j("#step2 input:radio[name=machine]").val();
+    $j("#step2 input:radio[name=machine]").click(function() {
+	rdio_machine = $j(this).val();
+    });
+    
+    $j('#sendJob').click(function() {
+
+	var jobData = eval_step2();
+	// name of functions :jobData[0]
+	// list of parameters: jobData[1]
+	/*
+	str = '';
+	for (var i=0; i < jobData[0].length; i++) {
+	    str = str + "FUNCTION:" + jobData[0][i] + "PARAMETERS: ";
+	    tmp = '';
+	    for (var key in jobData[1][i]) {
+		tmp = tmp + key + "=" + jobData[1][i][key];
+	    }
+	    str = str + tmp + '<br/>';
+	}
+	*/
+        var msg = "Total &#34<b>" + jobData[0].length + "</b>&#34 jobs have been selected<br/><br/> The jobs will be run on &#34<b>" + rdio_machine + "</b>&#34<br/><br/> Would you like to submit them?<br/>";
+	$j("#dlg_confirm #dlg_msg").empty().append(msg).change();
+	$j( "#dlg_confirm" ).dialog({
+	    resizable: true,
+	    height:200,
+	    modal: true,
+	    buttons: {
+		Okay: function() {
+		    $j( this ).dialog( "close" );
+		    // send job through Ajax
+		    job_title 	= $j("#job_title").val();
+		    pkey 	= $j("#step1 #prj option:selected").attr("pkey");
+		    ptitle 	= $j("#step1 #prj option:selected").val();
+		    bpath 	= $j("#step1 #proot option:selected").text();
+		    path_output = $j("#step1 #poutput option:selected").text();
+		    path_python = $j("#step1 #ppython option:selected").text();
+		    stfile 	= $j("#step1 #stfile option:selected").text();
+		    $j("#step1 #select_trj2 option").attr("selected", "selected"); 	// select all
+		    $j("#step1 #select_trj2 option").tsort();				// do sort
+		    trjFile = $j("#step1 #select_trj2").val();				// get values
+		    pbs     = $j("#step1 #pbs").val();
+		    machine = rdio_machine;
+		    var sndData = {
+			'cmd'		: 'sendJob',
+			'job_title'	: job_title,
+			'pkey'		: pkey,
+			'ptitle'	: ptitle,
+			'pbs'		: pbs,
+			'funcName'  	: jobData[0],
+			'Paras[]'	: jobData[1],
+			'ParaInfo[]'	: jobData[2],
+			'bpath'		: bpath,
+			'stfile'	: stfile,
+			'path_output'	: path_output,
+			'path_python'	: path_python,
+			'trjFile[]'	: trjFile,
+			'machine'	: machine,
+		    }
+		    
+		    var request = $j.ajax({
+		    type: "POST",
+		    url: '/gui/sendJob/',
+		    cache: false,
+		    data: sndData,
+		    });
+
+		    request.done(function(Jdata) {
+			var obj = $j.parseJSON(Jdata);
+		     });
+		
+		    request.error(function(jqXHR, textStatus, errorThrown) {
+			$j("#msg").append(textStatus); 
+		    });
+		    
+		},
+		Cancel: function() {
+		    $j( this ).dialog( "close" );
+		}
+	    }
+	});
+    });
+
+});
+    
+</script>
+
+<!--[if lt IE 7]>
+<script>
+window.top.location = 'http://desktop.sonspring.com/ie.html';
+</script>
+<![endif]-->
+<link rel="stylesheet" href="/static/desktop/css/reset.css" />
+<link rel="stylesheet" href="/static/desktop/css/desktop.css" />
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/static/desktop/css/ie.css" />
+<![endif]-->
+
+
+
+
+
+
+</head>
+<body>
+<img id="wallpaper" class="abs" src="/static/desktop/images/misc/wallpaper2.jpg" />  
+<div class="abs" id="wrapper">
+  <div class="abs" id="desktop">
+    
+    
+  <!--- ///////////////////////////////////////////////////////////////////////////// --->
+  <!-- Desktop display : Add a menu in desktop menu
+  <!-- href="#xxxx" should be appeared in three required sections:
+  <!-- 1. desktop display: image icon should be 32x32
+  <!-- 2. setting up individual window: image should be 16x16
+  <!-- 3. setting up bottom bar: image should be 22x22
+  <!--- ///////////////////////////////////////////////////////////////////////////// --->
+    <a class="abs icon" style="left:20px;top:20px;" href="#icon_dock_stanalyzer">
+      <img src="/static/desktop/images/icons/icon_32_computer.png" />
+      ST-Analyzer
+    </a>
+    <a class="abs icon" style="left:20px;top:100px;" href="#icon_dock_jobviewer">
+      <img src="/static/desktop/images/icons/icon_32_drive.png" />
+      JOB viewer
+    </a>
+    <a class="abs icon" style="left:20px;top:180px;" href="#icon_dock_account">
+      <img src="/static/desktop/images/icons/icon_32_people.png" />
+      USER accounts
+    </a>
+  <!--
+    <a class="abs icon" style="left:20px;top:280px;" href="#icon_dock_database">
+      <img src="/static/desktop/images/icons/icon_32_database.png" />
+      DB manager
+    </a>
+  -->
+    
+    
+  <!--- ///////////////////////////////////////////////////////////////////////////// --->
+  <!-- Setting up individual window: Requried to add a menu in desktop 
+  <!--- ///////////////////////////////////////////////////////////////////////////// --->
+    <!--- For ST-analyzer ------------------------------------------------------------------->
+    <div id="window_stanalyzer" class="abs window">
+      <div class="abs window_inner">
+        <!-- Window title bar-->
+        <div class="window_top">
+          <!-- Window title -->
+          <span class="float_left">
+            <img src="/static/desktop/images/icons/icon_16_computer.png" />
+            ST-Analyzer
+          </span>
+          <!-- Window icons -->
+          <span class="float_right">
+            <a href="#" class="window_min"></a>
+            <a href="#" class="window_resize"></a>
+            <a href="#icon_dock_stanalyzer" class="window_close"></a>
+          </span>
+        </div>
+        
+        <!-- Window Contents-->
+        <div class="abs window_content">
+          <!-- Left side of window-->
+          <!-- <div class="window_aside"></div> -->
+          <!-- main window contents-->
+          <div class="window_main">
+            {% include "gui/stanalyzer.html" %}
+          </div>
+        </div>
+        
+        <!-- Window Bottom-->
+        <div class="abs window_bottom">
+          ST-Analyzer
+        </div>
+      </div>
+      
+      <span class="abs ui-resizable-handle ui-resizable-se"></span>
+    </div>
+  </div>
+  
+    <!--- For JOB viewer ------------------------------------------------------------------->
+    <div id="window_jobviewer" class="abs window">
+      <div class="abs window_inner">
+        <!-- Window title bar-->
+        <div class="window_top">
+          <!-- Window title -->
+          <span class="float_left">
+            <img src="/static/desktop/images/icons/icon_16_drive.png" />
+            JOB Viewer
+          </span>
+          <!-- Window icons -->
+          <span class="float_right">
+            <a href="#" class="window_min"></a>
+            <!-- <a href="#" class="window_resize"></a> -->
+            <a href="#icon_dock_jobviewer" class="window_close"></a>
+          </span>
+        </div>
+        
+        <!-- Window Contents-->
+        <div class="abs window_content">
+          <!-- Left side of window-->
+          <!-- <div class="window_aside"></div> -->
+          <!-- main window contents-->
+          <div class="window_main">
+            {% include "gui/jobView.html" %}
+          </div>
+        </div>
+        
+        <!-- Window Bottom-->
+        <div class="abs window_bottom">
+          JOB viewer
+        </div>
+      </div>
+     <!-- <span class="abs ui-resizable-handle ui-resizable-se"></span> -->
+    </div>
+  </div>
+
+ 
+
+    <!--- For User accounts ------------------------------------------------------------------->
+  <div id="window_account" class="abs window">
+      <div class="abs window_inner">
+        <!-- Window title bar-->
+        <div class="window_top">
+          <!-- Window title -->
+          <span class="float_left">
+            <img src="/static/desktop/images/icons/icon_16_people.png" />
+            USER accounts
+          </span>
+          <!-- Window icons -->
+          <span class="float_right">
+            <a href="#" class="window_min"></a>
+            <!-- <a href="#" class="window_resize"></a> -->
+            <a href="#icon_dock_account" class="window_close"></a>
+          </span>
+        </div>
+        
+        <!-- Window Contents-->
+        <div class="abs window_content">
+          <!-- Left side of window-->
+          <!-- <div class="window_aside"></div> -->
+          <!-- main window contents-->
+          <div class="window_main">
+            {% include "gui/user_account.html" %}
+          </div>
+        </div>
+        
+        <!-- Window Bottom-->
+        <div class="abs window_bottom">
+          USER account
+        </div>
+      </div>
+     <!-- <span class="abs ui-resizable-handle ui-resizable-se"></span> -->
+    </div>
+  </div>  
+  
+  <!--- ///////////////////////////////////////////////////////////////////////////// --->
+  <!-- Setting TOP bar : Add a menu in top menubar 
+  <!--- ///////////////////////////////////////////////////////////////////////////// --->
+  <div class="abs" id="bar_top">
+    <span class="float_right" id="clock"></span>
+    <ul>
+      <li>
+        <!--- setup the menu bar --->
+        <a class="menu_trigger" href="#">ST-Analyzer</a>
+        <ul class="menu">
+          <li>
+            <a href="/gui/help/" target="_blank">Help</a>
+          </li>
+          <li>
+            <a href="#" onclick="dialog_logout('Account &#34{{ user }}&#34 will be loged out!<br/><br/>Do you want to proceed?')">Logout: {{ user }}</a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <a class="menu_trigger" href="#">About us</a>
+        <ul class="menu">
+          <li>
+            <a href="http://im.bioinformatics.ku.edu/">Im LAB</a>
+          </li>
+        </ul>
+      </li>
+  </div>
+  
+  
+  
+  <!--- ///////////////////////////////////////////////////////////////////////////// --->
+  <!-- Setting bottom bar : Required to add a menu in desktop
+  <!--- ///////////////////////////////////////////////////////////////////////////// --->
+  <div class="abs" id="bar_bottom">
+    <!-- left minimizing icon -->
+    <a class="float_left" href="#" id="show_desktop" title="Show Desktop">
+      <img src="/static/desktop/images/icons/icon_22_desktop.png" />
+    </a>
+    <!-- setup dock --->
+    <ul id="dock">
+        <!--- For ST-Analyzer ------------------------------------------------------------------->
+      <li id="icon_dock_stanalyzer">
+        <a href="#window_stanalyzer">
+          <img src="/static/desktop/images/icons/icon_22_computer.png" />
+          ST-Analyzer
+        </a>
+      </li>
+        <!--- For JOB Viewer ------------------------------------------------------------------->
+      <li id="icon_dock_jobviewer">
+        <a href="#window_jobviewer">
+          <img src="/static/desktop/images/icons/icon_22_drive.png" />
+          JOB viewer
+        </a>
+      </li>
+    </ul>
+
+      <!--- For User accounts ------------------------------------------------------------------->
+      <li id="icon_dock_account">
+        <a href="#window_account">
+          <img src="/static/desktop/images/icons/icon_22_people.png" />
+          USER accounts
+        </a>
+      </li>
+    </ul>
+    
+    <!-- Setup bottom right link -->
+    <a class="float_right" href="http://im.bioinformatics.ku.edu/" title="Im's Lab">
+      <img src="/static/desktop/images/misc/ImLab.png" />
+    </a>
+  </div>
+</div>
+
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+<script>
+  !window.jQuery && document.write(unescape('%3Cscript src="/static/desktop/js/jquery.js"%3E%3C/script%3E'));
+  !window.jQuery.ui && document.write(unescape('%3Cscript src="/static/desktop/js/jquery.ui.js"%3E%3C/script%3E'));
+</script>
+<script src="/static/desktop/js/jquery.desktop.js"></script>
+<script>
+  var _gaq = [['_setAccount', 'UA-166674-8'], ['_trackPageview']];
+
+  (function(d, t) {
+    var g = d.createElement(t),
+    s = d.getElementsByTagName(t)[0];
+    g.async = true;
+    g.src = '//www.google-analytics.com/ga.js';
+    s.parentNode.insertBefore(g, s);
+  })(this.document, 'script');
+</script>
+</body>
+</html>

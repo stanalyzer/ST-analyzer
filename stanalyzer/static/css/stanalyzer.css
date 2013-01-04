@@ -1,0 +1,198 @@
+@charset "UTF-8";
+/* Background */
+.bgcolor1 {
+    background-color: #407A58;
+}
+
+/* DIV */
+#user_err_msg {
+  position: absolute;
+  margin: 460px 0px 0px 650px;
+  padding: 0px 0px 0px 0px;
+  top: 0px;
+  width: 200px;
+  height: 100px;
+  z-index: 2;
+}
+
+/* table */
+table.outline
+{
+   border:1px solid #E6F6FC;
+   border-collapse:collapse;
+}
+
+td.w110 {
+    width: 110px;
+}
+
+
+/* links */
+a[href^="mailto"]:hover:after { content: " > Send E-mail" attr(title); }
+a.underline:link,a.underline:visited 
+{
+	text-decoration:none;
+	color:#2E64FE; 
+	background-color:transparent;
+}
+a.underline:hover,a.underline:active 
+{
+	text-decoration:underline;
+	color:#CC1188; 
+	background-color:transparent;
+}
+
+a.underline2:link, a.underline2:visited 
+{
+	text-decoration: none;
+	border-width: 1px;
+	border-bottom-style: dotted;
+	color:#000000;
+	background-color:transparent;
+}
+
+a.underline2:hover, a.underline2:active 
+{
+	text-decoration:none;
+	border-width: 1px;
+	border-bottom-style: solid;
+	color:#2E64FE;
+	background-color:transparent;
+}
+
+/* Font */
+.st_font1 {
+    font-family: Georgia, "Times New Roman", Times, serif;
+    font-family: Arial, Helvetica, sans-serif;
+    font-variant:small-caps;
+}
+
+.st_font2 {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.st_color1 {
+    color: #FE2E9A;
+}
+
+.st_color2 {
+    color: #FFFFFF;
+}
+
+.st_color3 {
+    color: #257B9A;
+}
+
+.st_color4 {
+    color: #D85C7F;
+}
+
+.st_size1 {
+    font-size: 20px;
+    line-height: 17px;
+}
+
+.st_size2 {
+    font-size: 12px;
+    line-height: 17px;
+}
+
+.st_size3 {
+    font-size: 12px;
+    line-height: 12px;
+}
+
+.message_warn {
+    color: #FE2E9A;
+    font-weight: bold;
+}
+
+/* form information */
+.prj_caption {
+    text-align: left;
+    width: 80px;
+    vertical-align: top;
+}
+
+.prj_iform {
+    text-align: left;
+    width: 150px;
+    vertical-align: top;
+}
+
+.sub_form_new {
+    background-color: #D3E2FA;
+}
+.sub_form_edit {
+    background-color: #F9E8FB;
+}
+
+
+/* select */
+.file_lists {
+    width: 250px;
+    height: 300px;
+}
+
+.psf_lists {
+    width: 300px;
+    height: 100px;
+}
+
+#list_wrapper {
+    width: 7080;
+    margin: auto;
+}
+#step1 .list_box1 {
+    position: relative;
+}
+
+#step1 .list_box2 {
+    position: relative;
+    right: 5px;
+}
+
+.p_root {
+    width: 500px;
+}
+
+/* text align */
+.top {
+    vertical-align: top;
+}
+
+.middle {
+    vertical-align: middle;
+}
+
+.bottom {
+    vertical-align: bottom;
+}
+
+.left{
+    text-align: left;
+}
+
+.right{
+    text-align: right;
+}
+
+.left{
+    text-align: left;
+}
+
+.center{
+    text-align: center;
+}
+
+.next-tab, .submit {
+	float: right;
+}
+
+.prev-tab {
+	float: left;
+}
+
+.mover {
+	margin: 2em 0 0 0;
+} 
