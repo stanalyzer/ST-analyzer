@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta http-equiv="x-ua-compatible" content="ie=edge, chrome=1" />
 <meta name="description" content="JavaScript desktop environment built with jQuery." />
+<meta name="author" conent="Jong Cheol Jeong (people.eecs.ku.edu/~jjeong)" />
+
 <title>ST-Analyzer</title>
 <link rel="stylesheet" href="/static/css/stanalyzer.css" >
 <link rel="stylesheet" href="/static/css/start/jquery-ui-1.9.2.custom.css" >
@@ -801,6 +803,7 @@ $j(document).ready(function(){
             
             // syncronize jqGrid
             $j("#prjTable").trigger( 'reloadGrid' );
+	    $j("#resultTable").trigger( 'reloadGrid' );
         });
       
         request.error(function(jqXHR, textStatus, errorThrown) {
@@ -1150,6 +1153,7 @@ $j(document).ready(function(){
             });
 /*----------------------------------------------------*/
             $j("#prjTable").trigger( 'reloadGrid' );
+	    $j("#resultTable").trigger( 'reloadGrid' );
         });
       
         request.error(function(jqXHR, textStatus, errorThrown) {
@@ -1220,6 +1224,7 @@ $j(document).ready(function(){
                       });
           /*----------------------------------------------------*/
                       $j("#prjTable").trigger( 'reloadGrid' );
+		      $j("#resultTable").trigger( 'reloadGrid' );
                   });
                 
                   request.error(function(jqXHR, textStatus, errorThrown) {
@@ -1607,6 +1612,7 @@ $j(document).ready(function(){
 			'trjFile[]'	: trjFile,
 			'machine'	: machine,
 		    }
+		    alert("Your jobs have been successfully submitted!");
 		    
 		    var request = $j.ajax({
 		    type: "POST",
@@ -1677,12 +1683,10 @@ window.top.location = 'http://desktop.sonspring.com/ie.html';
       <img src="/static/desktop/images/icons/icon_32_people.png" />
       USER accounts
     </a>
-  <!--
-    <a class="abs icon" style="left:20px;top:280px;" href="#icon_dock_database">
+    <a class="abs icon" style="left:20px;top:280px;" href="#icon_dock_result">
       <img src="/static/desktop/images/icons/icon_32_database.png" />
-      DB manager
+      Result Viewer
     </a>
-  -->
     
     
   <!--- ///////////////////////////////////////////////////////////////////////////// --->
@@ -1802,6 +1806,44 @@ window.top.location = 'http://desktop.sonspring.com/ie.html';
     </div>
   </div>  
   
+  
+  <!--- For Result Viewer ------------------------------------------------------------------->
+  <div id="window_result" class="abs window">
+      <div class="abs window_inner">
+        <!-- Window title bar-->
+        <div class="window_top">
+          <!-- Window title -->
+          <span class="float_left">
+            <img src="/static/desktop/images/icons/icon_16_database.png" />
+            Result Viewer
+          </span>
+          <!-- Window icons -->
+          <span class="float_right">
+            <a href="#" class="window_min"></a>
+            <!-- <a href="#" class="window_resize"></a> -->
+            <a href="#icon_dock_result" class="window_close"></a>
+          </span>
+        </div>
+        
+        <!-- Window Contents-->
+        <div class="abs window_content">
+          <!-- Left side of window-->
+          <!-- <div class="window_aside"></div> -->
+          <!-- main window contents-->
+          <div class="window_main">
+            {% include "gui/resultView.html" %}
+          </div>
+        </div>
+        
+        <!-- Window Bottom-->
+        <div class="abs window_bottom">
+          Result Viewer
+        </div>
+      </div>
+     <!-- <span class="abs ui-resizable-handle ui-resizable-se"></span> -->
+    </div>
+  </div>
+  
   <!--- ///////////////////////////////////////////////////////////////////////////// --->
   <!-- Setting TOP bar : Add a menu in top menubar 
   <!--- ///////////////////////////////////////////////////////////////////////////// --->
@@ -1863,6 +1905,15 @@ window.top.location = 'http://desktop.sonspring.com/ie.html';
         <a href="#window_account">
           <img src="/static/desktop/images/icons/icon_22_people.png" />
           USER accounts
+        </a>
+      </li>
+    </ul>
+
+      <!--- For Result Viewer ------------------------------------------------------------------->
+      <li id="icon_dock_result">
+        <a href="#window_result">
+          <img src="/static/desktop/images/icons/icon_22_database.png" />
+          Result Viewer
         </a>
       </li>
     </ul>

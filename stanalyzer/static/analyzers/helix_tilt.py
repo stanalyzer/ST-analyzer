@@ -1,5 +1,10 @@
 #/usr/bin/env python
 
+#----------------------------------------------------------------------------------------
+# Author: Jong Cheol Jeong (korjcjeong@yahoo.com, people.eecs.ku.edu/~jjeong)
+# 	  Bioinformatics center, The University of Kansas
+#----------------------------------------------------------------------------------------
+
 # for MDAnalysis
 import sys
 from MDAnalysis import *
@@ -11,6 +16,7 @@ import numpy as np
 import os
 import string
 import random
+import subprocess
 
 # import others
 import pprint
@@ -100,7 +106,7 @@ for i in range(len(para_pkey)):
     conn.commit();
 conn.close();
 
-out_dir = "{}/{}".format(OUTPUT_HOME, fName[1]);
+out_dir = "{}{}".format(OUTPUT_HOME, fName[1]);
 # Create output directory
 if not (os.path.isdir(out_dir)):
     #print "Creating directory into {}".format(out_dir)
@@ -147,7 +153,7 @@ run = 1;
 if run:
     outFile = '{0}/output.dat'.format(out_dir);
     fid_out = open(outFile, 'w')
-    fid_out.write("Frame\tTilt angle\n")
+    fid_out.write("# Frame\tTilt angle\n")
     print '--- Calculating Helix tilt'
     psf = '{0}{1}'.format(base_path, structure_file);
     print psf;
@@ -191,7 +197,35 @@ if run:
             print outStr;
     fid_out.close()
 
+    # -------- Drawing graphs
+    # Writing Gnuplot script
+    outScr = '{0}/gplot.p'.format(out_dir);
+    outImg  = '{0}.png'.format(exe_file[:len(exe_file)-3]);
+    imgPath = "{0}/{1}".format(out_dir, outImg);
+    fid_out = open(outScr, 'w');
+    gScript = "set terminal png\n";
+    gScript = gScript + "set xlabel 'Frame'\n";
+    gScript = gScript + "set ylabel 'Tilt Angle'\n";
+    gScript = gScript + "set output '{0}'\n".format(imgPath);
+    gScript = gScript + """plot "{0}/output.dat" using 1:2 title "Helix Tilt" with linespoints\n""".format(out_dir);
+    fid_out.write(gScript);
+    fid_out.close()
+    
+    # Drawing graph with gnuplot
+    subprocess.call(["gnuplot", outScr]);
+    
+    # gzip all reaults
+    outZip = "{0}{1}.tar.gz".format(OUTPUT_HOME, fName[1]);
+    subprocess.call(["tar", "czf", outZip, out_dir]);
 
+    # Insert values into gui_outputs
+    conn = sqlite3.connect(DB_FILE);
+    c    = conn.cursor();
+    job_title_func = "{0}: {1}".format(job_title, exe_file[:len(exe_file)-3]);
+    query = """INSERT INTO gui_outputs (job_id, name, img, txt, gzip) VALUES ({0}, "{1}", "{2}", "{3}", "{4}")""".format(job_pkey[0], job_title_func, imgPath, outFile, outZip);
+    c.execute(query);
+    conn.commit();
+    conn.close();
 
 
 
@@ -203,13 +237,13 @@ if run:
     conn = sqlite3.connect(DB_FILE);
     c    = conn.cursor();
     for i in range(len(para_pkey)):
-        query = """UPDATE gui_parameter SET status = "COMPLETE" WHERE id = {}""".format(para_pkey[i]);
+        query = """UPDATE gui_parameter SET status = "COMPLETE" WHERE id = {0}""".format(para_pkey[i]);
         print query
         c.execute(query);
         conn.commit();
     
     # update gui_job if every status in gui_parameter are COMPLETE
-    query = """SELECT DISTINCT(status) FROM gui_parameter WHERE job_id = {}""".format(job_pkey[0]);
+    query = """SELECT DISTINCT(status) FROM gui_parameter WHERE job_id = {0}""".format(job_pkey[0]);
     c.execute(query);
     ST = c.fetchall();
     print "number status = {}".format(len(ST));
@@ -219,7 +253,17 @@ if run:
         query = """UPDATE gui_job SET status = "COMPLETE", etime = "{0}" WHERE id = {1}""".format(etime, job_pkey[0]);
         c.execute(query);
         conn.commit();
-        
+
+        # making tar file
+        outZip = "{0}job_{1}.tar.gz".format(OUTPUT_HOME, job_pkey[0]);
+        subprocess.call(["tar", "czf", outZip, OUTPUT_HOME]);
+
+        # Inserting compressed tar file for all submitted jobs
+        final_title = "[** All JOBs **] {0}".format(job_title);
+        query = """INSERT INTO gui_outputs (job_id, name, img, txt, gzip) VALUES ({0}, "{1}", "{2}", "{3}", "{4}")""".format(job_pkey[0], final_title, '', '', outZip);
+        c.execute(query);
+        conn.commit();
+	
     conn.close();
 
 try:
@@ -235,10 +279,10 @@ except:
     conn = sqlite3.connect(DB_FILE);
     c    = conn.cursor();
     for i in range(len(para_pkey)):
-        query = """UPDATE gui_parameter SET status = "FAILED" WHERE id = {}""".format(para_pkey[i]);
+        query = """UPDATE gui_parameter SET status = "FAILED" WHERE id = {0}""".format(para_pkey[i]);
         c.execute(query);
         conn.commit();
-    query = """UPDATE gui_job SET status = "INTERRUPTED" WHERE id = {}""".format(job_pkey[0]);
+    query = """UPDATE gui_job SET status = "INTERRUPTED" WHERE id = {0}""".format(job_pkey[0]);
     c.execute(query);
     conn.commit();
     conn.close();

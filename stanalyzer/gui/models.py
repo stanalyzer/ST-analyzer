@@ -46,7 +46,7 @@ class Job (models.Model):
     output = models.CharField(max_length=300);
     stime = models.DateTimeField();
     etime = models.DateTimeField(null=True, blank=True);
-    
+
 class Parameter (models.Model):
     # Using primary key with auto increment
     job = models.ForeignKey(Job, on_delete=models.CASCADE);
@@ -54,3 +54,11 @@ class Parameter (models.Model):
     para = models.CharField(max_length=100);
     val = models.CharField(max_length=100);
     status = models.CharField(max_length=20)
+
+class Outputs (models.Model):
+    # Using primary key with auto increment
+    job   = models.ForeignKey(Job, on_delete=models.CASCADE);
+    name  = models.CharField(max_length=100);
+    img   = models.TextField(null=True, blank=True);
+    txt   = models.TextField(null=True, blank=True);
+    gzip = models.CharField(max_length=100);

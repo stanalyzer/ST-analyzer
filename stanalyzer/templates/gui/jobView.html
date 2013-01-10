@@ -1,4 +1,5 @@
 <!-- for Job Viewer -->
+<meta name="author" conent="Jong Cheol Jeong (people.eecs.ku.edu/~jjeong)" />
 <link rel="stylesheet" href="/static/jqGrid_master/themes/ui.multiselect.css" />
 <link rel="stylesheet" href="/static/jqGrid_master/themes/ui.jqgrid.css" />
 
@@ -30,8 +31,8 @@ $j(document).ready(function(){
 		{name:'date',index:'date', width:170, align:"left"},
 		{name:'pbs',index:'pbs', width:200, align:"left"},		
 	    ],
-	rowNum		:20,
-	rowList		:[10,20,30],
+	rowNum		:10,
+	rowList		:[5,10,20,30],
 	pager		: "#prj_pager",
 	sortname	: "id",
 	//viewrecords	: true,
@@ -39,7 +40,7 @@ $j(document).ready(function(){
 	//gridview	: true,
 	caption		:"Project Retrieval",
 	width		: 895,
-	height		: 495,
+	height		: 450,
 	//multiselect	: false,
 	
 	/* ******************************************************
@@ -72,10 +73,11 @@ $j(document).ready(function(){
 			    {name:"stime",index:"stime",width:80,align:"left"},
 			    {name:"etime",index:"etime",width:80,align:"left"},
 		    ],
-		    rowNum	:20,
+		    rowNum	:10,
+		    rowList	:[5,10,20,30],
 		    pager	: pager_id,
 		    sortname	: 'id',
-		    sortorder	: "asc",
+		    sortorder	: "desc",
 		    caption	:"Job Retrieval",
 		    height	: '100%',
 		    width 	: 800,
@@ -108,8 +110,9 @@ $j(document).ready(function(){
 					{name:"val",index:"val",width:30,align:"left"},
 					{name:"status",index:"status",width:60,align:"left"},
 				],
-				rowNum	:20,
-				pager	: pager_id,
+				rowNum		:5,
+				rowList		:[5,10,20,30],
+				pager		: pager_id,
 				sortname	: 'id',
 				sortorder	: "asc",
 				caption	:"Parameter Retrieval",
@@ -120,11 +123,11 @@ $j(document).ready(function(){
 			    $j("#"+subgrid_table_id).jqGrid('filterToolbar', {stringResult: true, searchOnEnter: false});
 		    },
 	    });
-	    //$j("#"+subgrid_table_id).jqGrid('navGrid',"#"+pager_id,{edit:false,add:false,del:false, search:true})
+	    $j("#"+subgrid_table_id).jqGrid('navGrid',"#"+pager_id,{edit:false,add:false,del:false, search:false})
 	    $j("#"+subgrid_table_id).jqGrid('filterToolbar', {stringResult: true, searchOnEnter: false});
 	},
     });
-    //$j("#prjTable").jqGrid('navGrid','#prj_pager',{edit:false,add:false,del:false, search:true});
+    $j("#prjTable").jqGrid('navGrid','#prj_pager',{edit:false,add:false,del:false, search:false});
     $j("#prjTable").jqGrid('filterToolbar', {stringResult: true, searchOnEnter: false});
 
 });
@@ -132,3 +135,32 @@ $j(document).ready(function(){
 </script>	
 <table id="prjTable"></table>
 <div id="prj_pager"></div>
+<div id="job_pager"></div>
+<center>
+<div id="jobView">
+    <table>
+	<tr>
+	    <td class="center"><b>Target</b></td><td class="center"><b>IDs</b> (<i>Using ',' for multiple IDs and '-' for continuous IDs</i>)</td><td class="center w70"><b>Directory</b></td><td class="center w70"><b>Queue</b></td><td></td>
+	</tr>
+	    <td>
+		<select id="DBmgr">
+		    <option value="gui_project">Project Retrieval</option>
+		    <option value="gui_outputs">Job Retrieval</option>
+		    <option value="gui_parameter">Parameter Retrieval</option>
+		</select>
+	    </td>
+	    <td>
+		<input type="text" name="selIDs" size="70" id=""selIDs">
+	    </td>
+	    <td class="center">
+		<input type="checkbox" name="delDir" id=""delDir">
+	    </td>
+	    <td class="center">
+		<input type="checkbox" name="delQue" id=""delQue">
+	    </td>
+	    <td>
+		<button id="sub_DBmgr">DELETE</button>
+	    </td>
+    </table>
+</center>
+</div>

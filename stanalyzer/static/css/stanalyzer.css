@@ -26,6 +26,9 @@ td.w110 {
     width: 110px;
 }
 
+td.w70 {
+    width: 70px;
+}
 
 /* links */
 a[href^="mailto"]:hover:after { content: " > Send E-mail" attr(title); }
@@ -196,3 +199,4 @@ a.underline2:hover, a.underline2:active
 .mover {
 	margin: 2em 0 0 0;
 } 
+

@@ -1,4 +1,9 @@
-#!/home/sunhwan/local/python/bin/python
+#/usr/bin/env python
+
+#----------------------------------------------------------------------------------------
+# Author: Jong Cheol Jeong (korjcjeong@yahoo.com, people.eecs.ku.edu/~jjeong)
+# 	  Bioinformatics center, The University of Kansas
+#----------------------------------------------------------------------------------------
 
 # for web-interfacer
 from django.shortcuts		import render_to_response, get_object_or_404, render
@@ -33,7 +38,9 @@ import stat
 import string
 import random
 import math
+import shutil
 from random import randint
+from os import path
 
 # for using from object
 # https://docs.djangoproject.com/en/dev/topics/forms/?from=olddocs#filefield
@@ -66,6 +73,10 @@ import sqlite3
 # import others
 import re
 from datetime import datetime
+
+# download
+import os, mimetypes
+from django.core.servers.basehttp import FileWrapper
 
 #********************************************
 # Define global variables
@@ -207,7 +218,28 @@ class simulation:
 	selQry = 'segid {0}'.format(seg_name);
 	Seg = self.u.selectAtoms(selQry);
 	return Seg.residues
-    
+
+
+#********************************************
+# Delete files and directories
+#********************************************
+def delDir(dir_path):
+    print "+++ delDir"
+    if os.path.isdir(dir_path):
+	for f in os.listdir(dir_path):
+	    file_path = os.path.join(dir_path, f)
+	    try:
+		if os.path.isfile(file_path):
+		    #os.remove(file_path);
+		    print "remove {}".format(file_path);
+		else:
+		    shutil.rmtree(file_path);
+	    except Exception, e:
+		print e
+	#shutil.rmtree(dir_path);
+	print "remove {}".format(dir_path);
+
+
 #********************************************
 # DB retrieval
 #********************************************
@@ -240,7 +272,202 @@ def getUsrLevel (dbName, user_id):
     level = row[0];
     conn.close();
     return level
+
+def delOutputs (IDs, dbName, delFlg):
+    print "*** FUNC: delOutputs"
+    print "FUNC: delOutputs"
+    # delete gui_job
+    conn = sqlite3.connect(dbName);
+    c = conn.cursor();
+    if isinstance(IDs, list):
+	for output_id in IDs:
+	    if delFlg == 'true':
+		query = "SELECT img, txt, gzip FROM gui_outputs WHERE id={0}".format(output_id);
+		c.execute(query);
+		row = c.fetchall();
+		for f in row:
+		    if '/' in f[0]:
+			path_img = f[0].split('/');
+			path_dir = '/'.join(path_img[:len(path_img)-1])
+			delDir(path_dir);
+
+	    query = "DELETE FROM gui_outputs WHERE id={0}".format(output_id);
+	    print query;
+    else:
+	if delFlg == 'true':
+	    query = "SELECT img, txt, gzip FROM gui_outputs WHERE id={0}".format(IDs);
+	    c.execute(query);
+	    row = c.fetchall();
+	    for f in row:
+		if '/' in f[0]:
+		    path_img = f[0].split('/');
+		    path_dir = '/'.join(path_img[:len(path_img)-1])
+		    delDir(path_dir);
+
+	query = "DELETE FROM gui_outputs WHERE id={0}".format(IDs);
+	print query;
+    conn.close();
+
+def delOutputs_from_jobID (IDs, dbName, delFlg):
+    print "*** FUNC: delOutputs_from_jobID"
+    # delete gui_job
+    conn = sqlite3.connect(dbName);
+    c = conn.cursor();
+    if isinstance(IDs, list):
+	print "--- this runs with LIST"
+	for job_id in IDs:
+	    if delFlg == 'true':
+		query = "SELECT img, txt, gzip FROM gui_outputs WHERE job_id={0}".format(job_id);
+		c.execute(query);
+		row = c.fetchall();
+		#print "====== Split word ===="
+		for f in row:
+		    if '/' in f[0]:
+			path_img = f[0].split('/');
+			path_dir = '/'.join(path_img[:len(path_img)-1])
+			delDir(path_dir);
+
+	    query = "DELETE FROM gui_outputs WHERE job_id={0}".format(job_id);
+	    print query;
+    else:
+	print "--- this runs with SCHOLAR {0}".format(IDs);
+	print delFlg
+	print "Type is {0}".format(type(delFlg));
+	if delFlg == 'true':
+	    query = "SELECT img, txt, gzip FROM gui_outputs WHERE job_id={0}".format(IDs);
+	    print query
+	    c.execute(query);
+	    row = c.fetchall();
+	    print row
+	    for f in row:
+		print "====== Split word ===="
+		if '/' in f[0]:
+		    path_img = f[0].split('/');
+		    path_dir = '/'.join(path_img[:len(path_img)-1])
+		    print path_dir
+		    delDir(path_dir);
+		else:
+		    print "With no path {0}".format(f[0]);
+		    
+	query = "DELETE FROM gui_outputs WHERE job_id={0}".format(IDs);
+	print query;
+    conn.close();
+
+def delJobs (IDs, dbName, delFlg):
+    print "*** FUNC: delJobs"
+    # delete gui_job
+    conn = sqlite3.connect(dbName);
+    c = conn.cursor();
+    if isinstance(IDs, list):
+	for job_id in IDs:
+	    #delete gui_parameter, gui_outputs
+	    query = "DELETE FROM gui_parameter WHERE job_id={0}".format(job_id);
+	    print query
+	    delOutputs_from_jobID(job_id, dbName, delFlg);
+	    if delFlg == 'true':
+		#deleting job output directory
+		query = "SELECT output FROM gui_job WHERE id={0}".format(job_id);
+		c.execute(query);
+		row = c.fetchall();
+		for f in row:
+		    if '/' in f[0]:
+			delDir(f[0]);
+	    query = "DELETE FROM gui_job WHERE id={0}".format(job_id);
+	    print query
+    else:
+	#delete gui_parameter, gui_outputs
+	query = "DELETE FROM gui_parameter WHERE job_id={0}".format(IDs);
+	print query
+	delOutputs_from_jobID(IDs, dbName, delFlg);
+	if delFlg == 'true':
+	    query = "SELECT output FROM gui_job WHERE id={0}".format(IDs);
+	    c.execute(query);
+	    row = c.fetchall();
+	    for f in row:
+		if '/' in f[0]:
+		    delDir(f[0]);
+	query = "DELETE FROM gui_job WHERE id={0}".format(IDs);
+	print query
     
+    conn.close();
+    
+def delJobs_from_prjID (IDs, dbName, delFlg):
+    print "*** FUNC: delJobs_from_prjID"
+    # delete gui_job
+    conn = sqlite3.connect(dbName);
+    c = conn.cursor();
+    if isinstance(IDs, list):
+	for proj_id in IDs:
+	    query = "SELECT id FROM gui_job WHERE proj_id = {0}".format(proj_id);
+	    c.execute(query);
+	    row = c.fetchall();
+	    for item in row:
+		job_id = item[0];
+		#delete gui_parameter, gui_outputs
+		query = "DELETE FROM gui_parameter WHERE job_id={0}".format(job_id);
+		print query
+		delOutputs_from_jobID(job_id, dbName, delFlg);
+		if delFlg == 'true':
+		    query = "SELECT output FROM gui_job WHERE id={0}".format(job_id);
+		    print query
+		    c.execute(query);
+		    row2 = c.fetchall();
+		    print "Print Row2"
+		    print row2
+		    for f in row2:
+			if '/' in f[0]:
+			    delDir(f[0]);
+
+	    # delte gui_job corresponding to proj_id
+	    query = "DELETE FROM gui_job WHERE proj_id={0}".format(proj_id);
+	    print query
+    else:
+	query = "SELECT id FROM gui_job WHERE proj_id = {0}".format(IDs);
+	c.execute(query);
+	row = c.fetchall();
+	for item in row:
+	    job_id = item[0];
+	    #delete gui_parameter, gui_outputs
+	    query = "DELETE FROM gui_parameter WHERE job_id={0}".format(job_id);
+	    print query
+	    delOutputs_from_jobID(job_id, dbName, delFlg);
+	if delFlg == 'true':
+	    query = "SELECT output FROM gui_job WHERE id={0}".format(IDs);
+	    c.execute(query);
+	    row2 = c.fetchall();
+	    for f in row2:
+		if '/' in f[0]:
+		    delDir(f[0]);
+	# delte gui_job corresponding to proj_id
+	query = "DELETE FROM gui_job WHERE proj_id={0}".format(IDs);
+	print query
+    conn.close();
+
+def delProjects (IDs, dbName, delFlg):
+    print "*** FUNC: delProjects"
+    delJobs_from_prjID(IDs, dbName, delFlg);
+    if isinstance(IDs, list):
+	# delete gui_path_input, gui_path_output, gui_path_python
+	for proj_id in IDs:
+	    query = "DELETE FROM gui_path_input WHERE proj_id = {0}".format(proj_id);
+	    print query
+	    query = "DELETE FROM gui_path_output WHERE proj_id = {0}".format(proj_id);
+	    print query
+	    query = "DELETE FROM gui_path_python WHERE proj_id = {0}".format(proj_id);
+	    print query
+	    query = "DELETE FROM gui_project WHERE id = {0}".format(proj_id);
+	    print query
+    else:
+	query = "DELETE FROM gui_path_input WHERE proj_id = {0}".format(IDs);
+	print query
+	query = "DELETE FROM gui_path_output WHERE proj_id = {0}".format(IDs);
+	print query
+	query = "DELETE FROM gui_path_python WHERE proj_id = {0}".format(IDs);
+	print query
+	query = "DELETE FROM gui_project WHERE id = {0}".format(IDs);
+	print query
+		
+
 #********************************************************
 # *  Validating path
 #********************************************************
@@ -270,11 +497,11 @@ def info_permission_write(request):
         cmd   = request.POST.get('cmd');
         if (cmd == 'permission_write'):
             path  = request.POST.get('path');
-            print path
+            #print path
             server = serverside(path);
             status = server.permission_write();
-            print status;                           # status = [owner, group, other]
-            print "Status = {}. len={}".format(status, len(status));
+            #print status;                           # status = [owner, group, other]
+            #print "Status = {}. len={}".format(status, len(status));
             if len(status) > 0:
                 print status[0];
                 
@@ -288,11 +515,11 @@ def info_permission_exec(request):
         cmd   = request.POST.get('cmd');
         if (cmd == 'permission_exec'):
             path  = request.POST.get('path');
-            print path
+            #print path
             server = serverside(path);
             status = server.permission_exec();
-            print status;                           # status = [owner, group, other]
-            print "Status = {}. len={}".format(status, len(status));
+            #print status;                           # status = [owner, group, other]
+            #print "Status = {}. len={}".format(status, len(status));
             if len(status) > 0:
                 print status[0];
                 
@@ -372,8 +599,8 @@ def login(request):
         c = conn.cursor();
         c.execute("select * from gui_user")
         row = c.fetchone();
-        print dbName
-        print row
+        #print dbName
+        #print row
         
         if not row:
             global user
@@ -393,7 +620,7 @@ def login(request):
             hpwd = hashlib.md5(pwd);
             hpwd = hpwd.hexdigest();
             query = "SELECT uid, pwd from gui_user WHERE uid='{0}' and pwd='{1}'".format(userid, hpwd);
-            print query
+            #print query
             c.execute(query)
             row = c.fetchone();
             if not row:
@@ -708,7 +935,7 @@ def toyView_usr(request):
             readLine = readLine.strip(' \t\n\r');
             if (len(readLine) > 0):
                 tmp = re.split('\t', readLine);
-                print tmp;
+                #print tmp;
                 hpwd = hashlib.md5(tmp[1]);
                 hpwd = hpwd.hexdigest();
                 query = """INSERT INTO gui_user (uid, pwd, email, level) \
@@ -907,15 +1134,15 @@ def prjView_new(request):
 
     request.session.set_expiry(SESSION_TIME_OUT);
     if request.is_ajax() and (request.method == 'POST'):
-        print "OKAY this is NEW submit!!"
+        #print "OKAY this is NEW submit!!"
         title    = request.POST.get('title');
         pbs      = request.POST.get('pbs');
         rpaths   = request.POST.getlist('rpaths[]');
-        print rpaths
+        #print rpaths
         out_paths  = request.POST.getlist('out_paths[]');
-        print out_paths
+        #print out_paths
         ex_pythons = request.POST.getlist('ex_pythons[]');
-        print ex_pythons
+        #print ex_pythons
             
         #pbs.replace("\r", r"\r").replace("\n", r"\n");
         #print pbs
@@ -936,15 +1163,15 @@ def prjView_new(request):
         #query = """INSERT INTO gui_project (user_id, name, {0} date, pbs) \
         #        VALUES ("{1}", "{2}", {3} "{4}", "{5}")""".format(fPath, user, title, vPath, cdate, pbs);
         
-        print dbName
+        #print dbName
         conn = sqlite3.connect(dbName);
         c = conn.cursor();
         
         # Insert project information into the table
-        print "==== okay insert new value"
+	#print "==== okay insert new value"
         query = """INSERT INTO gui_project (user_id, name, date, pbs) \
                 VALUES ("{0}", "{1}", "{2}", "{3}")""".format(user, title, cdate, pbs);
-        print query
+        #print query
         c.execute(query);
         conn.commit();
         
@@ -953,20 +1180,20 @@ def prjView_new(request):
         c.execute(query);
         prj_id = c.fetchone();      # primary key = prj_id[0]
         
-        print "PRIMARY KEY IS: {}".format(prj_id[0]);
+        #print "PRIMARY KEY IS: {}".format(prj_id[0]);
         
         # Insert input, output, and python path
         for i in range(len(rpaths)):
             query = """INSERT INTO gui_path_input (proj_id, path) \
                        VALUES ({0}, "{1}")""".format(prj_id[0], rpaths[i]);
-            print query;
+            #print query;
             c.execute(query);
             conn.commit();
 
         for i in range(len(out_paths)):
             query = """INSERT INTO gui_path_output (proj_id, path) \
                        VALUES ({0}, "{1}")""".format(prj_id[0], out_paths[i]);
-            print query
+            #print query
             c.execute(query);
             conn.commit();
 
@@ -982,30 +1209,30 @@ def prjView_new(request):
         query = "SELECT id, user_id, name, date, pbs FROM gui_project";
         c.execute(query);
         row = c.fetchall();
-        print query
-        for item in row:
-            print item;
+        #print query
+        #for item in row:
+        #    print item;
             
         query = "SELECT id, proj_id, path FROM gui_path_input";
         c.execute(query);
         row = c.fetchall();
-        print query
-        for item in row:
-            print item;
+        #print query
+        #for item in row:
+        #    print item;
 
         query = "SELECT id, proj_id, path FROM gui_path_output";
         c.execute(query);
         row = c.fetchall();
-        print query
-        for item in row:
-            print item;
+        #print query
+        #for item in row:
+        #    print item;
 
         query = "SELECT id, proj_id, path FROM gui_path_python";
         c.execute(query);
         row = c.fetchall();
-        print query
-        for item in row:
-            print item;
+        #print query
+        #for item in row:
+        #    print item;
         
         conn.close();
         
@@ -1033,7 +1260,7 @@ def prjView_new(request):
     
 def prjView_update(request):
     # check out authority
-    print "I'm in prjView_update!"
+    #print "I'm in prjView_update!"
     if 'user_id' not in request.session:
         c = {
                     'errMsg'	    : 'Session has been expired!',
@@ -1055,20 +1282,20 @@ def prjView_update(request):
         cdate = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
 
         if cmd == 'reload':            
-            print dbName
+            #print dbName
             conn = sqlite3.connect(dbName);
             c = conn.cursor();
             
             # Update project information
             query = """UPDATE gui_project SET name="{0}", date="{1}", pbs="{2}" \
                     WHERE id={3} AND user_id="{4}" """.format(title, cdate, pbs, pkey, user);
-            print query
+            #print query
             c.execute(query);
             conn.commit();
             
             # Deleting associated tables - this makes easier to update it
             query = "DELETE FROM gui_path_input WHERE proj_id={0}".format(pkey);
-            print query
+            #print query
             c.execute(query);
             conn.commit();
             
@@ -1076,33 +1303,33 @@ def prjView_update(request):
             for i in range(len(rpaths)):
                 query = """INSERT INTO gui_path_input (proj_id, path) \
                            VALUES ({0}, "{1}")""".format(pkey, rpaths[i]);
-                print query
+                #print query
                 c.execute(query);
                 conn.commit();
     
             # Deleting associated tables - this makes easier to update it
             query = "DELETE FROM gui_path_output WHERE proj_id={0}".format(pkey);
-            print query
+            #print query
             c.execute(query);
             conn.commit();
     
             for i in range(len(out_paths)):
                 query = """INSERT INTO gui_path_output (proj_id, path) \
                            VALUES ({0}, "{1}")""".format(pkey, out_paths[i]);
-                print query
+                #print query
                 c.execute(query);
                 conn.commit();
     
             # Deleting associated tables - this makes easier to update it
             query = "DELETE FROM gui_path_python WHERE proj_id={0}".format(pkey);
-            print query
+            #print query
             c.execute(query);
             conn.commit();
     
             for i in range(len(ex_pythons)):
                 query = """INSERT INTO gui_path_python (proj_id, path) \
                            VALUES ({0}, "{1}")""".format(pkey, ex_pythons[i]);
-                print query
+                #print query
                 c.execute(query);
                 conn.commit();
     else:
@@ -1132,7 +1359,7 @@ def prjView_update(request):
 
 def prjView_delete(request):
     # check out authority
-    print "I'm in prjView_delete!"
+    #print "I'm in prjView_delete!"
     if 'user_id' not in request.session:
         c = {
                     'errMsg'	    : 'Session has been expired!',
@@ -1149,33 +1376,33 @@ def prjView_delete(request):
         cdate = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
 
         if cmd == 'prjDelete':            
-            print dbName
+            #print dbName
             conn = sqlite3.connect(dbName);
             c = conn.cursor();
             
             # DELETING project information
             query = "DELETE FROM gui_project WHERE id={0}".format(pkey);
-            print query
+            #print query
             c.execute(query);
             conn.commit();
 
             query = "DELETE FROM gui_job WHERE proj_id={0}".format(pkey);
-            print query
+            #print query
             c.execute(query);
             conn.commit();
 
             query = "DELETE FROM gui_path_input WHERE proj_id={0}".format(pkey);
-            print query
+            #print query
             c.execute(query);
             conn.commit();
 
             query = "DELETE FROM gui_path_output WHERE proj_id={0}".format(pkey);
-            print query
+            #print query
             c.execute(query);
             conn.commit();
 
             query = "DELETE FROM gui_path_python WHERE proj_id={0}".format(pkey);
-            print query
+            #print query
             c.execute(query);
             conn.commit();
             
@@ -1247,14 +1474,14 @@ def jobView_jqGrid_para(request):
         search_field = search_rules["field"];
         search_data = search_rules["data"];
         query = """select id, anaz, para, val, status from gui_parameter where job_id = {0} AND {1} like "%{2}%" order by {3} {4} limit {5}, {6}""".format(job_id, search_field, search_data, sidx, sord, st_index, ed_index);
-        print query
+        #print query
     else:   
         query = "select id, anaz, para, val, status from gui_parameter where job_id = {0} order by {1} {2}".format(job_id, sidx, sord);
-        print query
+        #print query
 
     #query = "select id, job_id, anaz, para, val, status from gui_parameter where job_id = {0} order by {1} {2}".format(job_id, sidx, sord);
     #query = "select id, anaz, para, val, status from gui_parameter where job_id = {0} order by {1} {2}".format(job_id, sidx, sord);
-    print query;
+    #print query;
     conn = sqlite3.connect(dbName);
     c = conn.cursor();    
     c.execute(query);
@@ -1263,16 +1490,21 @@ def jobView_jqGrid_para(request):
     
     rows = [];
     row_cnt = 0;
-    for item in row:
-        #item_arr = [ i for i in item ];
-        row_cnt = row_cnt + 1;
-        tmp = { "id": str(row_cnt), "cell": item}
-        print tmp;
-        rows.append(tmp);
+    if st_index == 0:    
+	for item in row:
+	    row_cnt = row_cnt + 1;
+	    tmp = { "id": str(row_cnt), "cell": item}
+	    rows.append(tmp);
+    else:
+	for item in row:
+	    row_cnt = row_cnt + 1;
+	    if (row_cnt > st_index):
+		tmp = { "id": str(row_cnt), "cell": item}
+		rows.append(tmp);
 
     # calculating total number of pages
-    tpages = int(math.ceil(row_cnt / maxrow));
-    print "tpages: {}".format(tpages);
+    tpages = int(math.ceil(float(row_cnt) / float(maxrow)));
+    #print "tpages: {}".format(tpages);
     if tpages < 1:
         tpages = 1;
     
@@ -1321,10 +1553,10 @@ def jobView_jqGrid_job(request):
         search_field = search_rules["field"];
         search_data = search_rules["data"];
         query = """select id, name, anaz, status, output, stime, etime from gui_job where proj_id = {0} AND {1} like "%{2}%" order by {3} {4} limit {5}, {6}""".format(prj_id, search_field, search_data, sidx, sord, st_index, ed_index);
-        print query
+        #print query
     else:   
         query = "select id, name, anaz, status, output, stime, etime from gui_job where proj_id = {0} order by {1} {2}".format(prj_id, sidx, sord);
-        print query
+        #print query
 
     #query = "select id, proj_id, name, anaz, status, output, stime, etime from gui_job where proj_id = {0} order by {1} {2}".format(prj_id, sidx, sord);
     #print query;
@@ -1336,16 +1568,23 @@ def jobView_jqGrid_job(request):
     
     rows = [];
     row_cnt = 0;
-    for item in row:
-        #item_arr = [ i for i in item ];
-        row_cnt = row_cnt + 1;
-        tmp = { "id": str(row_cnt), "cell": item}
-        #print tmp;
-        rows.append(tmp);
+    
+    if st_index == 0:
+	for item in row:
+	    row_cnt = row_cnt + 1;
+	    tmp = { "id": str(row_cnt), "cell": item}
+	    rows.append(tmp);
+    else:
+	for item in row:
+	    row_cnt = row_cnt + 1;
+	    if (row_cnt > st_index):
+		tmp = { "id": str(row_cnt), "cell": item}
+		rows.append(tmp);
+	
         
     # calculating total number of pages
-    tpages = int(math.ceil(row_cnt / maxrow));
-    print "tpages: {}".format(tpages);
+    tpages = int(math.ceil(float(row_cnt) / float(maxrow)));
+    #print "tpages: {}".format(tpages);
     if tpages < 1:
         tpages = 1;
     
@@ -1372,7 +1611,7 @@ def jobView_jqGrid_prj(request):
 
     request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
-    print request.GET
+    #print request.GET
         
     if request.GET.get("sidx"):
         sidx    = request.GET["sidx"];
@@ -1400,10 +1639,10 @@ def jobView_jqGrid_prj(request):
         search_field = search_rules["field"];
         search_data = search_rules["data"];
         query = """select id, user_id, name, date, pbs from gui_project where user_id = "{0}" AND {1} like "%{2}%" order by {3} {4} limit {5}, {6}""".format(user_id, search_field, search_data, sidx, sord, st_index, ed_index);
-        print query
+        #print query
     else:   
-        query = "select id, user_id, name, date, pbs from gui_project where user_id = '{0}' order by {1} {2} limit {3}, {4}".format(user_id, sidx, sord, st_index, ed_index);
-        print query
+        query = "select id, user_id, name, date, pbs from gui_project where user_id = '{0}' order by {1} {2}".format(user_id, sidx, sord);
+        #print query
     
     c.execute(query);
     row = c.fetchall();
@@ -1411,14 +1650,130 @@ def jobView_jqGrid_prj(request):
 
     rows = [];
     row_cnt = 0;
-    for item in row:
-        row_cnt = row_cnt + 1;
-        tmp = { "id": str(row_cnt), "cell": item}
-        rows.append(tmp);
+    if st_index == 0:
+	for item in row:
+	    row_cnt = row_cnt + 1;
+	    tmp = { "id": str(row_cnt), "cell": item}
+	    rows.append(tmp);
+    else:
+	for item in row:
+	    row_cnt = row_cnt + 1;
+	    if (row_cnt > st_index):
+		tmp = { "id": str(row_cnt), "cell": item}
+		rows.append(tmp);
     
     # calculating total number of pages
-    tpages = int(math.ceil(row_cnt / maxrow));
-    print "tpages: {}".format(tpages);
+    tpages = int(math.ceil(float(row_cnt) / float(maxrow)));
+    #print "tpages: {}".format(tpages);
+    if tpages < 1:
+        tpages = 1;
+    
+    total_pages = tpages;
+
+    c = {
+            'total'	: total_pages,
+            'page'      : cpage,
+            'records'   : row_cnt,
+            'rows'      : rows,            
+        }
+    return HttpResponse(json.dumps(c));
+
+def resultView_jqGrid_results(request):
+    #print "OKAY i am In RESUT VIEW"
+    # check out authority 
+    if 'user_id' not in request.session:
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+                }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+    
+    request.session.set_expiry(SESSION_TIME_OUT);
+    prj_id = request.GET.get('prj_id');
+    
+    if request.GET.get("sidx"):
+        sidx = request.GET["sidx"];
+        sord = request.GET["sord"];
+        cpage   = request.GET["page"];
+        cpage   = int(cpage);
+        maxrow  = request.GET["rows"];
+        maxrow  = int(maxrow);    
+        
+    if cpage == 1:
+        st_index = 0;
+        ed_index = maxrow;
+    else:
+        st_index = maxrow * cpage - maxrow;
+        ed_index = maxrow * cpage;
+
+    if (request.GET["_search"] == 'true'):
+	#print "--- search true at resultView ----"
+        sfilter = request.GET["filters"];
+        search_dic =json.loads(sfilter);      # convert string to dictionary
+        search_rules = search_dic["rules"][0];
+        search_field = search_rules["field"];
+        search_data = search_rules["data"];
+	# select all job ID corresponding to 'prj_id'
+        query = """select id from gui_job where proj_id = {0} order by {1} {2}""".format(prj_id, sidx, sord);
+	#print query
+	conn = sqlite3.connect(dbName);
+	c = conn.cursor();    
+	c.execute(query);
+	tmp = c.fetchall();
+	JOBs = [];
+	for job_id in tmp:
+	    query = """select id, job_id, name, img, txt, gzip from gui_outputs where job_id = {0} AND {1} like "%{2}%" order by {3} {4}""".format(job_id[0], search_field, search_data, sidx, sord);
+	    #print query
+	    c.execute(query);
+	    row = c.fetchall();
+	    JOBs.append(row);
+	conn.close();
+	#print JOBs
+	conn.close();
+	
+    else:
+	#print "--- search FALSE at resultView ----"
+	JOBs = [];
+	query = """select id from gui_job where proj_id = {0} order by {1} {2}""".format(prj_id, sidx, sord);
+	#print query
+	conn = sqlite3.connect(dbName);
+	c = conn.cursor();    
+	c.execute(query);
+	tmp = c.fetchall();	# retrieve all related jobs corresponding to the current project 
+	for job_id in tmp:
+	    query = """select id, job_id, name, img, txt, gzip from gui_outputs where job_id = {0} order by {1} {2}""".format(job_id[0], sidx, sord);
+	    #print query
+	    c.execute(query);
+	    row = c.fetchall();
+	    #print row
+	    JOBs.append(row);
+	conn.close();
+	#print row
+	#print "============== UPPER ROW, BELOW JOBs ===============";
+	#print JOBs
+
+    rows = [];
+    row_cnt = 0;
+    if st_index == 0:
+	for row in JOBs:
+	    for item in row:
+		#item_arr = [ i for i in item ];
+		row_cnt = row_cnt + 1;
+		tmp = { "id": str(row_cnt), "cell": item}
+		#print tmp;
+		rows.append(tmp);
+    else:
+	for row in JOBs:
+	    for item in row:
+		row_cnt = row_cnt + 1;
+		if (row_cnt > st_index):
+		    tmp = { "id": str(row_cnt), "cell": item}
+		    rows.append(tmp);
+    
+        
+    # calculating total number of pages
+    tpages = int(math.ceil(float(row_cnt) / float(maxrow)));
+    #print "tpages: {}".format(tpages);
     if tpages < 1:
         tpages = 1;
     
@@ -1433,6 +1788,59 @@ def jobView_jqGrid_prj(request):
     return HttpResponse(json.dumps(c));
 
     
+
+def resultView_jqGrid_del_results(request):
+    # check out authority 
+    if 'user_id' not in request.session:
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+                }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+
+    request.session.set_expiry(SESSION_TIME_OUT);
+    user_id = request.session['user_id'];
+    
+    if request.is_ajax() and (request.method == 'POST'):
+        cmd   = request.POST.get('cmd');
+    else:
+        cmd = 'http';           # connection with URL
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+            }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request))
+    
+    if cmd == 'del_user':
+        #print "OKAY I am in del_user"
+        # Extract my level
+        conn = sqlite3.connect(dbName);
+        c = conn.cursor();
+        query = "select level from gui_user where uid='{0}'".format(user_id);
+        c.execute(query);
+        my_level = c.fetchone();
+        my_level = int(my_level[0]);
+        delUsers = request.POST.getlist('uid[]');
+        fUsers = [];                                 # the list of users failed for deletion 
+        for t_user in delUsers:
+            query = "select level from gui_user where uid='{0}'".format(t_user);
+            c.execute(query);
+            user_level = c.fetchone();
+            user_level = int(user_level[0]);
+            if (my_level > user_level) or (user_id == t_user):
+                query = "delete from gui_user where uid='{}'".format(t_user);
+                #print query
+                c.execute(query);
+                conn.commit();
+            else:
+                #print t_user
+                fUsers.append(t_user);
+        conn.close();
+        c = {
+            'fUsers'    : fUsers,
+        }
+    return HttpResponse(json.dumps(c));
+
     
 def userView(request):
     # check out authority 
@@ -1560,7 +1968,7 @@ def usrView_jqGrid_create_user(request):
         }
         
     if cmd == 'editUser':
-        print "I am in EditUSER"
+        #print "I am in EditUSER"
         edit_user    = request.POST.get('user');
         edit_pwd     = request.POST.get('pwd');
         hpwd = hashlib.md5(edit_pwd);
@@ -1571,7 +1979,7 @@ def usrView_jqGrid_create_user(request):
         conn = sqlite3.connect(dbName);
         c = conn.cursor();
         query = "UPDATE gui_user SET uid='{0}', pwd='{1}', email='{2}', level={3} WHERE uid='{4}' ".format(edit_user, hpwd, edit_email, edit_level, edit_user);
-        print query
+        #print query
         c.execute(query);
         conn.commit();
         conn.close();
@@ -1608,7 +2016,7 @@ def usrView_jqGrid_del_user(request):
         return render_to_response(template, c, context_instance = RequestContext(request))
     
     if cmd == 'del_user':
-        print "OKAY I am in del_user"
+        #print "OKAY I am in del_user"
         # Extract my level
         conn = sqlite3.connect(dbName);
         c = conn.cursor();
@@ -1625,11 +2033,11 @@ def usrView_jqGrid_del_user(request):
             user_level = int(user_level[0]);
             if (my_level > user_level) or (user_id == t_user):
                 query = "delete from gui_user where uid='{}'".format(t_user);
-                print query
+                #print query
                 c.execute(query);
                 conn.commit();
             else:
-                print t_user
+                #print t_user
                 fUsers.append(t_user);
         conn.close();
         c = {
@@ -1650,7 +2058,7 @@ def usrView_jqGrid_usr(request):
 
     request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
-    print request.GET
+    #print request.GET
         
     if request.GET.get("sidx"):
         sidx    = request.GET["sidx"];
@@ -1677,11 +2085,11 @@ def usrView_jqGrid_usr(request):
         search_rules = search_dic["rules"][0];
         search_field = search_rules["field"];
         search_data = search_rules["data"];
-        query = """select uid, email, level from gui_user where {0} like "%{1}%" order by {2} {3} limit {4}, {5}""".format(search_field, search_data, sidx, sord, st_index, ed_index);
-        print query
+        query = """select uid, email, level from gui_user where {0} like "%{1}%" order by {2} {3}""".format(search_field, search_data, sidx, sord);
+        #print query
     else:   
-        query = "select uid, email, level from gui_user order by {0} {1} limit {2}, {3}".format(sidx, sord, st_index, ed_index);
-        print query
+        query = "select uid, email, level from gui_user order by {0} {1}".format(sidx, sord);
+        #print query
     
     c.execute(query);
     row = c.fetchall();
@@ -1689,19 +2097,27 @@ def usrView_jqGrid_usr(request):
 
     rows = [];
     row_cnt = 0;
-    for item in row:
-        row_cnt = row_cnt + 1;
-        tmp = { "id": str(row_cnt), "cell": item}
-        rows.append(tmp);
+    if st_index == 0:
+	for item in row:
+	    row_cnt = row_cnt + 1;
+	    tmp = { "id": str(row_cnt), "cell": item}
+	    rows.append(tmp);
+    else:
+	for item in row:
+	    row_cnt = row_cnt + 1;
+	    if (row_cnt > st_index):
+		tmp = { "id": str(row_cnt), "cell": item}
+		rows.append(tmp);
+	
     
     # calculating total number of pages
-    tpages = int(math.ceil(row_cnt / maxrow));
-    print "tpages: {}".format(tpages);
+    tpages = int(math.ceil(float(row_cnt) / float(maxrow)));
+    #print "tpages: {}".format(tpages);
     if tpages < 1:
         tpages = 1;
     
     total_pages = tpages;
-    print rows
+    #print rows
     c = {
             'total'	: total_pages,
             'page'      : cpage,
@@ -1723,11 +2139,11 @@ def stanalyzer(request):
     user_id = request.session['user_id'];
     conn = sqlite3.connect(dbName);
     c = conn.cursor();
-    print "OKAY~~~~~~~~ I am here !!!!!!!!!!!!!!!!!!!!"
+    #print "OKAY~~~~~~~~ I am here !!!!!!!!!!!!!!!!!!!!"
     if request.is_ajax() and (request.method == 'POST'):
-        print "This is AJAX!"
+        #print "This is AJAX!"
         cmd   = request.POST.get('cmd');
-        print "Okay you requested CMD as {}".format(cmd);
+        #print "Okay you requested CMD as {}".format(cmd);
         if (cmd == 'path'):
             pkey  = request.POST.get('pkey');
             pkey = pkey.strip(' \t\n\r');
@@ -1750,7 +2166,7 @@ def stanalyzer(request):
             path_py = c.fetchall();
             
         elif (cmd =='reload'):
-            print "This is  AJAX with relaod!!!!!!"
+            #print "This is  AJAX with relaod!!!!!!"
             #c.execute("select id, user_id, name, path1, path2, path3, path4, path5, date, pbs from gui_project order by date desc")
             # find most recent one
             query = "select id, user_id, name, date, pbs from gui_project where user_id = '{0}' order by date desc".format(user_id);
@@ -1770,7 +2186,7 @@ def stanalyzer(request):
             c.execute(query);
             path_py = c.fetchall();
         elif (cmd == 'prjDelete'):
-            print "CMD: prjDelte"
+            #print "CMD: prjDelte"
             query = "select id, user_id, name, date, pbs from gui_project where user_id = '{0}' order by date desc".format(user_id);
             c.execute(query);
             prj = c.fetchall();
@@ -1795,7 +2211,7 @@ def stanalyzer(request):
                 path_py = c.fetchall();
             
     else:
-        print "This is NOT AJAX!!!!!!"
+        #print "This is NOT AJAX!!!!!!"
         #c.execute("select id, user_id, name, path1, path2, path3, path4, path5, date, pbs from gui_project order by date desc")
         # find most recent one
         query = "select id, user_id, name, date, pbs from gui_project where user_id = '{0}' order by date desc".format(user_id);
@@ -1898,7 +2314,7 @@ def stanalyzer(request):
         fList = server.showdir();
         """
         status =  server.isvalidate();
-        print "Status for {} = {}".format(path1[0], status);
+        #print "Status for {} = {}".format(path1[0], status);
         if not status:
             fList = server.showdir();
         else:
@@ -2141,27 +2557,27 @@ def stanalyzer_sendJob(request):
             #-------------------------------------------
             # creating SESSION_HOME directory
             #-------------------------------------------
-            print "creating directory"
-            print __file__
+            #print "creating directory"
+            #print __file__
             
             SESSION_HOME = "{}/media/{}".format(PROJECT_ROOT[0:len(PROJECT_ROOT)-4],user);
             OUTPUT_HOME  = eval_path(SESSION_HOME);
             if (path_output == OUTPUT_HOME):
-                print SESSION_HOME
+                #print SESSION_HOME
                 if not (os.path.isdir(SESSION_HOME)):
-                    print "Creating directory into {}".format(SESSION_HOME)
+                    #print "Creating directory into {}".format(SESSION_HOME)
                     os.mkdir(SESSION_HOME);
                     
                 SESSION_HOME = "{}/{}{}".format(SESSION_HOME, date, rndStr);
                 if not (os.path.isdir(SESSION_HOME)):
-                    print "Creating directory into {}".format(SESSION_HOME)
+                    #print "Creating directory into {}".format(SESSION_HOME)
                     os.mkdir(SESSION_HOME);
                 else:
                     while not (os.path.isdir(SESSION_HOME)):
                         rndStr = rand_N_letters(6);
                         SESSION_HOME = "{}/{}{}".format(SESSION_HOME, date, rndStr);
                         if not (os.path.isdir(SESSION_HOME)):
-                            print "Creating directory into {}".format(SESSION_HOME)
+                            #print "Creating directory into {}".format(SESSION_HOME)
                             os.mkdir(SESSION_HOME);
                             break;
                 OUTPUT_HOME = eval_path(SESSION_HOME);
@@ -2170,19 +2586,19 @@ def stanalyzer_sendJob(request):
                 
             PBS_HOME = "{}pbs".format(OUTPUT_HOME);
             if not (os.path.isdir(PBS_HOME)):
-                print "creating PBS_HOME: {}".format(PBS_HOME);
+                #print "creating PBS_HOME: {}".format(PBS_HOME);
                 os.mkdir(PBS_HOME);
 
             SH_HOME  = "{}sh".format(OUTPUT_HOME);
             if not (os.path.isdir(SH_HOME)):
-                print "creating SH_HOME: {}".format(SH_HOME);
+                #print "creating SH_HOME: {}".format(SH_HOME);
                 os.mkdir(SH_HOME);
             
             # Wriring variables into binary format
             file_out = "{}para".format(OUTPUT_HOME);
             
             # ---------------------------- Writing PBS
-            print "PBS: {}".format(pbs);
+            #print "PBS: {}".format(pbs);
             for ifunc in func_name:
                 tmp = "{}/{}.pbs".format(PBS_HOME, ifunc);
                 fid_i = open(tmp, 'w');
@@ -2224,7 +2640,7 @@ def stanalyzer_sendJob(request):
             
             
             # ---------------------------- Insert job into a table ---------------------------------
-            print "HERE works"
+            #print "HERE works"
             conn = sqlite3.connect(dbName);
             c = conn.cursor();
             
@@ -2232,53 +2648,53 @@ def stanalyzer_sendJob(request):
             stime     = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
             query = """INSERT INTO gui_job (name, proj_id, anaz, status, output, stime, etime) \
                     VALUES ("{0}", {1}, "{2}", "{3}", "{4}", "{5}", "{6}")""".format(job_title, pkey, funcNames, 'SENT', OUTPUT_HOME, stime, 'N/A');
-            print query
+            #print query
             c.execute(query);
             conn.commit();
-            print "Job table updated!"
+            #print "Job table updated!"
             
-            print "# ---------------------------- Insert parameter into a table ---------------------------------"
+            #print "# ---------------------------- Insert parameter into a table ---------------------------------"
             #print "Paras: {}".format(Paras);
             #print "func_name: {}".format(func_name);
             #print "ParaInfo: {}".format(ParaInfo);
             #calculating the most recent Job primary key
             query = """SELECT id FROM gui_job WHERE proj_id = {0} AND stime = "{1}" """.format(pkey, stime);
-            print query
+            #print query
             c.execute(query);
             job_pkey = c.fetchone();
             para_pkeys = [];
-            print job_pkey[0];
+            #print job_pkey[0];
             for i in range(len(func_name)):
                 para_pkey = [];
                 for j in range(len(Paras[i])):
                     query = """INSERT INTO gui_parameter (job_id, anaz, para, val, status) \
                             VALUES ({0}, "{1}", "{2}", "{3}", "{4}")""".format(job_pkey[0], func_name[i], ParaInfo[i][j], Paras[i][j], 'SENT');
-                    print query;
+                    #print query;
                     c.execute(query);
                     conn.commit();
                 query = """SELECT id FROM gui_parameter WHERE job_id = {0} AND anaz = "{1}" """.format(job_pkey[0], func_name[i]);
-                print query
+                #print query
                 c.execute(query);
                 tmp_para_pkey = c.fetchall();
                 for item in tmp_para_pkey:
                     para_pkey.append(item[0]);
                 para_pkeys.append(para_pkey);
-                print "parameter table updated!"
+                #print "parameter table updated!"
                     
-            print "# ---------------------------- Display tables ---------------------------------"
-            print "Items in gui_job"
+            #print "# ---------------------------- Display tables ---------------------------------"
+            #print "Items in gui_job"
             query = "SELECT * from gui_job";
             c.execute(query);
             row = c.fetchall();
-            for item in row:
-                print item;
+            #for item in row:
+            #    print item;
                 
-            print "Items in gui_parameter"
+            #print "Items in gui_parameter"
             query = "SELECT * from gui_parameter";
             c.execute(query);
             row = c.fetchall();
-            for item in row:
-                print item;
+            #for item in row:
+            #    print item;
 
             conn.close();
 
@@ -2310,10 +2726,10 @@ def stanalyzer_sendJob(request):
                 'paraInfo'          : ParaInfo,
             }
             
-            print "works {}".format(PBS_HOME)
+            #print "works {}".format(PBS_HOME)
             # save dictionary into a file
             #file_out = "{}para".format(OUTPUT_HOME)
-            print "Writing binary file {}".format(file_out);
+            #print "Writing binary file {}".format(file_out);
             fid_out = open(file_out, 'wb');
             pickle.dump(c, fid_out);
             fid_out.close();
@@ -2332,4 +2748,119 @@ def stanalyzer_sendJob(request):
                     os.system(cmd);
 
             return HttpResponse(json.dumps(c));
-        
+
+
+def makeDownload(request):
+    # check out authority 
+    if 'user_id' not in request.session:
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+                }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+    
+    request.session.set_expiry(SESSION_TIME_OUT);
+    output_id 	= request.GET.get('id');
+    dfield = request.GET.get('dformat');
+    conn = sqlite3.connect(dbName);
+    c = conn.cursor();
+    query = """select {0} from gui_outputs where id = {1}""".format(dfield, output_id);
+    #print query;
+    c.execute(query);
+    row = c.fetchone();
+    #print "the path of [{0}] in output_id ({1}) is {2}".format(dfield, output_id, row[0]);
+    path = row[0];
+    
+    # link the file
+    wrapper = FileWrapper( open( path, "r" ) )
+    content_type = mimetypes.guess_type( path )[0]
+
+    response = HttpResponse(wrapper, content_type = content_type)
+    response['Content-Length'] = os.path.getsize( path ) # not FileField instance
+    response['Content-Disposition'] = 'attachment; filename={0}'.format(smart_str( os.path.basename( path ) ));
+
+    return response
+
+def mediaLink(request, file_name):
+    #print "=== I am in mediaLink ==="
+    path = '/{}'.format(file_name);
+    #print path
+    wrapper = FileWrapper( open( path, "r" ) )
+    content_type = mimetypes.guess_type( path )[0]
+
+    response = HttpResponse(wrapper, content_type = content_type)
+    response['Content-Length'] = os.path.getsize( path ) # not FileField instance
+    response['Content-Disposition'] = 'attachment; filename={0}'.format(smart_str( os.path.basename( path ) ));
+
+    return response
+
+def wysFileManager(request):
+    #print request
+    c ={
+            'output'        : 'okay updated!'
+	}
+    return HttpResponse(json.dumps(c));
+
+def resultView_DBmanager(request):
+    print "* I am in resultView_DBmanager";
+    # check out authority 
+    if 'user_id' not in request.session:
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+                }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+
+    request.session.set_expiry(SESSION_TIME_OUT);
+    user_id = request.session['user_id'];
+    
+    if request.is_ajax() and (request.method == 'POST'):
+        cmd   = request.POST.get('cmd');
+    else:
+        cmd = 'http';           # connection with URL
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+            }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request))
+    
+    if cmd == 'delete':
+        print "OKAY I am in delete DB manager (Result View)"
+	table 	= request.POST.get('table');
+	tmpIDs	= request.POST.get('IDs');
+	flag_del= request.POST.get('del');
+	
+	# parsing IDs
+	listIDs = tmpIDs.split(',');
+	IDs = [];
+	for num in listIDs:
+	    if '-' in num:
+		print "FOUND conataining '-': {}".format(num);
+		tmp = num.split('-');
+		num1 = int(tmp[0]);
+		num2 = int(tmp[1]);
+		if num1 < num2:
+		    tmp2 = range(num1,num2+1);
+		else:
+		    tmp2 = range(num2,num1+1);
+		for i in tmp2:
+		    IDs.append(i);
+	    else:
+		tmp2 = int(num);
+		IDs.append(tmp2);
+	IDs = set(IDs);
+	IDs = list(IDs);
+	
+	# deleting gui_project
+	if table == 'gui_project':
+	    print "** DELETE gui_project **";
+	    delProjects(IDs, dbName, flag_del);
+	elif table == 'gui_outputs':
+	    print "** DELETE gui_outputs **";
+	    delOutputs(IDs, dbName, flag_del);
+	    
+        c = {
+            'fUsers'    : IDs,
+        }
+    return HttpResponse(json.dumps(c));
+

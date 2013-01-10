@@ -1,0 +1,271 @@
+<!-- for Job Viewer -->
+<meta name="author" conent="Jong Cheol Jeong (people.eecs.ku.edu/~jjeong)" />
+<link rel="stylesheet" href="/static/jqGrid_master/themes/ui.multiselect.css" />
+<link rel="stylesheet" href="/static/jqGrid_master/themes/ui.jqgrid.css" />
+<link rel="stylesheet" href="/static/jwysiwyg/jquery.wysiwyg.css" />
+<link rel="stylesheet" href="/static/jwysiwyg/wysiwyg.custom.css" />
+<link rel="stylesheet" href="/static/jwysiwyg/plugins/fileManager/wysiwyg.fileManager.css" />
+
+<script src="/static/jqGrid_master/themes/js/jquery.layout.js" type="text/javascript"></script>
+<script src="/static/jqGrid_master/js/i18n/grid.locale-en.js" type="text/javascript"></script>
+<script src="/static/jqGrid_master/themes/js/ui.multiselect.js" type="text/javascript"></script>
+<script src="/static/jqGrid_master/themes/js/jquery.jqGrid.min.js" type="text/javascript"></script>
+<script src="/static/jwysiwyg/jquery.wysiwyg.js" type="text/javascript"></script>
+<script src="/static/jwysiwyg/controls/wysiwyg.colorpicker.js" type="text/javascript"></script>
+<script src="/static/jwysiwyg/controls/wysiwyg.cssWrap.js" type="text/javascript"></script>
+<script src="/static/jwysiwyg/controls/wysiwyg.image.js" type="text/javascript"></script>
+<script src="/static/jwysiwyg/controls/wysiwyg.link.js" type="text/javascript"></script>
+<script src="/static/jwysiwyg/controls/wysiwyg.table.js" type="text/javascript"></script>
+<script src="/static/jwysiwyg/plugins/wysiwyg.fileManager.js" type="text/javascript"></script>
+
+
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+function isNumberKey(evt) {
+    var charCode = (evt.which) ? evt.which : event.keyCode
+    if ((charCode > 31 && charCode < 44) || (charCode > 45 && charCode < 48) || charCode > 57) {
+	msg = "comma(,), hyphen(-), and number only! ";
+	alert(msg);
+	return false;
+       //return ["',', '-', and number only! "];
+    }
+    return true;
+}
+
+function eval_rstView_DBmgr() {
+    var txt = $j("#rstView #selIDs").val();
+    if (txt.trim().length < 1) {
+	return ['ID is required!'];
+    }
+    return false;
+}
+
+$j(document).ready(function(){
+    $j("#rstView #sub_DBmgr").click(function(){
+	var err = eval_rstView_DBmgr();
+	if (err) {
+	    alert(err);
+	    $j("#rstView #selIDs").val('').focus();
+	    return false;
+	}
+	var table 	= $j("#rstView #DBmgr option:selected").val();
+	var IDs   	= $j("#rstView #selIDs").val();
+	var flag_del	= $j("#rstView #delDir").prop('checked');
+	var sndData = {
+	    'cmd'     	: 'delete',
+	    'table'	: table,
+	    'IDs'	: $j.trim(IDs),
+	    'del'	: flag_del,
+	}
+    
+	var request = $j.ajax({
+	type: "POST",
+	url: '/gui/resultView_DBmanager/',
+	cache: false,
+	data: sndData,
+	async: false,
+	});
+	
+	request.done(function(Jdata) {
+	    var obj = $j.parseJSON(Jdata);
+	 });
+    
+	request.error(function(jqXHR, textStatus, errorThrown) {
+	});
+    });
+    
+    $j('#wys_result').wysiwyg({
+	controls:
+	{
+		      bold          : { visible : true },
+		      italic        : { visible : true },
+		      underline     : { visible : true },
+		      strikeThrough : { visible : true },
+		      
+		      justifyLeft   : { visible : true },
+		      justifyCenter : { visible : true },
+		      justifyRight  : { visible : true },
+		      justifyFull   : { visible : true },
+
+		      indent  : { visible : true },
+		      outdent : { visible : true },
+
+		      subscript   : { visible : true },
+		      superscript : { visible : true },
+		      
+		      undo : { visible : true },
+		      redo : { visible : true },
+		      
+		      insertOrderedList    : { visible : true },
+		      insertUnorderedList  : { visible : true },
+		      insertHorizontalRule : { visible : true },
+
+		      h4: {
+			      visible: true,
+			      className: 'h4',
+			      command: ($j.browser.msie || $.browser.safari) ? 'formatBlock' : 'heading',
+			      arguments: ($j.browser.msie || $.browser.safari) ? '<h4>' : 'h4',
+			      tags: ['h4'],
+			      tooltip: 'Header 4'
+		      },
+		      h5: {
+			      visible: true,
+			      className: 'h5',
+			      command: ($j.browser.msie || $.browser.safari) ? 'formatBlock' : 'heading',
+			      arguments: ($j.browser.msie || $.browser.safari) ? '<h5>' : 'h5',
+			      tags: ['h5'],
+			      tooltip: 'Header 5'
+		      },
+		      h6: {
+			      visible: true,
+			      className: 'h6',
+			      command: ($j.browser.msie || $.browser.safari) ? 'formatBlock' : 'heading',
+			      arguments: ($j.browser.msie || $.browser.safari) ? '<h6>' : 'h6',
+			      tags: ['h6'],
+			      tooltip: 'Header 6'
+		      },
+		      
+		      cut   : { visible : true },
+		      copy  : { visible : true },
+		      paste : { visible : true },
+		      html  : { visible: true },
+		      increaseFontSize : { visible : true },
+		      decreaseFontSize : { visible : true },
+		      exam_html: {
+			      exec: function() {
+				      this.insertHtml('<abbr title="exam">Jam</abbr>');
+				      return true;
+			      },
+			      visible: true
+		      },
+		    fileManager: { 
+			    visible: true,
+			    groupIndex: 12,
+			    tooltip: "File Manager",
+			    exec: function () {
+				    $j.wysiwyg.fileManager.init(function (file) {
+					file ? alert(file) : alert("No file selected.");
+				    });
+			    }
+		    }
+	},
+	css: '/static/jwysiwyg/wysiwyg.custom.css'
+    });
+    $j.wysiwyg.fileManager.setAjaxHandler("/gui/wys_FileManager/");
+    
+    $j("#testWys").click(function(){
+	$j('#wys_result').wysiwyg('clear');
+	$j('#wys_result').wysiwyg('focus');
+	$j('#wys_result').wysiwyg('insertImage', '/gui/mediaLink/home2/jcjeong/tmp/box/syj.jpg', {'class': 'wysImg', 'className':'wysImg'});
+    });
+    
+    
+    /* ******************************************************
+     * Defining top grid (i.e. gui_project)
+     * ******************************************************/ 
+    $j("#resultTable").jqGrid({
+	url		:'/gui/jobView_jqGrid_prj/',
+	datatype	: 'json',
+	mtype		: 'GET',
+	colNames	:['ID','User', 'Title'],
+	colModel:[
+		{name:'id',index:'id', width:20, key:true},
+		{name:'user_id',index:'user_id', width:50},
+		{name:'name',index:'name', width:200},
+	    ],
+	rowNum		:10,
+	rowList		:[5,10,20,30],
+	pager		: "#result_pager",
+	sortname	: "id",
+	//viewrecords	: true,
+	sortorder	: "desc",
+	//gridview	: true,
+	caption		:"Project Retrieval",
+	width		: 895,
+	height		: 450,
+	//multiselect	: false,
+	/* ******************************************************
+	 * Defining second grid (i.e. gui_job)
+	 * ******************************************************/ 
+	subGrid		: true,
+	// define the icons in subgrid
+	subGridOptions: {
+		"plusicon"  : "ui-icon-triangle-1-e",
+		"minusicon" : "ui-icon-triangle-1-s",
+		"openicon"  : "ui-icon-arrowreturn-1-e"
+	},
+	subGridRowExpanded: function(subgrid_id, row_id) {
+		var subgrid_table_id, pager_id;
+		subgrid_table_id = subgrid_id+"_t";
+		pager_id = "p_"+subgrid_table_id;
+		$j("#"+subgrid_id).html("<table id='"+subgrid_table_id+"' class='scroll'></table><div id='"+pager_id+"' class='scroll'></div>");
+		$j("#"+subgrid_table_id).jqGrid({
+		    url:"/gui/resultView_jqGrid_results/?prj_id="+row_id,
+		    datatype	: 'json',
+		    mtype		: 'GET',
+		    colNames	:['ID','JOB ID', 'Job Name', 'Image', 'Text', 'ZIP'],
+		    colModel:[
+			    {name:'id',index:'id', width:15, key:true},
+			    {name:'job_id',index:'job_id', width:15},
+			    {name:'name',index:'name', width:100},
+			    {name:'img',index:'img', width:40, formatter:'showlink', formatoptions:{baseLinkUrl:'/gui/download/', addParam: '&dformat=img'}},
+			    {name:'txt',index:'txt', width:40, formatter:'showlink', formatoptions:{baseLinkUrl:'/gui/download/', addParam: '&dformat=txt'}},
+			    {name:'gzip',index:'gzip', width:40, formatter:'showlink', formatoptions:{baseLinkUrl:'/gui/download/', addParam: '&dformat=gzip'}}
+			    ],
+		    rowNum		:10,
+		    rowList		:[5,10,20,30],
+		    pager		: pager_id,
+		    sortname		: "id",
+		    sortorder		: "desc",
+		    caption		:"Outputs",
+		    width		: 850,
+		    height		: 250,
+		});
+		$j("#"+subgrid_table_id).jqGrid('navGrid','#'+pager_id,{edit:false,add:false,del:false, search:false});
+		$j("#"+subgrid_table_id).jqGrid('filterToolbar', {stringResult: true, searchOnEnter: false});
+	},
+    });
+    $j("#resultTable").jqGrid('navGrid','#result_pager',{edit:false,add:false,del:false, search:false});
+    $j("#resultTable").jqGrid('filterToolbar', {stringResult: true, searchOnEnter: false});
+});
+    
+</script>
+<!--
+<table>
+    <tr>
+	<td><table id="resultTable"></table><div id="result_pager"></div></td>
+	<td></td>
+	<td><textarea id="wys_result" rows="32" cols=53></textarea><button id="testWys">SHOW</button></td>	
+    </tr>
+</table>
+--->
+<div id="result_buttons">
+    <table id="resultTable"></table>
+    <div id="result_pager"></div>
+    <div id="user_err_msg"></div>
+    <div id="usr_msg"></div>
+    <div id="rstView">
+	<center>
+	<table>
+	    <tr>
+		<td class="center"><b>Target</b></td><td class="center"><b>IDs</b> (<i>Using ',' for multiple IDs and '-' for continuous IDs</i>)</td><td class="center w70"><b>Directory</b></td><td></td>
+	    </tr>
+		<td>
+		    <select id="DBmgr">
+			<option value="gui_project">Project Retrieval</option>
+			<option value="gui_outputs">Outputs</option>
+		    </select>
+		</td>
+		<td>
+		    <input type="text" onkeypress="return isNumberKey(event)" name="selIDs" size="70" id="selIDs">
+		</td>
+		<td class="center">
+		    <input type="checkbox" name="delDir" id="delDir">
+		</td>
+		<td>
+		    <button id="sub_DBmgr">DELETE</button>
+		</td>
+	</table>
+	</center>
+    </div>
+</div>

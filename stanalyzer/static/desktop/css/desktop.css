@@ -145,6 +145,41 @@ div.ui-resizable-handle {
   opacity: 1;
 }
 
+.window_resultViewer {
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -webkit-background-clip: padding-box;
+  color: #000;
+  display: none;
+  width: 1024px;
+  height: 650px;
+  top: 30px;
+  left: 120px;
+  z-index: 2;
+}
+
+.window_resultViewer.window_stack,
+.window_resultViewer.ui-draggable-dragging {
+  z-index: 10;
+}
+
+.window_resultViewer.ui-draggable-dragging {
+  opacity: 0.5;
+}
+
+.window_resultViewer.ui-draggable-dragging .window_content,
+.window_resultViewer.ui-draggable-dragging .window_bottom {
+  display: none;
+}
+
+.window_full.ui-draggable-dragging {
+  opacity: 1;
+}
+
+
 .window_full.ui-draggable-dragging .window_content,
 .window_full.ui-draggable-dragging .window_bottom {
   display: block;

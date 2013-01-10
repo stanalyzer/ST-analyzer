@@ -1,5 +1,18 @@
 # Django settings for stanalyzer project.
 
+import os.path
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__));
+dbName = "{}/stanalyzer.db".format(PROJECT_ROOT[0:len(PROJECT_ROOT)-11]);
+media_dir = "{}/media".format(PROJECT_ROOT[0:len(PROJECT_ROOT)-11]);
+static_dir =  "{}/static".format(PROJECT_ROOT[0:len(PROJECT_ROOT)-11]);
+template_dir = "{}/templates".format(PROJECT_ROOT[0:len(PROJECT_ROOT)-11]);
+
+#print "======================================= ABSOLUTE_PATH ============================"
+#print dbName
+#print media_dir
+#print static_dir
+
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -12,7 +25,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '/home2/jcjeong/project/stanalyzer0/stanalyzer/stanalyzer.db',                      # Or path to database file if using sqlite3.
+        'NAME': dbName,                      # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -45,12 +58,12 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = '/home2/jcjeong/project/stanalyzer0/stanalyzer/media/'
+MEDIA_ROOT = media_dir
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
@@ -67,7 +80,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    '/home2/jcjeong/project/stanalyzer0/stanalyzer/static',
+    static_dir,
 )
 
 # List of finder classes that know how to find static files in
@@ -107,7 +120,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    '/home2/jcjeong/project/stanalyzer0/stanalyzer/templates'
+    template_dir
 )
 
 INSTALLED_APPS = (
