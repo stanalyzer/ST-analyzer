@@ -5,6 +5,91 @@ Simulation Trajectory Analysis for Molecular Dynamics
 
 ![screenshot](http://people.eecs.ku.edu/~jjeong/images/STanalyzer/ST_Analyzer.png)
 
-Install
-=======
-![help](/stanalyzer/templates/gui/help.html)
+<h1>Requirement</h1>
+    <ul>
+	<li class="help_font2 help_size1"><a class="underline2" href="http://www.python.org/" target="_blank">Python</a></li>
+	<p class="indent1"><b><i>Useful links</i></b></p>
+	    <ul>
+		<li><a class="underline2" href="http://stackoverflow.com/questions/5506110/it-is-possible-to-install-another-version-of-python-to-virtualenv" target="_blank">It is possible to install another version of Python to Virtualenv?</a></li>
+		<li><a class="underline2" href="http://peak.telecommunity.com/DevCenter/EasyInstall#custom-installation-locations" target="_blank">Custom Installation Locations</a></li>
+		<li><a class="underline2" href="http://jessenoller.com/2009/03/16/so-you-want-to-use-python-on-the-mac/" target="_blank">So you want to use python on the Mac?</a></li>
+	    </ul>
+
+	<li class="help_font2 help_size1"><a class="underline2" href="https://www.djangoproject.com/" target="_blank">Django</a></li>
+	    <p class="indent1"><b><i>Useful links</i></b></p>
+	    <ul>
+		<li><a class="underline2" href="http://djangotricks.blogspot.com/2008/09/note-on-python-paths.html" target="_blank">Django Tricks</a></li>
+	    </ul>
+	
+	<li class="help_font2 help_size1"><a class="underline2" href="http://code.google.com/p/mdanalysis/" target="_blank">MDanalysis</a></li>
+	    <p class="indent1"><b><i>Useful links</i></b></p>
+	    <ul>
+		<li><a class="underline2" href="http://www.enthought.com/" target="_blank">Enthought Python Distribution (EPD)</a></li>
+	    </ul>
+    </ul>
+<hr/>
+<h1>Install</h1>
+    <ol>
+	<li class="help_font2 help_size1">Download ST-Analyzer from Git-hub</li>
+	    <ul>
+		<li>Manual download: <a class="underline2" href="https://github.com/jcjeong/Membrane-Analyzer" target="_blank">https://github.com/jcjeong/Membrane-Analyzer</a></li>
+		<li>Git clone (using commandline): <a class="underline2" href="#">git clone git@github.com:jcjeong/Membrane-Analyzer.git</a></li>
+	    </ul>
+
+	<li class="help_font2 help_size1">Configuration</li>
+	    <ol type="i">
+		<p class="indent0"><b><i>Let's assume ST-Analyzer is stored into /home/your_account/Membrane-Analyzer/stanalyzer</i></b></p>
+		<li>You now can see files including 'manage.py' 'stanalyzer.db' and directories including 'gui', 'stanalyzer', 'templates', and 'trajectory'
+		<br/> - <b><i>manage.py</i></b>: executable python file to run Django server
+		<br/> - <b><i>stanalyzer.db</i></b>: Database file to store information (e.g. account, project, jobs and etc). Initital account and password are 'admin' and '12345' respectively.
+		<br/> - <b><i>gui</i></b>: most important part of ST-analyzer including 'models' and 'views'
+		<br/> - <b><i>media</i></b>: default directory to store the output of Jobs
+		<br/> - <b><i>static</i></b>: directory storing APIs and functions used in ST-Analyzer
+		<br/> - <b><i>stanalyzer</i></b>: directory containing system setup files
+		<br/> - <b><i>templates</i></b>: containing template files
+		<br/> - <b><i>trajectory</i></b>: containing sample trajectory files - "It is okay to remove this directory!"
+		</li><br/>
+		<li>Modify Django system setup file in /home/your_account/Membrane-Analyzer/stanalyzer/stanalyzer/setttings.py
+		<br/> 1). At line 15: change the DB path corresponding to the location of 'stanalyzer.db' in your system e.g) 'NAME': '/home/your_account/Membrane-Analyzer/stanalyzer/stanalyzer.db'
+		<br/> 2). At line 45: change 'media' path corresponding to the location of 'media' in your system e.g) MEDIA_ROOT = '/home/your_account/Membrane-Analyzer/stanalyzer/media/'
+		<br/> 3). At line 70: change 'static' path corresponding to the location of 'static' in your system e.g) STATICFILES_DIRS = ('/home/your_account/Membrane-Analyzer/stanalyzer/static',)
+		<br/> 4). At line 106: change 'template' path corresponding to the location of 'templates' in your system e.g) TEMPLATE_DIRS = ('/Users/jcjeong/project/stanalyzer1/stanalyzer/templates')
+		</li><br/>
+		<li>Check out DB consistency
+		<br/> 1) you@system> cd /home/your_account/Membrane-Analyzer/stanalyzer
+		<br/> 2) you@system> python manage.py syncdb
+		</li><br/>
+		<li>Run Django to launch ST-Analyzer
+		<br/> 1) you@system> cd /home/your_account/Membrane-Analyzer/stanalyzer
+		<br/> 2) you@system> python manage.py runserver [8000]   # the number corresponding to the port that you want to communicate with ST-Analyzer
+		</li><br/>
+		<li>Open your browser and connect to ST-Analyzer through http://127.0.0.1:8000/
+		<br/> - You will see the ST-Analyzer login.
+		<br/> - Initial account and password are 'admin' and '12345' 
+		</li>
+	    </ol>
+    </ol>
+<hr/>
+<h1>Known Issues</h1>
+    <ul>
+	<li class="help_font2 help_size1">Firewall</li>
+	<ul>
+	    <li>Due to firewall, certain system environment may not allow to communicate between client and server through Django. To go around this problem, you can use ssh trick by forwarding the port to local port
+	    <br/> you@system> cd ~/.ssh
+	    <br/> you@ysstem> vi config
+	    <br/> <span class="indent1">Edit 'config' file as following: </span>
+	    <br/> <span class="indent1">Host any_name</span>
+	    <br/> <span class="indent1">HostName your.server.com</span>
+	    <br/> <span class="indent1">LocalForward 8000 127.0.0.1:8000</span>
+	    </li>
+	    <li>If you need more information about ssh tricks please visit <a class="underline2" href="http://nerderati.com/2011/03/simplify-your-life-with-an-ssh-config-file/" target="_blank">here</a></li>
+	</ul>
+	<li class="help_font2 help_size1">Running Django in background: this will not work behind firewall due to the requirement of forwarding local port</li>
+	    <ul>
+		<li>you@system> cd  /your_home/stanalyzer</li>
+		<li> you@system> python manage.py runserver &			# run django background </li>
+		<li> you@system> jobs						# checkout job number in same console </li>
+		<li> you@system> disown -h job_number				# you now are safe with logout </li>
+		<li> you@system> kill -9 pid					# shutdown Django </li>
+	    </ul>
+    </ul>G
