@@ -230,14 +230,14 @@ def delDir(dir_path):
 	    file_path = os.path.join(dir_path, f)
 	    try:
 		if os.path.isfile(file_path):
-		    #os.remove(file_path);
-		    print "remove {}".format(file_path);
+		    os.remove(file_path);
+		    #print "remove {}".format(file_path);
 		else:
 		    shutil.rmtree(file_path);
 	    except Exception, e:
 		print e
-	#shutil.rmtree(dir_path);
-	print "remove {}".format(dir_path);
+	shutil.rmtree(dir_path);
+	#print "remove {}".format(dir_path);
 
 
 #********************************************
@@ -292,7 +292,9 @@ def delOutputs (IDs, dbName, delFlg):
 			delDir(path_dir);
 
 	    query = "DELETE FROM gui_outputs WHERE id={0}".format(output_id);
-	    print query;
+	    c.execute(query);
+	    conn.commit();
+	    #print query;
     else:
 	if delFlg == 'true':
 	    query = "SELECT img, txt, gzip FROM gui_outputs WHERE id={0}".format(IDs);
@@ -305,7 +307,9 @@ def delOutputs (IDs, dbName, delFlg):
 		    delDir(path_dir);
 
 	query = "DELETE FROM gui_outputs WHERE id={0}".format(IDs);
-	print query;
+	c.execute(query);
+	conn.commit();
+	#print query;
     conn.close();
 
 def delOutputs_from_jobID (IDs, dbName, delFlg):
@@ -328,29 +332,33 @@ def delOutputs_from_jobID (IDs, dbName, delFlg):
 			delDir(path_dir);
 
 	    query = "DELETE FROM gui_outputs WHERE job_id={0}".format(job_id);
-	    print query;
+	    c.execute(query);
+	    conn.commit();
+	    #print query;
     else:
 	print "--- this runs with SCHOLAR {0}".format(IDs);
-	print delFlg
-	print "Type is {0}".format(type(delFlg));
+	#print delFlg
+	#print "Type is {0}".format(type(delFlg));
 	if delFlg == 'true':
 	    query = "SELECT img, txt, gzip FROM gui_outputs WHERE job_id={0}".format(IDs);
-	    print query
+	    #print query
 	    c.execute(query);
 	    row = c.fetchall();
-	    print row
+	    #print row
 	    for f in row:
 		print "====== Split word ===="
 		if '/' in f[0]:
 		    path_img = f[0].split('/');
 		    path_dir = '/'.join(path_img[:len(path_img)-1])
-		    print path_dir
+		    #print path_dir
 		    delDir(path_dir);
 		else:
 		    print "With no path {0}".format(f[0]);
 		    
 	query = "DELETE FROM gui_outputs WHERE job_id={0}".format(IDs);
-	print query;
+	c.execute(query);
+	conn.commit();
+	#print query;
     conn.close();
 
 def delJobs (IDs, dbName, delFlg):
@@ -362,7 +370,7 @@ def delJobs (IDs, dbName, delFlg):
 	for job_id in IDs:
 	    #delete gui_parameter, gui_outputs
 	    query = "DELETE FROM gui_parameter WHERE job_id={0}".format(job_id);
-	    print query
+	    #print query
 	    delOutputs_from_jobID(job_id, dbName, delFlg);
 	    if delFlg == 'true':
 		#deleting job output directory
@@ -373,11 +381,15 @@ def delJobs (IDs, dbName, delFlg):
 		    if '/' in f[0]:
 			delDir(f[0]);
 	    query = "DELETE FROM gui_job WHERE id={0}".format(job_id);
-	    print query
+	    c.execute(query);
+	    conn.commit();
+	    #print query
     else:
 	#delete gui_parameter, gui_outputs
 	query = "DELETE FROM gui_parameter WHERE job_id={0}".format(IDs);
-	print query
+	c.execute(query);
+	conn.commit();
+	#print query
 	delOutputs_from_jobID(IDs, dbName, delFlg);
 	if delFlg == 'true':
 	    query = "SELECT output FROM gui_job WHERE id={0}".format(IDs);
@@ -387,7 +399,9 @@ def delJobs (IDs, dbName, delFlg):
 		if '/' in f[0]:
 		    delDir(f[0]);
 	query = "DELETE FROM gui_job WHERE id={0}".format(IDs);
-	print query
+	c.execute(query);
+	conn.commit();
+	#print query
     
     conn.close();
     
@@ -405,22 +419,26 @@ def delJobs_from_prjID (IDs, dbName, delFlg):
 		job_id = item[0];
 		#delete gui_parameter, gui_outputs
 		query = "DELETE FROM gui_parameter WHERE job_id={0}".format(job_id);
-		print query
+		c.execute(query);
+		conn.commit();
+		#print query
 		delOutputs_from_jobID(job_id, dbName, delFlg);
 		if delFlg == 'true':
 		    query = "SELECT output FROM gui_job WHERE id={0}".format(job_id);
-		    print query
+		    #print query
 		    c.execute(query);
 		    row2 = c.fetchall();
-		    print "Print Row2"
-		    print row2
+		    #print "Print Row2"
+		    #print row2
 		    for f in row2:
 			if '/' in f[0]:
 			    delDir(f[0]);
 
 	    # delte gui_job corresponding to proj_id
 	    query = "DELETE FROM gui_job WHERE proj_id={0}".format(proj_id);
-	    print query
+	    c.execute(query);
+	    conn.commit();
+	    #print query
     else:
 	query = "SELECT id FROM gui_job WHERE proj_id = {0}".format(IDs);
 	c.execute(query);
@@ -429,7 +447,9 @@ def delJobs_from_prjID (IDs, dbName, delFlg):
 	    job_id = item[0];
 	    #delete gui_parameter, gui_outputs
 	    query = "DELETE FROM gui_parameter WHERE job_id={0}".format(job_id);
-	    print query
+	    c.execute(query);
+	    conn.commit();
+	    #print query
 	    delOutputs_from_jobID(job_id, dbName, delFlg);
 	if delFlg == 'true':
 	    query = "SELECT output FROM gui_job WHERE id={0}".format(IDs);
@@ -440,33 +460,53 @@ def delJobs_from_prjID (IDs, dbName, delFlg):
 		    delDir(f[0]);
 	# delte gui_job corresponding to proj_id
 	query = "DELETE FROM gui_job WHERE proj_id={0}".format(IDs);
-	print query
+	c.execute(query);
+	conn.commit();
+	#print query
     conn.close();
 
 def delProjects (IDs, dbName, delFlg):
     print "*** FUNC: delProjects"
     delJobs_from_prjID(IDs, dbName, delFlg);
+    conn = sqlite3.connect(dbName);
+    c = conn.cursor();
     if isinstance(IDs, list):
 	# delete gui_path_input, gui_path_output, gui_path_python
 	for proj_id in IDs:
 	    query = "DELETE FROM gui_path_input WHERE proj_id = {0}".format(proj_id);
-	    print query
+	    c.execute(query);
+	    conn.commit();
+	    #print query
 	    query = "DELETE FROM gui_path_output WHERE proj_id = {0}".format(proj_id);
-	    print query
+	    c.execute(query);
+	    conn.commit();
+	    #print query
 	    query = "DELETE FROM gui_path_python WHERE proj_id = {0}".format(proj_id);
-	    print query
+	    c.execute(query);
+	    conn.commit();
+	    #print query
 	    query = "DELETE FROM gui_project WHERE id = {0}".format(proj_id);
-	    print query
+	    c.execute(query);
+	    conn.commit();
+	    #print query
     else:
 	query = "DELETE FROM gui_path_input WHERE proj_id = {0}".format(IDs);
-	print query
+	c.execute(query);
+	conn.commit();
+	#print query
 	query = "DELETE FROM gui_path_output WHERE proj_id = {0}".format(IDs);
-	print query
+	c.execute(query);
+	conn.commit();
+	#print query
 	query = "DELETE FROM gui_path_python WHERE proj_id = {0}".format(IDs);
-	print query
+	c.execute(query);
+	conn.commit();
+	#print query
 	query = "DELETE FROM gui_project WHERE id = {0}".format(IDs);
-	print query
-		
+	c.execute(query);
+	conn.commit();
+	#print query
+    conn.close();
 
 #********************************************************
 # *  Validating path
@@ -2139,12 +2179,13 @@ def stanalyzer(request):
     user_id = request.session['user_id'];
     conn = sqlite3.connect(dbName);
     c = conn.cursor();
-    #print "OKAY~~~~~~~~ I am here !!!!!!!!!!!!!!!!!!!!"
+    print "** def stanalyzer";
     if request.is_ajax() and (request.method == 'POST'):
         #print "This is AJAX!"
         cmd   = request.POST.get('cmd');
         #print "Okay you requested CMD as {}".format(cmd);
         if (cmd == 'path'):
+	    print "\tCMD: path";
             pkey  = request.POST.get('pkey');
             pkey = pkey.strip(' \t\n\r');
 
@@ -2166,6 +2207,7 @@ def stanalyzer(request):
             path_py = c.fetchall();
             
         elif (cmd =='reload'):
+	    print "\tCMD: reload";
             #print "This is  AJAX with relaod!!!!!!"
             #c.execute("select id, user_id, name, path1, path2, path3, path4, path5, date, pbs from gui_project order by date desc")
             # find most recent one
@@ -2831,23 +2873,29 @@ def resultView_DBmanager(request):
 	flag_del= request.POST.get('del');
 	
 	# parsing IDs
+	tmpIDs = tmpIDs.strip(' \t\n\r');
 	listIDs = tmpIDs.split(',');
+	print "Let's see what I have got from IDs:"
+	print listIDs
+	
 	IDs = [];
 	for num in listIDs:
-	    if '-' in num:
-		print "FOUND conataining '-': {}".format(num);
-		tmp = num.split('-');
-		num1 = int(tmp[0]);
-		num2 = int(tmp[1]);
-		if num1 < num2:
-		    tmp2 = range(num1,num2+1);
+	    num = num.strip(' \t\n\r');		# remove white space
+	    if len(num) > 0:			# remove empty list
+		if '-' in num:
+		    print "FOUND conataining '-': {}".format(num);
+		    tmp = num.split('-');
+		    num1 = int(tmp[0]);
+		    num2 = int(tmp[1]);
+		    if num1 < num2:
+			tmp2 = range(num1,num2+1);
+		    else:
+			tmp2 = range(num2,num1+1);
+		    for i in tmp2:
+			IDs.append(i);
 		else:
-		    tmp2 = range(num2,num1+1);
-		for i in tmp2:
-		    IDs.append(i);
-	    else:
-		tmp2 = int(num);
-		IDs.append(tmp2);
+		    tmp2 = int(num);
+		    IDs.append(tmp2);
 	IDs = set(IDs);
 	IDs = list(IDs);
 	

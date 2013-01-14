@@ -24,10 +24,15 @@ var $j = jQuery.noConflict();
 function isNumberKey(evt) {
     var charCode = (evt.which) ? evt.which : event.keyCode
     if ((charCode > 31 && charCode < 44) || (charCode > 45 && charCode < 48) || charCode > 57) {
-	msg = "comma(,), hyphen(-), and number only! ";
-	alert(msg);
+	msg = "<span class='message_warn'>IDs (<i>Using ',' for multiple IDs and '-' for continuous IDs</i>)</span>";
+	$j("#idInput").empty().append(msg);
+	$j("#selIDs").focus();
 	return false;
        //return ["',', '-', and number only! "];
+    } else {
+	msg = "<b>IDs</b> (<i>Using ',' for multiple IDs and '-' for continuous IDs</i>)";
+	$j("#idInput").empty().append(msg);
+	$j("#selIDs").focus();
     }
     return true;
 }
@@ -49,6 +54,7 @@ $j(document).ready(function(){
 	    return false;
 	}
 	var table 	= $j("#rstView #DBmgr option:selected").val();
+	var table_title = $j("#rstView #DBmgr option:selected").text();
 	var IDs   	= $j("#rstView #selIDs").val();
 	var flag_del	= $j("#rstView #delDir").prop('checked');
 	var sndData = {
@@ -57,20 +63,73 @@ $j(document).ready(function(){
 	    'IDs'	: $j.trim(IDs),
 	    'del'	: flag_del,
 	}
-    
-	var request = $j.ajax({
-	type: "POST",
-	url: '/gui/resultView_DBmanager/',
-	cache: false,
-	data: sndData,
-	async: false,
-	});
 	
-	request.done(function(Jdata) {
-	    var obj = $j.parseJSON(Jdata);
-	 });
-    
-	request.error(function(jqXHR, textStatus, errorThrown) {
+        var msg = "You are trying to delete &#34<b>" + table_title +
+		   "</b>&#34. Corresponding IDs are &#34<b>" + IDs +
+		   "</b>&#34. This will result in followings: <br/><br/> Deleting Database: <b>yes</b> <br/>Deleting associated directories: <b>" +
+		   flag_del + "</b><br/><br/> Would you like to DELETE them all?<br/>";
+		   
+	$j("#dlg_confirm #dlg_msg").empty().append(msg).change();
+	$j( "#dlg_confirm" ).dialog({
+	    resizable: true,
+	    height:200,
+	    modal: true,
+	    buttons: {
+		Okay: function() {
+		    $j( this ).dialog( "close" );
+		    var request = $j.ajax({
+		    type: "POST",
+		    url: '/gui/resultView_DBmanager/',
+		    cache: false,
+		    data: sndData,
+		    async: false,
+		    });
+		    
+		    request.done(function(Jdata) {
+			var obj = $j.parseJSON(Jdata);
+	    /*-------Real time update of new project ------------*/
+			var sndData2 = {
+					'cmd'             : 'reload',
+				    }
+			var request2 = $j.ajax({
+			type: "POST",
+			url: '/gui/stanalyzer/',
+			cache: false,
+			data: sndData2,
+			async: false,
+			});
+			request2.done(function(J2data) {
+			    var obj2 = $j.parseJSON(J2data);
+			    alert("OBJ is " + obj2);
+			    
+			    var prj_option = "";
+			    
+			    for (var prj_cnt = 0; prj_cnt < obj2.pkey.length; prj_cnt++) {
+			      prj_option = prj_option + "<option pkey='" + obj2.pkey[prj_cnt] + "'>" + obj2.title[prj_cnt]+ "</option>";
+			    }
+			    $j("#step1 #prj").empty().append(prj_option).change();
+			    //alert(prj_option);
+			});
+		      
+			request2.error(function(jqXHR, textStatus, errorThrown) {
+			    //$j("#msg").append(textStatus);
+			    alert(textStatus);
+			});
+	    /*----------------------------------------------------*/
+
+			$j("#resultTable").trigger('reloadGrid');
+			$j("#prjTable").trigger('reloadGrid');
+			alert("Your requests have been successfully completed!");
+		     });
+		
+		    request.error(function(jqXHR, textStatus, errorThrown) {
+			alert("Error has been occured! Please check the permission of directories!");
+		    });
+		},
+		Cancel: function() {
+		    $j( this ).dialog( "close" );
+		}
+	    }
 	});
     });
     
@@ -248,7 +307,7 @@ $j(document).ready(function(){
 	<center>
 	<table>
 	    <tr>
-		<td class="center"><b>Target</b></td><td class="center"><b>IDs</b> (<i>Using ',' for multiple IDs and '-' for continuous IDs</i>)</td><td class="center w70"><b>Directory</b></td><td></td>
+		<td class="center"><b>Target</b></td><td class="center"><div id="idInput"><b>IDs</b> (<i>Using ',' for multiple IDs and '-' for continuous IDs</i>)</div></td><td class="center w70"><b>Directory</b></td><td></td>
 	    </tr>
 		<td>
 		    <select id="DBmgr">
