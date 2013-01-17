@@ -30,6 +30,7 @@
 <script type="text/javascript">
 var $j = jQuery.noConflict();
 
+
   $j(document).ready(function(){
        /*--------------------------------------------------------------------*/
        /*--- Get around using csrftoken while using ajax  for Django 1.4  ---*/
@@ -73,7 +74,7 @@ var $j = jQuery.noConflict();
 
 <script src="/static/chosen_master/chosen/chosen.jquery.js" type="text/javascript"></script>
 
-<script src="/static/asmselect/asmselect/jquery.asmselect.js"></script>
+<script src="/static/asmselect/asmselect/jquery.asmselect.js"></script>f
 
 <script type="text/javascript">
 var $j = jQuery.noConflict();
@@ -1343,7 +1344,7 @@ $j(document).ready(function(){
     });
     
     $j("#btn_sort").click(function(){
-	$j("#select_trj1 option").tsort('', {useVal:false});
+	$j("#select_trj1 option").tsort();
 	$j("#select_trj2 option").tsort();
 	return false;
     });
@@ -1367,7 +1368,7 @@ $j(document).ready(function(){
 	    $j(this).val('');
 	    $j("#select_trj1").empty().append(orgOption).change();
 	}
-	else if (key > 31) {
+	else {
 	    var kword = $j(this).val();
 	    var pattn = kword.replace(/\s+/g, '') + '+';
 	    var pattns = new RegExp(pattn, 'ig');
@@ -1405,7 +1406,7 @@ $j(document).ready(function(){
      *  Set all parameters of analyzer here to move STEP 2
      * ---------------------------------------------------
      */
-    //$j("#helix_tilt_form").hide();
+    $j("#helix_tilt_form").hide();
     /*
     $j("#helix_tilt_title").click(function () {
 	if ($j(this).is(":checked")) {
@@ -1416,14 +1417,13 @@ $j(document).ready(function(){
     });
     */
     
-    // ******** Category visibility control **********
-    /*
+    
     $j("#helix_tilt_form").hide();
     $j("#helix_tilt_title").click(function () {
 	$j("#helix_tilt_form").toggle(this.checked);
 	//alert($j(this).is(":checked"));
     });
-    */
+    
     
     $j('.next-tab').click(function() {
 	var Idx = eval_step1();
@@ -1433,10 +1433,6 @@ $j(document).ready(function(){
 	    $j(getID).focus();
 	} else {
 	    //alert("PASS!");
-	    
-	    var msgWait = "<img src='/static/images/circle2.gif' height='50' width='50' >Reading trajectory information...";
-	    $j("#trj_load_error").empty().append(msgWait);
-		
 	    var options = $j("#prj option");
 	    var idx = options.index(options.filter(":selected"));
 	    pkey = idx + 1;
@@ -1465,21 +1461,10 @@ $j(document).ready(function(){
 	    url: '/gui/get_structure/',
 	    cache: false,
 	    data: sndData,
-	    //async: false,
 	    });
     
 	    request.done(function(Jdata) {
-		var sysInfo = '<span class="ui-icon ui-icon-lightbulb" style="display:inline-block"></span>' 
-				+ '<span class="st_font2 st_size3 st_color5 st_align_bulb">First trajectory contains <span id="num_frame" class="st_color8 ">#</span>  frames (<span id="num_ps" class="st_color8 ">#</span> ps/frame) and <span id="num_atoms" class="st_color8">#</span>  atoms</span>'
-				+ '<span id="trj_load_error" class="message_warn"></span>';
-		
-		$j("#trj_load_error").empty().append(sysInfo);
-
 		var obj = $j.parseJSON(Jdata);
-		$j("#progressbar").empty();
-		//$j("#step2 #trj_load_error").empty();
-		$j("#step2 #num_frame").empty().append(obj.num_frm);
-		$j("#step2 #num_atoms").empty().append(obj.num_atom);
 		$j("#segID").empty();
 		for (var i = 0; i < obj.segList.length; i++) {
 		    addStr = "<option value='" + i + "'>" + obj.segList[i] + "</option>";
@@ -1496,7 +1481,7 @@ $j(document).ready(function(){
 	    });
 	  
 	    request.error(function(jqXHR, textStatus, errorThrown) {
-		$j("#trj_load_error").empty().append("Unknown structure file or trajectory file!"); 
+		$j("#msg").append(textStatus); 
 	    });
 	    //----------------------< setup step 2 : END>----------------------------------------
 	    

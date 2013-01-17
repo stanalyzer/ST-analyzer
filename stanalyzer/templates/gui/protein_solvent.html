@@ -1,0 +1,37 @@
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+
+$j(document).ready(function(){
+    $j("#M_protein_solvent").hide();
+    $j("#chk_protein_solvent").click(function () {
+	$j("#M_protein_solvent").toggle(this.checked);
+    });
+});
+</script>
+
+<div id="protein_solvent">
+    <table>
+	<tr>
+	    <td colspan="2"><input type="checkbox" id="chk_protein_solvent"><span class="st_font1 st_size3 st_color6"><b>Protein-Solvent</b></span></td>
+	</tr>
+	<tr><td colspan="2">
+	    <table id="M_protein_solvent">
+		<tr>
+		    <td class="w_module"> </td>
+		    <td>
+			<!--- calculating box size --->
+			<div id="cal_protein_solvent">
+			    <table>
+				<tr>
+				    <td class="left">
+					<input type="checkbox" id="protein_solvent_title">Module 1 <br/><hr/>
+				    </td>
+				</tr>
+			    </table>
+			</div>
+		    </td>
+		</tr>
+	    </table>
+	</td></tr>
+    </table>
+</div>

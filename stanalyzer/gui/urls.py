@@ -50,6 +50,7 @@ urlpatterns = patterns('gui.views',
     url(r'^mediaLink/(?P<file_name>.*$)', 'mediaLink'),
     url(r'^wys_FileManager/', 'wysFileManager'),
     
+    url(r'^test/', 'dummy_test'),
     url(r'^toydb_data/', 'toyView_data'),
 #    url(r'^toydb_prj/', 'toyView_prj'),
 #    url(r'^toydb_usr/', 'toyView_usr'),

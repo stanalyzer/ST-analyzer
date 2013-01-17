@@ -1,0 +1,204 @@
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+var cnt_protein = 0;			// count number of checked modules in 'protein' category
+var cnt_helix_tilt_form = 0;		// count number of adding new form for calculating helix_tilt
+var cnt_file_index = 0;
+var arr_h_tilt = [];			// array for adding new forms for calculating helix_tilt
+
+$j(document).ready(function(){
+    $j("#protein #M_protein #helix_tilt #helix_tilt_title").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    cnt_protein++;
+	} else {
+	    cnt_protein--;
+	    if (cnt_protein < 0) {
+		cnt_protein = 0;
+	    }
+	}
+	$j("#protein #cnt_protein").empty().append(cnt_protein);
+    });
+
+    
+    $j("#protein #helix_tilt #helix_tilt_form input[id^='helix_tilt']").css("color", "gray");
+
+    /* Adding forms for calculating helix tilt */
+    $j("#helix_tilt_form_add").click(function() {
+	cnt_helix_tilt_form++;
+	cnt_file_index++;
+	var h_tilt = '<tr id="helix_tilt_form_add_' + cnt_helix_tilt_form + '">'
+		     + '<td class="bottom"><input id="helix_tilt_frmInt' + cnt_helix_tilt_form + '" class="module_txtbox_frm" type="text" name="helix_tilt_frmInt" value="1"></td>'
+		     + '<td class="bottom w15"></td>'
+		     + '<td class="bottom"><input id="helix_tilt_outFile' + cnt_helix_tilt_form + '" class="module_txtbox_output" type="text" name="helix_tilt_outFile" value=' + '"output' + cnt_file_index + '.dat"></td>'
+		     + '<td class="bottom w15"></td>'
+		     + '<td><select data-placeholder="Choose a segment" class="chzn-select" style="width:100px;" id="segID' + cnt_helix_tilt_form + '" name="segID"></select></td>'
+		     + '<td><select data-placeholder="Choose start residue" class="chzn-select" style="width:100px;" id="stRes' + cnt_helix_tilt_form + '" name="stRes"></select></td>'
+		     + '<td><select data-placeholder="Choose final residue" class="chzn-select" style="width:100px;" id="edRes' + cnt_helix_tilt_form + '" name="edRes"></select></td>'
+		     + '<td class="bottom w15"></td>'
+		     + '<td><button id="helix_tilt_form_del_' + cnt_helix_tilt_form + '" num_idx="' + cnt_helix_tilt_form + '"><span class="module_font">DELETE</span></button></td>'
+		     + '</tr>';
+	
+	$j("#new_helix_tilt_frm").append(h_tilt);
+	
+	/* copy option values from sigID to sigID# */
+	var new_segID = "#segID" + cnt_helix_tilt_form;
+	$('#segID option').clone().appendTo(new_segID);
+
+	var new_stRes = "#stRes" + cnt_helix_tilt_form;
+	$('#stRes option').clone().appendTo(new_stRes);
+
+	var new_edRes = "#edRes" + cnt_helix_tilt_form;
+	$('#edRes option').clone().appendTo(new_edRes);
+	
+	$j("#new_helix_tilt_frm").filter('.chzn-select').chosen(); // apply to top level elems
+        $j("#new_helix_tilt_frm").find('.chzn-select').chosen();   // apply to nested elems
+	$j("#protein #helix_tilt #helix_tilt_form input[id^='helix_tilt']").css("color", "gray");
+	//alert(h_tilt);
+    });
+    
+    
+    /* deleting forms for calculating helix tilt */
+    $j("#new_helix_tilt_frm button[id^='helix_tilt_form_del']").live("click", function() {
+	idx = $(this).attr('num_idx');
+	var del_form = "#helix_tilt_form_add_" + idx;
+	//alert("num_idx=" + idx + "del_form=" + del_form);
+	$j(del_form).remove();
+	
+	// Initializing file name
+	var outFile = [];
+	var cnt = 0;
+	$j("#new_helix_tilt_frm input[name='helix_tilt_outFile']").each(function() {
+	    cnt++;
+	    var new_file = "output" + cnt + ".dat";
+	    $(this).val('');
+	    $(this).val(new_file);
+	    cnt_file_index = cnt;
+	    if (cnt_file_index < 0) {
+		cnt_file_index = 0;
+	    }
+	});
+
+    });
+    
+    $j("#M_protein").hide();
+    $j("#chk_protein").click(function () {
+	$j("#M_protein").toggle(this.checked);
+    });
+    
+    $j("#helix_tilt_form").hide();
+    $j("#helix_tilt_title").click(function () {
+	$j("#helix_tilt_form").toggle(this.checked);
+	//alert($j(this).is(":checked"));
+    });
+
+    /* test submit */
+    $j("#test_submit").click(function(){
+	// check out return values
+	var outFile = [];
+	    $j("#helix_tilt_form input[name='helix_tilt_outFile']").each(function() {
+		outFile.push($(this).val());
+	    });
+	alert(outFile);
+	
+	var segIDs = [];
+	$j("#helix_tilt_form select[name='segID'] option:selected").each(function() {
+		segIDs.push($(this).val());
+	    });
+	alert(segIDs);
+	
+	alert(segIDs);
+	    var sndData = {
+		'cmd'		: 'array_test',
+		'segID[]'	: segIDs,
+		'outFile[]'	: outFile,
+	    }
+	    
+	    var request = $j.ajax({
+	    type: "POST",
+	    url: '/gui/test/',
+	    cache: false,
+	    data: sndData,
+	    //async: false,
+	    });
+    
+	    request.done(function(Jdata) {
+		var obj = $j.parseJSON(Jdata);
+		alert("OKay BAcK!" + obj.outFile);
+	    });
+	  
+	    request.error(function(jqXHR, textStatus, errorThrown) {
+		
+	    });
+	    //-----
+	    
+	});
+});
+</script>
+
+<div id="protein">
+    <table>
+	<tr>
+	    <td colspan="2"><input type="checkbox" id="chk_protein"><span class="st_font1 st_size3 st_color6"><b>Protein (<span id="cnt_protein" class="st_font1 st_size3 st_color5">0</span>)</b></span></td>
+	</tr>
+	<tr><td colspan="2">
+	    <table id="M_protein">
+		<!--- calculating helix_tilt -->
+		<tr>
+		    <td class="w_module"> </td>
+		    <td>
+			<div id="helix_tilt">
+			    <table>
+				<tr>
+				    <td colspan="2" class="st_color7 left"><input type="checkbox" id="helix_tilt_title">Helix tilt</td>
+				</tr>
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<div id="helix_tilt_form">
+					    <table>
+						<tr><td>
+						    <table>
+							<tr>
+							    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><span class="module_font">Output File Name</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center module_font">Segments</td>
+							    <td class="center module_font">Start</td>
+							    <td class="center module_font">End</td>
+							    <td class="bottom w15"></td>
+							    <td class="center module_font">Add More</td>
+							</tr>
+							<tr>
+							    <td class="bottom"><input id="helix_tilt_frmInt" class="module_txtbox_frm" type="text" name="helix_tilt_frmInt" value="1" ></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="helix_tilt_outFile" class="module_txtbox_output" type="text" name="helix_tilt_outFile" value="output.dat"></td>
+							    <td class="bottom w15"></td>
+							    <td><select data-placeholder="Choose a segment" class="chzn-select" style="width:100px;" id="segID" name="segID"></select></td>
+							    <td><select data-placeholder="Choose start residue" class="chzn-select" style="width:100px;" id="stRes" name="stRes"></select></td>
+							    <td><select data-placeholder="Choose final residue" class="chzn-select" style="width:100px;" id="edRes" name="edRes"></select></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom w70"><button id="helix_tilt_form_add"><span class="module_font">ADD</span></button></td>
+							</tr>
+							<tr>
+							    <td colspan="9">
+								<table id="new_helix_tilt_frm">
+								</table>
+							    </td>
+							</tr>
+							<!-- <tr><td colspan="9"><button id="test_submit">TEST Submit</button></td></tr> -->
+						    </table>
+						</td></tr>
+					    </table>
+					</div>
+				    </td>
+				</tr>
+			    </table>
+			</div>
+		    </td>
+		</tr>
+	    </table>
+	</td></tr>
+    </table>
+</div>
+<div id="test"></div>

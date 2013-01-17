@@ -1,0 +1,83 @@
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+var cnt_sysinfo = 0;
+
+$j(document).ready(function(){
+    $j("#systemInfo #M_systemInfo #box #box_title").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    cnt_sysinfo++;
+	} else {
+	    cnt_sysinfo--;
+	    if (cnt_sysinfo < 0) {
+		cnt_sysinfo = 0;
+	    }
+	}
+	$j("#systemInfo #cnt_sysinfo").empty().append(cnt_sysinfo);
+    });
+    
+    /* Initializing values */
+    $j('#systemInfo #box #box_frmInt').val('1').css("color", "gray");
+    $j('#systemInfo #box #box_outFile').val('output.dat').css("color", "gray");
+    
+    
+    $j("#M_systemInfo").hide();
+    $j("#chk_systemInfo").click(function () {
+	$j("#M_systemInfo").toggle(this.checked);
+    });
+
+    $j("#box_form").hide();
+    $j("#box_title").click(function () {
+	$j("#box_form").toggle(this.checked);
+	//alert($j(this).is(":checked"));
+    });
+    
+});
+</script>
+
+<div id="systemInfo">
+    <table>
+	<tr>
+	    <td colspan="2"><input type="checkbox" id="chk_systemInfo"><span class="st_font1 st_size3 st_color6"><b>System Information (<span id="cnt_sysinfo" class="st_font1 st_size3 st_color5">0</span>)</b></span></td>
+	</tr>
+	<tr><td colspan="2">
+	    <table id="M_systemInfo">
+		<!--- calculating box size --->
+		<tr>
+		    <td class="w_module"> </td>
+		    <td>
+			<div id="box">
+			    <table>
+				<tr>
+				    <td colspan="2" class="st_color7 left">
+					<input type="checkbox" id="box_title">Box size <br/><hr/>
+				    </td>
+				</tr>
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<div id="box_form">
+					    <table>
+						<tr>
+						    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+						    <td class="bottom w15"></td>
+						    <td class="bottom"><span class="module_font">Output File Name</span></td>
+						</tr>
+						<tr>
+						    <td class="bottom"><input id="box_frmInt" class="module_txtbox_frm" type="text" ></td>
+						    <td class="bottom w15"></td>
+						    <td class="bottom"><input id="box_outFile" class="module_txtbox_output" type="text"></td>
+						</tr>
+					    </table>
+					</div>
+				    </td>
+				</tr>
+			    </table>
+			</div>
+		    </td>
+		</tr>
+		
+	    </table>
+	</td></tr>
+    </table> <!-- systemInfo end --->
+</div>

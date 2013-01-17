@@ -254,7 +254,7 @@ try:
 
         # Inserting compressed tar file for all submitted jobs
         final_title = "[** All JOBs **] {0}".format(job_title);
-        query = """INSERT INTO gui_outputs (job_id, name, img, txt, gzip) VALUES ({0}, "{1}", "{2}", "{3}", "{4}")""".format(job_pkey[0], final_title, outImg, outFile, outZip);
+        query = """INSERT INTO gui_outputs (job_id, name, img, txt, gzip) VALUES ({0}, "{1}", "{2}", "{3}", "{4}")""".format(job_pkey[0], final_title, imgPath, outFile, outZip);
         c.execute(query);
         conn.commit();
 

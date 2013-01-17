@@ -30,6 +30,14 @@ td.w70 {
     width: 70px;
 }
 
+td.w15 {
+    width: 15px;
+}
+
+td.w_module {
+    width: 40px;
+}
+
 /* links */
 a[href^="mailto"]:hover:after { content: " > Send E-mail" attr(title); }
 a.underline:link,a.underline:visited 
@@ -64,8 +72,24 @@ a.underline2:hover, a.underline2:active
 }
 
 /* Font */
+.module_font {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+}
+
+.module_txtbox_frm {
+    width: 72px;
+    font-size: 10px;
+}
+
+.module_txtbox_output {
+    width: 100px;
+    font-size: 10px;
+}
+
+
 .st_font1 {
-    font-family: Georgia, "Times New Roman", Times, serif;
+    /* font-family: Georgia, "Times New Roman", Times, serif; */
     font-family: Arial, Helvetica, sans-serif;
     font-variant:small-caps;
 }
@@ -90,6 +114,22 @@ a.underline2:hover, a.underline2:active
     color: #D85C7F;
 }
 
+.st_color5 {
+    color: #349BE0;
+}
+
+.st_color6 {
+    color: #E4800D;
+}
+
+.st_color7 {
+    color: #42842A;
+}
+
+.st_color8 {
+    color: #B53977;
+}
+
 .st_size1 {
     font-size: 20px;
     line-height: 17px;
@@ -104,6 +144,17 @@ a.underline2:hover, a.underline2:active
     font-size: 12px;
     line-height: 12px;
 }
+
+.st_size3 {
+    font-size: 15px;
+    line-height: 12px;
+}
+
+.st_align_bulb {
+    vertical-align: 2px;
+}
+
+
 
 .message_warn {
     color: #FE2E9A;
@@ -128,6 +179,19 @@ a.underline2:hover, a.underline2:active
 }
 .sub_form_edit {
     background-color: #F9E8FB;
+}
+
+/* margin */
+.mspace1{
+  height: 15px;
+}
+
+.mspace2{
+  height: 30px;
+}
+
+.mspace3{
+  height: 40px;
 }
 
 
@@ -189,10 +253,12 @@ a.underline2:hover, a.underline2:active
 }
 
 .next-tab, .submit {
+	background-color: #FFFFFF;
 	float: right;
 }
 
 .prev-tab {
+	background-color: #FFFFFF;
 	float: left;
 }
 

@@ -9,9 +9,9 @@
 	    {% csrf_token %}
 	    <table>
 		<tr>
-		    <!-- <td width="100" class="left">Job title</td>
-		    <td>:</td> -->
-		    <td class="left" colspan="3"><input type="hidden" id="job_title" name="job_title" value="analyzing trajectory" size=102></td>
+		    <td width="100" class="left">Job title</td>
+		    <td>:</td>
+		    <td class="left"><input type="text" id="job_title" name="job_title" size=102></td>
 		</tr>
 		<tr>
 		    <td width="100" class="left">Project</td>
@@ -236,57 +236,53 @@
 	
 	<table width=800>
 	    <tr>
-		<td class="mspace2 left">
-		    <span class="st_font1 st_size3"><b>Target machine for running jobs:</b> </span>
-		    <input id="cluster" type="radio" name="machine" value="cluster">PBS
-		    <input id="server" type="radio" name="machine" value="server">Interactive
+		<td class="left">
+		    <span>Target machine for running submitted jobs: </span>
+		    <input id="cluster" type="radio" name="machine" value="cluster">CLUSTER
+		    <input id="server" type="radio" name="machine" value="server">SERVER
 		</td>
 	    </tr>
-	    <tr>
-		<td class="mspace3">
-		    <div id="trj_load_error" class="message_warn"></div>
-		    <!---
-			<span class="ui-icon ui-icon-lightbulb" style="display:inline-block"></span>
-			<span class="st_font2 st_size3 st_color5 st_align_bulb">First trajectory contains <span id="num_frame" class="st_color8 ">#</span>  frames (<span id="num_ps" class="st_color8 ">#</span> ps/frame) and <span id="num_atoms" class="st_color8">#</span>  atoms</span>
-			<span id="trj_load_error" class="message_warn"></span>
-		    --->
-		</td>
-	    </tr>
+	    <tr><td><hr/></td></tr>
 	    <!---
 		*******************************************************************************
 		* Add the form of new Job or functions below: once new functions is added
 		* plase modify function eval_step2() in line 65
 		*******************************************************************************
 	    --->
-	    <!--- Category in System Information --->
-	    <tr><td class="mspace1">{% include "gui/systemInfo.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/protein.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/DnaRna.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/carbohydrate.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/membrane.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/solvent.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/protein_DnaRna.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/protein_carbohydrate.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/protein_membrane.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/protein_solvent.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/DnaRna_solvent.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/carbohydrate_membrane.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/carbohydrate_solvent.html" %}</td></tr>
-	    
-	<!-- systemInfo end --->
-	<tr><td class="mspace1"></td></tr>
+
+	    <!---
+		/// Calculating box size ////
+	    --->
+	    <div id="box">
+	    <tr>
+		<td class="left">
+		    <input type="checkbox" id="box_title">Box size <br/><hr/>
+		</td>
+	    </tr>
+	    </div>
+	    <!---
+		/// Calculating helix tilt ////
+	    --->
+	    <div id="helix_tilt">
+	    <tr>
+		<td class="left"><input type="checkbox" id="helix_tilt_title">Helix tilt</td>
+	    </tr>
+	    <tr>
+		<td calspan=2 class="left">
+		    <div id="helix_tilt_form">
+		    <table>
+			<tr><td>Segments</td><td>Start</td><td>End</td></tr>
+			<tr>
+			    <td><select data-placeholder="Choose a segment" class="chzn-select" style="width:100px;" id="segID" name="segID"></select></td>
+			    <td><select data-placeholder="Choose start residue" class="chzn-select" style="width:100px;" id="stRes" name="stRes"></select></td>
+			    <td><select data-placeholder="Choose final residue" class="chzn-select" style="width:100px;" id="edRes" name="edRes"></select></td>
+			</tr>
+		    </table>
+		    </div>
+		    <br/><hr/>
+		</td>
+	    </tr>
+	    </div>
 	</table>
 	<!------
 	    ************************************************************
@@ -294,7 +290,6 @@
 	    ************************************************************
 	-------->
 	<!--- </form> --->
-	<!-- <div id="ajaxLoading">Loading this file....</div> -->
 	<div id="results"></div>
 	<div id="dlg_confirm" title="Warning!">
 	    <span id="dlg_msg"></span>

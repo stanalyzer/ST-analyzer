@@ -2912,3 +2912,43 @@ def resultView_DBmanager(request):
         }
     return HttpResponse(json.dumps(c));
 
+
+
+def dummy_test(request):
+    print "* I am in DUMMY TEST";
+    # check out authority 
+    if 'user_id' not in request.session:
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+                }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+
+    request.session.set_expiry(SESSION_TIME_OUT);
+    user_id = request.session['user_id'];
+    
+    if request.is_ajax() and (request.method == 'POST'):
+        cmd   = request.POST.get('cmd');
+    else:
+        cmd = 'http';           # connection with URL
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+            }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request))
+    
+    if cmd == 'array_test':
+        print "[DUMMY TEST] >> [array_test]"
+	outFile = request.POST.getlist('outFile[]');
+	segID	= request.POST.getlist('segID[]');
+	for f in outFile:
+	    print f;
+	
+	for s in segID:
+	    print s;
+	    
+        c = {
+            'segID'     : segID,
+	    'outFile'	: outFile,
+        }
+    return HttpResponse(json.dumps(c));
