@@ -1,3 +1,72 @@
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+
+$j(document).ready(function(){
+    
+    /* click button up */
+    $j("#step1 #btn_up").click(function() {
+	$j('#select_trj2 option:selected').each( function() {
+	    var newPos = $j('#select_trj2 option').index(this) - 1;
+	    if (newPos > -1) {
+		$j('#select_trj2 option').eq(newPos).before("<option value='"+$j(this).val()+"' selected='selected'>"+$j(this).text()+"</option>");
+		$j(this).remove();
+	    } else {
+		return false;
+	    }
+	});
+	return false;
+    });
+
+    /* click button down */
+    $('#step1 #btn_down').click(function() {
+	var countOptions = $('#select_trj2 option').size();
+	var countSelected = $('#select_trj2 option:selected').size();
+	$('#select_trj2 option:selected').each( function() {
+	    var newPos = $('#select_trj2 option').index(this) + countSelected;
+	    if (newPos < countOptions) {
+		$j('#select_trj2 option').eq(newPos).after("<option value='"+$j(this).val()+"' selected='selected'>"+$j(this).text()+"</option>");
+		$(this).remove();
+	    }
+	});
+    });
+    
+    /* click button sort */
+    $j("#btn_sort").click(function(){
+	var fList = [];
+	$j("#select_trj2 option").each(function() {
+	    fList.push($j(this).text());
+	});
+	
+	var sndData = {
+		     'cmd'	: 'sort_file',
+		     'fList[]'	: fList,
+		 }
+		 
+		 var request = $j.ajax({
+		 type: "POST",
+		 url: '/gui/fsort/',
+		 cache: false,
+		 data: sndData,
+		 //async: false,
+		 });
+	 
+		 request.done(function(Jdata) {
+		     var obj = $j.parseJSON(Jdata);
+		     $j("#select_trj2").empty();
+		     for (var i = 0; i < obj.fList.length; i++) {
+			options = "<option value='" + obj.fList[i] +"' selected='selected'>" + obj.fList[i] + "</option>";
+			$j("#select_trj2").append(options);
+		     }
+		 });
+	       
+		 request.error(function(jqXHR, textStatus, errorThrown) {
+		     //$j("#trj_load_error").empty().append("Unknown structure file or trajectory file!"); 
+		 });
+    });
+
+});
+</script>
+
 <div id="tabs">
     <ul>
 	<li><a href="#step1">STEP1</a></li>
@@ -204,6 +273,15 @@
 				    <button id="btn_add">ADD</button></br>
 				    <button id="btn_remove">REMOVE</button></br>
 				    <button id="btn_sort">SORT</button><br/>
+				    <button id="btn_up">UP</button></br>
+				    <button id="btn_down">DOWN</button></br>
+				    <!--
+				    <table>
+					<tr>
+					    <td><button id="btn_up">UP</button></td><td><button id="btn_down">DOWN</button></td>
+					</tr>
+				    </table>
+				    -->
 				    <button id="btn_all">Select All</button></br>
 				    <button id="btn_init">Initialize</button></br>
 				</td>

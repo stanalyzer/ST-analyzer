@@ -2474,12 +2474,15 @@ def stanalyzer_info(request):
             #print '------resList-------'
             #print resList
             
+	    num_files = len(trjFile);
+	    
             c = {
                 'bpath'	    : bpath,
                 'trjFile'   : trjFile,
                 'stfile'    : stfile,
                 'num_frm'   : num_frm,
                 'num_atom'  : num_atom,
+		'num_files' : num_files,
                 'segList'   : segList,
                 'resList'   : resList,
                 'resID'	    : resID,
@@ -2575,6 +2578,8 @@ def stanalyzer_sendJob(request):
             trjFile     = request.POST.getlist('trjFile[]');
             pbs         = request.POST.get('pbs');
 
+	    print "*** TRJ FILES ****";
+	
             # --- removing white spaces ---
             bpath  = bpath.strip(' \t\n\r');
             stfile = stfile.strip(' \t\n\r');
@@ -2950,5 +2955,108 @@ def dummy_test(request):
         c = {
             'segID'     : segID,
 	    'outFile'	: outFile,
+        }
+    return HttpResponse(json.dumps(c));
+
+
+
+
+def getSortedList(myList, rev):
+    print "[getSortedList]"
+    #i[0]: use key index, x[1]: use file name for comparision
+    idx = [i[0] for i in sorted(enumerate(myList), key=lambda x:x[1], reverse=rev)]; 
+    #print "** func: idx"
+    #print idx
+    sList = sorted(myList, reverse=rev);
+    #print "** func: sList"
+    #print sList
+    return [idx, sList];
+
+def extStrings(myList):
+    # find every number and find maximum number in a certain range
+    fixDigit = 6;
+    newList = [];
+    for strLine in myList:
+	subStr = '';
+	subInt = '';
+	num_cnt = 0;
+	for i in strLine:
+	    #print "{0}={1}".format(i, ord(i));
+	    if (ord(i) > 47) and (ord(i) < 58):
+		num_cnt = num_cnt + 1;
+		subInt = "{0}{1}".format(subInt, i);
+	    else:
+		if num_cnt > 0:
+		    num_zero = fixDigit - num_cnt;
+		    newNum = '0';
+		    for j in range(num_zero):
+			newNum = '{0}0'.format(newNum);
+			
+		    newNum = "{0}{1}".format(newNum, subInt);
+		    subStr = "{0}{1}".format(subStr, newNum);
+		    
+		    subStr = "{0}{1}".format(subStr, i);
+		    subInt = '';
+		    num_cnt = 0;
+		else:
+		    subStr = "{0}{1}".format(subStr, i);
+	newList.append(subStr);
+    return newList;
+
+def fileSort(request):
+    print "* I am in Sorting Module";
+    # check out authority 
+    if 'user_id' not in request.session:
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+                }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+
+    request.session.set_expiry(SESSION_TIME_OUT);
+    user_id = request.session['user_id'];
+    
+    if request.is_ajax() and (request.method == 'POST'):
+        cmd   = request.POST.get('cmd');
+    else:
+        cmd = 'http';           # connection with URL
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+            }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request))
+    
+    if cmd == 'sort_file':
+	fList = request.POST.getlist('fList[]');
+	
+	# Sort original list and get the index information
+	sListInfo = getSortedList(fList, False);		# False:ascending, True: descending
+	sIdx  = sListInfo[0];
+	print "===== Index ======"
+	print sIdx
+	sList = sListInfo[1];
+	print "===== Sorted ======"
+	print sList
+	
+	# Extend file name by extending digits with fixed length
+	new_sList = extStrings(sList);
+	#print new_sList;
+
+	# Sort extended file and get the index of sorted one
+	new_sListInfo = getSortedList(new_sList, False);		# False:ascending, True: descending
+	new_sIdx = new_sListInfo[0];
+	new_sList = new_sListInfo[1];
+	print "===== NEW Index ======"
+	print new_sIdx
+	print "===== NEW Sorted ======"
+	print new_sList
+	
+	# Using the index to order original file names
+	digitSorted = [];
+	for i in new_sIdx:
+	    digitSorted.append(sList[i]);
+	
+        c = {
+            'fList'     : digitSorted,
         }
     return HttpResponse(json.dumps(c));

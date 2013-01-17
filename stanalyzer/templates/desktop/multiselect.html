@@ -1284,16 +1284,6 @@ $j(document).ready(function(){
 	text: true,				
     });
     
-    $j("#btn_up").button({
-	icons: { primary: "ui-icon-arrowthick-1-n" },
-	text: true,				
-    });
-
-    $j("#btn_down").button({
-	icons: { primary: "ui-icon-arrowthick-1-s" },
-	text: true,				
-    });
-    
     $j("#btn_next").button();
     $j("#btn_add_path").button();
     $j("#btn_sort").button();
@@ -1351,13 +1341,13 @@ $j(document).ready(function(){
 	$j("#select_trj2 option:selected").remove().appendTo("#select_trj1");
 	return false;
     });
-    /*
+    
     $j("#btn_sort").click(function(){
-	$j("#select_trj1 option").tsort();
+	$j("#select_trj1 option").tsort('', {useVal:false});
 	$j("#select_trj2 option").tsort();
 	return false;
     });
-    */
+
     /* Filtering trajectory files */
     $j('#trjFilter').val('Find files containing...').css("color", "gray");
     $j('#trjFilter').focus(function() {
@@ -1454,7 +1444,7 @@ $j(document).ready(function(){
 	    bpath = $j("#proot option:selected").text();
 	    stfile = $j("#stfile option:selected").text();
 	    $j("#select_trj2 option").attr("selected", "selected"); 	// select all
-	    //$j("#select_trj2 option").tsort();				// do sort
+	    $j("#select_trj2 option").tsort();				// do sort
 	    trjFile = $j("#select_trj2").val();				// get values
 	    //msg = "pkey=" + pkey + ", title=" + title + ", bpath=" + bpath + ", stfile=" + stfile + ", TRJ=" + trjFile;
 	    //alert(msg);
@@ -1479,23 +1469,8 @@ $j(document).ready(function(){
 	    });
     
 	    request.done(function(Jdata) {
-		var sysInfo = '<table>'
-				+ '<tr>'
-				    + '<td>'
-					+ '<span class="ui-icon ui-icon-lightbulb" style="display:inline-block"></span>' 
-				    + '</td>'
-				    + '<td>'
-					+ '<span class="st_font2 st_size3 st_color5 st_align_bulb"> First trajectory contains <span id="num_frame" class="st_color8 ">#</span>  frames (<span id="num_ps" class="st_color8 ">#</span> ps/frame).</span>'
-				    + '</td>'
-				+ '</tr>'
-				+ '<tr>'
-				    + '<td></td>'
-				    + '<td>'
-					+ '<span class="st_font2 st_size3 st_color5 st_align_bulb"> That is from <span id="num_files" class="st_color8">#</span> files and <span id="num_atoms" class="st_color8">#</span>  atoms.</span>'
-				    + '</td>'
-				+ '</tr>'
-				+ '<tr><td class="mspace1"></td><td class="mspace1"></td></tr>'
-			     + '</table>'
+		var sysInfo = '<span class="ui-icon ui-icon-lightbulb" style="display:inline-block"></span>' 
+				+ '<span class="st_font2 st_size3 st_color5 st_align_bulb">First trajectory contains <span id="num_frame" class="st_color8 ">#</span>  frames (<span id="num_ps" class="st_color8 ">#</span> ps/frame) and <span id="num_atoms" class="st_color8">#</span>  atoms</span>'
 				+ '<span id="trj_load_error" class="message_warn"></span>';
 		
 		$j("#trj_load_error").empty().append(sysInfo);
@@ -1504,9 +1479,7 @@ $j(document).ready(function(){
 		$j("#progressbar").empty();
 		//$j("#step2 #trj_load_error").empty();
 		$j("#step2 #num_frame").empty().append(obj.num_frm);
-		$j("#step2 #num_files").empty().append(obj.num_files);
 		$j("#step2 #num_atoms").empty().append(obj.num_atom);
-		
 		$j("#segID").empty();
 		for (var i = 0; i < obj.segList.length; i++) {
 		    addStr = "<option value='" + i + "'>" + obj.segList[i] + "</option>";
@@ -1634,9 +1607,8 @@ $j(document).ready(function(){
 		    path_python = $j("#step1 #ppython option:selected").text();
 		    stfile 	= $j("#step1 #stfile option:selected").text();
 		    $j("#step1 #select_trj2 option").attr("selected", "selected"); 	// select all
-		    //$j("#step1 #select_trj2 option").tsort();				// do sort
+		    $j("#step1 #select_trj2 option").tsort();				// do sort
 		    trjFile = $j("#step1 #select_trj2").val();				// get values
-		    alert(trjFile);
 		    pbs     = $j("#step1 #pbs").val();
 		    machine = rdio_machine;
 		    var sndData = {

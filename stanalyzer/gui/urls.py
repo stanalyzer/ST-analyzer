@@ -46,7 +46,7 @@ urlpatterns = patterns('gui.views',
     url(r'^del_user/', 'usrView_jqGrid_del_user'),
     url(r'^download/', 'makeDownload'),
     url(r'^resultView_DBmanager/', 'resultView_DBmanager'),
-    
+    url(r'^fsort/', 'fileSort'),
     url(r'^mediaLink/(?P<file_name>.*$)', 'mediaLink'),
     url(r'^wys_FileManager/', 'wysFileManager'),
     
