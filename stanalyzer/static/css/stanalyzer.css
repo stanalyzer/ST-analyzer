@@ -1,8 +1,45 @@
 @charset "UTF-8";
+
+.button_init {
+   padding: 0px 8px 0px 8px !important;
+   font-size: .8em !important;
+}
+
+.button_all {
+   padding: 0px 5px 0px 6px !important;
+   font-size: .8em !important;
+}
+
+.button_sort {
+   padding: 0px 20px 0px 20px !important;
+   font-size: .8em !important;
+}
+
+.button_add {
+   padding: 0px 25px 0px 5px !important;
+   font-size: .8em !important;
+}
+
+.button_remove {
+   padding: 0px 0px 0px 5px !important;
+   font-size: .8em !important;
+}
+
+.button_up {
+   padding: 0px 32px 0px 5px !important;
+   font-size: .8em !important;
+}
+
+.button_down {
+   padding: 0px 16px 0px 5px !important;
+   font-size: .8em !important;
+}
+
 /* Background */
 .bgcolor1 {
     background-color: #407A58;
 }
+
 
 /* DIV */
 #user_err_msg {
@@ -130,6 +167,10 @@ a.underline2:hover, a.underline2:active
     color: #B53977;
 }
 
+.st_size_s1 {
+    padding: 10px 0px 0px 0px;
+    font-size: 10px;
+}
 .st_size1 {
     font-size: 20px;
     line-height: 17px;
@@ -140,14 +181,19 @@ a.underline2:hover, a.underline2:active
     line-height: 17px;
 }
 
-.st_size3 {
+.st_size3sm {
     font-size: 12px;
     line-height: 12px;
 }
 
 .st_size3 {
     font-size: 15px;
-    line-height: 12px;
+    line-height: 15px;
+}
+
+.st_size4 {
+    font-size: 10px;
+    line-height: 10px;
 }
 
 .st_align_bulb {
@@ -182,6 +228,10 @@ a.underline2:hover, a.underline2:active
 }
 
 /* margin */
+.mspace10{
+  height: 5px;
+}
+
 .mspace1{
   height: 15px;
 }
@@ -191,9 +241,12 @@ a.underline2:hover, a.underline2:active
 }
 
 .mspace3{
-  height: 40px;
+  height: 35px;
 }
 
+.mspace4{
+  height: 50px;
+}
 
 /* select */
 .file_lists {

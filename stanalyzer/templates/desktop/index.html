@@ -350,7 +350,8 @@ $j(document).ready(function(){
     
     {% for pt in ptitle %}
       var tName = "<option pkey='{{ pt.0 }}'>" + "{{pt.1}}" + "</option>"
-      $j("#prj").append(tName)
+      $j("#step1 #prj").append(tName);
+      $j("#step1 #prj").trigger("liszt:updated");
     {% endfor%}
 
     $j("#prj").live("change", function() {
@@ -374,6 +375,7 @@ $j(document).ready(function(){
 	    $j("#step1 #poutput").val("");
 	    $j("#step1 #ppython").empty();
 	    $j("#step1 #ppython").val("");
+	    $j("#step1 #ppython").trigger("liszt:updated");
 	    $j("#step1 #prjInfo").empty();
 	    $j("#step1 #prjInfo").val("");
 	    
@@ -434,6 +436,7 @@ $j(document).ready(function(){
 	    $j("#step1 #proot").empty().append(tag_proot).change();
 	    $j("#step1 #poutput").empty().append(tag_poutput).change();
 	    $j("#step1 #ppython").empty().append(tag_ppython).change();
+	    $j("#step1 #ppython").trigger("liszt:updated");
             // Edit menu
             $j("#frm_editPrj #title").val('');
             var new_title = $j("#prj option:selected").text();
@@ -463,13 +466,13 @@ $j(document).ready(function(){
           if (flg_editPrj == 1) {
 	    $j("#frm_editPrj").slideUp("slow");
 	    $j("#btn_editPrj").empty();
-	    $j("#btn_editPrj").append("EDIT");
+	    $j("#btn_editPrj").append("<span class='module_font'>Edit</span>");
 	    flg_editPrj = 0;
           }
 	    $j("#frm_newPrj").slideDown("slow");
 	    getPBS();
 	    $j("#btn_newPrj").empty();
-	    $j("#btn_newPrj").append("HIDE");
+	    $j("#btn_newPrj").append("<span class='module_font'>Hide</span>	");
 	    $j("#frm_newPrj #title").focus();
 	    $j("#frm_newPrj #out_path").focusout().change();
 	    $j("#frm_newPrj #python_path").focusout().change();
@@ -477,7 +480,7 @@ $j(document).ready(function(){
 	} else {
 	    $j("#frm_newPrj").slideUp("slow");
 	    $j("#btn_newPrj").empty();
-	    $j("#btn_newPrj").append("NEW");
+	    $j("#btn_newPrj").append("<span class='module_font'>New</span>");
 	    flg_newPrj = 0;
 	}
 	return false;
@@ -777,6 +780,8 @@ $j(document).ready(function(){
                   prj_option = prj_option + "<option pkey='" + obj2.pkey[prj_cnt] + "'>" + obj2.title[prj_cnt]+ "</option>";
                 }
                 $j("#step1 #prj").empty().append(prj_option).change();
+		$j("#step1 #prj").empty().append(prj_option).change();
+		$j("#step1 #prj").trigger("liszt:updated");
                 $j("#step1 #frm_editPrj #title").attr("pkey", obj2.pkey[0]).change();
                 $j("#step1 #frm_editPrj #title").attr("value", obj2.title[0]).change();
             });
@@ -822,13 +827,13 @@ $j(document).ready(function(){
           if (flg_newPrj == 1) {
 	    $j("#frm_newPrj").slideUp("slow");
 	    $j("#btn_newPrj").empty();
-	    $j("#btn_newPrj").append("NEW");
+	    $j("#btn_newPrj").append("<span class='module_font'>New</span>");
 	    flg_newPrj = 0;
           }
 	    $j("#frm_editPrj").slideDown("slow");
 	    getPBS();
 	    $j("#btn_editPrj").empty();
-	    $j("#btn_editPrj").append("HIDE");
+	    $j("#btn_editPrj").append("<span class='module_font'>Hide</span>");
 	    $j("#frm_editPrj #title").focus();
 	    $j("#frm_editPrj #out_path").focusout().change();
 	    $j("#frm_editPrj #python_path").focusout().change();
@@ -845,7 +850,7 @@ $j(document).ready(function(){
 	} else {
 	    $j("#frm_editPrj").slideUp("slow");
 	    $j("#btn_editPrj").empty();
-	    $j("#btn_editPrj").append("EDIT");
+	    $j("#btn_editPrj").append("<span class='module_font'>Edit</span>");
 	    flg_editPrj = 0;
 	}
 	return false;
@@ -1334,8 +1339,8 @@ $j(document).ready(function(){
     });
     
     $j("#psf_sort").click(function(){
-	$j("#select_psf1 option").tsort();
-	$j("#select_psf2 option").tsort();
+	//$j("#select_psf1 option").tsort();
+	//$j("#select_psf2 option").tsort();
 	return false;
     });
     
@@ -1344,11 +1349,20 @@ $j(document).ready(function(){
 
     $j("#btn_add").click(function(){
 	$j("#select_trj1 option:selected").remove().appendTo("#select_trj2");
+	var cnt_curr  = $j("#select_trj1 option:selected").length;
+	var cnt_prev = $j("#select_trj2 option").length;
+	total = cnt_curr + cnt_prev;
+	$j("#step1 #num_sfiles").empty().append(total);
 	return false;
     });
     
     $j("#btn_remove").click(function() {
 	$j("#select_trj2 option:selected").remove().appendTo("#select_trj1");
+	var cnt_curr  = $j("#select_trj2 option:selected").length;
+	var cnt_prev = $j("#select_trj2 option").length;
+	total = cnt_prev - cnt_curr;
+	$j("#step1 #num_sfiles").empty().append(total);
+
 	return false;
     });
     /*
@@ -1359,7 +1373,7 @@ $j(document).ready(function(){
     });
     */
     /* Filtering trajectory files */
-    $j('#trjFilter').val('Find files containing...').css("color", "gray");
+    $j('#trjFilter').val('File name contains').css({'color':'gray', 'font-size':'12px'});
     $j('#trjFilter').focus(function() {
 	       this.value = "";
 	       $j(this).css("color","black");
@@ -1407,6 +1421,7 @@ $j(document).ready(function(){
     $j("#btn_init").click(function() {
 	$j("#select_trj1").empty().append(orgOption).change();
 	$j("#select_trj2 option").remove().change();
+	$j("#step1 #num_sfiles").empty().append('0');
 	return false;
     });
 
@@ -1559,7 +1574,7 @@ $j(document).ready(function(){
 	bpath = $j("#proot option:selected").text();
 	stfile = $j("#stfile option:selected").text();
 	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
-	$j("#select_trj2 option").tsort();				// do sort
+	//$j("#select_trj2 option").tsort();				// do sort
 	trjFile = $j("#select_trj2").val();				// get values
 	segID = $j('#segID').val();
 	var sndData = {
