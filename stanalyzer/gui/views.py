@@ -210,17 +210,36 @@ class geomatric:
 	return theta;
 
 class simulation:
+    # test inputs
+    # psf = '/home2/jcjeong/project/stanalyzer1/stanalyzer/trajectory/step5_assembly.psf';
+    # dcd = '/home2/jcjeong/project/stanalyzer1/stanalyzer/trajectory/step6_1.dcd';
+    
     def __init__(self, psf, trj):
+	print "*** simulation ****"
 	self.u = Universe(psf, trj);
+	
 	# total number of frames at each trajectory
+	#print "num_frm: "
 	self.num_frm = len(self.u.trajectory);
+	# time unit per frame
+	#print self.num_frm;
+	
+	#print "num_ps: "
+	self.num_ps = np.float16(self.u.trajectory.dt);		# use float16 to fit CHARMM code
+	#print self.num_ps;
+	
 	# total number of atoms
+	#print "num_atom"
 	self.num_atom  = len(self.u.atoms);
+	#print self.num_atom;
+	
 	# list of segments
+	#print "SegList"
 	self.CsegList = self.u.segments;
 	self.segList = [];
 	for i in range(len(self.CsegList)):
 	    self.segList.append(self.CsegList[i].name);
+	#print self.segList;
 	
     def get_segname(self, seg_id):
 	return self.segList[int(seg_id)]
@@ -229,7 +248,7 @@ class simulation:
 	selQry = 'segid {0}'.format(seg_name);
 	Seg = self.u.selectAtoms(selQry);
 	return Seg.residues
-
+	
 
 #********************************************
 # Delete files and directories
@@ -2559,9 +2578,10 @@ def stanalyzer_info(request):
             objSim = simulation(psf, trj);
             
             # get frame, atom, and segment information            
-            num_frm = objSim.num_frm;
+            num_frm  = objSim.num_frm;
             num_atom = objSim.num_atom;
-            segList = objSim.segList;
+	    num_ps   = str(objSim.num_ps);			# dt in picoseconds - convert floating to string (float type can be confused by Django)
+            segList  = objSim.segList;
             
             # assume the first segments are chosen
             CresList = objSim.get_seg_residues(segList[0]);
@@ -2585,12 +2605,12 @@ def stanalyzer_info(request):
                 'stfile'    : stfile,
                 'num_frm'   : num_frm,
                 'num_atom'  : num_atom,
+		'num_ps'    : num_ps,
 		'num_files' : num_files,
                 'segList'   : segList,
                 'resList'   : resList,
                 'resID'	    : resID,
             }
-            
 
         # ---------------------------------------------
         # Get segment information

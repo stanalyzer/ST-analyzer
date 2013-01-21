@@ -1551,7 +1551,7 @@ $j(document).ready(function(){
 				+ '<tr>'
 				    + '<td></td>'
 				    + '<td>'
-					+ '<span class="st_font2 st_size3 st_color5 st_align_bulb"> That is from <span id="num_files" class="st_color8">#</span> files and <span id="num_atoms" class="st_color8">#</span>  atoms.</span>'
+					+ '<span class="st_font2 st_size3 st_color5 st_align_bulb"> There are <span id="num_files" class="st_color8">#</span> trajectory file(s) and <span id="num_atoms" class="st_color8">#</span>  atoms.</span>'
 				    + '</td>'
 				+ '</tr>'
 				+ '<tr><td class="mspace1"></td><td class="mspace1"></td></tr>'
@@ -1566,6 +1566,7 @@ $j(document).ready(function(){
 		$j("#step2 #num_frame").empty().append(obj.num_frm);
 		$j("#step2 #num_files").empty().append(obj.num_files);
 		$j("#step2 #num_atoms").empty().append(obj.num_atom);
+		$j("#step2 #num_ps").empty().append(obj.num_ps);
 		
 		$j("#segID").empty();
 		for (var i = 0; i < obj.segList.length; i++) {
@@ -1575,7 +1576,7 @@ $j(document).ready(function(){
 		
 		$j("#stRes, #edRes").empty();
 		for (var i = 0; i < obj.resList.length; i++) {
-		    addStr = "<option value='" + obj.resID[i] + "'>" + i + "-" + obj.resList[i] + "</option>";
+		    addStr = "<option value='" + obj.resID[i] + "'>" + obj.resID[i] + "-" + obj.resList[i] + "</option>";
 		    $j("#stRes, #edRes").append(addStr);
 		    };
 		$j("#stRes, #edRes").change();
@@ -1642,7 +1643,7 @@ $j(document).ready(function(){
 	    /* Display segments */
 	    $j("#stRes, #edRes").empty();
 	    for (var i = 0; i < obj.resList.length; i++) {
-		addStr = "<option value='" + obj.resID[i] + "'>" + i + "-" + obj.resList[i] + "</option>";
+		addStr = "<option value='" + obj.resID[i] + "'>" + obj.resID[i] + "-" + obj.resList[i] + "</option>";
 		$j("#stRes, #edRes").append(addStr);
 		};
 	    $j("#stRes, #edRes").change();
