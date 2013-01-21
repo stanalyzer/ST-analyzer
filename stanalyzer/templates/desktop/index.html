@@ -197,6 +197,38 @@ function getPBS() {
 }
 
 /* Check validations in system */
+function mkdir($given_path) {
+    var status = 'false';
+    var sndData = {
+	'cmd'     : 'make_dir',
+	'path'	  : $j.trim($given_path),
+    }
+    var request = $j.ajax({
+    type: "POST",
+    url: '/gui/path_validation/',
+    cache: false,
+    data: sndData,
+    async: false,
+    });
+    
+    request.done(function(Jdata) {
+	var obj = $j.parseJSON(Jdata);
+	var fstatus = obj.type;
+	if (fstatus.length > 0) {
+	    status = fstatus[0];
+	} else {
+	    status = 'false';
+	}
+     });
+
+    request.error(function(jqXHR, textStatus, errorThrown) {
+	$j("#msg").append(textStatus);
+    });
+    
+    return status;
+}
+
+
 function path_validation($given_path) {
     var status = 'false';
     var sndData = {
@@ -590,7 +622,7 @@ $j(document).ready(function(){
 		    $j("#frm_newPrj #out_path").val('');
 		}
 	    } else {
-		    var msg = "The directory in the path does not exist! Please verify the path and make sure the target directory has  WRITABLE permission (i.e, chmod 777)!"
+		    var msg = "The directory in the path does not exist! <br/>Please verify the path and make sure the target directory has  WRITABLE permission (i.e, chmod 777)! <br/> Would like to create NEW directory?"
 		    $j("#dlg_confirm #dlg_msg").empty().append(msg);
 		    $j( "#dlg_confirm" ).dialog({
 			resizable: true,
@@ -599,7 +631,14 @@ $j(document).ready(function(){
 			buttons: {
 			    Okay: function() {
 				$j( this ).dialog( "close" );
+				
+				
+			    },
+			    
+    			    Cancle: function() {
+				$j( this ).dialog( "close" );
 			    }
+
 			}
 		    });
 	    }

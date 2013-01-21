@@ -125,6 +125,8 @@ $j(document).ready(function(){
 	
 	
 	fList = [];
+	$j("#select_trj1").empty().append(orgOption).change();
+	$j("#select_trj2 option").remove().change();
 	$j("#select_trj1 option").each(function() {
 	    fList.push($j(this).text());
 	});

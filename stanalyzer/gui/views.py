@@ -599,6 +599,7 @@ def pathValidation(request):
         c = {
                   'type'           : status,
             }
+
         return HttpResponse(json.dumps(c));
 
 #********************************************************
