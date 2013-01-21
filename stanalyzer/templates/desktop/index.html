@@ -198,7 +198,7 @@ function getPBS() {
 
 /* Check validations in system */
 function mkdir($given_path) {
-    var status = 'false';
+    var status = false;
     var sndData = {
 	'cmd'     : 'make_dir',
 	'path'	  : $j.trim($given_path),
@@ -213,16 +213,16 @@ function mkdir($given_path) {
     
     request.done(function(Jdata) {
 	var obj = $j.parseJSON(Jdata);
-	var fstatus = obj.type;
-	if (fstatus.length > 0) {
-	    status = fstatus[0];
+	status = obj.type;
+	if (status == true)  {
+	    alert('New directory"' + $j.trim($given_path) + '" has been successfully created!');
+	    return status;
 	} else {
-	    status = 'false';
+	    alert('You do not have permission to create "' + $j.trim($given_path) + '" please, make sure you have WRITABLE permission to its parent directory');
 	}
      });
 
     request.error(function(jqXHR, textStatus, errorThrown) {
-	$j("#msg").append(textStatus);
     });
     
     return status;
@@ -622,7 +622,7 @@ $j(document).ready(function(){
 		    $j("#frm_newPrj #out_path").val('');
 		}
 	    } else {
-		    var msg = "The directory in the path does not exist! <br/>Please verify the path and make sure the target directory has  WRITABLE permission (i.e, chmod 777)! <br/> Would like to create NEW directory?"
+		    var msg = "This path does not exist! <br/><br/> Would like to force to create NEW directory: '" + out_path + "'?" + "<br/><br/>*** WRITABLE permission (i.e, chmod 777) of parent directory is requried to create the target directory! ***"
 		    $j("#dlg_confirm #dlg_msg").empty().append(msg);
 		    $j( "#dlg_confirm" ).dialog({
 			resizable: true,
@@ -631,8 +631,14 @@ $j(document).ready(function(){
 			buttons: {
 			    Okay: function() {
 				$j( this ).dialog( "close" );
-				
-				
+				/* creating new directory */
+				status = mkdir(out_path);
+				//alert(status);
+				if (status == 'true') {
+				    var $option = $j("<option></option>").text(out_path).attr("selected", true);
+				    $j("#frm_newPrj #out_paths").append($option).change();
+				    $j("#frm_newPrj #out_path").val('');
+				}
 			    },
 			    
     			    Cancle: function() {

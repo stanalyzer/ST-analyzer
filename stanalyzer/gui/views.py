@@ -155,6 +155,17 @@ class serverside:
             status =[];
         return status;
     
+    def mkdir(self, *args):
+	status = [];
+        try:
+            if not os.path.exists(self.path_trj):
+		os.makedirs(self.path_trj);
+		status = True;
+        except:
+            status =False;
+        return status;
+	
+    
     def permission_write(self):
         st = os.stat(self.path_trj);
         owner = bool(st.st_mode & stat.S_IWUSR);
@@ -584,6 +595,7 @@ def sort_str_num(myList, order):
 # *  Validating path
 #********************************************************
 def pathValidation(request):
+    print "*** pathValidataion ***"
     if request.is_ajax() and (request.method == 'POST'):
         cmd   = request.POST.get('cmd');
         if (cmd == 'path_validation'):
@@ -596,10 +608,21 @@ def pathValidation(request):
             #if len(status) > 0:
             #    print status[0];
                 
-        c = {
-                  'type'           : status,
-            }
-
+	    c = {
+		      'type'           : status,
+		}
+    
+        if (cmd == 'make_dir'):
+	    print "==> make_dir ";
+            path  = request.POST.get('path');
+	    print "call MKDIR ";
+	    server = serverside(path);
+	    status = server.mkdir();
+	    print status;
+	    c = {
+		      'type'           : status,
+		}
+	    
         return HttpResponse(json.dumps(c));
 
 #********************************************************
