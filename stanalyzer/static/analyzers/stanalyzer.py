@@ -131,17 +131,36 @@ class geomatric:
 	return theta;
 
 class simulation:
+    # test inputs
+    # psf = '/home2/jcjeong/project/stanalyzer1/stanalyzer/trajectory/step5_assembly.psf';
+    # dcd = '/home2/jcjeong/project/stanalyzer1/stanalyzer/trajectory/step6_1.dcd';
+    
     def __init__(self, psf, trj):
+	print "*** simulation ****"
 	self.u = Universe(psf, trj);
+	
 	# total number of frames at each trajectory
+	#print "num_frm: "
 	self.num_frm = len(self.u.trajectory);
+	# time unit per frame
+	#print self.num_frm;
+	
+	#print "num_ps: "
+	self.num_ps = np.float16(self.u.trajectory.dt);		# use float16 to fit CHARMM code
+	#print self.num_ps;
+	
 	# total number of atoms
+	#print "num_atom"
 	self.num_atom  = len(self.u.atoms);
+	#print self.num_atom;
+	
 	# list of segments
+	#print "SegList"
 	self.CsegList = self.u.segments;
 	self.segList = [];
 	for i in range(len(self.CsegList)):
 	    self.segList.append(self.CsegList[i].name);
+	#print self.segList;
 	
     def get_segname(self, seg_id):
 	return self.segList[int(seg_id)]
@@ -150,6 +169,7 @@ class simulation:
 	selQry = 'segid {0}'.format(seg_name);
 	Seg = self.u.selectAtoms(selQry);
 	return Seg.residues
+	
     
 #********************************************
 # DB retrieval
@@ -181,26 +201,32 @@ class getDB:
 # dic 	   : data read from pickle
 #********************************************
 def get_myfunction (funcName, dic):
+    print "[*** get_myfunction ***]";
     funcName = funcName[0:len(funcName)-3];
     fName = [];
     pInfo = [];
     paras = [];
     para_pkey = [];
-    print dic["funcName"]
-    print funcName
+    #print "dic[funcName] = {}".format(dic["funcName"]);
+    #print "funcName = {}".format(funcName);
     if funcName in dic["funcName"]:
-	print "Function: "
+	#print "Function: "
 	idx = dic["funcName"].index(funcName);
 	print "*** PARA_PKEYS: "
 	print dic["para_pkeys"]
-	print "({}, {})".format(idx, funcName);
+	print "(idx={}, funcName={})".format(idx, funcName);
 	print "PARMETERS"
 	for j in range(len(dic["paraInfo"][idx])):
 	    pInfo.append(dic["paraInfo"][idx][j]);
 	    paras.append(dic["Paras"][idx][j]);
-	    para_pkey.append(dic["para_pkeys"][idx][j]);
 	    print " - {}={}".format(dic["paraInfo"][idx][j], dic["Paras"][idx][j]);
+
+	print "Para Keys : ";
+	print dic["para_pkeys"][idx];
+	for k in range(len(dic["para_pkeys"][idx])):
+	    para_pkey.append(dic["para_pkeys"][idx][k]);
+	    
 	fName = [idx, funcName];
-    
+    print "[----- end get_myfunction ----]"
     return ([fName, pInfo, paras, para_pkey]);
 	

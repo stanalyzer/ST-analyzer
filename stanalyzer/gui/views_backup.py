@@ -99,13 +99,13 @@ def parseWrapList1(strList):
     print "[parseWrapList1]";
     num_list = len(strList);
     newList = [];
-    #print num_list;
+    print num_list;
     for i in range(num_list):
-        #print "Iteration[{}]".format(i);
+        print "Iteration[{}]".format(i);
         strElm = strList[i];
-        #print strElm
+        print strElm
         lstElm = strElm.split(',');      # split based on comma
-        #print lstElm
+        print lstElm
 	newList.append(lstElm);
     return newList;
 
@@ -115,36 +115,36 @@ def parseWrapList1(strList):
 def parseWrapList2(strList):
     print "[parseWrapList2]";
     num_list = len(strList);
-    #print "num_list={}".format(num_list)
+    print "num_list={}".format(num_list)
     newList = [];
-    #print num_list;
+    print num_list;
     for i in range(num_list):
-        #print "Iteration[{}]".format(i);
+        print "Iteration[{}]".format(i);
         strElm = strList[i];
-        #print "strElm={}".format(strElm);
+        print "strElm={}".format(strElm);
 	
         lstElm = strElm.split(',');      # split based on comma
-        #print "lstElm={}".format(lstElm);
+        print "lstElm={}".format(lstElm);
 	
 	num_para = int(lstElm[0]);
-	#print "NUM_PARA={}".format(num_para);
+	print "NUM_PARA={}".format(num_para);
 	
 	num_Elm  = (len(lstElm) - 1) / num_para;
-	#print "NUM_ELE={}".format(num_Elm);
+	print "NUM_ELE={}".format(num_Elm);
 	
 	innerList = [];
-	innerList.append([num_para]);
+	innerList.append(num_para);
 	tmp = [];
 	for j in range(len(lstElm)):
-	    #print 'J='.format(j);
+	    print 'J='.format(j);
 	    if (j > 0):
 		tmp.append(lstElm[j]);
-		#print "=== ARRAY ==="
-		#print tmp
+		print "=== ARRAY ==="
+		print tmp
 
 		if (j % num_Elm) == 0:
-		    #print "=== ARRAY ==="
-		    #print tmp
+		    print "=== ARRAY ==="
+		    print tmp
 		    innerList.append(tmp);
 		    tmp = [];
 	newList.append(innerList);
@@ -2714,7 +2714,6 @@ def stanalyzer_info(request):
 
 
 def stanalyzer_sendJob(request):
-    print "### stanalyzer_sendJob ###"
     # check out authority 
     if 'user_id' not in request.session:
         c = {
@@ -2826,53 +2825,45 @@ def stanalyzer_sendJob(request):
             file_out = "{}para".format(OUTPUT_HOME);
             
             # ---------------------------- Writing PBS
-	    #print "Writing PBS....";
             #print "PBS: {}".format(pbs);
             for ifunc in func_name:
-		func_idx = func_name.index(ifunc);
-		#print "func_idx: {}".format(func_idx);
-		for cnt_frm in range(len(Paras[func_idx][1])):
-		    #print "cnt_frm: {}".format(cnt_frm);
-		    tmp = "{0}/{1}{2}.pbs".format(PBS_HOME, ifunc, cnt_frm);
-		    fid_i = open(tmp, 'w');
-		    fid_i.write(pbs);
-		    
-		    job_name = "#PBS -N {0}_sub{1}\n".format(ifunc, cnt_frm);
-		    fid_i.write(job_name);
-		    
-		    err_file = "#PBS -e {0}/{1}_sub{2}.err\n".format(PBS_HOME, ifunc, cnt_frm);
-		    fid_i.write(err_file);
-		    
-		    log_file = "#PBS -o {0}/{1}_sub{2}.log\n".format(PBS_HOME, ifunc, cnt_frm);
-		    fid_i.write(log_file);
-    
-		    move_workdir = "cd {}\n".format(ANALYZER_HOME);
-		    fid_i.write(move_workdir);
-		    
-		    run_job = "{0} {1}.py {2} {3}\n".format(path_python, ifunc, file_out, cnt_frm);
-		    fid_i.write(run_job);
-		    fid_i.close();
+                tmp = "{}/{}.pbs".format(PBS_HOME, ifunc);
+                fid_i = open(tmp, 'w');
+                fid_i.write(pbs);
+                
+                job_name = "#PBS -N {}\n".format(ifunc);
+                fid_i.write(job_name);
+                
+                err_file = "#PBS -e {}/{}.err\n".format(PBS_HOME, ifunc);
+                fid_i.write(err_file);
+                
+                log_file = "#PBS -o {}/{}.log\n".format(PBS_HOME, ifunc);
+                fid_i.write(log_file);
+
+                move_workdir = "cd {}\n".format(ANALYZER_HOME);
+                fid_i.write(move_workdir);
+                
+                run_job = "{0} {1}.py {2}\n".format(path_python, ifunc, file_out);
+                fid_i.write(run_job);
+                fid_i.close();
                 
             # ---------------------------- Writing SHELL SCRIPT
-	    print "Writing Shell script....";
             for ifunc in func_name:
-		func_idx = func_name.index(ifunc);
-		for cnt_frm in range(len(Paras[func_idx][1])):
-		    tmp = "{0}/{1}{2}.sh".format(SH_HOME, ifunc, cnt_frm);
-		    fid_i = open(tmp, 'w');
-		    
-		    def_shell = "#!/bin/bash\n";
-		    fid_i.write(def_shell);
-    
-		    move_workdir = "cd {}\n".format(ANALYZER_HOME);
-		    fid_i.write(move_workdir);
-		    
-		    run_job = "{0} {1}.py {2} {3}\n".format(path_python, ifunc, file_out, cnt_frm);
-		    fid_i.write(run_job);
-		    fid_i.close();
-		    
-		    # change script permission to 755
-		    os.chmod(tmp, 0755);
+                tmp = "{}/{}.sh".format(SH_HOME, ifunc);
+                fid_i = open(tmp, 'w');
+                
+                def_shell = "#!/bin/bash\n";
+                fid_i.write(def_shell);
+
+                move_workdir = "cd {}\n".format(ANALYZER_HOME);
+                fid_i.write(move_workdir);
+                
+                run_job = "{0} {1}.py {2}\n".format(path_python, ifunc, file_out);
+                fid_i.write(run_job);
+                fid_i.close();
+                
+                # change script permission to 755
+                os.chmod(tmp, 0755);
             
             
             # ---------------------------- Insert job into a table ---------------------------------
@@ -2903,12 +2894,11 @@ def stanalyzer_sendJob(request):
             for i in range(len(func_name)):
                 para_pkey = [];
                 for j in range(len(Paras[i])):
-		    for k in range(len(Paras[i][j])):
-			query = """INSERT INTO gui_parameter (job_id, anaz, para, val, status) \
-				VALUES ({0}, "{1}", "{2}", "{3}", "{4}")""".format(job_pkey[0], func_name[i], ParaInfo[i][j], Paras[i][j][k], 'SENT');
-			#print query;
-			c.execute(query);
-			conn.commit();
+                    query = """INSERT INTO gui_parameter (job_id, anaz, para, val, status) \
+                            VALUES ({0}, "{1}", "{2}", "{3}", "{4}")""".format(job_pkey[0], func_name[i], ParaInfo[i][j], Paras[i][j], 'SENT');
+                    #print query;
+                    c.execute(query);
+                    conn.commit();
                 query = """SELECT id FROM gui_parameter WHERE job_id = {0} AND anaz = "{1}" """.format(job_pkey[0], func_name[i]);
                 #print query
                 c.execute(query);
@@ -2979,18 +2969,14 @@ def stanalyzer_sendJob(request):
             if (machine == 'cluster'):
                 print "Run code at {}".format(machine);
                 for ifunc in func_name:
-		    func_idx = func_name.index(ifunc);
-		    for cnt_frm in range(len(Paras[func_idx][1])):
-			cmd = "qsub {0}/{1}{2}.pbs".format(PBS_HOME, ifunc, cnt_frm);
-			os.system(cmd);
+                    cmd = "qsub {}/{}.pbs".format(PBS_HOME, ifunc);
+                    os.system(cmd);
 
             elif (machine == 'server'):
                 print "Run code at {}".format(machine);
                 for ifunc in func_name:
-		    func_idx = func_name.index(ifunc);
-		    for cnt_frm in range(len(Paras[func_idx][1])):
-			cmd = "{0}/{1}{2}.sh".format(SH_HOME, ifunc, cnt_frm);
-			os.system(cmd);
+                    cmd = "{}/{}.sh".format(SH_HOME, ifunc);
+                    os.system(cmd);
 
             return HttpResponse(json.dumps(c));
 

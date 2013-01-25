@@ -40,9 +40,10 @@ from stanalyzer import *
 # Get job information
 # -- Use following codes to make your own function
 #///////////////////////////////////////////////////////////////////////////
+frame_Unit = 0.005;
+
 exe_file = sys.argv[0];
 in_file = sys.argv[1];
-para_idx = int(sys.argv[2]);         # parameter index for multiple jobs in a same form
 #out_file = sys.argv[2];
 
 print 'execution file: {}'.format(exe_file);
@@ -117,13 +118,13 @@ if not (os.path.isdir(out_dir)):
 
 # -------- Writing input file for web-link
 print "list of PARAMETERS: "
-inFile = '{0}/input{1}.dat'.format(out_dir, para_idx);
+inFile = '{0}/input.dat'.format(out_dir);
 fid_in = open(inFile, 'w');
 strPara = "Name of Function: {}\n".format(exe_file);
 strPara = strPara + "System information \n";
 strPara = strPara + "\t- First trajectory contains {0} frames ({1} ps/frame)\n".format(num_frame, num_ps);
 strPara = strPara + "\t- There are {0} trajectory file(s) and {1} atoms\n".format(num_files, num_atoms);
-strPara = strPara + "Total {} parameters \n".format(int(paras[0][0])+3);
+strPara = strPara + "Total {} parameters \n".format(int(paras[0])+3);
 strPara = strPara + "\t- Base path: {}\n".format(base_path);
 strPara = strPara + "\t- Structure file: {}\n".format(structure_file);
 strPara = strPara + "\t- Trajectory files: \n"
@@ -134,20 +135,15 @@ for trj in trajectoryFile:
 strPara = strPara + tmp;
 
 strPara = strPara + "\t- Job specific parameters: \n"
-strPara = strPara + "\t\t{0}:{1}\n".format(pInfo[0], paras[0][0]);
 tmp = "";
 for i in range(len(pInfo)):
-    if i > 0:
-	tmp = tmp + "\t\t{0}:{1}\n".format(pInfo[i], paras[i][para_idx]);
+    tmp = tmp + "\t\t{}:{}\n".format(pInfo[i], paras[i]);
 strPara = strPara + tmp;
 strPara = strPara + "\nPBS: \n{}\n".format(pbs);
 fid_in.write(strPara);
 fid_in.close();
 
-print strPara
-
 #---------------------< assigned global parameters >---------------------------------
-# para_idx 	  = int(sys.argv[2]);         # parameter index for multiple jobs in a same form
 # para_pkeys      = dic["para_pkeys"];        # gui_parameter primary keys obtained from job submitting
 # job_pkey        = dic["job_pkey"];          # gui_job primary keys obtained from job submitting
 # job_title       = dic["job_title"];         # gui_job title
@@ -171,16 +167,13 @@ print strPara
 # trajectoryFile = [];                        # the list of trajectory files
 
 #---------------------< assigned module specific parameters >---------------------------------
-num_paras = paras[0][0];			# pInfo[0] : number of parameters
-frmInt	  = paras[1][para_idx];			# pInfo[1] : Frame interval (list)
-outFile   = paras[2][para_idx];			# pInfo[2] : output file name (list)
-segid	  = paras[3][para_idx];			# pInfo[3] : segment ID (list)
-seg_name  = paras[4][para_idx];			# pInfo[4] : segment Name (list)
-st_res	  = paras[5][para_idx];			# pInfo[5] : start residue (list)
-ed_res	  = paras[6][para_idx];			# pInfo[6] : end residue (list)
-
-
-
+num_paras = paras[0];			# pInfo[0] : number of parameters
+frmInt	  = paras[1];			# pInfo[1] : Frame interval (list)
+outFile   = paras[2];			# pInfo[2] : output file name (list)
+segID	  = paras[3];			# pInfo[3] : segment ID (list)
+segName	  = paras[4];			# pInfo[4] : segment Name (list)
+stRes	  = paras[5];			# pInfo[5] : start residue (list)
+edRes	  = paras[6];			# pInfo[6] : end residue (list)
 
 ######################################## PLEASE DO NOT MODIFY ABOVE THIST LINE!!!! ############################################
 
@@ -188,15 +181,21 @@ ed_res	  = paras[6][para_idx];			# pInfo[6] : end residue (list)
 #///////////////////////////////////////////////////////////////////////////
 # Running actual job
 #///////////////////////////////////////////////////////////////////////////
-run = 1;
-if run:
-    out_file = '{0}/{1}'.format(out_dir, outFile);
+#run = 1;
+#if run:
+num_form = len(frmInt);			# number of forms containing same simulation parameters (e.g. measuring multiple tilt angles by using same format)
+for cnt_frm in range(num_form):
+    out_file = '{0}/{1}'.format(out_dir, outFile[cnt_frm]);
     fid_out = open(out_file, 'w')
-    fid_out.write("# ps/frame\tTilt angle\n")
+    fid_out.write("# Frame\tTilt angle\n")
     print '--- Calculating Helix tilt'
     psf = '{0}{1}'.format(base_path, structure_file);
     print psf;
-    cnt = 0;
+    cnt = 1;
+    segid      = segID[cnt_frm];
+    seg_name   = segName[cnt_frm]    
+    st_res     = stRes[cnt_frm];
+    ed_res     = edRes[cnt_frm];
     
     # default frame unit
     geo = geomatric();
@@ -207,43 +206,42 @@ if run:
     # calculating tilt using PCA    
     for idx in range(len(trajectoryFile)):
 	# reading trajectory
-	trj = '{0}{1}'.format(base_path, trajectoryFile[idx]);
+	trj = '{0}/{1}'.format(base_path, trajectoryFile[idx]);
 	print 'Reading PSF: ' + psf
 	print 'Reading DCD: ' + trj
 	u = Universe(psf, trj);
-	#print '{0} is done!'.format(idx);
+	print '{0} is done!'.format(idx);
 	# read based on frame
 	for ts in u.trajectory:
-            #tclock = cnt;
+            tclock = cnt;
             cnt = cnt + 1;
 	    # selecting atoms beloning to the helix
 	    selAtoms = u.selectAtoms(selQry);
-	    #print 'pass: selAtoms'
+	    print 'pass: selAtoms'
 	    if len(selAtoms) > 1:
 		# get principal axis
 		p1, pe1, pe2 = selAtoms.principalAxes();
 		p2 = np.zeros(3);
 		p3 = np.array([0, 0, 1]);
 		theta = geo.angle(p1,p2,p3);		# calculating tilt
-		inum_ps = int(float(num_ps));
-		outStr = '{0}\t{1}\n'.format(cnt*inum_ps,theta);	# print time and degree
+		outStr = '{0}\t{1}\n'.format(tclock,theta);	# print time and degree
 	    else:
 		outStr = '[{0}/{1}] does not have CA atoms'.format(ts.frame, len(u.trajectory))
             fid_out.write(outStr)
-            #print outStr;
+            print outStr;
     fid_out.close()
 
     # -------- Drawing graphs
     # Writing Gnuplot script
-    outScr = '{0}/gplot{1}.p'.format(out_dir, para_idx);
-    outImg  = '{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
+    outScr = '{0}/gplot.p'.format(out_dir);
+    outImg  = '{0}.png'.format(exe_file[:len(exe_file)-3]);
     imgPath = "{0}/{1}".format(out_dir, outImg);
     fid_out = open(outScr, 'w');
     gScript = "set terminal png\n";
-    gScript = gScript + "set xlabel 'ps/frame'\n";
+    gScript = gScript + "set xlabel 'Frame'\n";
     gScript = gScript + "set ylabel 'Tilt Angle'\n";
     gScript = gScript + "set output '{0}'\n".format(imgPath);
-    gScript = gScript + """plot "{0}/{1}" using 1:2 title "Helix Tilt" with linespoints\n""".format(out_dir, outFile);
+    gScript = gScript + """plot "{0}/output.dat" using 1:2 title "Helix Tilt" with linespoints\n""".format(out_dir);
     fid_out.write(gScript);
     fid_out.close()
     
@@ -251,7 +249,7 @@ if run:
     subprocess.call(["gnuplot", outScr]);
     
     # gzip all reaults
-    outZip = "{0}project_{1}_{2}{3}.tar.gz".format(OUTPUT_HOME, prj_pkey, fName[1], para_idx);
+    outZip = "{0}{1}.tar.gz".format(OUTPUT_HOME, fName[1]);
     subprocess.call(["tar", "czf", outZip, out_dir]);
 
     # Insert values into gui_outputs
@@ -282,12 +280,7 @@ for i in range(len(para_pkey)):
 query = """SELECT DISTINCT(status) FROM gui_parameter WHERE job_id = {0}""".format(job_pkey[0]);
 c.execute(query);
 ST = c.fetchall();
-
-print query;
 print "number status = {}".format(len(ST));
-for item in ST:
-    print "{0}".format(item[0]);
-
 
 if (len(ST) == 1) and (ST[0][0] == "COMPLETE"):
     etime = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
@@ -296,7 +289,7 @@ if (len(ST) == 1) and (ST[0][0] == "COMPLETE"):
     conn.commit();
 
     # making tar file
-    outZip = "{0}project_{1}.tar.gz".format(OUTPUT_HOME, prj_pkey[0]);
+    outZip = "{0}job_{1}.tar.gz".format(OUTPUT_HOME, job_pkey[0]);
     subprocess.call(["tar", "czf", outZip, OUTPUT_HOME]);
 
     # Inserting compressed tar file for all submitted jobs
@@ -340,18 +333,16 @@ query = "SELECT id, name, proj_id, anaz, status, output, stime, etime FROM gui_j
 print "ID\tTITLE\tPROJ_ID\tANALYZER\tSTATUS\tOUTPUT\tSTART\tEND";
 c.execute(query);
 job = c.fetchall();
-print "Final idx= {}".format(job[len(job)-1][0]);
-#for item in job:
-#    print "{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}".format(item[0], item[1], item[2], item[3], item[4], item[5], item[6], item[7]);
+for item in job:
+    print "{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}".format(item[0], item[1], item[2], item[3], item[4], item[5], item[6], item[7]);
 
 print "========= gui_parameter ==========="
 query = "SELECT id, job_id, anaz, para, val, status FROM gui_parameter";
 print "ID\tJOB_ID\tANALYZER\tPARAMETER\tVALUE\tSTATUS";
 c.execute(query);
 PR = c.fetchall();
-print "Final idx= {}".format(PR[len(PR)-1][0]);
-#for item in PR:
-#    print "{0}\t{1}\t{2}\t{3}\t{4}\t{5}".format(item[0], item[1], item[2], item[3], item[4], item[5]);
+for item in PR:
+    print "{0}\t{1}\t{2}\t{3}\t{4}\t{5}".format(item[0], item[1], item[2], item[3], item[4], item[5]);
 
 conn.close();
 

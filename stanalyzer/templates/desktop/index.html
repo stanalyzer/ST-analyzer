@@ -30,6 +30,12 @@
 <script type="text/javascript">
 var $j = jQuery.noConflict();
 
+		
+var $num_frame = 0;
+var $num_files = 0;
+var $num_atoms = 0;
+var $num_ps = 0;
+
   $j(document).ready(function(){
        /*--------------------------------------------------------------------*/
        /*--- Get around using csrftoken while using ajax  for Django 1.4  ---*/
@@ -132,34 +138,85 @@ function eval_step2() {
     var idx0 = 'Number of Parameters';
     var JOBs = [];			// this should be match with name of the function
     var PARinfo = [];			// the order of parameter information should be same as PARs ** zero index should be 'Number of Parameters'
-    var PARs = [];			// this contains actual parameter values ** zero index should contain the number of parameters
+    var PARs = [];			// this contains actual parameter values ** zero index should be reserved for the number of parameters
     
     /* calculating Box */
     var chk = $j('#box_title').prop('checked');
     if (chk == true) {
-	JOBs.push('box');
+	
+	/* frame interval */
+	var frmInt = [];
+	$j("#box_form input[name='box_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	var outFile = [];
+	$j("#box_form input[name='box_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
+
+	//frmInt  = $j("#box_form #box_frmInt").val();
+	//outFile = $j("#box_form #box_outFile").val();
+	
+	JOBs.push('box');		// should be matched withthe name of function! (i.e. box.py)
 	
 	// Storing parameters and JOBs
 	//para = {'num_para':0};
-	para = [0];
-	para_info = idx0;
-	PARs.push(para);
+	para_info = [idx0, 'Frame interval', 'Output name'];
+	para = [2, frmInt, outFile];
 	PARinfo.push(para_info);
+	PARs.push(para);
+
     }
 
     /* calculating the tilt of helix */
     var chk = $j('#helix_tilt_title').prop('checked');
     if (chk == true) {
+	// check out return values
+	
+	/* frame interval */
+	var frmInt = [];
+	$j("#helix_tilt_form input[name='helix_tilt_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	var outFile = [];
+	$j("#helix_tilt_form input[name='helix_tilt_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
+
+
 	// Check out the associated forms
-	segID 	= $j('#helix_tilt_form #segID option:selected').val();
-	segName = $j('#helix_tilt_form #segID option:selected').text();
-	stRes 	= $j('#helix_tilt_form #stRes option:selected').val();
-	edRes	= $j('#helix_tilt_form #edRes option:selected').val();
+	segID = [];
+	$j("#helix_tilt_form select[name='segID'] option:selected").each(function() {
+	    segID.push($(this).val());
+	});
+	//segID 	= $j("#helix_tilt_form select[name='segID'] option:selected").val();
+	
+	segName = [];
+	$j("#helix_tilt_form select[name='segID'] option:selected").each(function() {
+	    segName.push($(this).text());
+	});
+	//segName = $j("#helix_tilt_form select[name='segID'] option:selected").text();
+	
+	stRes = [];
+	$j("#helix_tilt_form select[name='stRes'] option:selected").each(function() {
+	    stRes.push($(this).val());
+	});
+	//stRes = $j("#helix_tilt_form select[name='stRes'] option:selected").val();
+
+	edRes = [];
+	$j("#helix_tilt_form select[name='edRes'] option:selected").each(function() {
+	    edRes.push($(this).val());
+	});
+	//edRes	= $j("#helix_tilt_form select[name='edRes'] option:selected").val();
 	
 	JOBs.push('helix_tilt');
 	//para = JSON.stringify({'num_para':3, 'segID': segID, 'stRes':stRes, 'edRes':edRes});
-	para = [4, segID, segName, stRes, edRes];
-	para_info = [idx0, 'Segment ID', 'Segment Name', 'Start Residue', 'Terminal Residue'];
+	para = [6, frmInt, outFile, segID, segName, stRes, edRes];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Segment ID', 'Segment Name', 'Start Residue', 'Terminal Residue'];
 	PARs.push(para);
 	PARinfo.push(para_info);
 	//alert("PARAS:" + PARs[1]['num_para']);
@@ -1564,9 +1621,13 @@ $j(document).ready(function(){
 		$j("#progressbar").empty();
 		//$j("#step2 #trj_load_error").empty();
 		$j("#step2 #num_frame").empty().append(obj.num_frm);
+		$num_frame = obj.num_frm;
 		$j("#step2 #num_files").empty().append(obj.num_files);
+		$num_files = obj.num_files;
 		$j("#step2 #num_atoms").empty().append(obj.num_atom);
+		$num_atoms = obj.num_atom;
 		$j("#step2 #num_ps").empty().append(obj.num_ps);
+		$num_ps = obj.num_ps;
 		
 		$j("#segID").empty();
 		for (var i = 0; i < obj.segList.length; i++) {
@@ -1697,7 +1758,7 @@ $j(document).ready(function(){
 		    $j("#step1 #select_trj2 option").attr("selected", "selected"); 	// select all
 		    //$j("#step1 #select_trj2 option").tsort();				// do sort
 		    trjFile = $j("#step1 #select_trj2").val();				// get values
-		    alert(trjFile);
+		    //alert(trjFile);
 		    pbs     = $j("#step1 #pbs").val();
 		    machine = rdio_machine;
 		    var sndData = {
@@ -1715,7 +1776,13 @@ $j(document).ready(function(){
 			'path_python'	: path_python,
 			'trjFile[]'	: trjFile,
 			'machine'	: machine,
+			'num_frame'	: $num_frame,
+			'num_atoms'	: $num_atoms,
+			'num_files'	: $num_files,
+			'num_ps'	: $num_ps,
 		    }
+		    //alert(jobData[1]);
+		    //alert(jobData[2]);
 		    alert("Your jobs have been successfully submitted!");
 		    
 		    var request = $j.ajax({
