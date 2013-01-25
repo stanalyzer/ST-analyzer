@@ -133,92 +133,7 @@ $j(document).ready(function(){
 	});
     });
     
-    $j('#wys_result').wysiwyg({
-	controls:
-	{
-		      bold          : { visible : true },
-		      italic        : { visible : true },
-		      underline     : { visible : true },
-		      strikeThrough : { visible : true },
-		      
-		      justifyLeft   : { visible : true },
-		      justifyCenter : { visible : true },
-		      justifyRight  : { visible : true },
-		      justifyFull   : { visible : true },
-
-		      indent  : { visible : true },
-		      outdent : { visible : true },
-
-		      subscript   : { visible : true },
-		      superscript : { visible : true },
-		      
-		      undo : { visible : true },
-		      redo : { visible : true },
-		      
-		      insertOrderedList    : { visible : true },
-		      insertUnorderedList  : { visible : true },
-		      insertHorizontalRule : { visible : true },
-
-		      h4: {
-			      visible: true,
-			      className: 'h4',
-			      command: ($j.browser.msie || $.browser.safari) ? 'formatBlock' : 'heading',
-			      arguments: ($j.browser.msie || $.browser.safari) ? '<h4>' : 'h4',
-			      tags: ['h4'],
-			      tooltip: 'Header 4'
-		      },
-		      h5: {
-			      visible: true,
-			      className: 'h5',
-			      command: ($j.browser.msie || $.browser.safari) ? 'formatBlock' : 'heading',
-			      arguments: ($j.browser.msie || $.browser.safari) ? '<h5>' : 'h5',
-			      tags: ['h5'],
-			      tooltip: 'Header 5'
-		      },
-		      h6: {
-			      visible: true,
-			      className: 'h6',
-			      command: ($j.browser.msie || $.browser.safari) ? 'formatBlock' : 'heading',
-			      arguments: ($j.browser.msie || $.browser.safari) ? '<h6>' : 'h6',
-			      tags: ['h6'],
-			      tooltip: 'Header 6'
-		      },
-		      
-		      cut   : { visible : true },
-		      copy  : { visible : true },
-		      paste : { visible : true },
-		      html  : { visible: true },
-		      increaseFontSize : { visible : true },
-		      decreaseFontSize : { visible : true },
-		      exam_html: {
-			      exec: function() {
-				      this.insertHtml('<abbr title="exam">Jam</abbr>');
-				      return true;
-			      },
-			      visible: true
-		      },
-		    fileManager: { 
-			    visible: true,
-			    groupIndex: 12,
-			    tooltip: "File Manager",
-			    exec: function () {
-				    $j.wysiwyg.fileManager.init(function (file) {
-					file ? alert(file) : alert("No file selected.");
-				    });
-			    }
-		    }
-	},
-	css: '/static/jwysiwyg/wysiwyg.custom.css'
-    });
-    $j.wysiwyg.fileManager.setAjaxHandler("/gui/wys_FileManager/");
-    
-    $j("#testWys").click(function(){
-	$j('#wys_result').wysiwyg('clear');
-	$j('#wys_result').wysiwyg('focus');
-	$j('#wys_result').wysiwyg('insertImage', '/gui/mediaLink/home2/jcjeong/tmp/box/syj.jpg', {'class': 'wysImg', 'className':'wysImg'});
-    });
-    
-    
+ 
     /* ******************************************************
      * Defining top grid (i.e. gui_project)
      * ******************************************************/ 
@@ -226,10 +141,10 @@ $j(document).ready(function(){
 	url		:'/gui/jobView_jqGrid_prj/',
 	datatype	: 'json',
 	mtype		: 'GET',
-	colNames	:['ID','User', 'Title'],
+	colNames	:['ID', 'Project'],
 	colModel:[
 		{name:'id',index:'id', width:20, key:true},
-		{name:'user_id',index:'user_id', width:50},
+		//{name:'user_id',index:'user_id', width:50},
 		{name:'name',index:'name', width:200},
 	    ],
 	rowNum		:10,
@@ -262,13 +177,14 @@ $j(document).ready(function(){
 		    url:"/gui/resultView_jqGrid_results/?prj_id="+row_id,
 		    datatype	: 'json',
 		    mtype		: 'GET',
-		    colNames	:['ID','JOB ID', 'Job Name', 'Image', 'Text', 'ZIP'],
+		    //colNames	:['ID','JOB ID', 'Job Name', 'Image', 'Text', 'ZIP'],
+		    colNames	:['JOB ID', 'JOB', 'Image', 'ZIP'],
 		    colModel:[
-			    {name:'id',index:'id', width:15, key:true},
-			    {name:'job_id',index:'job_id', width:15},
+			    // {name:'id',index:'id', width:15, key:true},
+			     {name:'job_id',index:'job_id', width:15},
 			    {name:'name',index:'name', width:100},
 			    {name:'img',index:'img', width:40, formatter:'showlink', formatoptions:{baseLinkUrl:'/gui/download/', addParam: '&dformat=img'}},
-			    {name:'txt',index:'txt', width:40, formatter:'showlink', formatoptions:{baseLinkUrl:'/gui/download/', addParam: '&dformat=txt'}},
+			    //{name:'txt',index:'txt', width:40, formatter:'showlink', formatoptions:{baseLinkUrl:'/gui/download/', addParam: '&dformat=txt'}},
 			    {name:'gzip',index:'gzip', width:40, formatter:'showlink', formatoptions:{baseLinkUrl:'/gui/download/', addParam: '&dformat=gzip'}}
 			    ],
 		    rowNum		:10,
