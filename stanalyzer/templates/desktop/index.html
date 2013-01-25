@@ -443,7 +443,7 @@ $j(document).ready(function(){
       $j("#step1 #prj").trigger("liszt:updated");
     {% endfor%}
 
-    $j("#prj").live("change", function() {
+    $j("#step1 #prj").live("change", function() {
 	var options = $j("#prj option");
 	var idx = $j("#prj option:selected").attr("pkey");
 	var sndData = {
@@ -525,7 +525,8 @@ $j(document).ready(function(){
 	    $j("#step1 #proot").empty().append(tag_proot).change();
 	    $j("#step1 #poutput").empty().append(tag_poutput).change();
 	    $j("#step1 #ppython").empty().append(tag_ppython).change();
-	    $j("#step1 #ppython").trigger("liszt:updated");
+	    $j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile").trigger("liszt:updated");
+	    
             // Edit menu
             $j("#frm_editPrj #title").val('');
             var new_title = $j("#prj option:selected").text();
@@ -862,6 +863,7 @@ $j(document).ready(function(){
         });
 
         request.done(function(Jdata) {
+	    alert("New project has been created!");
 	    var obj = $j.parseJSON(Jdata);
 	    //window.location ="/gui/stanalyzer/";
             // Reloading jqGrid
@@ -877,12 +879,30 @@ $j(document).ready(function(){
             request2.done(function(J2data) {
                 var obj2 = $j.parseJSON(J2data);
                 var prj_option = "";
-                
+                var path_input_option = "";
+		var path_output_option = "";
+		var path_python_option = "";
+
                 for (prj_cnt = 0; prj_cnt < obj2.pkey.length; prj_cnt++) {
                   prj_option = prj_option + "<option pkey='" + obj2.pkey[prj_cnt] + "'>" + obj2.title[prj_cnt]+ "</option>";
                 }
                 $j("#step1 #prj").empty().append(prj_option).change();
-		$j("#step1 #prj").empty().append(prj_option).change();
+
+                for (in_cnt = 0; in_cnt < obj2.path_inputs_path.length; in_cnt++) {
+                  path_input_option = path_input_option + "<option>" + obj2.path_inputs_path[in_cnt]+ "</option>";
+                }
+                $j("#step1 #proot").empty().append(path_input_option).change();
+
+                for (out_cnt = 0; out_cnt < obj2.path_outputs_path.length; out_cnt++) {
+                  path_output_option = path_output_option + "<option>" + obj2.path_outputs_path[out_cnt]+ "</option>";
+                }
+                $j("#step1 #poutput").empty().append(path_output_option).change();
+
+                for (pp_cnt = 0; pp_cnt < obj2.path_pythons_path.length; pp_cnt++) {
+                  path_python_option = path_python_option + "<option>" + obj2.path_pythons_path[pp_cnt]+ "</option>";
+                }
+                $j("#step1 #ppython").empty().append(path_python_option).change();
+		
 		$j("#step1 #prj").trigger("liszt:updated");
                 $j("#step1 #frm_editPrj #title").attr("pkey", obj2.pkey[0]).change();
                 $j("#step1 #frm_editPrj #title").attr("value", obj2.title[0]).change();
@@ -910,6 +930,7 @@ $j(document).ready(function(){
             // syncronize jqGrid
             $j("#prjTable").trigger( 'reloadGrid' );
 	    $j("#resultTable").trigger( 'reloadGrid' );
+	    $j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile").trigger("liszt:updated");
         });
       
         request.error(function(jqXHR, textStatus, errorThrown) {
@@ -973,6 +994,7 @@ $j(document).ready(function(){
 	    var $option = $j("<option></option>").text(rpath).attr("selected", true);
 	    $j("#frm_editPrj #rpaths").append($option).change();
 	    $j("#frm_editPrj #rpath").val('');
+	    $j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile").trigger("liszt:updated");
 	} else {
 	    $j("#dlg_confirm #dlg_msg").empty().append("This path does not exist!\nWould you like to proceed anyway?");
 	    $j( "#dlg_confirm" ).dialog({
@@ -985,6 +1007,8 @@ $j(document).ready(function(){
 			var $option = $j("<option></option>").text(rpath).attr("selected", true);
 			$j("#frm_editPrj #rpaths").append($option).change();
 			$j("#frm_editPrj #rpath").val('');
+			$j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile").trigger("liszt:updated");
+			
 		    },
 		    Cancel: function() {
 			$j( this ).dialog( "close" );
@@ -1050,6 +1074,7 @@ $j(document).ready(function(){
 				var $option = $j("<option></option>").text(out_path).attr("selected", true);
 				$j("#frm_editPrj #out_paths").append($option).change();
 				$j("#frm_editPrj #out_path").val('');
+				$j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile").trigger("liszt:updated");
 			    },
 			    Cancel: function() {
 				$j( this ).dialog( "close" );
@@ -1060,9 +1085,10 @@ $j(document).ready(function(){
 		    var $option = $j("<option></option>").text(out_path).attr("selected", true);
 		    $j("#frm_editPrj #out_paths").append($option).change();
 		    $j("#frm_editPrj #out_path").val('');
+		    $j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile").trigger("liszt:updated");
 		}
 	    } else {
-		    var msg = "The directory in the path does not exist! Please verify the path and make sure the target directory has  WRITABLE permission (i.e, chmod 777)!"
+		    var msg = "This path does not exist! <br/><br/> Would like to force to create NEW directory: '" + out_path + "'?" + "<br/><br/>*** WRITABLE permission (i.e, chmod 777) of parent directory is requried to create the target directory! ***"
 		    $j("#dlg_confirm #dlg_msg").empty().append(msg);
 		    $j( "#dlg_confirm" ).dialog({
 			resizable: true,
@@ -1070,6 +1096,19 @@ $j(document).ready(function(){
 			modal: true,
 			buttons: {
 			    Okay: function() {
+				    $j( this ).dialog( "close" );
+				    /* creating new directory */
+				    status = mkdir(out_path);
+				    //alert(status);
+				    if (status == 'true') {
+					var $option = $j("<option></option>").text(out_path).attr("selected", true);
+					$j("#frm_editPrj #out_paths").append($option).change();
+					$j("#frm_editPrj #out_path").val('');
+					$j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile").trigger("liszt:updated");
+				    }
+			    },
+				
+			    Cancle: function() {
 				$j( this ).dialog( "close" );
 			    }
 			}
@@ -1111,6 +1150,7 @@ $j(document).ready(function(){
 				var $option = $j("<option></option>").text(python_path).attr("selected", true);
 				$j("#frm_editPrj #python_paths").append($option).change();
 				$j("#frm_editPrj #python_path").val('');
+				$j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile").trigger("liszt:updated");
 			    },
 			    Cancel: function() {
 				$j( this ).dialog( "close" );
@@ -1121,6 +1161,7 @@ $j(document).ready(function(){
 		    var $option = $j("<option></option>").text(python_path).attr("selected", true);
 		    $j("#frm_editPrj #python_paths").append($option).change();
 		    $j("#frm_editPrj #python_path").val('');
+		    $j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile").trigger("liszt:updated");
 		}
 	    } else {
 		    var msg = "The file does not exist! Please verify the path and make sure the target file is EXECUTABLE!"
@@ -1231,6 +1272,7 @@ $j(document).ready(function(){
         });
 
         request.done(function(Jdata) {
+	    alert("Your updat has been completed!");
 	    var obj = $j.parseJSON(Jdata);
 	    //window.location ="/gui/stanalyzer/";
             // Reloading jqGrid
@@ -1246,11 +1288,30 @@ $j(document).ready(function(){
             request2.done(function(J2data) {
                 var obj2 = $j.parseJSON(J2data);
                 var prj_option = "";
-                
+                var path_input_option = "";
+		var path_output_option = "";
+		var path_python_option = "";
+		
                 for (prj_cnt = 0; prj_cnt < obj2.pkey.length; prj_cnt++) {
                   prj_option = prj_option + "<option pkey='" + obj2.pkey[prj_cnt] + "'>" + obj2.title[prj_cnt]+ "</option>";
                 }
                 $j("#step1 #prj").empty().append(prj_option).change();
+
+                for (in_cnt = 0; in_cnt < obj2.path_inputs_path.length; in_cnt++) {
+                  path_input_option = path_input_option + "<option>" + obj2.path_inputs_path[in_cnt]+ "</option>";
+                }
+                $j("#step1 #proot").empty().append(path_input_option).change();
+
+                for (out_cnt = 0; out_cnt < obj2.path_outputs_path.length; out_cnt++) {
+                  path_output_option = path_output_option + "<option>" + obj2.path_outputs_path[out_cnt]+ "</option>";
+                }
+                $j("#step1 #poutput").empty().append(path_output_option).change();
+
+                for (pp_cnt = 0; pp_cnt < obj2.path_pythons_path.length; pp_cnt++) {
+                  path_python_option = path_python_option + "<option>" + obj2.path_pythons_path[pp_cnt]+ "</option>";
+                }
+                $j("#step1 #ppython").empty().append(path_python_option).change();
+		
                 //alert(prj_option);
             });
           
@@ -1260,6 +1321,7 @@ $j(document).ready(function(){
 /*----------------------------------------------------*/
             $j("#prjTable").trigger( 'reloadGrid' );
 	    $j("#resultTable").trigger( 'reloadGrid' );
+	    $j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile").trigger("liszt:updated");
         });
       
         request.error(function(jqXHR, textStatus, errorThrown) {
@@ -1713,6 +1775,7 @@ $j(document).ready(function(){
 	});
 	return false;
     });
+    
 
 /*---------------------------------------------------------
  *    Submitting JOBs

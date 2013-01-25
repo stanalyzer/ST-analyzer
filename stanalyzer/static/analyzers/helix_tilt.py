@@ -45,8 +45,8 @@ in_file = sys.argv[1];
 para_idx = int(sys.argv[2]);         # parameter index for multiple jobs in a same form
 #out_file = sys.argv[2];
 
-print 'execution file: {}'.format(exe_file);
-print 'input file: {}'.format(in_file);
+print '### execution file: {} ###'.format(exe_file);
+print '\t- input file: {}'.format(in_file);
 #print 'output file: {}'.format(out_file);
 
 #print 'Reading pickle...'
@@ -86,10 +86,10 @@ pInfo = myPara[1];      # parameter information pInfo[0] = "number of parameters
 paras = myPara[2];      # actual parameters paras[0] contains 'the number of parameters'
 para_pkey = myPara[3];  # primary key of parameter table contating this analzyer function. 
 
-print "NAME OF FUNCTION: {}".format(fName);
-print "PARAMETER INFO: {}".format(pInfo);
-print "PARMETERS: {}".format(paras);
-print "PARAMETER PRIMARY KEYS: {}".format(para_pkey);
+#print "NAME OF FUNCTION: {}".format(fName);
+#print "PARAMETER INFO: {}".format(pInfo);
+#print "PARMETERS: {}".format(paras);
+#print "PARAMETER PRIMARY KEYS: {}".format(para_pkey);
 
 # display all local variables
 #pprint.pprint(dic)
@@ -116,7 +116,7 @@ if not (os.path.isdir(out_dir)):
 
 
 # -------- Writing input file for web-link
-print "list of PARAMETERS: "
+#print "list of PARAMETERS: "
 inFile = '{0}/input{1}.dat'.format(out_dir, para_idx);
 fid_in = open(inFile, 'w');
 strPara = "Name of Function: {}\n".format(exe_file);
@@ -144,7 +144,7 @@ strPara = strPara + "\nPBS: \n{}\n".format(pbs);
 fid_in.write(strPara);
 fid_in.close();
 
-print strPara
+#print strPara
 
 #---------------------< assigned global parameters >---------------------------------
 # para_idx 	  = int(sys.argv[2]);         # parameter index for multiple jobs in a same form
@@ -193,9 +193,9 @@ if run:
     out_file = '{0}/{1}'.format(out_dir, outFile);
     fid_out = open(out_file, 'w')
     fid_out.write("# ps/frame\tTilt angle\n")
-    print '--- Calculating Helix tilt'
+    # print '--- Calculating Helix tilt'
     psf = '{0}{1}'.format(base_path, structure_file);
-    print psf;
+    # print psf;
     cnt = 0;
     
     # default frame unit
@@ -208,8 +208,8 @@ if run:
     for idx in range(len(trajectoryFile)):
 	# reading trajectory
 	trj = '{0}{1}'.format(base_path, trajectoryFile[idx]);
-	print 'Reading PSF: ' + psf
-	print 'Reading DCD: ' + trj
+	# print 'Reading PSF: ' + psf
+	# print 'Reading DCD: ' + trj
 	u = Universe(psf, trj);
 	#print '{0} is done!'.format(idx);
 	# read based on frame
@@ -274,7 +274,7 @@ conn = sqlite3.connect(DB_FILE);
 c    = conn.cursor();
 for i in range(len(para_pkey)):
     query = """UPDATE gui_parameter SET status = "COMPLETE" WHERE id = {0}""".format(para_pkey[i]);
-    print query
+    #print query
     c.execute(query);
     conn.commit();
 
@@ -283,10 +283,10 @@ query = """SELECT DISTINCT(status) FROM gui_parameter WHERE job_id = {0}""".form
 c.execute(query);
 ST = c.fetchall();
 
-print query;
-print "number status = {}".format(len(ST));
-for item in ST:
-    print "{0}".format(item[0]);
+#print query;
+#print "number status = {}".format(len(ST));
+#for item in ST:
+#    print "{0}".format(item[0]);
 
 
 if (len(ST) == 1) and (ST[0][0] == "COMPLETE"):
@@ -335,21 +335,21 @@ stime = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
 conn = sqlite3.connect(DB_FILE);
 c    = conn.cursor();
 
-print "========= gui_job ==========="
+#print "========= gui_job ==========="
 query = "SELECT id, name, proj_id, anaz, status, output, stime, etime FROM gui_job";
-print "ID\tTITLE\tPROJ_ID\tANALYZER\tSTATUS\tOUTPUT\tSTART\tEND";
+#print "ID\tTITLE\tPROJ_ID\tANALYZER\tSTATUS\tOUTPUT\tSTART\tEND";
 c.execute(query);
 job = c.fetchall();
-print "Final idx= {}".format(job[len(job)-1][0]);
+#print "Final idx= {}".format(job[len(job)-1][0]);
 #for item in job:
 #    print "{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}".format(item[0], item[1], item[2], item[3], item[4], item[5], item[6], item[7]);
 
-print "========= gui_parameter ==========="
+#print "========= gui_parameter ==========="
 query = "SELECT id, job_id, anaz, para, val, status FROM gui_parameter";
-print "ID\tJOB_ID\tANALYZER\tPARAMETER\tVALUE\tSTATUS";
+#print "ID\tJOB_ID\tANALYZER\tPARAMETER\tVALUE\tSTATUS";
 c.execute(query);
 PR = c.fetchall();
-print "Final idx= {}".format(PR[len(PR)-1][0]);
+#print "Final idx= {}".format(PR[len(PR)-1][0]);
 #for item in PR:
 #    print "{0}\t{1}\t{2}\t{3}\t{4}\t{5}".format(item[0], item[1], item[2], item[3], item[4], item[5]);
 

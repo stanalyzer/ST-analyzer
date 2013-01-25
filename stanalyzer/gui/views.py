@@ -2715,6 +2715,7 @@ def stanalyzer_info(request):
 
 def stanalyzer_sendJob(request):
     print "### stanalyzer_sendJob ###"
+    print request.session
     # check out authority 
     if 'user_id' not in request.session:
         c = {
@@ -2764,17 +2765,17 @@ def stanalyzer_sendJob(request):
             bpath = eval_path(bpath);
             path_output = eval_path(path_output);
             
-	    print "######## Before Wrap ##############"
-	    print Paras
-	    print ParaInfo
+	    #print "######## Before Wrap ##############"
+	    #print Paras
+	    #print ParaInfo
 	    
             #--- parsing List ----
             Paras = parseWrapList2(Paras);
             ParaInfo = parseWrapList1(ParaInfo);
             
-	    print "######## after Wrap ##############"
-	    print Paras
-	    print ParaInfo
+	    #print "######## after Wrap ##############"
+	    #print Paras
+	    #print ParaInfo
             #PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__));
 
             #--- Get unique session ID
@@ -2854,7 +2855,7 @@ def stanalyzer_sendJob(request):
 		    fid_i.close();
                 
             # ---------------------------- Writing SHELL SCRIPT
-	    print "Writing Shell script....";
+	    #print "Writing Shell script....";
             for ifunc in func_name:
 		func_idx = func_name.index(ifunc);
 		for cnt_frm in range(len(Paras[func_idx][1])):
@@ -2875,7 +2876,7 @@ def stanalyzer_sendJob(request):
 		    os.chmod(tmp, 0755);
             
             
-            # ---------------------------- Insert job into a table ---------------------------------
+            #print "# ---------------------------- Insert job into a table ---------------------------------"
             #print "HERE works"
             conn = sqlite3.connect(dbName);
             c = conn.cursor();
@@ -2976,7 +2977,7 @@ def stanalyzer_sendJob(request):
             fid_out.close();
             
             # ---------------------------- Submit Jobs
-            if (machine == 'cluster'):
+            if (machine == 'PBS'):
                 print "Run code at {}".format(machine);
                 for ifunc in func_name:
 		    func_idx = func_name.index(ifunc);
@@ -2984,7 +2985,7 @@ def stanalyzer_sendJob(request):
 			cmd = "qsub {0}/{1}{2}.pbs".format(PBS_HOME, ifunc, cnt_frm);
 			os.system(cmd);
 
-            elif (machine == 'server'):
+            elif (machine == 'Interactive'):
                 print "Run code at {}".format(machine);
                 for ifunc in func_name:
 		    func_idx = func_name.index(ifunc);

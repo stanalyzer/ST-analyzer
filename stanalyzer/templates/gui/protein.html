@@ -132,6 +132,60 @@ $j(document).ready(function(){
 	    //-----
 	    
 	});
+    
+    /* Live update for selecting segment */
+    $j("#helix_tilt_form select[name='segID']").live("change", function(){
+	//alert("This click is from..: " + $(this).attr('id'));
+	var id_num = $(this).attr("id").match(/[\d]+$/);
+	if (!id_num) {
+	    /*
+	     if the origianl selection is chosen then do not trigger below
+	     original selection is handled in index.html
+	    */ 
+	    return false;
+	}
+
+	//alert("ID=" + $(this).attr('id') + ", and number is " + $(this).attr("id").match(/[\d]+$/));
+	str_segID = "#segID" + id_num;
+	str_Res   = "#stRes" + id_num + ", #edRes" + id_num;
+	
+	//alert("str_segID=" + str_segID + ", str_Res" + str_Res);
+
+	bpath = $j("#proot option:selected").text();
+	stfile = $j("#stfile option:selected").text();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	//$j("#select_trj2 option").tsort();				// do sort
+	trjFile = $j("#select_trj2").val();				// get values
+	segID = $j(str_segID).val();
+	var sndData = {
+	    'cmd'   	: 'get_segment',
+	    'segID' 	: segID,
+	    'bpath' 	: bpath,
+	    'stfile'	: stfile, 
+	    'trjFile[]'	: trjFile,
+	}
+	
+	var request = $j.ajax({
+	type: "post",
+	url: '/gui/get_segment/',
+	cache: false,
+	data: sndData,
+	});
+	    
+	request.done(function(Jdata) {
+	    var obj = $j.parseJSON(Jdata);
+	    /* Display segments */
+	    $j(str_Res).empty();
+	    for (var i = 0; i < obj.resList.length; i++) {
+		addStr = "<option value='" + obj.resID[i] + "'>" + obj.resID[i] + "-" + obj.resList[i] + "</option>";
+		$j(str_Res).append(addStr);
+		};
+	    $j(str_Res).change();
+	    $j(str_Res).trigger("liszt:updated");
+
+	});
+	return false;
+    });
 });
 </script>
 

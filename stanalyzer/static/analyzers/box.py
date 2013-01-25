@@ -112,8 +112,8 @@ para_pkey = myPara[3];  # primary key of parameter table contating this analzyer
 # 1 - Running job
 # 2 - Error occurred
 # 3 - Completed
-print "para_pkey: "
-print para_pkey
+#print "para_pkey: "
+#print para_pkey
 stime = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
 conn = sqlite3.connect(DB_FILE);
 c    = conn.cursor();
@@ -157,7 +157,7 @@ if not (os.path.isdir(out_dir)):
 
 
 # -------- Writing input file for web-link
-print "list of PARAMETERS: "
+#print "list of PARAMETERS: "
 inFile = '{0}/input{1}.dat'.format(out_dir, para_idx);
 fid_in = open(inFile, 'w');
 strPara = "Name of Function: {}\n".format(exe_file);
@@ -222,20 +222,20 @@ out_file  = paras[2][para_idx];			# pInfo[2] : output file name (list)
 #///////////////////////////////////////////////////////////////////////////
 try:
     outFile = '{0}/{1}'.format(out_dir, out_file);
-    print outFile
+    #print outFile
     fid_out = open(outFile, 'w')
     fieldInfo = "# ps/frame\tX-axis\tY-axis\tZ-axis\tAlpha\tBeta\tGamma\tVolumn\n";
-    print fieldInfo;
+    #print fieldInfo;
     fid_out.write(fieldInfo)
-    print '--- Calculating Unicell dimension and volum'
+    #print '--- Calculating Unicell dimension and volum'
     psf = '{0}{1}'.format(base_path, structure_file);
-    print psf;
+    #print psf;
     cnt = 0;
     for idx in range(len(trajectoryFile)):
         # reading trajectory
         dcd = '{0}{1}'.format(base_path, trajectoryFile[idx]);
-        print 'Reading PSF: ' + psf
-        print 'Reading DCD: ' + dcd
+        #print 'Reading PSF: ' + psf
+        #print 'Reading DCD: ' + dcd
         u = Universe(psf, dcd);
         #print '{0} is done!'.format(idx);
         # read based on frame
@@ -245,13 +245,13 @@ try:
             # from MDAnalysis.coordinates.DCD.DCDReader
             ucell = u.trajectory[ts.frame]
             outStr = '{0}'.format(cnt*int(float(num_ps)));
-            print outStr
+            #print outStr
             for j in range(len(ucell.dimensions)):
                outStr = outStr + '\t{0}'.format(ucell.dimensions[j])
-               print outStr
+               #print outStr
             outStr = outStr + '\t{0}\n'.format(ucell.volume)
-            print "Last Line--->"
-            print outStr
+            #print "Last Line--->"
+            #print outStr
             fid_out.write(outStr)
     fid_out.close()
 
@@ -268,7 +268,7 @@ try:
     gScript = gScript + """plot "{0}/{1}" using 1:2 title "X-axis" with linespoints, "{2}/{1}" using 1:3 title "Y-axis" with linespoints, "{3}/{1}" using 1:4 title "Z-axis" with linespoints\n""".format(out_dir, out_file, out_dir, out_dir);
     fid_out.write(gScript);
     fid_out.close()
-    print gScript
+    #print gScript
     
     # Drawing graph with gnuplot
     subprocess.call(["gnuplot", outScr]);
@@ -285,7 +285,7 @@ try:
     c.execute(query);
     conn.commit();
     conn.close();
-    print query
+    #print query
     
     # update gui_parameter & gui_job table when job completed
     etime = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
@@ -301,10 +301,10 @@ try:
     query = """SELECT DISTINCT(status) FROM gui_parameter WHERE job_id = {0}""".format(job_pkey[0]);
     c.execute(query);
     ST = c.fetchall();
-    print query;
-    print "number status = {}".format(len(ST));
-    for item in ST:
-        print "{0}".format(item[0]);
+    #print query;
+    #print "number status = {}".format(len(ST));
+    #for item in ST:
+    #    print "{0}".format(item[0]);
     
     if (len(ST) == 1) and (ST[0][0] == "COMPLETE"):
         etime = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
@@ -321,7 +321,7 @@ try:
         query = """INSERT INTO gui_outputs (job_id, name, img, txt, gzip) VALUES ({0}, "{1}", "{2}", "{3}", "{4}")""".format(job_pkey[0], final_title, imgPath, outFile, outZip);
         c.execute(query);
         conn.commit();
-        print query
+        #print query
     conn.close();
 
 
@@ -353,21 +353,21 @@ stime = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
 conn = sqlite3.connect(DB_FILE);
 c    = conn.cursor();
 
-print "========= gui_job ==========="
+#print "========= gui_job ==========="
 query = "SELECT id, name, proj_id, anaz, status, output, stime, etime FROM gui_job";
-print "ID\tTITLE\tPROJ_ID\tANALYZER\tSTATUS\tOUTPUT\tSTART\tEND";
+#print "ID\tTITLE\tPROJ_ID\tANALYZER\tSTATUS\tOUTPUT\tSTART\tEND";
 c.execute(query);
 job = c.fetchall();
-print "Final idx= {}".format(job[len(job)-1][0]);
+#print "Final idx= {}".format(job[len(job)-1][0]);
 #for item in job:
 #    print "{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}".format(item[0], item[1], item[2], item[3], item[4], item[5], item[6], item[7]);
 
-print "========= gui_parameter ==========="
+#print "========= gui_parameter ==========="
 query = "SELECT id, job_id, anaz, para, val, status FROM gui_parameter";
-print "ID\tJOB_ID\tANALYZER\tPARAMETER\tVALUE\tSTATUS";
+#print "ID\tJOB_ID\tANALYZER\tPARAMETER\tVALUE\tSTATUS";
 c.execute(query);
 PR = c.fetchall();
-print "Final idx= {}".format(PR[len(PR)-1][0]);
+#print "Final idx= {}".format(PR[len(PR)-1][0]);
 #for item in PR:
 #    print "{0}\t{1}\t{2}\t{3}\t{4}\t{5}".format(item[0], item[1], item[2], item[3], item[4], item[5]);
 

@@ -201,7 +201,7 @@ class getDB:
 # dic 	   : data read from pickle
 #********************************************
 def get_myfunction (funcName, dic):
-    print "[*** get_myfunction ***]";
+    #print "[get_myfunction]";
     funcName = funcName[0:len(funcName)-3];
     fName = [];
     pInfo = [];
@@ -212,21 +212,21 @@ def get_myfunction (funcName, dic):
     if funcName in dic["funcName"]:
 	#print "Function: "
 	idx = dic["funcName"].index(funcName);
-	print "*** PARA_PKEYS: "
-	print dic["para_pkeys"]
-	print "(idx={}, funcName={})".format(idx, funcName);
-	print "PARMETERS"
+	#print "*** PARA_PKEYS: "
+	#print dic["para_pkeys"]
+	#print "(idx={}, funcName={})".format(idx, funcName);
+	#print "PARMETERS"
 	for j in range(len(dic["paraInfo"][idx])):
 	    pInfo.append(dic["paraInfo"][idx][j]);
 	    paras.append(dic["Paras"][idx][j]);
-	    print " - {}={}".format(dic["paraInfo"][idx][j], dic["Paras"][idx][j]);
+	    #print " - {}={}".format(dic["paraInfo"][idx][j], dic["Paras"][idx][j]);
 
-	print "Para Keys : ";
-	print dic["para_pkeys"][idx];
+	#print "Para Keys : ";
+	#print dic["para_pkeys"][idx];
 	for k in range(len(dic["para_pkeys"][idx])):
 	    para_pkey.append(dic["para_pkeys"][idx][k]);
 	    
 	fName = [idx, funcName];
-    print "[----- end get_myfunction ----]"
+    #print "[----- end get_myfunction ----]"
     return ([fName, pInfo, paras, para_pkey]);
 	
