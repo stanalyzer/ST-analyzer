@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge, chrome=1" />
+
+<!-- for Job Viewer -->
+<meta name="author" conent="Jong Cheol Jeong (people.eecs.ku.edu/~jjeong)" />
+<link rel="stylesheet" href="/static/css/stanalyzer.css" >
+<link rel="stylesheet" href="/static/css/start/jquery-ui-1.9.2.custom.css" >
+<link rel="stylesheet" href="/static/jqGrid_master/themes/ui.multiselect.css" />
+<link rel="stylesheet" href="/static/jqGrid_master/themes/ui.jqgrid.css" />
+
+<script type="text/javascript" src="/static/js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.min.js"></script>
+<script src="/static/jqGrid_master/themes/js/jquery.layout.js" type="text/javascript"></script>
+<script src="/static/jqGrid_master/js/i18n/grid.locale-en.js" type="text/javascript"></script>
+<script src="/static/jqGrid_master/themes/js/ui.multiselect.js" type="text/javascript"></script>
+<script src="/static/jqGrid_master/themes/js/jquery.jqGrid.min.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+
+$j(document).ready(function(){
+     /*--------------------------------------------------------------------*/
+     /*--- Get around using csrftoken while using ajax  for Django 1.4  ---*/
+     /*--- https://docs.djangoproject.com/en/1.4/ref/contrib/csrf/ ---*/
+     /*--------------------------------------------------------------------*/
+     function getCookie(name) {
+	 var cookieValue = null;
+	 if (document.cookie && document.cookie != '') {
+	     var cookies = document.cookie.split(';');
+	     for (var i = 0; i < cookies.length; i++) {
+		 var cookie = jQuery.trim(cookies[i]);
+		 // Does this cookie string begin with the name we want?
+		 if (cookie.substring(0, name.length + 1) == (name + '=')) {
+		     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+		     break;
+		 }
+	     }
+	 }
+	 return cookieValue;
+     }
+     var csrftoken = getCookie('csrftoken');
+
+      function csrfSafeMethod(method) {
+	 // these HTTP methods do not require CSRF protection
+	 return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+      }
+
+     $j.ajaxSetup({
+	 crossDomain: false, // obviates need for sameOrigin test
+	 beforeSend: function(xhr, settings) {
+	     if (!csrfSafeMethod(settings.type)) {
+		 xhr.setRequestHeader("X-CSRFToken", csrftoken);
+	     }
+	 }
+     });
+ 
+     /*---------------------------------------------------*/
+       
+  });
+</script>
+
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+
+/* restrict ID inputs by allowing comma, alphabet, and numbers only */
+function isNumberKey(evt) {
+    var charCode = (evt.which) ? evt.which : event.keyCode
+    if ((charCode > 31 && charCode < 44) || (charCode > 45 && charCode < 48) || charCode > 57) {
+	msg = "<span class='message_warn'>IDs (<i>Using ',' for multiple IDs and '-' for continuous IDs</i>)</span>";
+	$j("#idInput").empty().append(msg);
+	$j("#selIDs").focus();
+	return false;
+       //return ["',', '-', and number only! "];
+    } else {
+	msg = "<b>IDs</b> (<i>Using ',' for multiple IDs and '-' for continuous IDs</i>)";
+	$j("#idInput").empty().append(msg);
+	$j("#selIDs").focus();
+    }
+    return true;
+}
+
+/* check out form before sending it out */
+function eval_rstView_DBmgr() {
+    var txt = $j("#rstView #selIDs").val();
+    if (txt.trim().length < 1) {
+	return ['ID is required!'];
+    }
+    return false;
+}
+
+
+$j(document).ready(function(){
+     $j("#rstView #sub_DBmgr").click(function(){
+	var err = eval_rstView_DBmgr();
+	if (err) {
+	    alert(err);
+	    $j("#rstView #selIDs").val('').focus();
+	    return false;
+	}
+	var table 	= $j("#rstView #DBmgr option:selected").val();
+	var table_title = $j("#rstView #DBmgr option:selected").text();
+	var IDs   	= $j("#rstView #selIDs").val();
+	var flag_del	= $j("#rstView #delDir").prop('checked');
+	var sndData = {
+	    'cmd'     	: 'delete',
+	    'table'	: table,
+	    'IDs'	: $j.trim(IDs),
+	    'del'	: flag_del,
+	}
+	
+        var msg = "You are trying to delete &#34<b>" + table_title +
+		   "</b>&#34.<br/> Corresponding IDs are &#34<b>" + IDs +
+		   "</b>&#34. <br/>This will result in followings: <br/><br/> Deleting Database: <b>yes</b> <br/>Deleting associated directories: <b>" +
+		   flag_del + "</b><br/><br/> Would you like to DELETE it?<br/>";
+		   
+	$j("#dlg_confirm #dlg_msg").empty().append(msg).change();
+	$j("#dlg_confirm").dialog({
+	    resizable: true,
+	    height:300,
+	    width:300,
+	    modal: true,
+	    open: function () {
+		$j('.ui-dialog').css("font-size", "12px");
+	    },
+	    buttons: {
+		Okay: function() {
+		    $j( this ).dialog( "close" );
+		    var request = $j.ajax({
+		    type: "POST",
+		    url: '/gui/resultView_DBmanager/',
+		    cache: false,
+		    data: sndData,
+		    async: false,
+		    });
+		    
+		    request.done(function(Jdata) {
+			var obj = $j.parseJSON(Jdata);
+			$j("#tbl_user").trigger('reloadGrid');
+			$j("#tbl_project").trigger('reloadGrid');
+			$j("#tbl_pinput").trigger('reloadGrid');
+			$j("#tbl_poutput").trigger('reloadGrid');
+			$j("#tbl_ppython").trigger('reloadGrid');
+			$j("#tbl_para").trigger('reloadGrid');
+			$j("#tbl_outputs").trigger('reloadGrid');
+			alert("Your requests have been successfully completed!");
+		     });
+		
+		    request.error(function(jqXHR, textStatus, errorThrown) {
+			alert("Error has been occured! Please check the permission of directories!");
+		    });
+		},
+		Cancel: function() {
+		    $j( this ).dialog( "close" );
+		}
+	    }
+	});
+    });
+
+    /* ******************************************************
+     * gui_user
+     * ******************************************************/ 
+    $j("#tbl_user").jqGrid({
+	url		:'/gui/viewTable/gui_user/',
+	datatype	: 'json',
+	mtype		: 'GET',
+	colNames	:['ID', 'PASSWORD', 'Email', 'Level'],
+	colModel:[
+		{name:'uid',index:'uid', width:50, key:true},
+		{name:'pwd',index:'pwd', width:50},
+		{name:'email',index:'email', width:50},
+		{name:'level',index:'level', width:10},
+	    ],
+	rowNum		:10,
+	rowList		:[5,10,20,30],
+	pager		: "#pager_user",
+	sortname	: "uid",
+	//viewrecords	: true,
+	sortorder	: "desc",
+	//gridview	: true,
+	caption		:"gui_user",
+	width		: 895,
+	height		: 200,
+	//multiselect	: false,
+    });
+    $j("#tbl_user").jqGrid('navGrid','#pager_user',{edit:false,add:false,del:false, search:false});
+    $j("#tbl_user").jqGrid('filterToolbar', {stringResult: true, searchOnEnter: false});
+
+    /* ******************************************************
+     * gui_project
+     * ******************************************************/ 
+    $j("#tbl_project").jqGrid({
+	url		:'/gui/viewTable/gui_project/',
+	datatype	: 'json',
+	mtype		: 'GET',
+	colNames	:['ID', 'User', 'Title', 'Date', 'PBS'],
+	colModel:[
+		{name:'id',index:'id', width:50, key:true},
+		{name:'user_id',index:'user_id', width:50},
+		{name:'name',index:'name', width:50},
+		{name:'date',index:'date', width:50},
+		{name:'pbs',index:'pbs', width:50},
+	    ],
+	rowNum		:10,
+	rowList		:[5,10,20,30],
+	pager		: "#pager_project",
+	sortname	: "id",
+	//viewrecords	: true,
+	sortorder	: "desc",
+	//gridview	: true,
+	caption		:"gui_project",
+	width		: 895,
+	height		: 200,
+	//multiselect	: false,
+    });
+    $j("#tbl_project").jqGrid('navGrid','#pager_project',{edit:false,add:false,del:false, search:false});
+    $j("#tbl_project").jqGrid('filterToolbar', {stringResult: true, searchOnEnter: false});
+
+    /* ******************************************************
+     * gui_path_input
+     * ******************************************************/ 
+    $j("#tbl_pinput").jqGrid({
+	url		:'/gui/viewTable/gui_path_input/',
+	datatype	: 'json',
+	mtype		: 'GET',
+	colNames	:['ID', 'Project ID', 'Path'],
+	colModel:[
+		{name:'id',index:'id', width:10, key:true},
+		{name:'proj_id',index:'proj_id', width:10},
+		{name:'path',index:'path', width:50},
+	    ],
+	rowNum		:10,
+	rowList		:[5,10,20,30],
+	pager		: "#pager_pinput",
+	sortname	: "id",
+	//viewrecords	: true,
+	sortorder	: "desc",
+	//gridview	: true,
+	caption		:"gui_path_input",
+	width		: 895,
+	height		: 200,
+	//multiselect	: false,
+    });
+    $j("#tbl_pinput").jqGrid('navGrid','#pager_pinput',{edit:false,add:false,del:false, search:false});
+    $j("#tbl_pinput").jqGrid('filterToolbar', {stringResult: true, searchOnEnter: false});
+
+    /* ******************************************************
+     * gui_path_output
+     * ******************************************************/ 
+    $j("#tbl_poutput").jqGrid({
+	url		:'/gui/viewTable/gui_path_output/',
+	datatype	: 'json',
+	mtype		: 'GET',
+	colNames	:['ID', 'Project ID', 'Path'],
+	colModel:[
+		{name:'id',index:'id', width:10, key:true},
+		{name:'proj_id',index:'proj_id', width:10},
+		{name:'path',index:'path', width:50},
+	    ],
+	rowNum		:10,
+	rowList		:[5,10,20,30],
+	pager		: "#pager_poutput",
+	sortname	: "id",
+	//viewrecords	: true,
+	sortorder	: "desc",
+	//gridview	: true,
+	caption		:"gui_path_output",
+	width		: 895,
+	height		: 200,
+	//multiselect	: false,
+    });
+    $j("#tbl_poutput").jqGrid('navGrid','#pager_poutput',{edit:false,add:false,del:false, search:false});
+    $j("#tbl_poutput").jqGrid('filterToolbar', {stringResult: true, searchOnEnter: false});
+
+    /* ******************************************************
+     * gui_path_python
+     * ******************************************************/ 
+    $j("#tbl_ppython").jqGrid({
+	url		:'/gui/viewTable/gui_path_python/',
+	datatype	: 'json',
+	mtype		: 'GET',
+	colNames	:['ID', 'Project ID', 'Path'],
+	colModel:[
+		{name:'id',index:'id', width:10, key:true},
+		{name:'proj_id',index:'proj_id', width:10},
+		{name:'path',index:'path', width:50},
+	    ],
+	rowNum		:10,
+	rowList		:[5,10,20,30],
+	pager		: "#pager_ppython",
+	sortname	: "id",
+	//viewrecords	: true,
+	sortorder	: "desc",
+	//gridview	: true,
+	caption		:"gui_path_python",
+	width		: 895,
+	height		: 200,
+	//multiselect	: false,
+    });
+    $j("#tbl_ppython").jqGrid('navGrid','#pager_ppython',{edit:false,add:false,del:false, search:false});
+    $j("#tbl_ppython").jqGrid('filterToolbar', {stringResult: true, searchOnEnter: false});
+
+    /* ******************************************************
+     * gui_job
+     * ******************************************************/ 
+    $j("#tbl_job").jqGrid({
+	url		:'/gui/viewTable/gui_job/',
+	datatype	: 'json',
+	mtype		: 'GET',
+	colNames	:['ID', 'Job name', 'Project ID', 'Analyzer', 'Status', 'Output', 'Time start', 'Time end'],
+	colModel:[
+		{name:'id',index:'id', width:10, key:true},
+		{name:'name',index:'name', width:50, key:true},
+		{name:'proj_id',index:'proj_id', width:10},
+		{name:'anaz',index:'anaz', width:50},
+		{name:'status',index:'status', width:50},
+		{name:'output',index:'output', width:50},
+		{name:'stime',index:'stime', width:50},
+		{name:'etime',index:'etime', width:50},
+	    ],
+	rowNum		:10,
+	rowList		:[5,10,20,30],
+	pager		: "#pager_job",
+	sortname	: "id",
+	//viewrecords	: true,
+	sortorder	: "desc",
+	//gridview	: true,
+	caption		:"gui_job",
+	width		: 895,
+	height		: 245,
+	//multiselect	: false,
+    });
+    $j("#tbl_job").jqGrid('navGrid','#pager_job',{edit:false,add:false,del:false, search:false});
+    $j("#tbl_job").jqGrid('filterToolbar', {stringResult: true, searchOnEnter: false});
+
+    
+    /* ******************************************************
+     * gui_parameter
+     * ******************************************************/ 
+    $j("#tbl_para").jqGrid({
+	url		:'/gui/viewTable/gui_parameter/',
+	datatype	: 'json',
+	mtype		: 'GET',
+	colNames	:['ID', 'Job ID', 'Analyzer', 'Parameter', 'Value', 'Status'],
+	colModel:[
+		{name:'id',index:'id', width:10, key:true},
+		{name:'job_id',index:'job_id', width:10},
+		{name:'anaz',index:'anaz', width:50},
+		{name:'para',index:'para', width:50},
+		{name:'val',index:'val', width:50},
+		{name:'status',index:'status', width:50},
+	    ],
+	rowNum		:10,
+	rowList		:[5,10,20,30],
+	pager		: "#pager_para",
+	sortname	: "id",
+	//viewrecords	: true,
+	sortorder	: "desc",
+	//gridview	: true,
+	caption		:"gui_parameter",
+	width		: 895,
+	height		: 245,
+	//multiselect	: false,
+    });
+    $j("#tbl_para").jqGrid('navGrid','#pager_para',{edit:false,add:false,del:false, search:false});
+    $j("#tbl_para").jqGrid('filterToolbar', {stringResult: true, searchOnEnter: false});
+
+        
+    /* ******************************************************
+     * gui_outputs
+     * ******************************************************/ 
+    $j("#tbl_outputs").jqGrid({
+	url		:'/gui/viewTable/gui_outputs/',
+	datatype	: 'json',
+	mtype		: 'GET',
+	colNames	:['ID', 'Job ID', 'Analyzer', 'Image', 'Data', 'Zip'],
+	colModel:[
+		{name:'id',index:'id', width:10, key:true},
+		{name:'job_id',index:'job_id', width:10},
+		{name:'name',index:'name', width:50},
+		{name:'img',index:'img', width:50},
+		{name:'txt',index:'txt', width:50},
+		{name:'gzip',index:'gzip', width:50},
+	    ],
+	rowNum		:10,
+	rowList		:[5,10,20,30],
+	pager		: "#pager_outputs",
+	sortname	: "id",
+	//viewrecords	: true,
+	sortorder	: "desc",
+	//gridview	: true,
+	caption		:"gui_outputs",
+	width		: 895,
+	height		: 245,
+	//multiselect	: false,
+    });
+    $j("#tbl_outputs").jqGrid('navGrid','#pager_outputs',{edit:false,add:false,del:false, search:false});
+    $j("#tbl_outputs").jqGrid('filterToolbar', {stringResult: true, searchOnEnter: false});
+
+});
+</script>
+<h1>Tables</h1>
+<table id="tbl_user"></table>
+<div id="pager_user"></div>
+<hr/>
+
+<table id="tbl_project"></table>
+<div id="pager_project"></div>
+<hr/>
+
+<table id="tbl_pinput"></table>
+<div id="pager_pinput"></div>
+<hr/>
+
+<table id="tbl_poutput"></table>
+<div id="pager_poutput"></div>
+<hr/>
+
+<table id="tbl_ppython"></table>
+<div id="pager_ppython"></div>
+<hr/>
+
+<table id="tbl_job"></table>
+<div id="pager_job"></div>
+<hr/>
+
+<table id="tbl_para"></table>
+<div id="pager_para"></div>
+<hr/>
+
+<table id="tbl_outputs"></table>
+<div id="pager_outputs"></div>
+<hr/>
+
+<div id="rstView">
+    <center>
+    <table>
+	<tr>
+	    <td class="center"><b>Target</b></td><td class="center"><div id="idInput"><b>IDs</b> (<i>Using ',' for multiple IDs and '-' for continuous IDs</i>)</div></td><td class="center w70"><b>Directory</b></td><td></td>
+	</tr>
+	    <td>
+		<select id="DBmgr">
+		    <option value="gui_user">gui_user</option>
+		    <option value="gui_project">gui_project</option>
+		    <option value="gui_path_input">gui_path_input</option>
+		    <option value="gui_path_output">gui_path_output</option>
+		    <option value="gui_path_python">gui_path_python</option>
+		    <option value="gui_job">gui_job</option>
+		    <option value="gui_parameter">gui_parameter</option>
+		    <option value="gui_outputs">gui_outputs</option>
+		</select>
+	    </td>
+	    <td>
+		<input type="text" onkeypress="return isNumberKey(event)" name="selIDs" size="70" id="selIDs">
+	    </td>
+	    <td class="center">
+		<input type="checkbox" name="delDir" id="delDir">
+	    </td>
+	    <td>
+		<button id="sub_DBmgr">DELETE</button>
+	    </td>
+    </table>
+    </center>
+</div>
+<div id="dlg_confirm" title="Warning!">
+    <span id="dlg_msg"></span>
+    <!-- <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span></p> -->
+</div>

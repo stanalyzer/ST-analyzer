@@ -41,6 +41,7 @@ import math
 import shutil
 from random import randint
 from os import path
+import subprocess as sub
 
 # for using from object
 # https://docs.djangoproject.com/en/dev/topics/forms/?from=olddocs#filefield
@@ -2982,9 +2983,17 @@ def stanalyzer_sendJob(request):
                 for ifunc in func_name:
 		    func_idx = func_name.index(ifunc);
 		    for cnt_frm in range(len(Paras[func_idx][1])):
-			cmd = "qsub {0}/{1}{2}.pbs".format(PBS_HOME, ifunc, cnt_frm);
-			os.system(cmd);
-
+			fpbs = "{0}/{1}{2}.pbs".format(PBS_HOME, ifunc, cnt_frm);
+			#cmd = "qsub {0}/{1}{2}.pbs".format(PBS_HOME, ifunc, cnt_frm);
+			#os.system(cmd);
+			print "Okay I am sending job to Queue!";
+			q_id = sub.check_output(["qsub", fpbs]);
+			print q_id
+			Q = q_id.split('.');
+			print "Okay queue id is {}".format(Q[0]);
+			
+			# Inserting queue ID into a table
+			
             elif (machine == 'Interactive'):
                 print "Run code at {}".format(machine);
                 for ifunc in func_name:
@@ -3100,17 +3109,42 @@ def resultView_DBmanager(request):
 		else:
 		    tmp2 = int(num);
 		    IDs.append(tmp2);
-	IDs = set(IDs);
+	IDs = set(IDs);				# make sure having unique IDs
 	IDs = list(IDs);
 	
 	# deleting gui_project
-	if table == 'gui_project':
+	if table == 'gui_user':
+	    conn = sqlite3.connect(dbName);
+	    c = conn.cursor();
+	    print "** DELETE FROM {} **".format(table);
+	    for i in IDs:
+		query = """DELETE FROM {0} where uid = "{1}" """.format(table, i);
+		c.execute(query);
+		conn.commit();
+	    conn.close();
+
+	elif table == 'gui_project':
 	    print "** DELETE gui_project **";
 	    delProjects(IDs, dbName, flag_del);
+
+	elif table == 'gui_job':
+	    print "** DELETE gui_project **";
+	    delJobs(IDs, dbName, flag_del);
+	    
 	elif table == 'gui_outputs':
 	    print "** DELETE gui_outputs **";
 	    delOutputs(IDs, dbName, flag_del);
 	    
+	else:
+	    conn = sqlite3.connect(dbName);
+	    c = conn.cursor();
+	    print "** DELETE FROM {} **".format(table);
+	    for i in IDs:
+		query = "DELETE FROM {0} where id = {1} ".format(table, i);
+		c.execute(query);
+		conn.commit();
+	    conn.close();
+
         c = {
             'fUsers'    : IDs,
         }
@@ -3248,3 +3282,101 @@ def fileSort(request):
 	}
 	
     return HttpResponse(json.dumps(c));
+
+
+
+def viewTable(request, table_name):
+    print "### viewTable ###"
+    if 'user_id' not in request.session:
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+                }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+
+    request.session.set_expiry(SESSION_TIME_OUT);
+    user_id = request.session['user_id'];
+    #print request.GET
+        
+    if request.GET.get("sidx"):
+        sidx    = request.GET["sidx"];
+        sord    = request.GET["sord"];
+        cpage   = request.GET["page"];
+        cpage   = int(cpage);
+        maxrow  = request.GET["rows"];
+        maxrow  = int(maxrow);    
+        
+    if cpage == 1:
+        st_index = 0;
+        ed_index = maxrow;
+    else:
+        st_index = maxrow * cpage - maxrow;
+        ed_index = maxrow * cpage;
+    
+    #if request.is_ajax() and (request.method == 'POST'):
+    print "dbName: {}".format(dbName);
+    
+    conn = sqlite3.connect(dbName);
+    c = conn.cursor();
+    
+    if (request.GET["_search"] == 'true'):
+        sfilter = request.GET["filters"];
+        search_dic =json.loads(sfilter);      # convert string to dictionary
+        search_rules = search_dic["rules"][0];
+        search_field = search_rules["field"];
+        search_data = search_rules["data"];
+        query = """select * from {0} where {1} like "%{2}%" order by {3} {4}""".format(table_name, search_field, search_data, sidx, sord);
+        #print query
+    else:   
+        query = "select * from {0} order by {1} {2}".format(table_name, sidx, sord);
+        #print query
+    
+    c.execute(query);
+    row = c.fetchall();
+    conn.close();
+
+    rows = [];
+    row_cnt = 0;
+    if st_index == 0:
+	for item in row:
+	    row_cnt = row_cnt + 1;
+	    tmp = { "id": str(row_cnt), "cell": item}
+	    rows.append(tmp);
+    else:
+	for item in row:
+	    row_cnt = row_cnt + 1;
+	    if (row_cnt > st_index):
+		tmp = { "id": str(row_cnt), "cell": item}
+		rows.append(tmp);
+    
+    # calculating total number of pages
+    tpages = int(math.ceil(float(row_cnt) / float(maxrow)));
+    #print "tpages: {}".format(tpages);
+    if tpages < 1:
+        tpages = 1;
+    
+    total_pages = tpages;
+
+    c = {
+            'total'	: total_pages,
+            'page'      : cpage,
+            'records'   : row_cnt,
+            'rows'      : rows,            
+        }
+    return HttpResponse(json.dumps(c));
+    
+def showTables(request):
+    print "* I am in resultView_DBmanager";
+    # check out authority 
+    if 'user_id' not in request.session:
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+        }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+    else:
+	c = {
+	    'msg' : 'show me table!',
+	}
+        template = 'gui/tableView.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )

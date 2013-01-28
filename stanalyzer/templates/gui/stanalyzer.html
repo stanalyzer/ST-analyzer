@@ -99,11 +99,21 @@ $j(document).ready(function(){
     $j('#step1 #fromFile').val('start file name').css({'color':'gray', 'font-size':'12px'});
     $j('#step1 #toFile').val('end file name').css({'color':'gray', 'font-size':'12px'});
     $j('#step1 #fromFile').focus(function() {
-	$j('#step1 #fromFile').val('');
+	//$j('#step1 #fromFile').val('');
+	$j(this).css("color","black");
     });
     
+    $j('#step1 #fromFile').focusout(function () {
+	$j(this).css("color","gray");;
+	});
+    
     $j('#step1 #toFile').focus(function() {
-	$j('#step1 #toFile').val('');
+	//$j('#step1 #toFile').val('');
+	$j(this).css("color","black");
+    });
+
+    $j('#step1 #toFile').focusout(function () {
+	$j(this).css("color","gray");;
     });
 
     $('#step1 #btn_ftSel').live('click', function(){

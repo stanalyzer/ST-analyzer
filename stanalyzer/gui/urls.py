@@ -49,6 +49,8 @@ urlpatterns = patterns('gui.views',
     url(r'^fsort/', 'fileSort'),
     url(r'^mediaLink/(?P<file_name>.*$)', 'mediaLink'),
     url(r'^wys_FileManager/', 'wysFileManager'),
+    url(r'^showtables/', 'showTables'),
+    url(r'^viewTable/(?P<table_name>\w{0,50})/$', 'viewTable'),
     
     url(r'^test/', 'dummy_test'),
     url(r'^toydb_data/', 'toyView_data'),
