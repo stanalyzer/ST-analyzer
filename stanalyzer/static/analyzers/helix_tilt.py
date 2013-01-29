@@ -85,6 +85,7 @@ fName = myPara[0];      # name of function except '.py'
 pInfo = myPara[1];      # parameter information pInfo[0] = "number of parameters"
 paras = myPara[2];      # actual parameters paras[0] contains 'the number of parameters'
 para_pkey = myPara[3];  # primary key of parameter table contating this analzyer function. 
+rmodule   = "{0}{1}".format(exe_file[:len(exe_file)-3], para_idx);  # running module name (e.g. box0)
 
 #print "NAME OF FUNCTION: {}".format(fName);
 #print "PARAMETER INFO: {}".format(pInfo);
@@ -107,6 +108,28 @@ for i in range(len(para_pkey)):
     c.execute(query);
     conn.commit();
 conn.close();
+
+# Update values into gui_outputs
+conn = sqlite3.connect(DB_FILE);
+c    = conn.cursor();
+# find gui_outputs related to current processing
+query = """SELECT id FROM gui_outputs WHERE job_id = {0} and name = "{1}" """.format(job_pkey[0], rmodule);
+c.execute(query);
+row = c.fetchone();
+pk_output = row[0];     # primary key for gui_outputs
+try:    
+    query = """UPDATE gui_outputs SET status = "Running" WHERE id = {0}""".format(pk_output);
+    c.execute(query);
+    conn.commit();
+    conn.close();
+except:
+    conn = sqlite3.connect(DB_FILE);
+    c    = conn.cursor();
+    query = """UPDATE gui_outputs SET status = "Failed" WHERE id = {0}""".format(pk_output);
+    c.execute(query);
+    conn.commit();
+    conn.close();
+
 
 out_dir = "{}{}".format(OUTPUT_HOME, fName[1]);
 # Create output directory
@@ -168,7 +191,8 @@ fid_in.close();
 # num_atoms	  = dic["num_atoms"];         # number of atomes in the system
 # num_files	  = dic["num_files"];         # number of files chosen
 # num_ps	  = str(dic["num_ps"]);       # simulation time ps/frame
-# trajectoryFile = [];                        # the list of trajectory files
+# trajectoryFile  = [];                        # the list of trajectory files
+# rmodule   	  = "{0}{1}".format(exe_file[:len(exe_file)-3], para_idx);  # running module name (e.g. box0)
 
 #---------------------< assigned module specific parameters >---------------------------------
 num_paras = paras[0][0];			# pInfo[0] : number of parameters
@@ -254,15 +278,14 @@ if run:
     outZip = "{0}project_{1}_{2}{3}.tar.gz".format(OUTPUT_HOME, prj_pkey, fName[1], para_idx);
     subprocess.call(["tar", "czf", outZip, out_dir]);
 
-    # Insert values into gui_outputs
+    # Update values into gui_outputs
     conn = sqlite3.connect(DB_FILE);
     c    = conn.cursor();
-    job_title_func = "{0}: {1}".format(job_title, exe_file[:len(exe_file)-3]);
-    query = """INSERT INTO gui_outputs (job_id, name, img, txt, gzip) VALUES ({0}, "{1}", "{2}", "{3}", "{4}")""".format(job_pkey[0], job_title_func, imgPath, outFile, outZip);
+    query = """UPDATE gui_outputs SET status = "Complete", img="{0}", txt="{1}", gzip="{2}" WHERE id = {3}""".format(imgPath, out_file, outZip, pk_output);
     c.execute(query);
     conn.commit();
     conn.close();
-
+    #print query
 
 
 
@@ -300,10 +323,10 @@ if (len(ST) == 1) and (ST[0][0] == "COMPLETE"):
     subprocess.call(["tar", "czf", outZip, OUTPUT_HOME]);
 
     # Inserting compressed tar file for all submitted jobs
-    final_title = "[** All JOBs **] {0}".format(job_title);
-    query = """INSERT INTO gui_outputs (job_id, name, img, txt, gzip) VALUES ({0}, "{1}", "{2}", "{3}", "{4}")""".format(job_pkey[0], final_title, '', '', outZip);
-    c.execute(query);
-    conn.commit();
+    #final_title = "[** All JOBs **] {0}".format(job_title);
+    #query = """INSERT INTO gui_outputs (job_id, name, img, txt, gzip) VALUES ({0}, "{1}", "{2}", "{3}", "{4}")""".format(job_pkey[0], final_title, '', '', outZip);
+    #c.execute(query);
+    #conn.commit();
     
 conn.close();
 
@@ -326,6 +349,11 @@ except:
     query = """UPDATE gui_job SET status = "INTERRUPTED" WHERE id = {0}""".format(job_pkey[0]);
     c.execute(query);
     conn.commit();
+    
+    query = """UPDATE gui_outputs SET status = "Failed" WHERE id = {0}""".format(pk_output);
+    c.execute(query);
+    conn.commit();
+
     conn.close();
 
 #///////////////////////////////////////////////////////

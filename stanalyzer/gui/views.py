@@ -1923,7 +1923,7 @@ def resultView_jqGrid_results(request):
 	tmp = c.fetchall();
 	JOBs = [];
 	for job_id in tmp:
-	    query = """select id, job_id, name, img, txt, gzip from gui_outputs where job_id = {0} AND {1} like "%{2}%" order by {3} {4}""".format(job_id[0], search_field, search_data, sidx, sord);
+	    query = """select id, job_id, name, status, qid, img, txt, gzip from gui_outputs where job_id = {0} AND {1} like "%{2}%" order by {3} {4}""".format(job_id[0], search_field, search_data, sidx, sord);
 	    #print query
 	    c.execute(query);
 	    row = c.fetchall();
@@ -1942,7 +1942,7 @@ def resultView_jqGrid_results(request):
 	c.execute(query);
 	tmp = c.fetchall();	# retrieve all related jobs corresponding to the current project 
 	for job_id in tmp:
-	    query = """select id, job_id, name, img, txt, gzip from gui_outputs where job_id = {0} order by {1} {2}""".format(job_id[0], sidx, sord);
+	    query = """select id, job_id, name, status, qid, img, txt, gzip from gui_outputs where job_id = {0} order by {1} {2}""".format(job_id[0], sidx, sord);
 	    #print query
 	    c.execute(query);
 	    row = c.fetchall();
@@ -2941,7 +2941,7 @@ def stanalyzer_sendJob(request):
             #-------------------------------------------
             # Writring input arguments into a file
             #-------------------------------------------
-            c ={
+            cdic ={
                 'para_pkeys'	    : para_pkeys,
                 'job_pkey'          : job_pkey,
                 'job_title'         : job_title,
@@ -2974,7 +2974,7 @@ def stanalyzer_sendJob(request):
             #file_out = "{}para".format(OUTPUT_HOME)
             #print "Writing binary file {}".format(file_out);
             fid_out = open(file_out, 'wb');
-            pickle.dump(c, fid_out);
+            pickle.dump(cdic, fid_out);
             fid_out.close();
             
             # ---------------------------- Submit Jobs
@@ -2983,26 +2983,45 @@ def stanalyzer_sendJob(request):
                 for ifunc in func_name:
 		    func_idx = func_name.index(ifunc);
 		    for cnt_frm in range(len(Paras[func_idx][1])):
+			# Run Script
 			fpbs = "{0}/{1}{2}.pbs".format(PBS_HOME, ifunc, cnt_frm);
 			#cmd = "qsub {0}/{1}{2}.pbs".format(PBS_HOME, ifunc, cnt_frm);
 			#os.system(cmd);
-			print "Okay I am sending job to Queue!";
+			#print "Okay I am sending job to Queue!";
 			q_id = sub.check_output(["qsub", fpbs]);
-			print q_id
+			#print q_id
 			Q = q_id.split('.');
-			print "Okay queue id is {}".format(Q[0]);
-			
-			# Inserting queue ID into a table
-			
+			#print "Okay queue id is {}".format(Q[0]);
+			# Insert values into gui_outputs
+			conn = sqlite3.connect(dbName);
+			c    = conn.cursor();
+			uq_func = "{0}{1}".format(ifunc, cnt_frm);
+			query = """INSERT INTO gui_outputs (job_id, name, status, qid, img, txt, gzip) VALUES ({0}, "{1}", "Queue", {2}, "N/A", "N/A", "N/A")""".format(job_pkey[0], uq_func, Q[0]);
+			c.execute(query);
+			conn.commit();
+			conn.close();
+		
+		    
             elif (machine == 'Interactive'):
                 print "Run code at {}".format(machine);
                 for ifunc in func_name:
 		    func_idx = func_name.index(ifunc);
 		    for cnt_frm in range(len(Paras[func_idx][1])):
+			# Insert values into gui_outputs
+			uq_func = "{0}{1}".format(ifunc, cnt_frm);
+			q_id = 0;			# interactive mode set q_id as 0
+			conn = sqlite3.connect(dbName);
+			c    = conn.cursor();
+			uq_func = "{0}{1}".format(ifunc, cnt_frm);
+			query = """INSERT INTO gui_outputs (job_id, name, status, qid, img, txt, gzip) VALUES ({0}, "{1}", "Sent", {2}, "N/A", "N/A", "N/A")""".format(job_pkey[0], uq_func, q_id);
+			c.execute(query);
+			conn.commit();
+			conn.close();
+			# Run script
 			cmd = "{0}/{1}{2}.sh".format(SH_HOME, ifunc, cnt_frm);
 			os.system(cmd);
-
-            return HttpResponse(json.dumps(c));
+	    
+            return HttpResponse(json.dumps(cdic));
 
 
 def makeDownload(request):

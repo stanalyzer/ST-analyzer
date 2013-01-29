@@ -142,6 +142,7 @@ $j(document).ready(function(){
 			$j("#tbl_project").trigger('reloadGrid');
 			$j("#tbl_pinput").trigger('reloadGrid');
 			$j("#tbl_poutput").trigger('reloadGrid');
+			$j("#tbl_job").trigger('reloadGrid');
 			$j("#tbl_ppython").trigger('reloadGrid');
 			$j("#tbl_para").trigger('reloadGrid');
 			$j("#tbl_outputs").trigger('reloadGrid');
@@ -375,11 +376,13 @@ $j(document).ready(function(){
 	url		:'/gui/viewTable/gui_outputs/',
 	datatype	: 'json',
 	mtype		: 'GET',
-	colNames	:['ID', 'Job ID', 'Analyzer', 'Image', 'Data', 'Zip'],
+	colNames	:['ID', 'Job ID', 'Analyzer', 'Status', 'Queue ID', 'Image', 'Data', 'Zip'],
 	colModel:[
 		{name:'id',index:'id', width:10, key:true},
 		{name:'job_id',index:'job_id', width:10},
 		{name:'name',index:'name', width:50},
+		{name:'status',index:'status', width:50},
+		{name:'qid',index:'quid', width:50},
 		{name:'img',index:'img', width:50},
 		{name:'txt',index:'txt', width:50},
 		{name:'gzip',index:'gzip', width:50},
