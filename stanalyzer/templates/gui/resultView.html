@@ -62,7 +62,12 @@ function eval_rstView_DBmgr() {
 }
 
 function addThumbImage(cellvalue, options, rowObject) {
-    html = "<a class='fancybox' rel='results' href='/gui/download_path/" + cellvalue + "'> <img src='/gui/download_path/" + cellvalue + "' alt='" + cellvalue + "' title='" + cellvalue + "' width=50/></a>";
+    if (cellvalue == 'N/A') {
+	graphImg = "/static/images/circle2.gif"
+	html = "<img src='" + graphImg + "' alt='" + graphImg + "' title='" + graphImg + "' width=30 />";
+    } else {
+	html = "<a class='fancybox' rel='results' href='/gui/download_path/" + cellvalue + "'> <img src='/gui/download_path/" + cellvalue + "' alt='" + cellvalue + "' title='" + cellvalue + "' width=50/></a>";
+    }
     //alert(html);
     return html;
 }

@@ -1,0 +1,26 @@
+Name of Function: helix_tilt.py
+System information 
+	- First trajectory contains 20 frames (2.0 ps/frame)
+	- There are 1 trajectory file(s) and 36855 atoms
+Total 9 parameters 
+	- Base path: /home2/jcjeong/project/stanalyzer1/stanalyzer/trajectory/
+	- Structure file: step5_assembly.psf
+	- Trajectory files: 
+		step6_1.dcd
+	- Job specific parameters: 
+		Number of Parameters:6
+		Frame interval:1
+		Output name:output.dat
+		Segment ID:0
+		Segment Name:PROA
+		Start Residue:1
+		Terminal Residue:8
+
+PBS: 
+#!/bin/csh
+#PBS -l nodes=1:ppn=1
+#PBS -l mem=500mb
+#PBS -l walltime=72:00:00
+#PBS -l cput=72:00:00
+#PBS -q default
+
