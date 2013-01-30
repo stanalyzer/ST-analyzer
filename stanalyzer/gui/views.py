@@ -3024,6 +3024,55 @@ def stanalyzer_sendJob(request):
             return HttpResponse(json.dumps(cdic));
 
 
+def showImage(request):
+    print "### showImage ####";
+    # check out authority 
+    if 'user_id' not in request.session:
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+                }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+
+    request.session.set_expiry(SESSION_TIME_OUT);
+    data = request.POST;
+    
+    if request.is_ajax() and (request.method == 'POST'):
+	abs_path = request.POST.get('abs_path');
+	print abs_path;
+	rel_path = '/static/../../../../tmp/box/box0.png';
+	cdic = {
+	    'abs_path': abs_path,
+	    'rel_path': rel_path,
+	}
+	return HttpResponse(json.dumps(cdic));
+    
+
+def download_path(request, path):
+    print "### download_path ####";
+    print path;
+    # check out authority 
+    if 'user_id' not in request.session:
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+                }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+
+    request.session.set_expiry(SESSION_TIME_OUT);
+    
+    # link the file
+    wrapper = FileWrapper( open( path, "r" ) )
+    content_type = mimetypes.guess_type( path )[0]
+
+    response = HttpResponse(wrapper, content_type = content_type)
+    response['Content-Length'] = os.path.getsize( path ) # not FileField instance
+    response['Content-Disposition'] = 'attachment; filename={0}'.format(smart_str( os.path.basename( path ) ));
+
+    return response
+    
+    
+    
 def makeDownload(request):
     # check out authority 
     if 'user_id' not in request.session:
