@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge, chrome=1" />
+<meta name="description" content="JavaScript desktop environment built with jQuery." />
+<meta name="author" conent="Jong Cheol Jeong (people.eecs.ku.edu/~jjeong)" />
+
+<title>ST-analyzer</title>
+<link rel="stylesheet" href="/static/css/stanalyzer.css" >
+<link rel="stylesheet" href="/static/css/start/jquery-ui-1.9.2.custom.css" >
+
+<!-- for stanalyzer -->
+<link rel="stylesheet" href="/static/asmselect/asmselect/jquery.asmselect.css" >
+<link rel="stylesheet" href="/static/chosen_master/chosen/chosen.css" />
+
+<!-- Here ADMIN_MEDIA_PREFIX is path to django admin media -->
+<script type="text/javascript" src="/static/admin/js/core.js"></script>
+<script type="text/javascript" src="/static/admin/js/getElementsBySelector.js"></script>
+<script type="text/javascript" src="/static/admin/js/actions.js"></script>
+<script type="text/javascript" src="/static/admin/js/SelectBox.js"></script>
+<script type="text/javascript" src="/static/admin/js/SelectFilter2.js"></script>
+<script type="text/javascript" src="/static/js/jsi18n.js"></script>
+    
+<script type="text/javascript" src="/static/js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery.tinysort.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery.tinysort.charorder.min.js"></script>
+
+<script src="/static/chosen_master/chosen/chosen.jquery.js" type="text/javascript"></script>
+<script src="/static/asmselect/asmselect/jquery.asmselect.js"></script>
+
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+var $num_frame = 0;
+var $num_files = 0;
+var $num_atoms = 0;
+var $num_ps = 0;
+
+  $j(document).ready(function(){
+       /*--------------------------------------------------------------------*/
+       /*--- Get around using csrftoken while using ajax  for Django 1.4  ---*/
+       /*--- https://docs.djangoproject.com/en/1.4/ref/contrib/csrf/ ---*/
+       /*--------------------------------------------------------------------*/
+       function getCookie(name) {
+           var cookieValue = null;
+           if (document.cookie && document.cookie != '') {
+               var cookies = document.cookie.split(';');
+               for (var i = 0; i < cookies.length; i++) {
+                   var cookie = jQuery.trim(cookies[i]);
+                   // Does this cookie string begin with the name we want?
+                   if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                       cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                       break;
+                   }
+               }
+           }
+           return cookieValue;
+       }
+       var csrftoken = getCookie('csrftoken');
+
+        function csrfSafeMethod(method) {
+           // these HTTP methods do not require CSRF protection
+           return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+       $j.ajaxSetup({
+           crossDomain: false, // obviates need for sameOrigin test
+           beforeSend: function(xhr, settings) {
+               if (!csrfSafeMethod(settings.type)) {
+                   xhr.setRequestHeader("X-CSRFToken", csrftoken);
+               }
+           }
+       });
+   
+       /*---------------------------------------------------*/
+       
+  });
+</script>
+
+
+<script>
+var $j = jQuery.noConflict();
+$j(document).ready(function(){
+    /* use chosen select */
+    $j(".chzn-select").chosen({search_contains:true});
+    
+    /* setup buttons for selection query */
+    /* the size of button can be adjusted in "/static/stanalyzer.css" */
+    $j("#btn_vfy").button();
+    $j("#btn_patL").button();
+    $j("#btn_patR").button();
+    $j("#btn_star").button();
+    $j("#btn_pct").button();
+    $j("#btn_sharp").button();
+    $j("#btn_plus").button();
+    $j("#btn_colon").button();
+    $j("#btn_lt").button();
+    $j("#btn_gt").button();
+    $j("#btn_eq").button();
+    $j("#btn_ne").button();
+    $j("#btn_ge").button();
+    $j("#btn_le").button();
+    $j("#btn_ae").button();
+    $j("#btn_one").button();
+    $j("#btn_two").button();
+    $j("#btn_three").button();
+    $j("#btn_four").button();
+    $j("#btn_five").button();
+    $j("#btn_six").button();
+    $j("#btn_seven").button();
+    $j("#btn_eight").button();
+    $j("#btn_nine").button();
+    $j("#btn_zero").button();
+});
+</script>
+
+</head>
+<body>
+    <h1>Filtering test</h1>
+    <table>
+        <tr>
+            <td>
+                <textarea rows="4" cols="50"></textarea>
+            </td>
+            <td>
+                <button id="btn_vfy" class="button_vfy">varify</button><br/>
+                <input id="chk_"type="checkbox"/>query generator
+            </td>
+        </tr>
+        <tr>
+            <td colspan=2>
+                <table>
+                    <tr>
+                        <td><button id="btn_patL" class="button_1letter">(</button></td>
+                        <td><button id="btn_patR" class="button_1letter">)</button></td>
+                        <td><button id="btn_star" class="button_1letter">*</button></td>
+                        <td><button id="btn_pct" class="button_1letter">%</button></td>
+                        <td><button id="btn_sharp" class="button_1letter">#</button></td>
+                        <td><button id="btn_plus" class="button_1letter">+</button></td>
+                        <td><button id="btn_colon" class="button_1letter">:</button></td>
+                        <td><button id="btn_lt" class="button_2letter">LT</button></td>
+                        <td><button id="btn_gt" class="button_2letter">GT</button></td>
+                        <td><button id="btn_eq" class="button_2letter">EQ</button></td>
+                        <td><button id="btn_ne" class="button_2letter">NE</button></td>
+                        <td><button id="btn_ge" class="button_2letter">GE</button></td>
+                    </tr>
+                    <tr>
+                        <td><button id="btn_le" class="button_2letter">LE</button></td>
+                        <td><button id="btn_ae" class="button_2letter">AE</button></td>
+                        <td><button id="btn_one" class="button_1letter">1</button></td>
+                        <td><button id="btn_two" class="button_1letter">2</button></td>
+                        <td><button id="btn_three" class="button_1letter">3</button></td>
+                        <td><button id="btn_four" class="button_1letter">4</button></td>
+                        <td><button id="btn_five" class="button_1letter">5</button></td>
+                        <td><button id="btn_six" class="button_1letter">6</button></td>
+                        <td><button id="btn_seven" class="button_1letter">7</button></td>
+                        <td><button id="btn_eight" class="button_1letter">8</button></td>
+                        <td><button id="btn_nine" class="button_1letter">9</button></td>
+                        <td><button id="btn_zero" class="button_1letter">0</button></td>
+                    </tr>
+                    <tr>
+                        <td colspan=12>
+                            <select data-placeholder="choose target..." id='sel_root' name="sel_root" class="chzn-select" style="width:auto">
+                                    <option>ALL</option>
+                                    <option>ATOM</option>
+                                    <option>BYNUNUMBER</option>
+                                    <option>CHEMICAL</option>
+                                    <option>HYDROGEN</option>
+                                    <option>IGROUP</option>
+                                    <option>INITIAL</option>
+                                    <option>ISEG</option>
+                                    <option>LONE</option>
+                                    <option>NAME</option>
+                                    <option>NONE</option>
+                                    <option>POINT</option>
+                                    <option>PREVIOUS</option>
+                                    <option>RECALL</option>
+                                    <option>RESID</option>
+                                    <option>RESNAME</option>
+                                    <option>RESNUM</option>
+                                    <option>SEGID</option>
+                                    <option>TYPE</option>
+                                    <option>USER</option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>

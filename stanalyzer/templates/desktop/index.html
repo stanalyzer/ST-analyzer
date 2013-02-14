@@ -6,7 +6,7 @@
 <meta name="description" content="JavaScript desktop environment built with jQuery." />
 <meta name="author" conent="Jong Cheol Jeong (people.eecs.ku.edu/~jjeong)" />
 
-<title>ST-Analyzer</title>
+<title>ST-analyzer</title>
 <link rel="stylesheet" href="/static/css/stanalyzer.css" >
 <link rel="stylesheet" href="/static/css/start/jquery-ui-1.9.2.custom.css" >
 
@@ -240,6 +240,10 @@ function getPBS() {
     
     request.done(function(Jdata) {
 	var obj = $j.parseJSON(Jdata);
+	if (obj.sstate.length > 1) {
+	    alert("okay this works: session out!");
+	    window.location.replace("/gui");
+	}
 	var val_pbs = obj.pbs;
 	//val_pbs = val_pbs.replace(/\n\r?/g, '<br />');
 	$j("#frm_newPrj #pbs, #frm_editPrj #pbs").empty();
@@ -680,7 +684,7 @@ $j(document).ready(function(){
 		    $j("#frm_newPrj #out_path").val('');
 		}
 	    } else {
-		    var msg = "This path does not exist! <br/><br/> Would like to force to create NEW directory: '" + out_path + "'?" + "<br/><br/>*** WRITABLE permission (i.e, chmod 777) of parent directory is requried to create the target directory! ***"
+		    var msg = "This path does not exist! <br/><br/> Would like to create NEW directory: '" + out_path + "'?" + "<br/><br/>*** WRITABLE permission (i.e, chmod 777) of parent directory is requried to create the target directory! ***"
 		    $j("#dlg_confirm #dlg_msg").empty().append(msg);
 		    $j( "#dlg_confirm" ).dialog({
 			resizable: true,
@@ -1886,13 +1890,18 @@ window.top.location = 'http://desktop.sonspring.com/ie.html';
 <link rel="stylesheet" href="/static/desktop/css/ie.css" />
 <![endif]-->
 
-
+<script type="text/javascript">    
+    window.history.forward();
+    function noBack() { 
+	window.history.forward(); 
+    }
+</script>
 
 
 
 
 </head>
-<body>
+<body onload="noBack();" onpageshow="if (event.persisted) noBack();" onunload="">
 <img id="wallpaper" class="abs" src="/static/desktop/images/misc/wallpaper2.jpg" />  
 <div class="abs" id="wrapper">
   <div class="abs" id="desktop">
@@ -1907,7 +1916,7 @@ window.top.location = 'http://desktop.sonspring.com/ie.html';
   <!--- ///////////////////////////////////////////////////////////////////////////// --->
     <a class="abs icon" style="left:20px;top:20px;" href="#icon_dock_stanalyzer">
       <img src="/static/desktop/images/icons/icon_32_computer.png" />
-      ST-Analyzer
+      ST-analyzer
     </a>
     <!--
     <a class="abs icon" style="left:20px;top:100px;" href="#icon_dock_jobviewer">
@@ -1936,7 +1945,7 @@ window.top.location = 'http://desktop.sonspring.com/ie.html';
           <!-- Window title -->
           <span class="float_left">
             <img src="/static/desktop/images/icons/icon_16_computer.png" />
-            ST-Analyzer
+            ST-analyzer
           </span>
           <!-- Window icons -->
           <span class="float_right">
@@ -1958,7 +1967,7 @@ window.top.location = 'http://desktop.sonspring.com/ie.html';
         
         <!-- Window Bottom-->
         <div class="abs window_bottom">
-          ST-Analyzer
+          ST-analyzer
         </div>
       </div>
       
@@ -2088,7 +2097,7 @@ window.top.location = 'http://desktop.sonspring.com/ie.html';
     <ul>
       <li>
         <!--- setup the menu bar --->
-        <a class="menu_trigger" href="#">ST-Analyzer</a>
+        <a class="menu_trigger" href="#">ST-analyzer</a>
         <ul class="menu">
           <li>
             <a href="/gui/help/" target="_blank">Help</a>
@@ -2120,11 +2129,11 @@ window.top.location = 'http://desktop.sonspring.com/ie.html';
     </a>
     <!-- setup dock --->
     <ul id="dock">
-        <!--- For ST-Analyzer ------------------------------------------------------------------->
+        <!--- For ST-analyzer ------------------------------------------------------------------->
       <li id="icon_dock_stanalyzer">
         <a href="#window_stanalyzer">
           <img src="/static/desktop/images/icons/icon_22_computer.png" />
-          ST-Analyzer
+          ST-analyzer
         </a>
       </li>
         <!--- For JOB Viewer ------------------------------------------------------------------->

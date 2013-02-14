@@ -61,12 +61,30 @@ function eval_rstView_DBmgr() {
     return false;
 }
 
+function popup(mylink, windowname) {
+    if (! window.focus)return true;
+    var href;
+    if (typeof(mylink) == 'string')
+       href=mylink;
+    else
+       href=mylink.href;
+       
+    myWindow = window.open('', windowname, 'menubar=0,resizable=0,width=550,height=400');
+    html = "<img src='" + href + "' alt='" + windowname + "' title='" + windowname + "' width=500/>";
+    myWindow.document.write(html);
+    return false;
+}
+
 function addThumbImage(cellvalue, options, rowObject) {
     if (cellvalue == 'N/A') {
 	graphImg = "/static/images/circle2.gif"
 	html = "<img src='" + graphImg + "' alt='" + graphImg + "' title='" + graphImg + "' width=30 />";
     } else {
-	html = "<a class='fancybox' rel='results' href='/gui/download_path/" + cellvalue + "'> <img src='/gui/download_path/" + cellvalue + "' alt='" + cellvalue + "' title='" + cellvalue + "' width=50/></a>";
+	/* Using 'fancybox' */
+	//html = "<a class='fancybox' rel='results' href='/gui/download_path/" + cellvalue + "'> <img src='/gui/download_path/" + cellvalue + "' alt='" + cellvalue + "' title='" + cellvalue + "' width=50/></a>";
+	
+	/* Using 'popup windows' */
+	html = "<a rel='results' href='/gui/download_path/" + cellvalue + "' onClick=\"return popup(this, '" + cellvalue + "')\"> <img src='/gui/download_path/" + cellvalue + "' alt='" + cellvalue + "' title='" + cellvalue + "' width=50/></a>";
     }
     //alert(html);
     return html;
@@ -77,6 +95,7 @@ function addZip(cellvalue, options, rowObject) {
     return "<a href='/gui/download_path/" + cellvalue + "'><img src='" + zipImg + "' alt='" + zipImg + "' title='" + zipImg + "' width=30 /></a>";
 }
     
+
 
 $j(document).ready(function(){
 
@@ -96,6 +115,8 @@ $j(document).ready(function(){
 	var table_title = $j("#rstView #DBmgr option:selected").text();
 	var IDs   	= $j("#rstView #selIDs").val();
 	var flag_del	= $j("#rstView #delDir").prop('checked');
+	var flag_que	= $j("#rstView #delQue").prop('checked');
+	
 	var sndData = {
 	    'cmd'     	: 'delete',
 	    'table'	: table,
@@ -103,15 +124,28 @@ $j(document).ready(function(){
 	    'del'	: flag_del,
 	}
 	
-        var msg = "You are trying to delete &#34<b>" + table_title +
-		   "</b>&#34. Corresponding IDs are &#34<b>" + IDs +
-		   "</b>&#34. This will result in followings: <br/><br/> Deleting Database: <b>yes</b> <br/>Deleting associated directories: <b>" +
-		   flag_del + "</b><br/><br/> Would you like to DELETE them all?<br/>";
-		   
+
+	if (table == "gui_queue") {
+	    var msg = "You are trying to delete &#34<b>" + table_title +
+		       "</b>&#34. Corresponding Queue IDs are &#34<b>" + IDs +
+		       "</b>&#34. This will result in followings: <br/><br/> Deleting Database: <b>no</b> <br/>Deleting associated directories: <b>" +
+		       "no" + "</b><br/><br/> Would you like to DELETE them all?<br/>";
+	} else if (flag_del == true) {
+	    var msg = "You attempt to delete <b> Diroctory </b> associated with &#34<b>" + table_title +
+		       "</b>&#34. <br/><br/> This could delete your other results as well if a job includes multiple sub queries (e.g. multiple hielix tilt). <br/><br/>Corresponding IDs are &#34<b>" + IDs +
+		       "</b>&#34. This will result in followings: <br/><br/> Deleting Database: <b>yes</b> <br/>Deleting associated directories: <b>" +
+		       flag_del + "</b><br/><br/> Would you like to DELETE them all?<br/>";
+	    
+	} else {
+	    var msg = "You are trying to delete &#34<b>" + table_title +
+		       "</b>&#34. Corresponding IDs are &#34<b>" + IDs +
+		       "</b>&#34. This will result in followings: <br/><br/> Deleting Database: <b>yes</b> <br/>Deleting associated directories: <b>" +
+		       flag_del + "</b><br/><br/> Would you like to DELETE them all?<br/>";
+	}
 	$j("#dlg_confirm #dlg_msg").empty().append(msg).change();
 	$j( "#dlg_confirm" ).dialog({
 	    resizable: true,
-	    height:200,
+	    height:250,
 	    modal: true,
 	    buttons: {
 		Okay: function() {
@@ -121,8 +155,11 @@ $j(document).ready(function(){
 		    url: '/gui/resultView_DBmanager/',
 		    cache: false,
 		    data: sndData,
-		    async: false,
+		    //async: false,
 		    });
+		    
+		    var msgWait = "Deleting " + table_title + "... <img src='/static/images/circle2.gif' height='20' width='20' >"
+		    $j("#rstView #rv_cmd_err").empty().append(msgWait);
 		    
 		    request.done(function(Jdata) {
 			var obj = $j.parseJSON(Jdata);
@@ -139,7 +176,7 @@ $j(document).ready(function(){
 			});
 			request2.done(function(J2data) {
 			    var obj2 = $j.parseJSON(J2data);
-			    alert("OBJ is " + obj2);
+			    //alert("OBJ is " + obj2);
 			    
 			    var prj_option = "";
 			    
@@ -159,10 +196,13 @@ $j(document).ready(function(){
 			$j("#resultTable").trigger('reloadGrid');
 			$j("#prjTable").trigger('reloadGrid');
 			alert("Your requests have been successfully completed!");
+			$j("#rstView #rv_cmd_err").empty();
 		     });
 		
 		    request.error(function(jqXHR, textStatus, errorThrown) {
 			alert("Error has been occured! Please check the permission of directories!");
+			var msgWait = "Failed!"
+			$j("#rstView #rv_cmd_err").empty().append(msgWait);
 		    });
 		},
 		Cancel: function() {
@@ -275,12 +315,17 @@ $j(document).ready(function(){
 	<center>
 	<table>
 	    <tr>
-		<td class="center"><b>Target</b></td><td class="center"><div id="idInput"><b>IDs</b> (<i>Using ',' for multiple IDs and '-' for continuous IDs</i>)</div></td><td class="center w70"><b>Directory</b></td><td></td>
+		<td class="center"><b>Target</b></td>
+		<td class="center"><div id="idInput"><b>IDs</b> (<i>Using ',' for multiple IDs and '-' for continuous IDs</i>)</div></td>
+		<td class="center w70"><b>Directory</b></td>
+		<td></td>
 	    </tr>
+	    <tr>
 		<td>
 		    <select id="DBmgr">
 			<option value="gui_project">Project Retrieval</option>
-			<option value="gui_outputs">Outputs</option>
+			<option value="gui_outputs" selected="selected">Outputs</option>
+			<option value="gui_queue">Queue</option>
 		    </select>
 		</td>
 		<td>
@@ -289,9 +334,14 @@ $j(document).ready(function(){
 		<td class="center">
 		    <input type="checkbox" name="delDir" id="delDir">
 		</td>
+
 		<td>
 		    <button id="sub_DBmgr">DELETE</button>
 		</td>
+	    </tr>
+	    <tr>
+		<td class="center message_warn" colspan='4' id="rv_cmd_err"></td>
+	    </tr>
 	</table>
 	</center>
     </div>

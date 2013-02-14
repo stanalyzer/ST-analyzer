@@ -77,7 +77,7 @@ pbs             = dic["pbs"];               # PBS script for using cluster machi
 num_frame	= dic["num_frame"];         # number of frames in the first trajectory file
 num_atoms	= dic["num_atoms"];         # number of atomes in the system
 num_files	= dic["num_files"];         # number of files chosen
-num_ps	        = str(dic["num_ps"]);            # simulation time ps/frame
+num_ps	        = str(dic["num_ps"]);       # simulation time ps/frame
 
 #print "*********** NUM_PS = "
 #print num_ps;
@@ -237,7 +237,8 @@ fid_in.close();
 
 #---------------------< assigned module specific parameters >---------------------------------
 num_paras = paras[0][0];			# pInfo[0] : number of parameters
-frmInt	  = paras[1][para_idx];			# pInfo[1] : Frame interval (list)
+frmInt	  = paras[1][para_idx];		        # pInfo[1] : Frame interval (list)
+frmInt    = int(frmInt);
 out_file  = paras[2][para_idx];			# pInfo[2] : output file name (list)
 
 #///////////////////////////////////////////////////////////////////////////
@@ -254,6 +255,7 @@ try:
     psf = '{0}{1}'.format(base_path, structure_file);
     #print psf;
     cnt = 0;
+    timeStamp = [];         # time stamp for trajectory 
     for idx in range(len(trajectoryFile)):
         # reading trajectory
         dcd = '{0}{1}'.format(base_path, trajectoryFile[idx]);
@@ -262,20 +264,28 @@ try:
         u = Universe(psf, dcd);
         #print '{0} is done!'.format(idx);
         # read based on frame
-        for ts in u.trajectory:
+        
+        for ifrm in range(len(u.trajectory)):
             cnt = cnt + 1;
-            # get the class MDAnalysis.coordinates.base.Timestep
-            # from MDAnalysis.coordinates.DCD.DCDReader
-            ucell = u.trajectory[ts.frame]
-            outStr = '{0}'.format(cnt*int(float(num_ps)));
-            #print outStr
-            for j in range(len(ucell.dimensions)):
-               outStr = outStr + '\t{0}'.format(ucell.dimensions[j])
-               #print outStr
-            outStr = outStr + '\t{0}\n'.format(ucell.volume)
-            #print "Last Line--->"
-            #print outStr
-            fid_out.write(outStr)
+            #print "ts.frame = {}".format(cnt);
+            if (cnt % frmInt) == 0:
+                # get the class MDAnalysis.coordinates.base.Timestep
+                # from MDAnalysis.coordinates.DCD.DCDReader
+                tmp_time = float(cnt) * float(num_ps) - float(num_ps);
+                #print "cnt={}, tmp_time={}".format(cnt, tmp_time);
+                timeStamp.append(tmp_time);
+                ucell = u.trajectory[ifrm]
+                outStr = '{0}'.format(tmp_time);
+                #print outStr
+                #print ucell.dimensions
+                for j in range(len(ucell.dimensions)):
+                   outStr = outStr + '\t{0}'.format(ucell.dimensions[j])
+                   #print outStr
+                outStr = outStr + '\t{0}\n'.format(ucell.volume)
+                #print "Last Line--->"
+                #print outStr
+                fid_out.write(outStr)
+
     fid_out.close()
 
     # -------- Update output table gui_outputs

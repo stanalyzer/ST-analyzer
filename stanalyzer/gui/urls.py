@@ -1,5 +1,7 @@
 from django.conf.urls.defaults import patterns, include, url
 from django.conf import settings
+from django.views.generic.simple import redirect_to
+
 
 # Uncomment the next two lines to enable the admin:
 #from django.contrib import admin
@@ -54,6 +56,7 @@ urlpatterns = patterns('gui.views',
     url(r'^showtables/', 'showTables'),
     url(r'^viewTable/(?P<table_name>\w{0,50})/$', 'viewTable'),
     
+    url(r'^filter/', 'test_filter'),
     url(r'^test/', 'dummy_test'),
     url(r'^toydb_data/', 'toyView_data'),
 #    url(r'^toydb_prj/', 'toyView_prj'),

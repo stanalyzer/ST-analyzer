@@ -10,10 +10,17 @@
 <title>stanalyzer.org | ST-Analyzer</title>
 
 <link rel="stylesheet" href="/static/css/stanalyzer.css" type="text/css" media="screen">
- 
+
+<script type="text/javascript">    
+    window.history.forward();
+    function noBack() { 
+	window.history.forward(); 
+    }
+</script>
+
 </head>
 
-<body class="bgcolor1">
+<body class="bgcolor1" onload="noBack();" onpageshow="if (event.persisted) noBack();" onunload="">
     <center>
 	<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
 	<form id="frmLogin" method='post' action='/gui/login/'>

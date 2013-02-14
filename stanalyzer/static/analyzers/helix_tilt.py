@@ -197,6 +197,7 @@ fid_in.close();
 #---------------------< assigned module specific parameters >---------------------------------
 num_paras = paras[0][0];			# pInfo[0] : number of parameters
 frmInt	  = paras[1][para_idx];			# pInfo[1] : Frame interval (list)
+frmInt	  = int(frmInt);
 outFile   = paras[2][para_idx];			# pInfo[2] : output file name (list)
 segid	  = paras[3][para_idx];			# pInfo[3] : segment ID (list)
 seg_name  = paras[4][para_idx];			# pInfo[4] : segment Name (list)
@@ -228,33 +229,38 @@ if run:
     # select helix
     selQry = 'segid {0} and resid {1}:{2} and name CA'.format(seg_name, st_res, ed_res);
     
-    # calculating tilt using PCA    
+    # calculating tilt using PCA
+    timeStamp = [];         # time stamp for trajectory 
     for idx in range(len(trajectoryFile)):
 	# reading trajectory
 	trj = '{0}{1}'.format(base_path, trajectoryFile[idx]);
-	# print 'Reading PSF: ' + psf
-	# print 'Reading DCD: ' + trj
+	#print 'Reading PSF: ' + psf
+	#print 'Reading DCD: ' + trj
 	u = Universe(psf, trj);
 	#print '{0} is done!'.format(idx);
 	# read based on frame
 	for ts in u.trajectory:
             #tclock = cnt;
             cnt = cnt + 1;
-	    # selecting atoms beloning to the helix
-	    selAtoms = u.selectAtoms(selQry);
-	    #print 'pass: selAtoms'
-	    if len(selAtoms) > 1:
-		# get principal axis
-		p1, pe1, pe2 = selAtoms.principalAxes();
-		p2 = np.zeros(3);
-		p3 = np.array([0, 0, 1]);
-		theta = geo.angle(p1,p2,p3);		# calculating tilt
-		inum_ps = int(float(num_ps));
-		outStr = '{0}\t{1}\n'.format(cnt*inum_ps,theta);	# print time and degree
-	    else:
-		outStr = '[{0}/{1}] does not have CA atoms'.format(ts.frame, len(u.trajectory))
-            fid_out.write(outStr)
-            #print outStr;
+	    if (cnt % frmInt) == 0:
+		tmp_time = float(cnt) * float(num_ps) - float(num_ps);
+		# selecting atoms beloning to the helix
+		selAtoms = u.selectAtoms(selQry);
+		#print 'pass: selAtoms'
+		if len(selAtoms) > 1:
+		    # get principal axis
+		    p1, pe1, pe2 = selAtoms.principalAxes();
+		    p2 = np.zeros(3);
+		    p3 = np.array([0, 0, 1]);
+		    theta = geo.angle(p1,p2,p3);		# calculating tilt
+		    inum_ps = int(float(num_ps));
+		    outStr = '{0}\t{1}\n'.format(tmp_time,theta);	# print time and degree
+		    timeStamp.append(tmp_time);
+		else:
+		    outStr = '[{0}/{1}] does not have CA atoms'.format(ts.frame, len(u.trajectory))
+		fid_out.write(outStr)
+		#print outStr;
+		
     fid_out.close()
 
     # -------- Drawing graphs
