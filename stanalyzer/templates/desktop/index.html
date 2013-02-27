@@ -117,6 +117,11 @@ function eval_step1() {
     if (txt.trim().length < 1) {
 	return ['stfile'];
     }
+
+    var txt = $j("#pdbfile option:selected").text();
+    if (txt.trim().length < 1) {
+	return ['pdbfile'];
+    }
     
     var txt = $j("#select_trj2").text();
     //alert("length = " + txt.trim().length + "MSG = " + txt);
@@ -139,9 +144,92 @@ function eval_step2() {
     var JOBs = [];			// this should be match with name of the function
     var PARinfo = [];			// the order of parameter information should be same as PARs ** zero index should be 'Number of Parameters'
     var PARs = [];			// this contains actual parameter values ** zero index should be reserved for the number of parameters
+    /*
+     *################################################
+     *calculating ALL
+     *################################################
+    */
+    var chk = $j('#chk_STmodules').prop('checked');
+    if (chk == true) {
+	/* >>>>>>> BOX <<<<<<<<*/
+	/* frame interval */
+	var frmInt = [];
+	$j("#STmodules #box_form input[name='box_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	var outFile = [];
+	$j("#STmodules #box_form input[name='box_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
+
+	//frmInt  = $j("#box_form #box_frmInt").val();
+	//outFile = $j("#box_form #box_outFile").val();
+	
+	JOBs.push('box');		// should be matched withthe name of function! (i.e. box.py)
+	
+	// Storing parameters and JOBs
+	//para = {'num_para':0};
+	para_info = [idx0, 'Frame interval', 'Output name'];
+	para = [2, frmInt, outFile];
+	PARinfo.push(para_info);
+	PARs.push(para);
+	
+	/*>>>>>>>> Helix Tilt <<<<<<<<<<<*/
+	/* frame interval */
+	var frmInt = [];
+	$j("#STmodules #helix_tilt_form input[name='helix_tilt_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	var outFile = [];
+	$j("#STmodules #helix_tilt_form input[name='helix_tilt_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
+
+
+	// Check out the associated forms
+	segID = [];
+	$j("#STmodules #helix_tilt_form select[name='m_segID'] option:selected").each(function() {
+	    segID.push($(this).val());
+	});
+	
+	segName = [];
+	$j("#STmodules #helix_tilt_form select[name='m_segID'] option:selected").each(function() {
+	    segName.push($(this).text());
+	});
+	
+	stRes = [];
+	$j("#STmodules #helix_tilt_form select[name='m_stRes'] option:selected").each(function() {
+	    stRes.push($(this).val());
+	});
+
+	edRes = [];
+	$j("#STmodules #helix_tilt_form select[name='m_edRes'] option:selected").each(function() {
+	    edRes.push($(this).val());
+	});
+	
+	JOBs.push('helix_tilt');
+	//para = JSON.stringify({'num_para':3, 'segID': segID, 'stRes':stRes, 'edRes':edRes});
+	para = [6, frmInt, outFile, segID, segName, stRes, edRes];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Segment ID', 'Segment Name', 'Start Residue', 'Terminal Residue'];
+	PARs.push(para);
+	PARinfo.push(para_info);
+	//alert("PARAS:" + PARs[1]['num_para']);
+    }
+    
+    
+    
+    /*
+     *################################################
+     * System Information
+     *################################################
+    */
     
     /* calculating Box */
-    var chk = $j('#box_title').prop('checked');
+    var chk = $j('#systemInfo #box_title').prop('checked');
     if (chk == true) {
 	
 	/* frame interval */
@@ -170,8 +258,17 @@ function eval_step2() {
 
     }
 
+    
+    
+    
+    /*
+     *################################################
+     * PROTEIN
+     *################################################
+    */
+    
     /* calculating the tilt of helix */
-    var chk = $j('#helix_tilt_title').prop('checked');
+    var chk = $j('#protein #helix_tilt_title').prop('checked');
     if (chk == true) {
 	// check out return values
 	
@@ -423,7 +520,7 @@ $j(document).ready(function(){
     
     /* Initializing tabs */
     $j("#tabs").tabs();
-    $j( "#tabs" ).tabs( "option", "disabled", [1] );
+    //$j( "#tabs" ).tabs( "option", "disabled", [1] );
 
     /* Filtering trajectory files */
     $j('#job_title').val('analyzing trajectory').css("color", "gray");
@@ -529,7 +626,7 @@ $j(document).ready(function(){
 	    $j("#step1 #proot").empty().append(tag_proot).change();
 	    $j("#step1 #poutput").empty().append(tag_poutput).change();
 	    $j("#step1 #ppython").empty().append(tag_ppython).change();
-	    $j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile").trigger("liszt:updated");
+	    $j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile, #step1 #pdbfile").trigger("liszt:updated");
 	    
             // Edit menu
             $j("#frm_editPrj #title").val('');
@@ -934,7 +1031,7 @@ $j(document).ready(function(){
             // syncronize jqGrid
             $j("#prjTable").trigger( 'reloadGrid' );
 	    $j("#resultTable").trigger( 'reloadGrid' );
-	    $j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile").trigger("liszt:updated");
+	    $j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile, #step1 #pdbfile").trigger("liszt:updated");
         });
       
         request.error(function(jqXHR, textStatus, errorThrown) {
@@ -998,7 +1095,7 @@ $j(document).ready(function(){
 	    var $option = $j("<option></option>").text(rpath).attr("selected", true);
 	    $j("#frm_editPrj #rpaths").append($option).change();
 	    $j("#frm_editPrj #rpath").val('');
-	    $j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile").trigger("liszt:updated");
+	    $j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile, #step1 #pdbfile").trigger("liszt:updated");
 	} else {
 	    $j("#dlg_confirm #dlg_msg").empty().append("This path does not exist!\nWould you like to proceed anyway?");
 	    $j( "#dlg_confirm" ).dialog({
@@ -1011,7 +1108,7 @@ $j(document).ready(function(){
 			var $option = $j("<option></option>").text(rpath).attr("selected", true);
 			$j("#frm_editPrj #rpaths").append($option).change();
 			$j("#frm_editPrj #rpath").val('');
-			$j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile").trigger("liszt:updated");
+			$j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile, #step1 #pdbfile").trigger("liszt:updated");
 			
 		    },
 		    Cancel: function() {
@@ -1078,7 +1175,7 @@ $j(document).ready(function(){
 				var $option = $j("<option></option>").text(out_path).attr("selected", true);
 				$j("#frm_editPrj #out_paths").append($option).change();
 				$j("#frm_editPrj #out_path").val('');
-				$j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile").trigger("liszt:updated");
+				$j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile, #step1 #pdbfile").trigger("liszt:updated");
 			    },
 			    Cancel: function() {
 				$j( this ).dialog( "close" );
@@ -1089,7 +1186,7 @@ $j(document).ready(function(){
 		    var $option = $j("<option></option>").text(out_path).attr("selected", true);
 		    $j("#frm_editPrj #out_paths").append($option).change();
 		    $j("#frm_editPrj #out_path").val('');
-		    $j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile").trigger("liszt:updated");
+		    $j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile, #step1 #pdbfile").trigger("liszt:updated");
 		}
 	    } else {
 		    var msg = "This path does not exist! <br/><br/> Would like to force to create NEW directory: '" + out_path + "'?" + "<br/><br/>*** WRITABLE permission (i.e, chmod 777) of parent directory is requried to create the target directory! ***"
@@ -1108,7 +1205,7 @@ $j(document).ready(function(){
 					var $option = $j("<option></option>").text(out_path).attr("selected", true);
 					$j("#frm_editPrj #out_paths").append($option).change();
 					$j("#frm_editPrj #out_path").val('');
-					$j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile").trigger("liszt:updated");
+					$j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile, #step1 #pdbfile").trigger("liszt:updated");
 				    }
 			    },
 				
@@ -1154,7 +1251,7 @@ $j(document).ready(function(){
 				var $option = $j("<option></option>").text(python_path).attr("selected", true);
 				$j("#frm_editPrj #python_paths").append($option).change();
 				$j("#frm_editPrj #python_path").val('');
-				$j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile").trigger("liszt:updated");
+				$j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile, #step1 #pdbfile").trigger("liszt:updated");
 			    },
 			    Cancel: function() {
 				$j( this ).dialog( "close" );
@@ -1165,7 +1262,7 @@ $j(document).ready(function(){
 		    var $option = $j("<option></option>").text(python_path).attr("selected", true);
 		    $j("#frm_editPrj #python_paths").append($option).change();
 		    $j("#frm_editPrj #python_path").val('');
-		    $j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile").trigger("liszt:updated");
+		    $j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile, #step1 #pdbfile").trigger("liszt:updated");
 		}
 	    } else {
 		    var msg = "The file does not exist! Please verify the path and make sure the target file is EXECUTABLE!"
@@ -1325,7 +1422,7 @@ $j(document).ready(function(){
 /*----------------------------------------------------*/
             $j("#prjTable").trigger( 'reloadGrid' );
 	    $j("#resultTable").trigger( 'reloadGrid' );
-	    $j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile").trigger("liszt:updated");
+	    $j("#step1 #prj, #step1 #proot, #step1 #poutput, #step1 #ppython, #step1 #stfile, #step1 #pdbfile").trigger("liszt:updated");
         });
       
         request.error(function(jqXHR, textStatus, errorThrown) {
@@ -1436,6 +1533,9 @@ $j(document).ready(function(){
 	    /* Updating structure file list */
 	    $j("#stfile").empty().append(newOptions).change();
 	    $j("#stfile").trigger("liszt:updated");
+
+	    $j("#pdbfile").empty().append(newOptions).change();
+	    $j("#pdbfile").trigger("liszt:updated");
 	    
 	    /* Updating list of Trajectories */
 	    orgOption = newOptions;
@@ -1636,6 +1736,8 @@ $j(document).ready(function(){
 	    title = $j("#prj option:selected").text();
 	    bpath = $j("#proot option:selected").text();
 	    stfile = $j("#stfile option:selected").text();
+	    pdbfile = $j("#pdbfile option:selected").text();
+	    
 	    $j("#select_trj2 option").attr("selected", "selected"); 	// select all
 	    //$j("#select_trj2 option").tsort();				// do sort
 	    trjFile = $j("#select_trj2").val();				// get values
@@ -1650,6 +1752,7 @@ $j(document).ready(function(){
 		'title'  	: title,
 		'bpath'		: bpath,
 		'stfile'	: stfile,
+		'pdbfile'	: pdbfile,
 		'trjFile[]'	: trjFile,
 	    }
 	    
@@ -1694,20 +1797,36 @@ $j(document).ready(function(){
 		$num_atoms = obj.num_atom;
 		$j("#step2 #num_ps").empty().append(obj.num_ps);
 		$num_ps = obj.num_ps;
-		
-		$j("#segID").empty();
+
+		/* for ALL module */
+		$j("#STmodules #m_segID").empty();
 		for (var i = 0; i < obj.segList.length; i++) {
 		    addStr = "<option value='" + i + "'>" + obj.segList[i] + "</option>";
-		    $j("#segID").append(addStr);
+		    $j("#STmodules #m_segID").append(addStr);
 		    };
 		
-		$j("#stRes, #edRes").empty();
+		$j("#STmodules #m_stRes, #STmodules #m_edRes").empty();
 		for (var i = 0; i < obj.resList.length; i++) {
 		    addStr = "<option value='" + obj.resID[i] + "'>" + obj.resID[i] + "-" + obj.resList[i] + "</option>";
-		    $j("#stRes, #edRes").append(addStr);
+		    $j("#STmodules #m_stRes, #STmodules #m_edRes").append(addStr);
 		    };
-		$j("#stRes, #edRes").change();
-		$j("#segID, #stRes, #edRes").trigger("liszt:updated");
+		$j("#STmodules #m_stRes, #STmodules #m_edRes").change();
+		$j("#STmodules #m_segID, #STmodules #m_stRes, #STmodules #m_edRes").trigger("liszt:updated");
+		
+		/* for PROTEIN module */		
+		$j("#protein #segID").empty();
+		for (var i = 0; i < obj.segList.length; i++) {
+		    addStr = "<option value='" + i + "'>" + obj.segList[i] + "</option>";
+		    $j("#protein #segID").append(addStr);
+		    };
+		
+		$j("#protein #stRes, #protein #edRes").empty();
+		for (var i = 0; i < obj.resList.length; i++) {
+		    addStr = "<option value='" + obj.resID[i] + "'>" + obj.resID[i] + "-" + obj.resList[i] + "</option>";
+		    $j("#protein #stRes, #protein #edRes").append(addStr);
+		    };
+		$j("#protein #stRes, #protein #edRes").change();
+		$j("#protein #segID, #protein #stRes, #protein #edRes").trigger("liszt:updated");
 	    });
 	  
 	    request.error(function(jqXHR, textStatus, errorThrown) {
@@ -1746,6 +1865,7 @@ $j(document).ready(function(){
 	// title = $j("#prj option:selected").text();
 	bpath = $j("#proot option:selected").text();
 	stfile = $j("#stfile option:selected").text();
+	pdbfile = $j("#pdbfile option:selected").text();
 	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
 	//$j("#select_trj2 option").tsort();				// do sort
 	trjFile = $j("#select_trj2").val();				// get values
@@ -1754,7 +1874,8 @@ $j(document).ready(function(){
 	    'cmd'   	: 'get_segment',
 	    'segID' 	: segID,
 	    'bpath' 	: bpath,
-	    'stfile'	: stfile, 
+	    'stfile'	: stfile,
+	    'pdbfile'	: pdbfile,
 	    'trjFile[]'	: trjFile,
 	}
 	
@@ -1822,6 +1943,8 @@ $j(document).ready(function(){
 		    path_output = $j("#step1 #poutput option:selected").text();
 		    path_python = $j("#step1 #ppython option:selected").text();
 		    stfile 	= $j("#step1 #stfile option:selected").text();
+		    pdbfile 	= $j("#step1 #pdbfile option:selected").text();
+		    
 		    $j("#step1 #select_trj2 option").attr("selected", "selected"); 	// select all
 		    //$j("#step1 #select_trj2 option").tsort();				// do sort
 		    trjFile = $j("#step1 #select_trj2").val();				// get values
@@ -1839,6 +1962,7 @@ $j(document).ready(function(){
 			'ParaInfo[]'	: jobData[2],
 			'bpath'		: bpath,
 			'stfile'	: stfile,
+			'pdbfile'	: pdbfile,
 			'path_output'	: path_output,
 			'path_python'	: path_python,
 			'trjFile[]'	: trjFile,

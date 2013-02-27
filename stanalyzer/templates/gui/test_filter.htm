@@ -112,6 +112,63 @@ $j(document).ready(function(){
     $j("#btn_eight").button();
     $j("#btn_nine").button();
     $j("#btn_zero").button();
+
+    /* Verifying selection query */    
+    $j("#btn_vfy").click(function(){
+        trjFile = [];
+        query = $j("#txt_query").val();
+        query = query.trim();
+        pdbfile = '/home2/jcjeong/project/stanalyzer1/stanalyzer/trajectory/step7_691.pdb'
+        stfile = '/home2/jcjeong/project/stanalyzer1/stanalyzer/trajectory/step5_assembly.psf'
+        
+        tmp_trj = '/home2/jcjeong/project/stanalyzer1/stanalyzer/trajectory/step6_1.dcd';
+        trjFile.push(tmp_trj);
+        tmp_trj = '/home2/jcjeong/project/stanalyzer1/stanalyzer/trajectory/step6_2.dcd';
+        trjFile.push(tmp_trj);
+        
+        /*
+        stfile 	= $j("#step1 #stfile option:selected").text();  // structure file 
+        trjFile = $j("#step1 #select_trj2").val();              // trajectory file
+        */
+        
+        /* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='10' width='10' >"
+        $j("#vfy_msg").empty().append(msgWait);
+        
+        
+	var sndData = {
+	    'cmd'     	: 'verify',
+	    'query'	: query,
+            'pdbfile'   : pdbfile,
+            'stfile'    : stfile,
+            'trjFile[]'   : trjFile, 
+	}
+        
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#vfy_msg").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j( "#dlg_selInfo" ).dialog({
+		resizable: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#vfy_msg").empty().append(errorThrown);
+        });
+    });
+    
 });
 </script>
 
@@ -121,10 +178,10 @@ $j(document).ready(function(){
     <table>
         <tr>
             <td>
-                <textarea rows="4" cols="50"></textarea>
+                <textarea id="txt_query" rows="4" cols="50"></textarea>
             </td>
             <td>
-                <button id="btn_vfy" class="button_vfy">varify</button><br/>
+                <button id="btn_vfy" class="button_vfy">verify</button><br/>
                 <input id="chk_"type="checkbox"/>query generator
             </td>
         </tr>
@@ -188,5 +245,12 @@ $j(document).ready(function(){
                 </table>
             </td>
         </tr>
+        <tr>
+            <td id="vfy_msg" class="center message_warn" colspan=2></td>
+        </tr>
     </table>
+    <div id="dlg_selInfo">
+        <pre id="dlg_msg"></pre>
+    </div>
+
 </body>

@@ -23,7 +23,7 @@ $j(document).ready(function(){
     $j("#protein #helix_tilt #helix_tilt_form input[id^='helix_tilt']").css("color", "gray");
 
     /* Adding forms for calculating helix tilt */
-    $j("#helix_tilt_form_add").click(function() {
+    $j("#protein #helix_tilt_form_add").click(function() {
 	cnt_helix_tilt_form++;
 	cnt_file_index++;
 	var h_tilt = '<tr id="helix_tilt_form_add_' + cnt_helix_tilt_form + '">'
@@ -38,36 +38,36 @@ $j(document).ready(function(){
 		     + '<td><button id="helix_tilt_form_del_' + cnt_helix_tilt_form + '" num_idx="' + cnt_helix_tilt_form + '"><span class="module_font">DELETE</span></button></td>'
 		     + '</tr>';
 	
-	$j("#new_helix_tilt_frm").append(h_tilt);
+	$j("#protein #new_helix_tilt_frm").append(h_tilt);
 	
 	/* copy option values from sigID to sigID# */
-	var new_segID = "#segID" + cnt_helix_tilt_form;
-	$('#segID option').clone().appendTo(new_segID);
+	var new_segID = "#protein #segID" + cnt_helix_tilt_form;
+	$('#protein #segID option').clone().appendTo(new_segID);
 
-	var new_stRes = "#stRes" + cnt_helix_tilt_form;
-	$('#stRes option').clone().appendTo(new_stRes);
+	var new_stRes = "#protein #stRes" + cnt_helix_tilt_form;
+	$('#protein #stRes option').clone().appendTo(new_stRes);
 
-	var new_edRes = "#edRes" + cnt_helix_tilt_form;
-	$('#edRes option').clone().appendTo(new_edRes);
+	var new_edRes = "#protein #edRes" + cnt_helix_tilt_form;
+	$('#protein #edRes option').clone().appendTo(new_edRes);
 	
-	$j("#new_helix_tilt_frm").filter('.chzn-select').chosen(); // apply to top level elems
-        $j("#new_helix_tilt_frm").find('.chzn-select').chosen();   // apply to nested elems
+	$j("#protein #new_helix_tilt_frm").filter('.chzn-select').chosen(); // apply to top level elems
+        $j("#protein #new_helix_tilt_frm").find('.chzn-select').chosen();   // apply to nested elems
 	$j("#protein #helix_tilt #helix_tilt_form input[id^='helix_tilt']").css("color", "gray");
 	//alert(h_tilt);
     });
     
     
     /* deleting forms for calculating helix tilt */
-    $j("#new_helix_tilt_frm button[id^='helix_tilt_form_del']").live("click", function() {
+    $j("#protein #new_helix_tilt_frm button[id^='helix_tilt_form_del']").live("click", function() {
 	idx = $(this).attr('num_idx');
-	var del_form = "#helix_tilt_form_add_" + idx;
+	var del_form = "#protein #helix_tilt_form_add_" + idx;
 	//alert("num_idx=" + idx + "del_form=" + del_form);
 	$j(del_form).remove();
 	
 	// Initializing file name
 	var outFile = [];
 	var cnt = 0;
-	$j("#new_helix_tilt_frm input[name='helix_tilt_outFile']").each(function() {
+	$j("#protein #new_helix_tilt_frm input[name='helix_tilt_outFile']").each(function() {
 	    cnt++;
 	    var new_file = "output" + cnt + ".dat";
 	    $(this).val('');
@@ -80,28 +80,28 @@ $j(document).ready(function(){
 
     });
     
-    $j("#M_protein").hide();
-    $j("#chk_protein").click(function () {
-	$j("#M_protein").toggle(this.checked);
+    $j("#protein #M_protein").hide();
+    $j("#protein #chk_protein").click(function () {
+	$j("#protein #M_protein").toggle(this.checked);
     });
     
-    $j("#helix_tilt_form").hide();
-    $j("#helix_tilt_title").click(function () {
-	$j("#helix_tilt_form").toggle(this.checked);
+    $j("#protein #helix_tilt_form").hide();
+    $j("#protein #helix_tilt_title").click(function () {
+	$j("#protein #helix_tilt_form").toggle(this.checked);
 	//alert($j(this).is(":checked"));
     });
 
     /* test submit */
-    $j("#test_submit").click(function(){
+    $j("#protein #test_submit").click(function(){
 	// check out return values
 	var outFile = [];
-	    $j("#helix_tilt_form input[name='helix_tilt_outFile']").each(function() {
+	    $j("#protein #helix_tilt_form input[name='helix_tilt_outFile']").each(function() {
 		outFile.push($(this).val());
 	    });
 	alert(outFile);
 	
 	var segIDs = [];
-	$j("#helix_tilt_form select[name='segID'] option:selected").each(function() {
+	$j("#protein #helix_tilt_form select[name='segID'] option:selected").each(function() {
 		segIDs.push($(this).val());
 	    });
 	alert(segIDs);
@@ -134,7 +134,7 @@ $j(document).ready(function(){
 	});
     
     /* Live update for selecting segment */
-    $j("#helix_tilt_form select[name='segID']").live("change", function(){
+    $j("#protein #helix_tilt_form select[name='segID']").live("change", function(){
 	//alert("This click is from..: " + $(this).attr('id'));
 	var id_num = $(this).attr("id").match(/[\d]+$/);
 	if (!id_num) {
@@ -146,13 +146,15 @@ $j(document).ready(function(){
 	}
 
 	//alert("ID=" + $(this).attr('id') + ", and number is " + $(this).attr("id").match(/[\d]+$/));
-	str_segID = "#segID" + id_num;
-	str_Res   = "#stRes" + id_num + ", #edRes" + id_num;
+	str_segID = "#protein #segID" + id_num;
+	str_Res   = "#protein #stRes" + id_num + ", #protein #edRes" + id_num;
 	
 	//alert("str_segID=" + str_segID + ", str_Res" + str_Res);
 
 	bpath = $j("#proot option:selected").text();
 	stfile = $j("#stfile option:selected").text();
+	pdbfile = $j("#pdbfile option:selected").text();
+	
 	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
 	//$j("#select_trj2 option").tsort();				// do sort
 	trjFile = $j("#select_trj2").val();				// get values
@@ -161,7 +163,8 @@ $j(document).ready(function(){
 	    'cmd'   	: 'get_segment',
 	    'segID' 	: segID,
 	    'bpath' 	: bpath,
-	    'stfile'	: stfile, 
+	    'stfile'	: stfile,
+	    'pdbfile'	: pdbfile,
 	    'trjFile[]'	: trjFile,
 	}
 	

@@ -70,6 +70,7 @@ base_path       = dic["base_path"];         # base location of input files
 path_output     = dic["path_output"];       # the location of output directory
 path_python     = dic["path_python"];       # python path to run analyzers
 structure_file  = dic["structure_file"];    # full path of structure file (i.e. PDB, PSF, etc)
+pdb_file  	= dic["pdb_file"];    	    # full path of structure file (i.e. PDB)
 pbs             = dic["pbs"];               # PBS script for using cluster machine
 num_frame	= dic["num_frame"];         # number of frames in the first trajectory file
 num_atoms	= dic["num_atoms"];         # number of atomes in the system
@@ -194,20 +195,18 @@ fid_in.close();
 # trajectoryFile  = [];                        # the list of trajectory files
 # rmodule   	  = "{0}{1}".format(exe_file[:len(exe_file)-3], para_idx);  # running module name (e.g. box0)
 
-#---------------------< assigned module specific parameters >---------------------------------
+#---------------------< assigned module specific parameters: fixed for every interface >---------------------------------
 num_paras = paras[0][0];			# pInfo[0] : number of parameters
 frmInt	  = paras[1][para_idx];			# pInfo[1] : Frame interval (list)
 frmInt	  = int(frmInt);
 outFile   = paras[2][para_idx];			# pInfo[2] : output file name (list)
+
+######################################## PLEASE DO NOT MODIFY ABOVE THIST LINE!!!! ############################################
+#---------------------< assigned module specific parameters: defined by users >---------------------------------
 segid	  = paras[3][para_idx];			# pInfo[3] : segment ID (list)
 seg_name  = paras[4][para_idx];			# pInfo[4] : segment Name (list)
 st_res	  = paras[5][para_idx];			# pInfo[5] : start residue (list)
 ed_res	  = paras[6][para_idx];			# pInfo[6] : end residue (list)
-
-
-
-
-######################################## PLEASE DO NOT MODIFY ABOVE THIST LINE!!!! ############################################
 
 
 #///////////////////////////////////////////////////////////////////////////

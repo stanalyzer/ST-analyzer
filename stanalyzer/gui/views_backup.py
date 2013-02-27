@@ -41,6 +41,7 @@ import math
 import shutil
 from random import randint
 from os import path
+import subprocess as sub
 
 # for using from object
 # https://docs.djangoproject.com/en/dev/topics/forms/?from=olddocs#filefield
@@ -83,7 +84,7 @@ from django.core.servers.basehttp import FileWrapper
 #********************************************
 #
 #dbName = settings.DATABASES["default"]["NAME"];
-SESSION_TIME_OUT = 3000;
+SESSION_TIME_OUT = 9000;
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__));
 dbName = "{}/stanalyzer.db".format(PROJECT_ROOT[0:len(PROJECT_ROOT)-4]);
 MEDIA_HOME = "{}/media".format(PROJECT_ROOT[0:len(PROJECT_ROOT)-4]);
@@ -96,16 +97,16 @@ ANALYZER_HOME = "{}/static/analyzers".format(PROJECT_ROOT[0:len(PROJECT_ROOT)-4]
 #--- parsing double array
 #------------------------------------
 def parseWrapList1(strList):
-    print "[parseWrapList1]";
+    print "+++ parseWrapList1 +++";
     num_list = len(strList);
     newList = [];
-    print num_list;
+    #print num_list;
     for i in range(num_list):
-        print "Iteration[{}]".format(i);
+        #print "Iteration[{}]".format(i);
         strElm = strList[i];
-        print strElm
+        #print strElm
         lstElm = strElm.split(',');      # split based on comma
-        print lstElm
+        #print lstElm
 	newList.append(lstElm);
     return newList;
 
@@ -113,38 +114,38 @@ def parseWrapList1(strList):
 #--- parsing triple array
 #------------------------------------
 def parseWrapList2(strList):
-    print "[parseWrapList2]";
+    print "+++ parseWrapList2 +++";
     num_list = len(strList);
-    print "num_list={}".format(num_list)
+    #print "num_list={}".format(num_list)
     newList = [];
-    print num_list;
+    #print num_list;
     for i in range(num_list):
-        print "Iteration[{}]".format(i);
+        #print "Iteration[{}]".format(i);
         strElm = strList[i];
-        print "strElm={}".format(strElm);
+        #print "strElm={}".format(strElm);
 	
         lstElm = strElm.split(',');      # split based on comma
-        print "lstElm={}".format(lstElm);
+        #print "lstElm={}".format(lstElm);
 	
 	num_para = int(lstElm[0]);
-	print "NUM_PARA={}".format(num_para);
+	#print "NUM_PARA={}".format(num_para);
 	
 	num_Elm  = (len(lstElm) - 1) / num_para;
-	print "NUM_ELE={}".format(num_Elm);
+	#print "NUM_ELE={}".format(num_Elm);
 	
 	innerList = [];
-	innerList.append(num_para);
+	innerList.append([num_para]);
 	tmp = [];
 	for j in range(len(lstElm)):
-	    print 'J='.format(j);
+	    #print 'J='.format(j);
 	    if (j > 0):
 		tmp.append(lstElm[j]);
-		print "=== ARRAY ==="
-		print tmp
+		#print "=== ARRAY ==="
+		#print tmp
 
 		if (j % num_Elm) == 0:
-		    print "=== ARRAY ==="
-		    print tmp
+		    #print "=== ARRAY ==="
+		    #print tmp
 		    innerList.append(tmp);
 		    tmp = [];
 	newList.append(innerList);
@@ -155,6 +156,7 @@ def parseWrapList2(strList):
 # make n-digit random number 
 #********************************************
 def rand_N_digits(n):
+    print "+++ rand_N_digits +++"
     range_start = 10**(n-1)
     range_end = (10**n)-1
     return randint(range_start, range_end)
@@ -163,6 +165,7 @@ def rand_N_digits(n):
 # make random string with n letters
 #********************************************
 def rand_N_letters(n, chars=string.letters + string.digits):
+    print "+++ rand_N_letters +++"
     newStr = ''.join(random.choice(chars) for x in range(n));
     return newStr
 
@@ -173,6 +176,7 @@ def rand_N_letters(n, chars=string.letters + string.digits):
 #********************************************
 class serverside:
     def __init__(self, *args):
+	print "*** serverside ***"
         if len(args) > 0:
             self.path_trj = str(args[0]);
     # default trajectory file
@@ -226,6 +230,7 @@ class serverside:
         return [owner, group, other]
 
 def createChoices(listObj):
+    print "+++ createChoices +++"
     # get the list of files
     form_list = [];
     for pos, question in enumerate(listObj):
@@ -234,6 +239,7 @@ def createChoices(listObj):
     return form_list
 
 def eval_path(path):
+    print "+++ eval_path +++"
     if path[0] != '/':
         path = '/{0}'.format(path);
     if (path[len(path)-1] != '/'):
@@ -260,7 +266,7 @@ class simulation:
     # dcd = '/home2/jcjeong/project/stanalyzer1/stanalyzer/trajectory/step6_1.dcd';
     
     def __init__(self, psf, trj):
-	print "*** simulation ****"
+	print "*** simulation ***"
 	self.u = Universe(psf, trj);
 	
 	# total number of frames at each trajectory
@@ -299,7 +305,7 @@ class simulation:
 # Delete files and directories
 #********************************************
 def delDir(dir_path):
-    print "+++ delDir"
+    print "+++ delDir +++"
     if os.path.isdir(dir_path):
 	for f in os.listdir(dir_path):
 	    file_path = os.path.join(dir_path, f)
@@ -314,6 +320,12 @@ def delDir(dir_path):
 	shutil.rmtree(dir_path);
 	#print "remove {}".format(dir_path);
 
+def delQue(qid):
+    print "+++ delQue +++";
+    qdel = "qdel {0}".format(qid);
+    print qdel;
+    os.system(qdel);
+
 
 #********************************************
 # DB retrieval
@@ -321,6 +333,7 @@ def delDir(dir_path):
 class getDB:
     row = [];
     def __init__(self, dbName, user):
+	print "*** getDB ***"
     	self.dbName = dbName;
         self.user   = user;
     # default trajectory file
@@ -339,6 +352,7 @@ class getDB:
             return pbs
 
 def getUsrLevel (dbName, user_id):
+    print "+++ getUsrLevel +++"
     conn = sqlite3.connect(dbName);
     c = conn.cursor();
     query = "SELECT level FROM gui_user WHERE uid='{0}'".format(user_id);
@@ -349,22 +363,27 @@ def getUsrLevel (dbName, user_id):
     return level
 
 def delOutputs (IDs, dbName, delFlg):
-    print "*** FUNC: delOutputs"
-    print "FUNC: delOutputs"
+    print "+++ delOutputs +++"
     # delete gui_job
     conn = sqlite3.connect(dbName);
     c = conn.cursor();
     if isinstance(IDs, list):
 	for output_id in IDs:
+	    query = "SELECT qid, img, txt, gzip FROM gui_outputs WHERE id={0}".format(output_id);
+	    c.execute(query);
+	    row = c.fetchall();
 	    if delFlg == 'true':
-		query = "SELECT img, txt, gzip FROM gui_outputs WHERE id={0}".format(output_id);
-		c.execute(query);
-		row = c.fetchall();
 		for f in row:
-		    if '/' in f[0]:
-			path_img = f[0].split('/');
+		    # delete queue
+		    delQue(f[0])
+		    if '/' in f[1]:
+			path_img = f[1].split('/');
 			path_dir = '/'.join(path_img[:len(path_img)-1])
 			delDir(path_dir);
+	    else:
+		for f in row:
+		    delQue(f[0])
+		
 
 	    query = "DELETE FROM gui_outputs WHERE id={0}".format(output_id);
 	    c.execute(query);
@@ -372,14 +391,21 @@ def delOutputs (IDs, dbName, delFlg):
 	    #print query;
     else:
 	if delFlg == 'true':
-	    query = "SELECT img, txt, gzip FROM gui_outputs WHERE id={0}".format(IDs);
+	    query = "SELECT qid, img, txt, gzip FROM gui_outputs WHERE id={0}".format(IDs);
 	    c.execute(query);
 	    row = c.fetchall();
 	    for f in row:
-		if '/' in f[0]:
-		    path_img = f[0].split('/');
+		delQue(f[0]);
+		if '/' in f[1]:
+		    path_img = f[1].split('/');
 		    path_dir = '/'.join(path_img[:len(path_img)-1])
 		    delDir(path_dir);
+	else:
+	    query = "SELECT qid, img, txt, gzip FROM gui_outputs WHERE id={0}".format(IDs);
+	    c.execute(query);
+	    row = c.fetchall();
+	    for f in row:
+		delQue(f[0]);
 
 	query = "DELETE FROM gui_outputs WHERE id={0}".format(IDs);
 	c.execute(query);
@@ -388,7 +414,7 @@ def delOutputs (IDs, dbName, delFlg):
     conn.close();
 
 def delOutputs_from_jobID (IDs, dbName, delFlg):
-    print "*** FUNC: delOutputs_from_jobID"
+    print "+++ delOutputs_from_jobID +++"
     # delete gui_job
     conn = sqlite3.connect(dbName);
     c = conn.cursor();
@@ -396,16 +422,23 @@ def delOutputs_from_jobID (IDs, dbName, delFlg):
 	print "--- this runs with LIST"
 	for job_id in IDs:
 	    if delFlg == 'true':
-		query = "SELECT img, txt, gzip FROM gui_outputs WHERE job_id={0}".format(job_id);
+		query = "SELECT qid, img, txt, gzip FROM gui_outputs WHERE job_id={0}".format(job_id);
 		c.execute(query);
 		row = c.fetchall();
 		#print "====== Split word ===="
 		for f in row:
-		    if '/' in f[0]:
-			path_img = f[0].split('/');
+		    delQue(f[0])
+		    if '/' in f[1]:
+			path_img = f[1].split('/');
 			path_dir = '/'.join(path_img[:len(path_img)-1])
 			delDir(path_dir);
-
+	    else:
+		query = "SELECT qid, img, txt, gzip FROM gui_outputs WHERE job_id={0}".format(job_id);
+		c.execute(query);
+		row = c.fetchall();
+		for f in row:
+		    delQue(f[0])
+		
 	    query = "DELETE FROM gui_outputs WHERE job_id={0}".format(job_id);
 	    c.execute(query);
 	    conn.commit();
@@ -415,21 +448,28 @@ def delOutputs_from_jobID (IDs, dbName, delFlg):
 	#print delFlg
 	#print "Type is {0}".format(type(delFlg));
 	if delFlg == 'true':
-	    query = "SELECT img, txt, gzip FROM gui_outputs WHERE job_id={0}".format(IDs);
+	    query = "SELECT qid, img, txt, gzip FROM gui_outputs WHERE job_id={0}".format(IDs);
 	    #print query
 	    c.execute(query);
 	    row = c.fetchall();
 	    #print row
 	    for f in row:
+		delQue(f[0])
 		print "====== Split word ===="
-		if '/' in f[0]:
-		    path_img = f[0].split('/');
+		if '/' in f[1]:
+		    path_img = f[1].split('/');
 		    path_dir = '/'.join(path_img[:len(path_img)-1])
 		    #print path_dir
 		    delDir(path_dir);
 		else:
-		    print "With no path {0}".format(f[0]);
-		    
+		    print "With no path {0}".format(f[1]);
+	else:
+	    query = "SELECT qid, img, txt, gzip FROM gui_outputs WHERE job_id={0}".format(IDs);
+	    c.execute(query);
+	    row = c.fetchall();
+	    for f in row:
+		delQue(f[0])
+	    
 	query = "DELETE FROM gui_outputs WHERE job_id={0}".format(IDs);
 	c.execute(query);
 	conn.commit();
@@ -437,7 +477,7 @@ def delOutputs_from_jobID (IDs, dbName, delFlg):
     conn.close();
 
 def delJobs (IDs, dbName, delFlg):
-    print "*** FUNC: delJobs"
+    print "+++ delJobs +++"
     # delete gui_job
     conn = sqlite3.connect(dbName);
     c = conn.cursor();
@@ -455,6 +495,7 @@ def delJobs (IDs, dbName, delFlg):
 		for f in row:
 		    if '/' in f[0]:
 			delDir(f[0]);
+	    
 	    query = "DELETE FROM gui_job WHERE id={0}".format(job_id);
 	    c.execute(query);
 	    conn.commit();
@@ -481,7 +522,7 @@ def delJobs (IDs, dbName, delFlg):
     conn.close();
     
 def delJobs_from_prjID (IDs, dbName, delFlg):
-    print "*** FUNC: delJobs_from_prjID"
+    print "+++ delJobs_from_prjID +++"
     # delete gui_job
     conn = sqlite3.connect(dbName);
     c = conn.cursor();
@@ -541,7 +582,7 @@ def delJobs_from_prjID (IDs, dbName, delFlg):
     conn.close();
 
 def delProjects (IDs, dbName, delFlg):
-    print "*** FUNC: delProjects"
+    print "+++ delProjects +++"
     delJobs_from_prjID(IDs, dbName, delFlg);
     conn = sqlite3.connect(dbName);
     c = conn.cursor();
@@ -588,7 +629,7 @@ def delProjects (IDs, dbName, delFlg):
 # *  File sort containing both string and numbers
 #********************************************************
 def getSortedList(myList, rev):
-    print "[getSortedList]"
+    print "+++ getSortedList +++"
     #i[0]: use key index, x[1]: use file name for comparision
     idx = [i[0] for i in sorted(enumerate(myList), key=lambda x:x[1], reverse=rev)]; 
     #print "** func: idx"
@@ -599,7 +640,7 @@ def getSortedList(myList, rev):
     return [idx, sList];
 
 def extStrings(myList):
-    print "[extStrings]"
+    print "+++ extStrings +++"
     # find every number and find maximum number in a certain range
     fixDigit = 7;
     newList = [];
@@ -627,7 +668,9 @@ def extStrings(myList):
     return newList;
 
 def sort_str_num(myList, order):
-    print '{0}-{1}'.format(order, order.upper())
+    print "+++ sort_str_num +++"
+    #print '{0}-{1}'.format(order, order.upper())
+
     if (order.upper() == 'DESC'):
 	order = True;
     else:
@@ -640,7 +683,7 @@ def sort_str_num(myList, order):
     
     # Extend file name by extending digits with fixed length
     new_sList = extStrings(sList);
-    print new_sList;
+    #print new_sList;
 
     # Sort extended file and get the index of sorted one
     new_sListInfo = getSortedList(new_sList, order);		# False:ascending, True: descending
@@ -660,6 +703,14 @@ def sort_str_num(myList, order):
 #********************************************************
 def pathValidation(request):
     print "*** pathValidataion ***"
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+        }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+
     if request.is_ajax() and (request.method == 'POST'):
         cmd   = request.POST.get('cmd');
         if (cmd == 'path_validation'):
@@ -693,6 +744,14 @@ def pathValidation(request):
 # *  Validating path
 #********************************************************
 def info_permission_write(request):
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+        }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+
     if request.is_ajax() and (request.method == 'POST'):
         cmd   = request.POST.get('cmd');
         if (cmd == 'permission_write'):
@@ -711,6 +770,14 @@ def info_permission_write(request):
         return HttpResponse(json.dumps(c));
 
 def info_permission_exec(request):
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+        }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+
     if request.is_ajax() and (request.method == 'POST'):
         cmd   = request.POST.get('cmd');
         if (cmd == 'permission_exec'):
@@ -732,6 +799,20 @@ def info_permission_exec(request):
 # *  GET DB Information
 #********************************************************
 def getDBinfo(request):
+    print "### getDBinfo ###"
+    rsec = request.session.get_expiry_age();
+    print rsec;
+    sstate = '';
+    print 'user_id' not in request.session
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
+	c = {
+		    'errMsg'	    : 'Session has been expired!',
+	}
+	sstate = 'Session has been expired!';
+	print sstate
+	template = 'gui/login.html';
+	return render_to_response(template, c, context_instance = RequestContext(request) )
+
     if request.is_ajax() and (request.method == 'POST'):
         cmd   = request.POST.get('cmd');
         pbs = [];
@@ -743,12 +824,20 @@ def getDBinfo(request):
 	    
         c = {
                   'pbs'           : pbs,
+		  'sstate'	  : sstate,
               }
-        request.session.set_expiry(SESSION_TIME_OUT);        # session will be closed in 10 minutes
         return HttpResponse(json.dumps(c));
 
 
 def help(request):
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+        }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+
     template = 'gui/help.html';
     c = {
 	    'pgTitle'	    : 'ST-Analyzer!',
@@ -770,14 +859,39 @@ def desktop(request):
     return render_to_response(template, c, context_instance = RequestContext(request) )
 
 #********************************************************
+# *  for test purpose
+#********************************************************
+def test_filter(request):
+    template = 'gui/test_filter.htm';
+    c = {
+	    'pgTitle'	    : 'MBanalyzer test page!',
+	}
+    return render_to_response(template, c, context_instance = RequestContext(request) )
+
+
+#********************************************************
 # *  for logout
 #********************************************************
 def logout(request):
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+        }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+
     # initializing all sessions
     for sesskey in request.session.keys():
         del request.session[sesskey]
-    request.session.set_expiry(1); 
-    return HttpResponseRedirect("/gui/")
+    request.session.set_expiry(1);
+    c = {
+		'errMsg'	    : 'You have been loged out!',
+    }
+    template = 'gui/login.html';
+    return render_to_response(template, c, context_instance = RequestContext(request) )
+
+#    return HttpResponseRedirect("/gui/")
 
 #********************************************************
 # *  for login GUI
@@ -829,7 +943,7 @@ def login(request):
             else:
                 #template = 'gui/stanalyzer.html';
                 request.session['user_id'] = userid;
-                request.session.set_expiry(SESSION_TIME_OUT);        # session will be closed in 10 minutes
+                request.session.set_expiry(SESSION_TIME_OUT);
                 #Msg = "{0}={1} and {2}={3}".format(userid, row[0], pwd, row[1]);
                 Msg = userid
                 conn.close();
@@ -849,7 +963,8 @@ def login(request):
 #********************************************************
 def toyView_data(request):
     # check out authority 
-    if 'user_id' not in request.session:
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
@@ -857,7 +972,7 @@ def toyView_data(request):
         return render_to_response(template, c, context_instance = RequestContext(request) )
 
 
-    request.session.set_expiry(SESSION_TIME_OUT);
+    #request.session.set_expiry(SESSION_TIME_OUT);
     conn = sqlite3.connect(dbName);
     c = conn.cursor();
     
@@ -951,14 +1066,15 @@ def toyView_data(request):
     
 def toyView_prj(request):
     # check out authority 
-    if 'user_id' not in request.session:
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
         return render_to_response(template, c, context_instance = RequestContext(request) )
 
-    request.session.set_expiry(SESSION_TIME_OUT);
+    #request.session.set_expiry(SESSION_TIME_OUT);
     
     if request.is_ajax() and (request.method == 'POST'):
         cmd   = request.POST.get('cmd');
@@ -1094,14 +1210,15 @@ def toyView_prj(request):
 
 def toyView_usr(request):
     # check out authority 
-    if 'user_id' not in request.session:
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
         return render_to_response(template, c, context_instance = RequestContext(request) )
 
-    request.session.set_expiry(SESSION_TIME_OUT);
+    #request.session.set_expiry(SESSION_TIME_OUT);
     if request.is_ajax() and (request.method == 'POST'):
         cmd   = request.POST.get('cmd');
     else:
@@ -1222,7 +1339,7 @@ def prjView(request):
         template = 'gui/login.html';
         return render_to_response(template, c, context_instance = RequestContext(request) )
 
-    request.session.set_expiry(SESSION_TIME_OUT);        # session will be closed in 10 minutes
+    #request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
     conn = sqlite3.connect(dbName);
     c = conn.cursor();
@@ -1325,14 +1442,15 @@ def prjView(request):
 
 def prjView_new(request):
     # check out authority 
-    if 'user_id' not in request.session:
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
         return render_to_response(template, c, context_instance = RequestContext(request) )
 
-    request.session.set_expiry(SESSION_TIME_OUT);
+    #request.session.set_expiry(SESSION_TIME_OUT);
     if request.is_ajax() and (request.method == 'POST'):
         #print "OKAY this is NEW submit!!"
         title    = request.POST.get('title');
@@ -1459,16 +1577,16 @@ def prjView_new(request):
         return render_to_response(template, c, context_instance = RequestContext(request));
     
 def prjView_update(request):
-    # check out authority
-    #print "I'm in prjView_update!"
-    if 'user_id' not in request.session:
+    print "### prjView_update ###"
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
         return render_to_response(template, c, context_instance = RequestContext(request) )
 
-    request.session.set_expiry(SESSION_TIME_OUT);        # session will be closed in 10 minutes
+    #request.session.set_expiry(SESSION_TIME_OUT);
     if request.is_ajax() and (request.method == 'POST'):
         cmd     =  request.POST.get('cmd');
         pkey     = request.POST.get('pkey');
@@ -1559,15 +1677,16 @@ def prjView_update(request):
 
 def prjView_delete(request):
     # check out authority
-    #print "I'm in prjView_delete!"
-    if 'user_id' not in request.session:
+    print "### prjView_delete ###"
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
         return render_to_response(template, c, context_instance = RequestContext(request) )
 
-    request.session.set_expiry(SESSION_TIME_OUT);        # session will be closed in 10 minutes
+    #request.session.set_expiry(SESSION_TIME_OUT);        # session will be closed in 10 minutes
     if request.is_ajax() and (request.method == 'POST'):
         cmd     =  request.POST.get('cmd');
         pkey     = request.POST.get('pkey');
@@ -1624,15 +1743,17 @@ def prjView_delete(request):
     
 
 def jobView(request):
-    # check out authority 
-    if 'user_id' not in request.session:
+    # check out authority
+    print "### jobView ###";
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
         return render_to_response(template, c, context_instance = RequestContext(request) )
     
-    request.session.set_expiry(SESSION_TIME_OUT);
+    #request.session.set_expiry(SESSION_TIME_OUT);
     template = 'gui/jobView.html';
     c = {
         'cmd': 'init',
@@ -1640,15 +1761,17 @@ def jobView(request):
     return render_to_response(template, c, context_instance = RequestContext(request));
 
 def jobView_jqGrid_para(request):
-    # check out authority 
-    if 'user_id' not in request.session:
+    # check out authority
+    print "### jobView_jqGrid_para ###"
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
         return render_to_response(template, c, context_instance = RequestContext(request) )
     
-    request.session.set_expiry(SESSION_TIME_OUT);
+    #request.session.set_expiry(SESSION_TIME_OUT);
     job_id = request.GET.get('job_id');
 
     if request.GET.get("sidx"):
@@ -1720,15 +1843,17 @@ def jobView_jqGrid_para(request):
 
     
 def jobView_jqGrid_job(request):
-    # check out authority 
-    if 'user_id' not in request.session:
+    # check out authority
+    print "jobView_jqGrid_job"
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
         return render_to_response(template, c, context_instance = RequestContext(request) )
     
-    request.session.set_expiry(SESSION_TIME_OUT);
+    #request.session.set_expiry(SESSION_TIME_OUT);
     prj_id = request.GET.get('prj_id');
     
     if request.GET.get("sidx"):
@@ -1801,48 +1926,54 @@ def jobView_jqGrid_job(request):
     
 
 def jobView_jqGrid_prj(request):
-    # check out authority 
-    if 'user_id' not in request.session:
+    # check out authority
+    print "### jobView_jqGrid_prj ###"
+    rsec = request.session.get_expiry_age();
+    print 'user_id' not in request.session
+
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
+	print "works this !!!!"
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+	print template
+        return render_to_response(template, c, context_instance = RequestContext(request))
 
-    request.session.set_expiry(SESSION_TIME_OUT);
+    #request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
     #print request.GET
-        
+	
     if request.GET.get("sidx"):
-        sidx    = request.GET["sidx"];
-        sord    = request.GET["sord"];
-        cpage   = request.GET["page"];
-        cpage   = int(cpage);
-        maxrow  = request.GET["rows"];
-        maxrow  = int(maxrow);    
-        
+	sidx    = request.GET["sidx"];
+	sord    = request.GET["sord"];
+	cpage   = request.GET["page"];
+	cpage   = int(cpage);
+	maxrow  = request.GET["rows"];
+	maxrow  = int(maxrow);    
+	
     if cpage == 1:
-        st_index = 0;
-        ed_index = maxrow;
+	st_index = 0;
+	ed_index = maxrow;
     else:
-        st_index = maxrow * cpage - maxrow;
-        ed_index = maxrow * cpage;
+	st_index = maxrow * cpage - maxrow;
+	ed_index = maxrow * cpage;
     
     #if request.is_ajax() and (request.method == 'POST'):
     conn = sqlite3.connect(dbName);
     c = conn.cursor();
     
     if (request.GET["_search"] == 'true'):
-        sfilter = request.GET["filters"];
-        search_dic =json.loads(sfilter);      # convert string to dictionary
-        search_rules = search_dic["rules"][0];
-        search_field = search_rules["field"];
-        search_data = search_rules["data"];
-        query = """select id, user_id, name, date, pbs from gui_project where user_id = "{0}" AND {1} like "%{2}%" order by {3} {4} limit {5}, {6}""".format(user_id, search_field, search_data, sidx, sord, st_index, ed_index);
-        #print query
+	sfilter = request.GET["filters"];
+	search_dic =json.loads(sfilter);      # convert string to dictionary
+	search_rules = search_dic["rules"][0];
+	search_field = search_rules["field"];
+	search_data = search_rules["data"];
+	query = """select id, user_id, name, date, pbs from gui_project where user_id = "{0}" AND {1} like "%{2}%" order by {3} {4} limit {5}, {6}""".format(user_id, search_field, search_data, sidx, sord, st_index, ed_index);
+	#print query
     else:   
-        query = "select id, user_id, name, date, pbs from gui_project where user_id = '{0}' order by {1} {2}".format(user_id, sidx, sord);
-        #print query
+	query = "select id, user_id, name, date, pbs from gui_project where user_id = '{0}' order by {1} {2}".format(user_id, sidx, sord);
+	#print query
     
     c.execute(query);
     row = c.fetchall();
@@ -1866,29 +1997,31 @@ def jobView_jqGrid_prj(request):
     tpages = int(math.ceil(float(row_cnt) / float(maxrow)));
     #print "tpages: {}".format(tpages);
     if tpages < 1:
-        tpages = 1;
+	tpages = 1;
     
     total_pages = tpages;
 
     c = {
-            'total'	: total_pages,
-            'page'      : cpage,
-            'records'   : row_cnt,
-            'rows'      : rows,            
-        }
+	    'total'	: total_pages,
+	    'page'      : cpage,
+	    'records'   : row_cnt,
+	    'rows'      : rows,            
+	}
     return HttpResponse(json.dumps(c));
 
 def resultView_jqGrid_results(request):
     #print "OKAY i am In RESUT VIEW"
-    # check out authority 
-    if 'user_id' not in request.session:
+    # check out authority
+    print "### resultView_jqGrid_results ###"
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
         return render_to_response(template, c, context_instance = RequestContext(request) )
     
-    request.session.set_expiry(SESSION_TIME_OUT);
+    #request.session.set_expiry(SESSION_TIME_OUT);
     prj_id = request.GET.get('prj_id');
     
     if request.GET.get("sidx"):
@@ -1922,7 +2055,7 @@ def resultView_jqGrid_results(request):
 	tmp = c.fetchall();
 	JOBs = [];
 	for job_id in tmp:
-	    query = """select id, job_id, name, img, txt, gzip from gui_outputs where job_id = {0} AND {1} like "%{2}%" order by {3} {4}""".format(job_id[0], search_field, search_data, sidx, sord);
+	    query = """select id, job_id, name, status, qid, img, txt, gzip from gui_outputs where job_id = {0} AND {1} like "%{2}%" order by {3} {4}""".format(job_id[0], search_field, search_data, sidx, sord);
 	    #print query
 	    c.execute(query);
 	    row = c.fetchall();
@@ -1941,7 +2074,7 @@ def resultView_jqGrid_results(request):
 	c.execute(query);
 	tmp = c.fetchall();	# retrieve all related jobs corresponding to the current project 
 	for job_id in tmp:
-	    query = """select id, job_id, name, img, txt, gzip from gui_outputs where job_id = {0} order by {1} {2}""".format(job_id[0], sidx, sord);
+	    query = """select id, job_id, name, status, qid, img, txt, gzip from gui_outputs where job_id = {0} order by {1} {2}""".format(job_id[0], sidx, sord);
 	    #print query
 	    c.execute(query);
 	    row = c.fetchall();
@@ -1990,15 +2123,17 @@ def resultView_jqGrid_results(request):
     
 
 def resultView_jqGrid_del_results(request):
-    # check out authority 
-    if 'user_id' not in request.session:
+    # check out authority
+    print "### resultView_jqGrid_del_results ###"
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
         return render_to_response(template, c, context_instance = RequestContext(request) )
 
-    request.session.set_expiry(SESSION_TIME_OUT);
+    #request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
     
     if request.is_ajax() and (request.method == 'POST'):
@@ -2043,15 +2178,17 @@ def resultView_jqGrid_del_results(request):
 
     
 def userView(request):
-    # check out authority 
-    if 'user_id' not in request.session:
+    # check out authority
+    print "### userView ###"
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
         return render_to_response(template, c, context_instance = RequestContext(request) )
 
-    request.session.set_expiry(SESSION_TIME_OUT);
+    #request.session.set_expiry(SESSION_TIME_OUT);
     if request.is_ajax() and (request.method == 'POST'):
         cmd   = request.POST.get('cmd');
     else:
@@ -2120,14 +2257,16 @@ def userView(request):
         return render_to_response(template, c, context_instance = RequestContext(request));
 
 def usrView_jqGrid_create_user(request):
-    if 'user_id' not in request.session:
+    print "### usrView_jqGrid_create_user ###"
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
         return render_to_response(template, c, context_instance = RequestContext(request) )
 
-    request.session.set_expiry(SESSION_TIME_OUT);
+    #request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
     
     if request.is_ajax() and (request.method == 'POST'):
@@ -2194,15 +2333,17 @@ def usrView_jqGrid_create_user(request):
 
 
 def usrView_jqGrid_del_user(request):
-    # check out authority 
-    if 'user_id' not in request.session:
+    # check out authority
+    print "### usrView_jqGrid_del_user ###"
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
         return render_to_response(template, c, context_instance = RequestContext(request) )
 
-    request.session.set_expiry(SESSION_TIME_OUT);
+    #request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
     
     if request.is_ajax() and (request.method == 'POST'):
@@ -2248,15 +2389,20 @@ def usrView_jqGrid_del_user(request):
 
 
 def usrView_jqGrid_usr(request):
-    # check out authority 
-    if 'user_id' not in request.session:
+    # check out authority
+    print "### usrView_jqGrid_usr ###"
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
-                }
+            }
         template = 'gui/login.html';
+	sstate = 'Session has been expired!';
         return render_to_response(template, c, context_instance = RequestContext(request) )
-
-    request.session.set_expiry(SESSION_TIME_OUT);
+    else:
+	sstate = '';
+	
+    #request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
     #print request.GET
         
@@ -2322,27 +2468,38 @@ def usrView_jqGrid_usr(request):
             'total'	: total_pages,
             'page'      : cpage,
             'records'   : row_cnt,
-            'rows'      : rows,            
+            'rows'      : rows,
+	    'sstate'	: sstate, 
         }
     return HttpResponse(json.dumps(c));
 
 def stanalyzer(request):
-    # check out authority 
-    if 'user_id' not in request.session:
-        c = {
-                    'errMsg'	    : 'Session has been expired!',
-                }
-        template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
-
-    request.session.set_expiry(SESSION_TIME_OUT);        # session will be closed in 10 minutes
+    print "### stanalyzer ###"
+    # check out authority
+    rsec = request.session.get_expiry_age();
+    print type(rsec)
+    print "{} is remained until expired!".format(rsec);
+    rdate = request.session.get_expiry_date();
+    print "Date expired: {0}".format(rdate);
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
+	c = {
+		    'errMsg'	    : 'Session has been expired!',
+		}
+	template = 'gui/login.html';
+	sstate = 'Session has been expired!';
+	return render_to_response(template, c, context_instance = RequestContext(request) )
+    else:
+	sstate = '';
+	
+    #request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
     conn = sqlite3.connect(dbName);
     c = conn.cursor();
-    print "** def stanalyzer";
+    
     if request.is_ajax() and (request.method == 'POST'):
-        #print "This is AJAX!"
-        cmd   = request.POST.get('cmd');
+	#print "This is AJAX!"
+	cmd   = request.POST.get('cmd');
+	
         #print "Okay you requested CMD as {}".format(cmd);
         if (cmd == 'path'):
 	    print "\tCMD: path";
@@ -2548,6 +2705,7 @@ def stanalyzer(request):
             'date'	            : date,
             'numRec'                : numRec,
             'fList'                 : fList,
+	    'sstate'		    : sstate,
         }
 
  
@@ -2563,15 +2721,17 @@ def stanalyzer(request):
 
 
 def stanalyzer_info(request):
+    print "### stanalyzer_info ###"
     # check out authority 
-    if 'user_id' not in request.session:
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
         return render_to_response(template, c, context_instance = RequestContext(request) )
 
-    request.session.set_expiry(SESSION_TIME_OUT);        # session will be closed in 10 minutes
+    #request.session.set_expiry(SESSION_TIME_OUT); 
     fList = 'File not found!';
     if request.is_ajax() and (request.method == 'POST'):
         cmd   = request.POST.get('cmd');
@@ -2714,15 +2874,18 @@ def stanalyzer_info(request):
 
 
 def stanalyzer_sendJob(request):
+    print "### stanalyzer_sendJob ###"
+    #print request.session
     # check out authority 
-    if 'user_id' not in request.session:
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
         return render_to_response(template, c, context_instance = RequestContext(request) )
 
-    request.session.set_expiry(SESSION_TIME_OUT);
+    #request.session.set_expiry(SESSION_TIME_OUT);
     data = request.POST;
     
     if request.is_ajax() and (request.method == 'POST'):
@@ -2763,17 +2926,17 @@ def stanalyzer_sendJob(request):
             bpath = eval_path(bpath);
             path_output = eval_path(path_output);
             
-	    print "######## Before Wrap ##############"
-	    print Paras
-	    print ParaInfo
+	    #print "######## Before Wrap ##############"
+	    #print Paras
+	    #print ParaInfo
 	    
             #--- parsing List ----
             Paras = parseWrapList2(Paras);
             ParaInfo = parseWrapList1(ParaInfo);
             
-	    print "######## after Wrap ##############"
-	    print Paras
-	    print ParaInfo
+	    #print "######## after Wrap ##############"
+	    #print Paras
+	    #print ParaInfo
             #PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__));
 
             #--- Get unique session ID
@@ -2825,48 +2988,56 @@ def stanalyzer_sendJob(request):
             file_out = "{}para".format(OUTPUT_HOME);
             
             # ---------------------------- Writing PBS
+	    #print "Writing PBS....";
             #print "PBS: {}".format(pbs);
             for ifunc in func_name:
-                tmp = "{}/{}.pbs".format(PBS_HOME, ifunc);
-                fid_i = open(tmp, 'w');
-                fid_i.write(pbs);
-                
-                job_name = "#PBS -N {}\n".format(ifunc);
-                fid_i.write(job_name);
-                
-                err_file = "#PBS -e {}/{}.err\n".format(PBS_HOME, ifunc);
-                fid_i.write(err_file);
-                
-                log_file = "#PBS -o {}/{}.log\n".format(PBS_HOME, ifunc);
-                fid_i.write(log_file);
-
-                move_workdir = "cd {}\n".format(ANALYZER_HOME);
-                fid_i.write(move_workdir);
-                
-                run_job = "{0} {1}.py {2}\n".format(path_python, ifunc, file_out);
-                fid_i.write(run_job);
-                fid_i.close();
+		func_idx = func_name.index(ifunc);
+		#print "func_idx: {}".format(func_idx);
+		for cnt_frm in range(len(Paras[func_idx][1])):
+		    #print "cnt_frm: {}".format(cnt_frm);
+		    tmp = "{0}/{1}{2}.pbs".format(PBS_HOME, ifunc, cnt_frm);
+		    fid_i = open(tmp, 'w');
+		    fid_i.write(pbs);
+		    
+		    job_name = "#PBS -N {0}{1}\n".format(ifunc, cnt_frm);
+		    fid_i.write(job_name);
+		    
+		    err_file = "#PBS -e {0}/{1}{2}.err\n".format(PBS_HOME, ifunc, cnt_frm);
+		    fid_i.write(err_file);
+		    
+		    log_file = "#PBS -o {0}/{1}{2}.log\n".format(PBS_HOME, ifunc, cnt_frm);
+		    fid_i.write(log_file);
+    
+		    move_workdir = "cd {}\n".format(ANALYZER_HOME);
+		    fid_i.write(move_workdir);
+		    
+		    run_job = "{0} {1}.py {2} {3}\n".format(path_python, ifunc, file_out, cnt_frm);
+		    fid_i.write(run_job);
+		    fid_i.close();
                 
             # ---------------------------- Writing SHELL SCRIPT
+	    #print "Writing Shell script....";
             for ifunc in func_name:
-                tmp = "{}/{}.sh".format(SH_HOME, ifunc);
-                fid_i = open(tmp, 'w');
-                
-                def_shell = "#!/bin/bash\n";
-                fid_i.write(def_shell);
-
-                move_workdir = "cd {}\n".format(ANALYZER_HOME);
-                fid_i.write(move_workdir);
-                
-                run_job = "{0} {1}.py {2}\n".format(path_python, ifunc, file_out);
-                fid_i.write(run_job);
-                fid_i.close();
-                
-                # change script permission to 755
-                os.chmod(tmp, 0755);
+		func_idx = func_name.index(ifunc);
+		for cnt_frm in range(len(Paras[func_idx][1])):
+		    tmp = "{0}/{1}{2}.sh".format(SH_HOME, ifunc, cnt_frm);
+		    fid_i = open(tmp, 'w');
+		    
+		    def_shell = "#!/bin/bash\n";
+		    fid_i.write(def_shell);
+    
+		    move_workdir = "cd {}\n".format(ANALYZER_HOME);
+		    fid_i.write(move_workdir);
+		    
+		    run_job = "{0} {1}.py {2} {3}\n".format(path_python, ifunc, file_out, cnt_frm);
+		    fid_i.write(run_job);
+		    fid_i.close();
+		    
+		    # change script permission to 755
+		    os.chmod(tmp, 0755);
             
             
-            # ---------------------------- Insert job into a table ---------------------------------
+            #print "# ---------------------------- Insert job into a table ---------------------------------"
             #print "HERE works"
             conn = sqlite3.connect(dbName);
             c = conn.cursor();
@@ -2894,11 +3065,12 @@ def stanalyzer_sendJob(request):
             for i in range(len(func_name)):
                 para_pkey = [];
                 for j in range(len(Paras[i])):
-                    query = """INSERT INTO gui_parameter (job_id, anaz, para, val, status) \
-                            VALUES ({0}, "{1}", "{2}", "{3}", "{4}")""".format(job_pkey[0], func_name[i], ParaInfo[i][j], Paras[i][j], 'SENT');
-                    #print query;
-                    c.execute(query);
-                    conn.commit();
+		    for k in range(len(Paras[i][j])):
+			query = """INSERT INTO gui_parameter (job_id, anaz, para, val, status) \
+				VALUES ({0}, "{1}", "{2}", "{3}", "{4}")""".format(job_pkey[0], func_name[i], ParaInfo[i][j], Paras[i][j][k], 'SENT');
+			#print query;
+			c.execute(query);
+			conn.commit();
                 query = """SELECT id FROM gui_parameter WHERE job_id = {0} AND anaz = "{1}" """.format(job_pkey[0], func_name[i]);
                 #print query
                 c.execute(query);
@@ -2929,7 +3101,7 @@ def stanalyzer_sendJob(request):
             #-------------------------------------------
             # Writring input arguments into a file
             #-------------------------------------------
-            c ={
+            cdic ={
                 'para_pkeys'	    : para_pkeys,
                 'job_pkey'          : job_pkey,
                 'job_title'         : job_title,
@@ -2962,35 +3134,120 @@ def stanalyzer_sendJob(request):
             #file_out = "{}para".format(OUTPUT_HOME)
             #print "Writing binary file {}".format(file_out);
             fid_out = open(file_out, 'wb');
-            pickle.dump(c, fid_out);
+            pickle.dump(cdic, fid_out);
             fid_out.close();
             
             # ---------------------------- Submit Jobs
-            if (machine == 'cluster'):
+            if (machine == 'PBS'):
                 print "Run code at {}".format(machine);
                 for ifunc in func_name:
-                    cmd = "qsub {}/{}.pbs".format(PBS_HOME, ifunc);
-                    os.system(cmd);
-
-            elif (machine == 'server'):
+		    func_idx = func_name.index(ifunc);
+		    for cnt_frm in range(len(Paras[func_idx][1])):
+			# Run Script
+			fpbs = "{0}/{1}{2}.pbs".format(PBS_HOME, ifunc, cnt_frm);
+			#cmd = "qsub {0}/{1}{2}.pbs".format(PBS_HOME, ifunc, cnt_frm);
+			#print cmd;
+			#os.system(cmd);
+			#print "Okay I am sending job to Queue!";
+			q_id = sub.check_output(["qsub", fpbs]);
+			#print q_id
+			Q = q_id.split('.');
+			#print "Okay queue id is {}".format(Q[0]);
+			# Insert values into gui_outputs
+			conn = sqlite3.connect(dbName);
+			c    = conn.cursor();
+			uq_func = "{0}{1}".format(ifunc, cnt_frm);
+			query = """INSERT INTO gui_outputs (job_id, name, status, qid, img, txt, gzip) VALUES ({0}, "{1}", "Queue", {2}, "N/A", "N/A", "N/A")""".format(job_pkey[0], uq_func, Q[0]);
+			c.execute(query);
+			conn.commit();
+			conn.close();
+		
+		    
+            elif (machine == 'Interactive'):
                 print "Run code at {}".format(machine);
                 for ifunc in func_name:
-                    cmd = "{}/{}.sh".format(SH_HOME, ifunc);
-                    os.system(cmd);
+		    func_idx = func_name.index(ifunc);
+		    for cnt_frm in range(len(Paras[func_idx][1])):
+			# Insert values into gui_outputs
+			uq_func = "{0}{1}".format(ifunc, cnt_frm);
+			q_id = 0;			# interactive mode set q_id as 0
+			conn = sqlite3.connect(dbName);
+			c    = conn.cursor();
+			uq_func = "{0}{1}".format(ifunc, cnt_frm);
+			query = """INSERT INTO gui_outputs (job_id, name, status, qid, img, txt, gzip) VALUES ({0}, "{1}", "Sent", {2}, "N/A", "N/A", "N/A")""".format(job_pkey[0], uq_func, q_id);
+			c.execute(query);
+			conn.commit();
+			conn.close();
+			# Run script
+			cmd = "{0}/{1}{2}.sh".format(SH_HOME, ifunc, cnt_frm);
+			os.system(cmd);
+	    
+            return HttpResponse(json.dumps(cdic));
 
-            return HttpResponse(json.dumps(c));
 
-
-def makeDownload(request):
+def showImage(request):
+    print "### showImage ####";
     # check out authority 
-    if 'user_id' not in request.session:
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+                }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+
+    #request.session.set_expiry(SESSION_TIME_OUT);
+    data = request.POST;
+    
+    if request.is_ajax() and (request.method == 'POST'):
+	abs_path = request.POST.get('abs_path');
+	print abs_path;
+	rel_path = '/static/../../../../tmp/box/box0.png';
+	cdic = {
+	    'abs_path': abs_path,
+	    'rel_path': rel_path,
+	}
+	return HttpResponse(json.dumps(cdic));
+    
+
+def download_path(request, path):
+    print "### download_path ####";
+    #print path;
+    # check out authority 
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+                }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+
+    #request.session.set_expiry(SESSION_TIME_OUT);
+    
+    # link the file
+    wrapper = FileWrapper( open( path, "r" ) )
+    content_type = mimetypes.guess_type( path )[0]
+
+    response = HttpResponse(wrapper, content_type = content_type)
+    response['Content-Length'] = os.path.getsize( path ) # not FileField instance
+    response['Content-Disposition'] = 'attachment; filename={0}'.format(smart_str( os.path.basename( path ) ));
+
+    return response
+    
+    
+    
+def makeDownload(request):
+    # check out authority
+    print "### makeDownload ###"
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
         return render_to_response(template, c, context_instance = RequestContext(request) )
     
-    request.session.set_expiry(SESSION_TIME_OUT);
+    #request.session.set_expiry(SESSION_TIME_OUT);
     output_id 	= request.GET.get('id');
     dfield = request.GET.get('dformat');
     conn = sqlite3.connect(dbName);
@@ -3013,6 +3270,15 @@ def makeDownload(request):
     return response
 
 def mediaLink(request, file_name):
+    print "### mediaLink ###"
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+        }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+
     #print "=== I am in mediaLink ==="
     path = '/{}'.format(file_name);
     #print path
@@ -3026,6 +3292,15 @@ def mediaLink(request, file_name):
     return response
 
 def wysFileManager(request):
+    print "### wysFileManager ###"
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+        }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+
     #print request
     c ={
             'output'        : 'okay updated!'
@@ -3033,16 +3308,17 @@ def wysFileManager(request):
     return HttpResponse(json.dumps(c));
 
 def resultView_DBmanager(request):
-    print "* I am in resultView_DBmanager";
+    print "### resultView_DBmanager ###";
     # check out authority 
-    if 'user_id' not in request.session:
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
         return render_to_response(template, c, context_instance = RequestContext(request) )
 
-    request.session.set_expiry(SESSION_TIME_OUT);
+    #request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
     
     if request.is_ajax() and (request.method == 'POST'):
@@ -3085,17 +3361,48 @@ def resultView_DBmanager(request):
 		else:
 		    tmp2 = int(num);
 		    IDs.append(tmp2);
-	IDs = set(IDs);
+	IDs = set(IDs);				# make sure having unique IDs
 	IDs = list(IDs);
 	
 	# deleting gui_project
-	if table == 'gui_project':
+	if table == 'gui_user':
+	    conn = sqlite3.connect(dbName);
+	    c = conn.cursor();
+	    print "** DELETE FROM {} **".format(table);
+	    for i in IDs:
+		query = """DELETE FROM {0} where uid = "{1}" """.format(table, i);
+		c.execute(query);
+		conn.commit();
+	    conn.close();
+
+	elif table == 'gui_project':
 	    print "** DELETE gui_project **";
 	    delProjects(IDs, dbName, flag_del);
+
+	elif table == 'gui_job':
+	    print "** DELETE gui_project **";
+	    delJobs(IDs, dbName, flag_del);
+	    
 	elif table == 'gui_outputs':
 	    print "** DELETE gui_outputs **";
 	    delOutputs(IDs, dbName, flag_del);
 	    
+	elif table == 'gui_queue':
+	    print "** DELETE Queue **";
+	    for qid in IDs:
+		#print "{} is deleting...\n".format(qid);
+		delQue(qid);
+
+	else:
+	    conn = sqlite3.connect(dbName);
+	    c = conn.cursor();
+	    print "** DELETE FROM {} **".format(table);
+	    for i in IDs:
+		query = "DELETE FROM {0} where id = {1} ".format(table, i);
+		c.execute(query);
+		conn.commit();
+	    conn.close();
+
         c = {
             'fUsers'    : IDs,
         }
@@ -3104,16 +3411,17 @@ def resultView_DBmanager(request):
 
 
 def dummy_test(request):
-    print "* I am in DUMMY TEST";
+    print "### dummy_test ###";
     # check out authority 
-    if 'user_id' not in request.session:
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
         return render_to_response(template, c, context_instance = RequestContext(request) )
 
-    request.session.set_expiry(SESSION_TIME_OUT);
+    #request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
     
     if request.is_ajax() and (request.method == 'POST'):
@@ -3144,16 +3452,17 @@ def dummy_test(request):
 
 
 def fileSort(request):
-    print "* I am in Sorting Module";
+    print "### fileSort ###";
     # check out authority 
-    if 'user_id' not in request.session:
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
         c = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
         return render_to_response(template, c, context_instance = RequestContext(request) )
 
-    request.session.set_expiry(SESSION_TIME_OUT);
+    #request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
     
     if request.is_ajax() and (request.method == 'POST'):
@@ -3233,3 +3542,135 @@ def fileSort(request):
 	}
 	
     return HttpResponse(json.dumps(c));
+
+
+
+def viewTable(request, table_name):
+    print "### viewTable ###"
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+                }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+
+    #request.session.set_expiry(SESSION_TIME_OUT);
+    user_id = request.session['user_id'];
+    #print request.GET
+        
+    if request.GET.get("sidx"):
+        sidx    = request.GET["sidx"];
+        sord    = request.GET["sord"];
+        cpage   = request.GET["page"];
+        cpage   = int(cpage);
+        maxrow  = request.GET["rows"];
+        maxrow  = int(maxrow);    
+        
+    if cpage == 1:
+        st_index = 0;
+        ed_index = maxrow;
+    else:
+        st_index = maxrow * cpage - maxrow;
+        ed_index = maxrow * cpage;
+    
+    #if request.is_ajax() and (request.method == 'POST'):
+    print "dbName: {}".format(dbName);
+    
+    conn = sqlite3.connect(dbName);
+    c = conn.cursor();
+    
+    if (request.GET["_search"] == 'true'):
+        sfilter = request.GET["filters"];
+        search_dic =json.loads(sfilter);      # convert string to dictionary
+        search_rules = search_dic["rules"][0];
+        search_field = search_rules["field"];
+        search_data = search_rules["data"];
+        query = """select * from {0} where {1} like "%{2}%" order by {3} {4}""".format(table_name, search_field, search_data, sidx, sord);
+        #print query
+    else:   
+        query = "select * from {0} order by {1} {2}".format(table_name, sidx, sord);
+        #print query
+    
+    c.execute(query);
+    row = c.fetchall();
+    conn.close();
+
+    rows = [];
+    row_cnt = 0;
+    if st_index == 0:
+	for item in row:
+	    row_cnt = row_cnt + 1;
+	    tmp = { "id": str(row_cnt), "cell": item}
+	    rows.append(tmp);
+    else:
+	for item in row:
+	    row_cnt = row_cnt + 1;
+	    if (row_cnt > st_index):
+		tmp = { "id": str(row_cnt), "cell": item}
+		rows.append(tmp);
+    
+    # calculating total number of pages
+    tpages = int(math.ceil(float(row_cnt) / float(maxrow)));
+    #print "tpages: {}".format(tpages);
+    if tpages < 1:
+        tpages = 1;
+    
+    total_pages = tpages;
+
+    c = {
+            'total'	: total_pages,
+            'page'      : cpage,
+            'records'   : row_cnt,
+            'rows'      : rows,            
+        }
+    return HttpResponse(json.dumps(c));
+    
+def showTables(request):
+    print "### showTables ###";
+    # check out authority 
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
+        c = {
+                    'errMsg'	    : 'Session has been expired!',
+        }
+        template = 'gui/login.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+    else:
+	c = {
+	    'msg' : 'show me table!',
+	}
+        template = 'gui/tableView.html';
+        return render_to_response(template, c, context_instance = RequestContext(request) )
+
+
+
+def verifyQuery(request):
+    print "### verifyQuery ###";
+    # check out authority 
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
+        outDic = {
+                    'errMsg'	    : 'Session has been expired!',
+                }
+        template = 'gui/login.html';
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
+
+    #request.session.set_expiry(SESSION_TIME_OUT);
+    user_id = request.session['user_id'];
+    
+    if request.is_ajax() and (request.method == 'POST'):
+        cmd   = request.POST.get('cmd');
+    else:
+        cmd = 'http';           # connection with URL
+        outDic = {
+                    'errMsg'	    : 'Session has been expired!',
+            }
+        template = 'gui/login.html';
+        return render_to_response(template, outDic, context_instance = RequestContext(request))
+    
+    if cmd == 'verify':
+	query 	    = request.POST.get('query');
+	stfile      = request.POST.get('stfile');
+	trjFile     = request.POST.getlist('trjFile[]');
+	

@@ -370,9 +370,21 @@ $j(document).ready(function(){
 		</tr>
 
 		<tr>
-		    <td class="st_font1 left mspace2"><b>Structure file</b></td><td>:</td>
+		    <td class="st_font1 left mspace3"><b>Structure file</b></td><td>:</td>
 		    <td class="left mspace2">
 			<select data-placeholder="Choose structure file containing " id='stfile' name="stfile" class="chzn-select" style="width:500px;">
+			    {% if fList.0 %}
+				{% for fname in fList %}
+				    <option value="{{ fname }}"> {{ fname }}</option>
+				{% endfor %}
+			    {% endif %}
+			</select>
+		    </td>
+		</tr>
+		<tr>
+		    <td class="st_font1 left mspace2"><b>PDB file</b></td><td>:</td>
+		    <td class="left mspace2">
+			<select data-placeholder="Choose PDB file containing " id='pdbfile' name="pdbfile" class="chzn-select" style="width:500px;">
 			    {% if fList.0 %}
 				{% for fname in fList %}
 				    <option value="{{ fname }}"> {{ fname }}</option>
@@ -486,6 +498,8 @@ $j(document).ready(function(){
 		*******************************************************************************
 	    --->
 	    <!--- Category in System Information --->
+	    <tr><td class="mspace1">{% include "gui/modules.html" %}</td></tr>
+	    <tr><td class="mspace1"></td></tr>
 	    <tr><td class="mspace1">{% include "gui/systemInfo.html" %}</td></tr>
 	    <tr><td class="mspace1"></td></tr>
 	    <tr><td class="mspace1">{% include "gui/protein.html" %}</td></tr>

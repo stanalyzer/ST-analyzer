@@ -73,6 +73,7 @@ base_path       = dic["base_path"];         # base location of input files
 path_output     = dic["path_output"];       # the location of output directory
 path_python     = dic["path_python"];       # python path to run analyzers
 structure_file  = dic["structure_file"];    # full path of structure file (i.e. PDB, PSF, etc)
+pdb_file        = dic["pdb_file"];          # full path of PDB file (i.e. PDB)
 pbs             = dic["pbs"];               # PBS script for using cluster machine
 num_frame	= dic["num_frame"];         # number of frames in the first trajectory file
 num_atoms	= dic["num_atoms"];         # number of atomes in the system

@@ -16,6 +16,7 @@ from django.utils.encoding	import smart_str, smart_unicode
 # for MDAnalysis
 import sys
 from MDAnalysis import *
+from MDAnalysis import core
 from MDAnalysis.analysis.align import *
 import math
 import numpy as np
@@ -705,11 +706,11 @@ def pathValidation(request):
     print "*** pathValidataion ***"
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
         }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     if request.is_ajax() and (request.method == 'POST'):
         cmd   = request.POST.get('cmd');
@@ -723,7 +724,7 @@ def pathValidation(request):
             #if len(status) > 0:
             #    print status[0];
                 
-	    c = {
+	    outDic = {
 		      'type'           : status,
 		}
     
@@ -734,11 +735,11 @@ def pathValidation(request):
 	    server = serverside(path);
 	    status = server.mkdir();
 	    print status;
-	    c = {
+	    outDic = {
 		      'type'           : status,
 		}
 	    
-        return HttpResponse(json.dumps(c));
+        return HttpResponse(json.dumps(outDic));
 
 #********************************************************
 # *  Validating path
@@ -746,11 +747,11 @@ def pathValidation(request):
 def info_permission_write(request):
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
         }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     if request.is_ajax() and (request.method == 'POST'):
         cmd   = request.POST.get('cmd');
@@ -764,19 +765,19 @@ def info_permission_write(request):
             if len(status) > 0:
                 print status[0];
                 
-        c = {
+        outDic = {
                   'write_info'           : status,
             }
-        return HttpResponse(json.dumps(c));
+        return HttpResponse(json.dumps(outDic));
 
 def info_permission_exec(request):
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
         }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     if request.is_ajax() and (request.method == 'POST'):
         cmd   = request.POST.get('cmd');
@@ -790,10 +791,10 @@ def info_permission_exec(request):
             if len(status) > 0:
                 print status[0];
                 
-        c = {
+        outDic = {
                   'exec_info'           : status,
             }
-        return HttpResponse(json.dumps(c));
+        return HttpResponse(json.dumps(outDic));
 
 #********************************************************
 # *  GET DB Information
@@ -805,13 +806,13 @@ def getDBinfo(request):
     sstate = '';
     print 'user_id' not in request.session
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-	c = {
+	outDic = {
 		    'errMsg'	    : 'Session has been expired!',
 	}
 	sstate = 'Session has been expired!';
 	print sstate
 	template = 'gui/login.html';
-	return render_to_response(template, c, context_instance = RequestContext(request) )
+	return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     if request.is_ajax() and (request.method == 'POST'):
         cmd   = request.POST.get('cmd');
@@ -822,51 +823,51 @@ def getDBinfo(request):
 	if len(pbs) < 1:
 	    pbs = "#!/bin/csh\n#PBS -l nodes=1:ppn=1\n#PBS -l mem=500mb\n#PBS -l walltime=72:00:00\n#PBS -l cput=72:00:00\n#PBS -q default\n";
 	    
-        c = {
+        outDic = {
                   'pbs'           : pbs,
 		  'sstate'	  : sstate,
               }
-        return HttpResponse(json.dumps(c));
+        return HttpResponse(json.dumps(outDic));
 
 
 def help(request):
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
         }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     template = 'gui/help.html';
-    c = {
+    outDic = {
 	    'pgTitle'	    : 'ST-Analyzer!',
 	}
-    return render_to_response(template, c, context_instance = RequestContext(request) )
+    return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
 def index(request):
     template = 'gui/login.html';
-    c = {
+    outDic = {
 	    'pgTitle'	    : 'MBanalyzer test page!',
 	}
-    return render_to_response(template, c, context_instance = RequestContext(request) )
+    return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
 def desktop(request):
     template = 'desktop/index.html';
-    c = {
+    outDic = {
 	    'pgTitle'	    : 'MBanalyzer test page!',
 	}
-    return render_to_response(template, c, context_instance = RequestContext(request) )
+    return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
 #********************************************************
 # *  for test purpose
 #********************************************************
 def test_filter(request):
     template = 'gui/test_filter.htm';
-    c = {
+    outDic = {
 	    'pgTitle'	    : 'MBanalyzer test page!',
 	}
-    return render_to_response(template, c, context_instance = RequestContext(request) )
+    return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
 
 #********************************************************
@@ -875,21 +876,21 @@ def test_filter(request):
 def logout(request):
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
         }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     # initializing all sessions
     for sesskey in request.session.keys():
         del request.session[sesskey]
     request.session.set_expiry(1);
-    c = {
+    outDic = {
 		'errMsg'	    : 'You have been loged out!',
     }
     template = 'gui/login.html';
-    return render_to_response(template, c, context_instance = RequestContext(request) )
+    return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
 #    return HttpResponseRedirect("/gui/")
 
@@ -950,10 +951,10 @@ def login(request):
                 return HttpResponseRedirect("/gui/stanalyzer/")
                 #return HttpResponseRedirect("/gui/desktop/")
         conn.close();
-    c = {
+    outDic = {
 	    'errMsg'	    : Msg,
 	}
-    return render_to_response(template, c, context_instance = RequestContext(request) )
+    return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
 
     
@@ -965,11 +966,11 @@ def toyView_data(request):
     # check out authority 
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
 
     #request.session.set_expiry(SESSION_TIME_OUT);
@@ -1068,11 +1069,11 @@ def toyView_prj(request):
     # check out authority 
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     #request.session.set_expiry(SESSION_TIME_OUT);
     
@@ -1185,7 +1186,7 @@ def toyView_prj(request):
         #print "Number of Items in DB = {}".format(len(row));
     
 
-    c = {
+    outDic = {
             'parents'       : parents,
             'indent'	    : indent,
             'parent'	    : parent,
@@ -1203,20 +1204,20 @@ def toyView_prj(request):
     
     conn.close();
     if request.is_ajax() and (request.method == 'POST'):
-       return HttpResponse(json.dumps(c));
+       return HttpResponse(json.dumps(outDic));
     else:
         template = 'gui/toyDB_prj.html';
-        return render_to_response(template, c, context_instance = RequestContext(request));
+        return render_to_response(template, outDic, context_instance = RequestContext(request));
 
 def toyView_usr(request):
     # check out authority 
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     #request.session.set_expiry(SESSION_TIME_OUT);
     if request.is_ajax() and (request.method == 'POST'):
@@ -1310,7 +1311,7 @@ def toyView_usr(request):
         #print "Number of Items in DB = {}".format(len(row));
     
 
-    c = {
+    outDic = {
             'parents'       : parents,
             'indent'	    : indent,
             'parent'	    : parent,
@@ -1324,20 +1325,20 @@ def toyView_usr(request):
     
     conn.close();
     if request.is_ajax() and (request.method == 'POST'):
-       return HttpResponse(json.dumps(c));
+       return HttpResponse(json.dumps(outDic));
     else:
         template = 'gui/toyDB_usr.html';
-        return render_to_response(template, c, context_instance = RequestContext(request));
+        return render_to_response(template, outDic, context_instance = RequestContext(request));
 
 
 def prjView(request):
     # check out authority 
     if 'user_id' not in request.session:
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     #request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
@@ -1416,7 +1417,7 @@ def prjView(request):
             numRec.append(i);
         #print "Number of Items in DB = {}".format(len(row));
     
-    c = {
+    outDic = {
             'pkey'          : pkey,
             'parents'       : parents,
             'indent'	    : indent,
@@ -1435,20 +1436,20 @@ def prjView(request):
     
     conn.close();
     if request.is_ajax() and (request.method == 'POST'):
-       return HttpResponse(json.dumps(c));
+       return HttpResponse(json.dumps(outDic));
     else:
         template = 'gui/projectView.html';
-        return render_to_response(template, c, context_instance = RequestContext(request));
+        return render_to_response(template, outDic, context_instance = RequestContext(request));
 
 def prjView_new(request):
     # check out authority 
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     #request.session.set_expiry(SESSION_TIME_OUT);
     if request.is_ajax() and (request.method == 'POST'):
@@ -1562,7 +1563,7 @@ def prjView_new(request):
         ex_pythons  = "";
             
         
-    c = {
+    outDic = {
             'title'	    : title,
             'pbs'	    : pbs,
             'rpaths'	    : rpaths,
@@ -1571,20 +1572,20 @@ def prjView_new(request):
         }
         
     if request.is_ajax() and (request.method == 'POST'):
-       return HttpResponse(json.dumps(c));
+       return HttpResponse(json.dumps(outDic));
     else:
         template = 'gui/projectView_new.html';
-        return render_to_response(template, c, context_instance = RequestContext(request));
+        return render_to_response(template, outDic, context_instance = RequestContext(request));
     
 def prjView_update(request):
     print "### prjView_update ###"
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     #request.session.set_expiry(SESSION_TIME_OUT);
     if request.is_ajax() and (request.method == 'POST'):
@@ -1659,7 +1660,7 @@ def prjView_update(request):
         ex_pythons  = "";
             
         
-    c = {
+    outDic = {
             'pkey'          : pkey,
             'title'	    : title,
             'pbs'	    : pbs,
@@ -1669,10 +1670,10 @@ def prjView_update(request):
         }
         
     if request.is_ajax() and (request.method == 'POST'):
-       return HttpResponse(json.dumps(c));
+       return HttpResponse(json.dumps(outDic));
     else:
         template = 'gui/projectView_new.html';
-        return render_to_response(template, c, context_instance = RequestContext(request));
+        return render_to_response(template, outDic, context_instance = RequestContext(request));
         
 
 def prjView_delete(request):
@@ -1680,11 +1681,11 @@ def prjView_delete(request):
     print "### prjView_delete ###"
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     #request.session.set_expiry(SESSION_TIME_OUT);        # session will be closed in 10 minutes
     if request.is_ajax() and (request.method == 'POST'):
@@ -1730,15 +1731,15 @@ def prjView_delete(request):
         pkey        = "";
             
         
-    c = {
+    outDic = {
             'pkey'          : pkey,
         }
         
     if request.is_ajax() and (request.method == 'POST'):
-       return HttpResponse(json.dumps(c));
+       return HttpResponse(json.dumps(outDic));
     else:
         template = 'gui/projectView_new.html';
-        return render_to_response(template, c, context_instance = RequestContext(request));
+        return render_to_response(template, outDic, context_instance = RequestContext(request));
         
     
 
@@ -1747,29 +1748,29 @@ def jobView(request):
     print "### jobView ###";
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
     
     #request.session.set_expiry(SESSION_TIME_OUT);
     template = 'gui/jobView.html';
-    c = {
+    outDic = {
         'cmd': 'init',
     }
-    return render_to_response(template, c, context_instance = RequestContext(request));
+    return render_to_response(template, outDic, context_instance = RequestContext(request));
 
 def jobView_jqGrid_para(request):
     # check out authority
     print "### jobView_jqGrid_para ###"
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
     
     #request.session.set_expiry(SESSION_TIME_OUT);
     job_id = request.GET.get('job_id');
@@ -1833,13 +1834,13 @@ def jobView_jqGrid_para(request):
     
     total_pages = tpages;
 
-    c = {
+    outDic = {
             'total'	: total_pages,
             'page'      : cpage,
             'records'   : row_cnt,
             'rows'      : rows,            
         }
-    return HttpResponse(json.dumps(c));
+    return HttpResponse(json.dumps(outDic));
 
     
 def jobView_jqGrid_job(request):
@@ -1847,11 +1848,11 @@ def jobView_jqGrid_job(request):
     print "jobView_jqGrid_job"
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
     
     #request.session.set_expiry(SESSION_TIME_OUT);
     prj_id = request.GET.get('prj_id');
@@ -1915,13 +1916,13 @@ def jobView_jqGrid_job(request):
     
     total_pages = tpages;
 
-    c = {
+    outDic = {
             'total'	: total_pages,
             'page'      : cpage,
             'records'   : row_cnt,
             'rows'      : rows,            
         }
-    return HttpResponse(json.dumps(c));
+    return HttpResponse(json.dumps(outDic));
 
     
 
@@ -1933,12 +1934,12 @@ def jobView_jqGrid_prj(request):
 
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
 	print "works this !!!!"
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
 	print template
-        return render_to_response(template, c, context_instance = RequestContext(request))
+        return render_to_response(template, outDic, context_instance = RequestContext(request))
 
     #request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
@@ -2001,13 +2002,13 @@ def jobView_jqGrid_prj(request):
     
     total_pages = tpages;
 
-    c = {
+    outDic = {
 	    'total'	: total_pages,
 	    'page'      : cpage,
 	    'records'   : row_cnt,
 	    'rows'      : rows,            
 	}
-    return HttpResponse(json.dumps(c));
+    return HttpResponse(json.dumps(outDic));
 
 def resultView_jqGrid_results(request):
     #print "OKAY i am In RESUT VIEW"
@@ -2015,11 +2016,11 @@ def resultView_jqGrid_results(request):
     print "### resultView_jqGrid_results ###"
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
     
     #request.session.set_expiry(SESSION_TIME_OUT);
     prj_id = request.GET.get('prj_id');
@@ -2112,13 +2113,13 @@ def resultView_jqGrid_results(request):
     
     total_pages = tpages;
 
-    c = {
+    outDic = {
             'total'	: total_pages,
             'page'      : cpage,
             'records'   : row_cnt,
             'rows'      : rows,            
         }
-    return HttpResponse(json.dumps(c));
+    return HttpResponse(json.dumps(outDic));
 
     
 
@@ -2127,11 +2128,11 @@ def resultView_jqGrid_del_results(request):
     print "### resultView_jqGrid_del_results ###"
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     #request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
@@ -2140,11 +2141,11 @@ def resultView_jqGrid_del_results(request):
         cmd   = request.POST.get('cmd');
     else:
         cmd = 'http';           # connection with URL
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
             }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request))
+        return render_to_response(template, outDic, context_instance = RequestContext(request))
     
     if cmd == 'del_user':
         #print "OKAY I am in del_user"
@@ -2171,10 +2172,10 @@ def resultView_jqGrid_del_results(request):
                 #print t_user
                 fUsers.append(t_user);
         conn.close();
-        c = {
+        outDic = {
             'fUsers'    : fUsers,
         }
-    return HttpResponse(json.dumps(c));
+    return HttpResponse(json.dumps(outDic));
 
     
 def userView(request):
@@ -2182,11 +2183,11 @@ def userView(request):
     print "### userView ###"
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     #request.session.set_expiry(SESSION_TIME_OUT);
     if request.is_ajax() and (request.method == 'POST'):
@@ -2237,7 +2238,7 @@ def userView(request):
         #print "Number of Items in DB = {}".format(len(row));
     
 
-    c = {
+    outDic = {
             'parents'       : parents,
             'indent'	    : indent,
             'parent'	    : parent,
@@ -2251,20 +2252,20 @@ def userView(request):
     
     conn.close();
     if request.is_ajax() and (request.method == 'POST'):
-       return HttpResponse(json.dumps(c));
+       return HttpResponse(json.dumps(outDic));
     else:
         template = 'gui/user.html';
-        return render_to_response(template, c, context_instance = RequestContext(request));
+        return render_to_response(template, outDic, context_instance = RequestContext(request));
 
 def usrView_jqGrid_create_user(request):
     print "### usrView_jqGrid_create_user ###"
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     #request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
@@ -2273,14 +2274,14 @@ def usrView_jqGrid_create_user(request):
         cmd   = request.POST.get('cmd');
     else:
         cmd = 'http';           # connection with URL
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
             }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request))
+        return render_to_response(template, outDic, context_instance = RequestContext(request))
     if cmd == 'get_level':
         level = getUsrLevel(dbName, user_id);
-        c = {
+        outDic = {
             'user' : user_id,
             'level': level,
         }
@@ -2299,7 +2300,7 @@ def usrView_jqGrid_create_user(request):
         c.execute(query);
         conn.commit();
         conn.close();
-        c = {
+        outDic = {
             'user'	: new_user,
             'pwd'	: hpwd,
             'email'	: new_email,
@@ -2322,14 +2323,14 @@ def usrView_jqGrid_create_user(request):
         c.execute(query);
         conn.commit();
         conn.close();
-        c = {
+        outDic = {
             'user'	: edit_user,
             'pwd'	: hpwd,
             'email'	: edit_email,
             'level'	: edit_level,
         }
         
-    return HttpResponse(json.dumps(c));
+    return HttpResponse(json.dumps(outDic));
 
 
 def usrView_jqGrid_del_user(request):
@@ -2337,11 +2338,11 @@ def usrView_jqGrid_del_user(request):
     print "### usrView_jqGrid_del_user ###"
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     #request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
@@ -2350,11 +2351,11 @@ def usrView_jqGrid_del_user(request):
         cmd   = request.POST.get('cmd');
     else:
         cmd = 'http';           # connection with URL
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
             }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request))
+        return render_to_response(template, outDic, context_instance = RequestContext(request))
     
     if cmd == 'del_user':
         #print "OKAY I am in del_user"
@@ -2381,10 +2382,10 @@ def usrView_jqGrid_del_user(request):
                 #print t_user
                 fUsers.append(t_user);
         conn.close();
-        c = {
+        outDic = {
             'fUsers'    : fUsers,
         }
-    return HttpResponse(json.dumps(c));
+    return HttpResponse(json.dumps(outDic));
 
 
 
@@ -2393,12 +2394,12 @@ def usrView_jqGrid_usr(request):
     print "### usrView_jqGrid_usr ###"
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
             }
         template = 'gui/login.html';
 	sstate = 'Session has been expired!';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
     else:
 	sstate = '';
 	
@@ -2464,14 +2465,14 @@ def usrView_jqGrid_usr(request):
     
     total_pages = tpages;
     #print rows
-    c = {
+    outDic = {
             'total'	: total_pages,
             'page'      : cpage,
             'records'   : row_cnt,
             'rows'      : rows,
 	    'sstate'	: sstate, 
         }
-    return HttpResponse(json.dumps(c));
+    return HttpResponse(json.dumps(outDic));
 
 def stanalyzer(request):
     print "### stanalyzer ###"
@@ -2482,12 +2483,12 @@ def stanalyzer(request):
     rdate = request.session.get_expiry_date();
     print "Date expired: {0}".format(rdate);
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-	c = {
+	outDic = {
 		    'errMsg'	    : 'Session has been expired!',
 		}
 	template = 'gui/login.html';
 	sstate = 'Session has been expired!';
-	return render_to_response(template, c, context_instance = RequestContext(request) )
+	return render_to_response(template, outDic, context_instance = RequestContext(request) )
     else:
 	sstate = '';
 	
@@ -2604,7 +2605,7 @@ def stanalyzer(request):
     pkey = [];
     user = [];
     title  = [];
-    ptitle= zip(pkey, title);
+    ptitle= zip(pkey, title); # merge two lists together
     
     path_inputs_id = [];
     path_inputs_proj_id = [];
@@ -2683,7 +2684,7 @@ def stanalyzer(request):
             fList = [];
         """ 
         ptitle = zip(pkey, title);
-    c = {
+    outDic = {
             'PROJECT_ROOT'          : PROJECT_ROOT,
             'dbName'                : dbName,
             'MEDIA_HOME'            : MEDIA_HOME,
@@ -2712,11 +2713,11 @@ def stanalyzer(request):
     conn.close();
 
     if request.is_ajax() and (request.method == 'POST'):
-        return HttpResponse(json.dumps(c));
+        return HttpResponse(json.dumps(outDic));
     else:
         #template = 'gui/stanalyzer.html';
         template = 'desktop/index.html';
-        return render_to_response(template, c, context_instance = RequestContext(request));
+        return render_to_response(template, outDic, context_instance = RequestContext(request));
 
 
 
@@ -2725,11 +2726,11 @@ def stanalyzer_info(request):
     # check out authority 
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     #request.session.set_expiry(SESSION_TIME_OUT); 
     fList = 'File not found!';
@@ -2754,7 +2755,7 @@ def stanalyzer_info(request):
 	    fList = sort_str_num(fList, 'asc');
 	    
 	    
-            c = {
+            outDic = {
                     'fList' : fList,
                 }
 
@@ -2766,6 +2767,7 @@ def stanalyzer_info(request):
             title   = request.POST.get('title');
             bpath   = request.POST.get('bpath');
             stfile  = request.POST.get('stfile');
+	    pdbfile  = request.POST.get('pdbfile');
             trjFile = request.POST.getlist('trjFile[]');
     
             # --- removing white spaces ---
@@ -2773,8 +2775,10 @@ def stanalyzer_info(request):
             title = title.strip(' \t\n\r');
             bpath = bpath.strip(' \t\n\r');
             stfile = stfile.strip(' \t\n\r');
+	    pdbfile = pdbfile.strip(' \t\n\r');
 
             psf = '{0}/{1}'.format(bpath, stfile);
+	    pdb = '{0}/{1}'.format(bpath, pdbfile);
             trj = '{0}/{1}'.format(bpath, trjFile[0]);
             
             #print psf
@@ -2804,10 +2808,11 @@ def stanalyzer_info(request):
             
 	    num_files = len(trjFile);
 	    
-            c = {
+            outDic = {
                 'bpath'	    : bpath,
                 'trjFile'   : trjFile,
                 'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
                 'num_frm'   : num_frm,
                 'num_atom'  : num_atom,
 		'num_ps'    : num_ps,
@@ -2821,15 +2826,18 @@ def stanalyzer_info(request):
         # Get segment information
         # ---------------------------------------------
         if (cmd == 'get_segment'):
+	    print "-> get_segment"
             segid      = request.POST.get('segID');
             bpath      = request.POST.get('bpath');
             stfile     = request.POST.get('stfile');
+	    pdbfile    = request.POST.get('pdbfile');
             trjFile    = request.POST.getlist('trjFile[]');
 
             # --- removing white spaces ---
-            segid  = segid.strip(' \t\n\r');
-            bpath  = bpath.strip(' \t\n\r');
-            stfile = stfile.strip(' \t\n\r');
+            segid   = segid.strip(' \t\n\r');
+            bpath   = bpath.strip(' \t\n\r');
+            stfile  = stfile.strip(' \t\n\r');
+            pdbfile = pdbfile.strip(' \t\n\r');
             
             # ---- checkout path: make sure end with '/'
             bpath = eval_path(bpath);
@@ -2840,6 +2848,7 @@ def stanalyzer_info(request):
             #print trjFile[0]
             
             psf = '{0}/{1}'.format(bpath, stfile);
+	    pdb = '{0}/{1}'.format(bpath, pdbfile);
             trj = '{0}/{1}'.format(bpath, trjFile[0]);
             #print psf
             #print trj
@@ -2860,12 +2869,12 @@ def stanalyzer_info(request):
             #print '---resID---'
             #print resID
             
-            c = {
+            outDic = {
                 'resList' : resList,
                 'resID'   : resID,
             }
 
-        return HttpResponse(json.dumps(c));
+        return HttpResponse(json.dumps(outDic));
     else:
         return HttpResponseRedirect("/gui/")
 
@@ -2879,11 +2888,11 @@ def stanalyzer_sendJob(request):
     # check out authority 
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     #request.session.set_expiry(SESSION_TIME_OUT);
     data = request.POST;
@@ -2904,6 +2913,7 @@ def stanalyzer_sendJob(request):
             ParaInfo    = request.POST.getlist('ParaInfo[]');
             bpath       = request.POST.get('bpath');
             stfile      = request.POST.get('stfile');
+	    pdbfile      = request.POST.get('pdbfile');
             path_output = request.POST.get('path_output');
             path_python = request.POST.get('path_python');
             trjFile     = request.POST.getlist('trjFile[]');
@@ -2919,6 +2929,7 @@ def stanalyzer_sendJob(request):
             # --- removing white spaces ---
             bpath  = bpath.strip(' \t\n\r');
             stfile = stfile.strip(' \t\n\r');
+	    pdbfile = pdbfile.strip(' \t\n\r');
             path_output = path_output.strip(' \t\n\r');
             path_python = path_python.strip(' \t\n\r');
             
@@ -3119,6 +3130,7 @@ def stanalyzer_sendJob(request):
                 'path_output'       : path_output,
                 'path_python'       : path_python,
                 'structure_file'    : stfile,
+		'pdb_file'	    : pdbfile,
                 'trajectory'        : trjFile,
                 'Paras'             : Paras,
                 'funcName'          : func_name,
@@ -3190,11 +3202,11 @@ def showImage(request):
     # check out authority 
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     #request.session.set_expiry(SESSION_TIME_OUT);
     data = request.POST;
@@ -3203,7 +3215,7 @@ def showImage(request):
 	abs_path = request.POST.get('abs_path');
 	print abs_path;
 	rel_path = '/static/../../../../tmp/box/box0.png';
-	cdic = {
+	cdioutDic = {
 	    'abs_path': abs_path,
 	    'rel_path': rel_path,
 	}
@@ -3216,11 +3228,11 @@ def download_path(request, path):
     # check out authority 
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     #request.session.set_expiry(SESSION_TIME_OUT);
     
@@ -3241,11 +3253,11 @@ def makeDownload(request):
     print "### makeDownload ###"
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
     
     #request.session.set_expiry(SESSION_TIME_OUT);
     output_id 	= request.GET.get('id');
@@ -3273,11 +3285,11 @@ def mediaLink(request, file_name):
     print "### mediaLink ###"
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
         }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     #print "=== I am in mediaLink ==="
     path = '/{}'.format(file_name);
@@ -3295,28 +3307,28 @@ def wysFileManager(request):
     print "### wysFileManager ###"
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
         }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     #print request
     c ={
             'output'        : 'okay updated!'
 	}
-    return HttpResponse(json.dumps(c));
+    return HttpResponse(json.dumps(outDic));
 
 def resultView_DBmanager(request):
     print "### resultView_DBmanager ###";
     # check out authority 
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     #request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
@@ -3325,11 +3337,11 @@ def resultView_DBmanager(request):
         cmd   = request.POST.get('cmd');
     else:
         cmd = 'http';           # connection with URL
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
             }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request))
+        return render_to_response(template, outDic, context_instance = RequestContext(request))
     
     if cmd == 'delete':
         print "OKAY I am in delete DB manager (Result View)"
@@ -3403,10 +3415,10 @@ def resultView_DBmanager(request):
 		conn.commit();
 	    conn.close();
 
-        c = {
+        outDic = {
             'fUsers'    : IDs,
         }
-    return HttpResponse(json.dumps(c));
+    return HttpResponse(json.dumps(outDic));
 
 
 
@@ -3415,11 +3427,11 @@ def dummy_test(request):
     # check out authority 
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     #request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
@@ -3428,11 +3440,11 @@ def dummy_test(request):
         cmd   = request.POST.get('cmd');
     else:
         cmd = 'http';           # connection with URL
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
             }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request))
+        return render_to_response(template, outDic, context_instance = RequestContext(request))
     
     if cmd == 'array_test':
         print "[DUMMY TEST] >> [array_test]"
@@ -3444,11 +3456,11 @@ def dummy_test(request):
 	for s in segID:
 	    print s;
 	    
-        c = {
+        outDic = {
             'segID'     : segID,
 	    'outFile'	: outFile,
         }
-    return HttpResponse(json.dumps(c));
+    return HttpResponse(json.dumps(outDic));
 
 
 def fileSort(request):
@@ -3456,11 +3468,11 @@ def fileSort(request):
     # check out authority 
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     #request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
@@ -3469,11 +3481,11 @@ def fileSort(request):
         cmd   = request.POST.get('cmd');
     else:
         cmd = 'http';           # connection with URL
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
             }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request))
+        return render_to_response(template, outDic, context_instance = RequestContext(request))
     
     if cmd == 'sort_file':
 	fList1 = request.POST.getlist('fList1[]');
@@ -3483,7 +3495,7 @@ def fileSort(request):
 	fList1 = sort_str_num(fList1, 'asc');
 	fList2 = sort_str_num(fList2, 'asc');
 
-        c = {
+        outDic = {
             'fList1'     : fList1,
 	    'fList2'     : fList2,
         }
@@ -3535,13 +3547,13 @@ def fileSort(request):
 	    else:
 		sList.append(fList[i]);
 	
-	c = {
+	outDic = {
 	    'sList' 	: sList,
 	    'rList'	: rList,
 	    'msg'	: msg,
 	}
 	
-    return HttpResponse(json.dumps(c));
+    return HttpResponse(json.dumps(outDic));
 
 
 
@@ -3549,11 +3561,11 @@ def viewTable(request, table_name):
     print "### viewTable ###"
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
                 }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
 
     #request.session.set_expiry(SESSION_TIME_OUT);
     user_id = request.session['user_id'];
@@ -3618,27 +3630,170 @@ def viewTable(request, table_name):
     
     total_pages = tpages;
 
-    c = {
+    outDic = {
             'total'	: total_pages,
             'page'      : cpage,
             'records'   : row_cnt,
             'rows'      : rows,            
         }
-    return HttpResponse(json.dumps(c));
+    return HttpResponse(json.dumps(outDic));
     
 def showTables(request):
     print "### showTables ###";
     # check out authority 
     rsec = request.session.get_expiry_age();
     if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
-        c = {
+        outDic = {
                     'errMsg'	    : 'Session has been expired!',
         }
         template = 'gui/login.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
     else:
-	c = {
+	outDic = {
 	    'msg' : 'show me table!',
 	}
         template = 'gui/tableView.html';
-        return render_to_response(template, c, context_instance = RequestContext(request) )
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
+
+
+
+def verifyQuery(request):
+    """
+    #Testing queries
+    # segid PROA and name H* and (prop z >= 5)
+    #
+    """
+    print "### verifyQuery ###";
+    # check out authority
+    """
+    rsec = request.session.get_expiry_age();
+    if ('user_id' not in request.session) or (SESSION_TIME_OUT < rsec) or (rsec <= 0):
+        outDic = {
+                    'errMsg'	    : 'Session has been expired!',
+                }
+        template = 'gui/login.html';
+        return render_to_response(template, outDic, context_instance = RequestContext(request) )
+
+    #request.session.set_expiry(SESSION_TIME_OUT);
+    user_id = request.session['user_id'];
+    """
+    if request.is_ajax() and (request.method == 'POST'):
+        cmd   = request.POST.get('cmd');
+    else:
+        cmd = 'http';           # connection with URL
+        outDic = {
+                    'errMsg'	    : 'Session has been expired!',
+            }
+        template = 'gui/login.html';
+        return render_to_response(template, outDic, context_instance = RequestContext(request))
+    
+    # Using periodic boundary condition
+    core.flags['use_periodic_selections'] = True
+    core.flags['use_KDTree_routines'] = False
+
+    if cmd == 'verify':
+	print "Verify!!!"
+	query 	    = request.POST.get('query');
+	pdbfile     = request.POST.get('pdbfile');
+	bpath       = request.POST.get('bpath');
+	stfile      = request.POST.get('stfile');
+	pdbfile     = request.POST.get('pdbfile');
+	#trjFile    = request.POST.getlist('trjFile[]');
+	
+	bpath = bpath.strip(' \t\n\r');
+	stfile = stfile.strip(' \t\n\r');
+	pdbfile = pdbfile.strip(' \t\n\r');
+
+	stfile = "{0}/{1}".format(bpath, stfile);
+	pdbfile = "{0}/{1}".format(bpath, pdbfile);
+	
+	print query
+	print stfile
+	print pdbfile
+	#print trjFile
+	
+	# verifying query
+	print "reading psf file..."
+	u = Universe(stfile, pdbfile);
+	print "Structure is loaded"
+	
+	print "selecting atoms..."
+	selAtoms = u.selectAtoms(query);
+	print "DONE!" 
+	
+	# residue information
+	num_residue = selAtoms.numberOfResidues();
+	res_names   = selAtoms.resnames();
+	uq_res      = list(set(res_names));
+	res_index   = selAtoms.resids();
+	
+	num_atoms   = selAtoms.numberOfAtoms();
+	names       = selAtoms.names();
+	uq_names    = list(set(names));
+	
+	# coordinate information
+	CRDs = selAtoms.coordinates();
+	
+	# type information
+	selInfo = "\n# Total Number of selected residues: {}\n".format(num_residue);
+	selInfo = "{0}# Selected unique residues: \n".format(selInfo);
+	tmp = "";
+	tmp_cnt = 0;
+	for res in uq_res:
+	    tmp_cnt = tmp_cnt + 1;
+	    if (tmp_cnt % 5 == 0):
+		tmp = "{0}{1}\n".format(tmp, res);
+	    else:
+		tmp = "{0}{1}\t".format(tmp, res);
+	selInfo = "{0}{1}\n".format(selInfo, tmp);
+	selInfo = "{0}\n# Total Number of selected atoms: {1}\n".format(selInfo, num_atoms);
+	selInfo = "{0}# Selected unique atoms: \n".format(selInfo);
+	tmp = "";
+	tmp_cnt = 0;
+	for atom in uq_names:
+	    tmp_cnt = tmp_cnt + 1;
+	    if (tmp_cnt % 5 == 0):
+		tmp = "{0}{1}\n".format(tmp, atom);
+	    else:
+		tmp = "{0}{1}\t".format(tmp, atom);
+	selInfo = "{0}{1}\n".format(selInfo, tmp);
+	print selInfo
+	print uq_names;
+	
+	selInfo = "{0}\n#SEG_ID\tRES_ID\tRES_NAME\tNAME\tTYPE\tX-axis\tY-axis\tZ-axis\n".format(selInfo);
+	types = [];
+	cnt = 0;
+	for t in selAtoms:
+	    segid = t.segid;
+	    resid = t.resid;
+	    resname = t.resname;
+	    name = t.name;
+	    x = CRDs[cnt][0];
+	    y = CRDs[cnt][1];
+	    z = CRDs[cnt][2];
+	    typ = t.type;
+	    types.append(typ);
+	    selInfo = "{0}{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\r\n".format(selInfo, segid, resid, resname, name, typ, x, y, z);
+	uq_types = list(set(types));
+	tmp = "# Selected unique types: \n";
+	tmp_cnt = 0;
+	for tps in uq_types:
+	    tmp_cnt = tmp_cnt + 1;
+	    if (tmp_cnt % 5 == 0):
+		tmp = "{0}\n".format(tmp);
+	    else:
+		tmp = "{0}{1}\t".format(tmp, tps);
+	selInfo = "#Total Number of selected types:{0}\n{1}{2}".format(len(types), tmp, selInfo);
+	
+	
+	outDic = {
+		'selInfo'	: selInfo,
+		'num_residue'	: num_residue,
+		'res_names'	: res_names,
+		'resid'		: res_index,
+		'num_atoms'	: num_atoms,
+		'names'		: names,
+		'uq_names'	: uq_names,
+	    }
+	return HttpResponse(json.dumps(outDic));
+	
