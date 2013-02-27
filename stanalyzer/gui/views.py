@@ -2984,7 +2984,9 @@ def stanalyzer_sendJob(request):
                 OUTPUT_HOME = eval_path(SESSION_HOME);
             else:
                 OUTPUT_HOME = path_output;
-                
+            
+	    #print OUTPUT_HOME
+	    
             PBS_HOME = "{}pbs".format(OUTPUT_HOME);
             if not (os.path.isdir(PBS_HOME)):
                 #print "creating PBS_HOME: {}".format(PBS_HOME);

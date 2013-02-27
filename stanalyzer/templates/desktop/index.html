@@ -234,13 +234,13 @@ function eval_step2() {
 	
 	/* frame interval */
 	var frmInt = [];
-	$j("#box_form input[name='box_frmInt']").each(function() {
+	$j("#systemInfo #box_form input[name='box_frmInt']").each(function() {
 	    frmInt.push($(this).val());
 	});
 	
 	/* name of output files */
 	var outFile = [];
-	$j("#box_form input[name='box_outFile']").each(function() {
+	$j("#systemInfo #box_form input[name='box_outFile']").each(function() {
 	    outFile.push($(this).val());
 	});
 
@@ -274,38 +274,38 @@ function eval_step2() {
 	
 	/* frame interval */
 	var frmInt = [];
-	$j("#helix_tilt_form input[name='helix_tilt_frmInt']").each(function() {
+	$j("#protein #helix_tilt_form input[name='helix_tilt_frmInt']").each(function() {
 	    frmInt.push($(this).val());
 	});
 	
 	/* name of output files */
 	var outFile = [];
-	$j("#helix_tilt_form input[name='helix_tilt_outFile']").each(function() {
+	$j("#protein #helix_tilt_form input[name='helix_tilt_outFile']").each(function() {
 	    outFile.push($(this).val());
 	});
 
 
 	// Check out the associated forms
 	segID = [];
-	$j("#helix_tilt_form select[name='segID'] option:selected").each(function() {
+	$j("#protein #helix_tilt_form select[name='segID'] option:selected").each(function() {
 	    segID.push($(this).val());
 	});
 	//segID 	= $j("#helix_tilt_form select[name='segID'] option:selected").val();
 	
 	segName = [];
-	$j("#helix_tilt_form select[name='segID'] option:selected").each(function() {
+	$j("#protein #helix_tilt_form select[name='segID'] option:selected").each(function() {
 	    segName.push($(this).text());
 	});
 	//segName = $j("#helix_tilt_form select[name='segID'] option:selected").text();
 	
 	stRes = [];
-	$j("#helix_tilt_form select[name='stRes'] option:selected").each(function() {
+	$j("#protein #helix_tilt_form select[name='stRes'] option:selected").each(function() {
 	    stRes.push($(this).val());
 	});
 	//stRes = $j("#helix_tilt_form select[name='stRes'] option:selected").val();
 
 	edRes = [];
-	$j("#helix_tilt_form select[name='edRes'] option:selected").each(function() {
+	$j("#protein #helix_tilt_form select[name='edRes'] option:selected").each(function() {
 	    edRes.push($(this).val());
 	});
 	//edRes	= $j("#helix_tilt_form select[name='edRes'] option:selected").val();
