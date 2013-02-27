@@ -91,8 +91,19 @@ function addThumbImage(cellvalue, options, rowObject) {
 }
 
 function addZip(cellvalue, options, rowObject) {
+    if (cellvalue == 'N/A') {
+	zipImg = "/static/images/circle2.gif"
+	html = "<img src='" + zipImg + "' alt='" + zipImg + "' title='" + zipImg + "' width=30 />";
+    } else {
+	zipImg = "/static/images/zipped_files.png"
+	html = "<a href='/gui/download_path/" + cellvalue + "'><img src='" + zipImg + "' alt='" + zipImg + "' title='" + zipImg + "' width=30 /></a>";
+    }
+    return html;
+
+/*    
     zipImg = "/static/images/zipped_files.png"
     return "<a href='/gui/download_path/" + cellvalue + "'><img src='" + zipImg + "' alt='" + zipImg + "' title='" + zipImg + "' width=30 /></a>";
+*/
 }
     
 
