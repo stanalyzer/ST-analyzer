@@ -319,6 +319,72 @@ function eval_step2() {
 	//alert("PARAS:" + PARs[1]['num_para']);
     }
 
+    /*
+     *################################################
+     * MEMBRANE
+     *################################################
+    */
+    
+    /* calculating the tilt of helix */
+    var chk = $j('#membrane #density_title').prop('checked');
+    if (chk == true) {
+	// check out return values
+	
+	/* frame interval */
+	var frmInt = [];
+	$j("#membrane #density_form input[name='density_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	var outFile = [];
+	$j("#membrane #density_form input[name='density_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
+
+
+	// Check out the associated forms
+	axis = [];
+	$j("#membrane #density_form select[name='density_Axis'] option:selected").each(function() {
+	    axis.push($(this).val());
+	});
+	
+	dnstMin = [];
+	$j("#membrane #density_form input[name='density_hist_min']").each(function() {
+	    dnstMin.push($(this).val());
+	});
+
+	dnstMax = [];
+	$j("#membrane #density_form input[name='density_hist_max']").each(function() {
+	    dnstMax.push($(this).val());
+	});
+	
+	dnstBin = [];
+	$j("#membrane #density_form input[name='density_hist_bin']").each(function() {
+	    dnstBin.push($(this).val());
+	});
+
+	dnstQuery = [];
+	$j("#membrane #density_form textarea[name='density_query']").each(function() {
+	    dnstQuery.push($(this).val());
+	});
+	
+	numAtoms = [];
+	$j("#membrane #density_form input[name='density_hist_tatoms']").each(function() {
+	    numAtoms.push($(this).val());
+	});
+	
+	
+	
+	JOBs.push('density');
+	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
+	PARs.push(para);
+	PARinfo.push(para_info);
+	//alert("PARAS:" + PARs[1]['num_para']);
+    }
+    
+    
     return [JOBs, PARs, PARinfo];
 }
 
@@ -520,7 +586,7 @@ $j(document).ready(function(){
     
     /* Initializing tabs */
     $j("#tabs").tabs();
-    //$j( "#tabs" ).tabs( "option", "disabled", [1] );
+    $j( "#tabs" ).tabs( "option", "disabled", [1] );
 
     /* Filtering trajectory files */
     $j('#job_title').val('analyzing trajectory').css("color", "gray");
@@ -1729,7 +1795,13 @@ $j(document).ready(function(){
 	    
 	    var msgWait = "<img src='/static/images/circle2.gif' height='50' width='50' >Reading trajectory information...";
 	    $j("#trj_load_error").empty().append(msgWait);
-		
+	    
+	    /* #############################################
+	     * READING PDB file
+	     * #############################################
+	     */
+	    mySystem = getStructureInfo('all', true); // defined in membrane.html
+	    
 	    var options = $j("#prj option");
 	    var idx = options.index(options.filter(":selected"));
 	    pkey = idx + 1;

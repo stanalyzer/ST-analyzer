@@ -1,0 +1,227 @@
+Name of Function: density.py
+System information 
+	- First trajectory contains 50 frames (5.0 ps/frame)
+	- There are 200 trajectory file(s) and 32727 atoms
+Total 11 parameters 
+	- Base path: /home2/jcjeong/project/charmm/dol_dopc_1/
+	- Structure file: step5_assembly.xplor_ext.psf
+	- Trajectory files: 
+		step7_0.dcd
+		step7_1.dcd
+		step7_2.dcd
+		step7_3.dcd
+		step7_4.dcd
+		step7_5.dcd
+		step7_6.dcd
+		step7_7.dcd
+		step7_8.dcd
+		step7_9.dcd
+		step7_10.dcd
+		step7_11.dcd
+		step7_12.dcd
+		step7_13.dcd
+		step7_14.dcd
+		step7_15.dcd
+		step7_16.dcd
+		step7_17.dcd
+		step7_18.dcd
+		step7_19.dcd
+		step7_20.dcd
+		step7_21.dcd
+		step7_22.dcd
+		step7_23.dcd
+		step7_24.dcd
+		step7_25.dcd
+		step7_26.dcd
+		step7_27.dcd
+		step7_28.dcd
+		step7_29.dcd
+		step7_30.dcd
+		step7_31.dcd
+		step7_32.dcd
+		step7_33.dcd
+		step7_34.dcd
+		step7_35.dcd
+		step7_36.dcd
+		step7_37.dcd
+		step7_38.dcd
+		step7_39.dcd
+		step7_40.dcd
+		step7_41.dcd
+		step7_42.dcd
+		step7_43.dcd
+		step7_44.dcd
+		step7_45.dcd
+		step7_46.dcd
+		step7_47.dcd
+		step7_48.dcd
+		step7_49.dcd
+		step7_50.dcd
+		step7_51.dcd
+		step7_52.dcd
+		step7_53.dcd
+		step7_54.dcd
+		step7_55.dcd
+		step7_56.dcd
+		step7_57.dcd
+		step7_58.dcd
+		step7_59.dcd
+		step7_60.dcd
+		step7_61.dcd
+		step7_62.dcd
+		step7_63.dcd
+		step7_64.dcd
+		step7_65.dcd
+		step7_66.dcd
+		step7_67.dcd
+		step7_68.dcd
+		step7_69.dcd
+		step7_70.dcd
+		step7_71.dcd
+		step7_72.dcd
+		step7_73.dcd
+		step7_74.dcd
+		step7_75.dcd
+		step7_76.dcd
+		step7_77.dcd
+		step7_78.dcd
+		step7_79.dcd
+		step7_80.dcd
+		step7_81.dcd
+		step7_82.dcd
+		step7_83.dcd
+		step7_84.dcd
+		step7_85.dcd
+		step7_86.dcd
+		step7_87.dcd
+		step7_88.dcd
+		step7_89.dcd
+		step7_90.dcd
+		step7_91.dcd
+		step7_92.dcd
+		step7_93.dcd
+		step7_94.dcd
+		step7_95.dcd
+		step7_96.dcd
+		step7_97.dcd
+		step7_98.dcd
+		step7_99.dcd
+		step7_100.dcd
+		step7_101.dcd
+		step7_102.dcd
+		step7_103.dcd
+		step7_104.dcd
+		step7_105.dcd
+		step7_106.dcd
+		step7_107.dcd
+		step7_108.dcd
+		step7_109.dcd
+		step7_110.dcd
+		step7_111.dcd
+		step7_112.dcd
+		step7_113.dcd
+		step7_114.dcd
+		step7_115.dcd
+		step7_116.dcd
+		step7_117.dcd
+		step7_118.dcd
+		step7_119.dcd
+		step7_120.dcd
+		step7_121.dcd
+		step7_122.dcd
+		step7_123.dcd
+		step7_124.dcd
+		step7_125.dcd
+		step7_126.dcd
+		step7_127.dcd
+		step7_128.dcd
+		step7_129.dcd
+		step7_130.dcd
+		step7_131.dcd
+		step7_132.dcd
+		step7_133.dcd
+		step7_134.dcd
+		step7_135.dcd
+		step7_136.dcd
+		step7_137.dcd
+		step7_138.dcd
+		step7_139.dcd
+		step7_140.dcd
+		step7_141.dcd
+		step7_142.dcd
+		step7_143.dcd
+		step7_144.dcd
+		step7_145.dcd
+		step7_146.dcd
+		step7_147.dcd
+		step7_148.dcd
+		step7_149.dcd
+		step7_150.dcd
+		step7_151.dcd
+		step7_152.dcd
+		step7_153.dcd
+		step7_154.dcd
+		step7_155.dcd
+		step7_156.dcd
+		step7_157.dcd
+		step7_158.dcd
+		step7_159.dcd
+		step7_160.dcd
+		step7_161.dcd
+		step7_162.dcd
+		step7_163.dcd
+		step7_164.dcd
+		step7_165.dcd
+		step7_166.dcd
+		step7_167.dcd
+		step7_168.dcd
+		step7_169.dcd
+		step7_170.dcd
+		step7_171.dcd
+		step7_172.dcd
+		step7_173.dcd
+		step7_174.dcd
+		step7_175.dcd
+		step7_176.dcd
+		step7_177.dcd
+		step7_178.dcd
+		step7_179.dcd
+		step7_180.dcd
+		step7_181.dcd
+		step7_182.dcd
+		step7_183.dcd
+		step7_184.dcd
+		step7_185.dcd
+		step7_186.dcd
+		step7_187.dcd
+		step7_188.dcd
+		step7_189.dcd
+		step7_190.dcd
+		step7_191.dcd
+		step7_192.dcd
+		step7_193.dcd
+		step7_194.dcd
+		step7_195.dcd
+		step7_196.dcd
+		step7_197.dcd
+		step7_198.dcd
+		step7_199.dcd
+	- Job specific parameters: 
+		Number of Parameters:8
+		Frame interval:1
+		Output name:output.dat
+		Axis:ALL
+		Minimum value in the given axis:-61
+		Maximum value in the given axis:61
+		Bin size:1
+		Query:segid TIP3 and name OH2 
+		Total number of atoms:32727
+
+PBS: 
+#!/bin/bash
+#PBS -l nodes=1:ppn=1
+#PBS -l mem=500mb
+#PBS -l walltime=72:00:00
+#PBS -l cput=72:00:00
+#PBS -q charmm_nmr
+

@@ -2913,7 +2913,7 @@ def stanalyzer_sendJob(request):
             ParaInfo    = request.POST.getlist('ParaInfo[]');
             bpath       = request.POST.get('bpath');
             stfile      = request.POST.get('stfile');
-	    pdbfile      = request.POST.get('pdbfile');
+	    pdbfile     = request.POST.get('pdbfile');
             path_output = request.POST.get('path_output');
             path_python = request.POST.get('path_python');
             trjFile     = request.POST.getlist('trjFile[]');
@@ -3693,8 +3693,8 @@ def verifyQuery(request):
     core.flags['use_periodic_selections'] = True
     core.flags['use_KDTree_routines'] = False
 
-    if cmd == 'verify':
-	print "Verify!!!"
+    if cmd == 'getStructure':
+	print "getStructure!!!"
 	query 	    = request.POST.get('query');
 	pdbfile     = request.POST.get('pdbfile');
 	bpath       = request.POST.get('bpath');
@@ -3709,36 +3709,128 @@ def verifyQuery(request):
 	stfile = "{0}/{1}".format(bpath, stfile);
 	pdbfile = "{0}/{1}".format(bpath, pdbfile);
 	
-	print query
-	print stfile
-	print pdbfile
+	#print query
+	#print stfile
+	#print pdbfile
 	#print trjFile
 	
 	# verifying query
-	print "reading psf file..."
+	#print "reading pdb file..."
 	u = Universe(stfile, pdbfile);
-	print "Structure is loaded"
+	#print "Structure is loaded"
 	
-	print "selecting atoms..."
+	#print "selecting atoms..."
 	selAtoms = u.selectAtoms(query);
-	print "DONE!" 
+	#print "DONE!" 
 	
 	# residue information
 	num_residue = selAtoms.numberOfResidues();
 	res_names   = selAtoms.resnames();
-	uq_res      = list(set(res_names));
+	uq_resname  = list(set(res_names));
+	#print "uq_resname is Okay!"
+	
 	res_index   = selAtoms.resids();
+	uq_resid    = list(set(res_index));
+	#print "uq_resid is Okay!"
 	
 	num_atoms   = selAtoms.numberOfAtoms();
 	names       = selAtoms.names();
+	uq_name     = list(set(names));
+	#print "uq_name is Okay!"
+	
+	segids	    = selAtoms.segids();
+	uq_segid    = list(set(segids));
+	#print "uq_segid is Okay!"
+	
+	# extracting types
+	types = [];
+	for t in selAtoms:
+	    types.append(t.type);
+	uq_type = list(set(types));
+	#print "uq_type is Okay!"
+	
+	# extracting coordinates
+	CRDs = selAtoms.coordinates();
+	#crd_min = '{}'.format(round(float(CRDs.min())));
+	crd_min = round(float(CRDs.min()));
+	#crd_max = '{}'.format(round(float(CRDs.max())));
+	crd_max = round(float(CRDs.max()));
+	
+	outDic = {
+		'uq_resname'	: uq_resname,
+		'uq_resid'	: uq_resid,
+		'uq_name'	: uq_name,
+		'uq_segid'	: uq_segid,
+		'uq_type'	: uq_type,
+		'crd_min'	: crd_min,
+		'crd_max'	: crd_max,
+		'num_atoms'	: num_atoms,
+	    }
+	#print outDic
+	return HttpResponse(json.dumps(outDic));
+
+    if cmd == 'verify':
+	print "Verify!!!"
+	query 	    = request.POST.get('query');
+	pdbfile     = request.POST.get('pdbfile');
+	bpath       = request.POST.get('bpath');
+	stfile      = request.POST.get('stfile');
+	pdbfile     = request.POST.get('pdbfile');
+	#trjFile    = request.POST.getlist('trjFile[]');
+	
+	query = query.strip(' \t\n\r');
+	bpath = bpath.strip(' \t\n\r');
+	stfile = stfile.strip(' \t\n\r');
+	pdbfile = pdbfile.strip(' \t\n\r');
+
+	stfile = "{0}/{1}".format(bpath, stfile);
+	pdbfile = "{0}/{1}".format(bpath, pdbfile);
+	
+	#print query
+	#print stfile
+	#print pdbfile
+	#print trjFile
+	
+	# verifying query
+	#print "reading psf and pdb file..."
+	u = Universe(stfile, pdbfile);
+	#print "Structure is loaded"
+	
+	#print "selecting atoms..."
+	selAtoms = u.selectAtoms(query);
+	#print "DONE!" 
+	
+	# residue information
+	num_residue = selAtoms.numberOfResidues();
+	#print "num_residue...{}".format(num_residue);
+	
+	res_names   = selAtoms.resnames();
+	#print "res_names...{}".format(res_names);
+	
+	uq_res      = list(set(res_names));
+	#print "uq_res...{}".format(uq_res);
+	
+	res_index   = selAtoms.resids();
+	#print "res_index...{}".format(res_index)
+	
+	num_atoms   = selAtoms.numberOfAtoms();
+	#print "num_atoms..{}".format(num_atoms);
+	
+	names       = selAtoms.names();
+	#print "names...{}".format(names);
+	
 	uq_names    = list(set(names));
+	#print "uq_names..{}".format(uq_names);
 	
 	# coordinate information
 	CRDs = selAtoms.coordinates();
+	#print "CRDs..{}".format(CRDs);
 	
 	# type information
 	selInfo = "\n# Total Number of selected residues: {}\n".format(num_residue);
 	selInfo = "{0}# Selected unique residues: \n".format(selInfo);
+	#print selInfo
+	
 	tmp = "";
 	tmp_cnt = 0;
 	for res in uq_res:
@@ -3759,8 +3851,8 @@ def verifyQuery(request):
 	    else:
 		tmp = "{0}{1}\t".format(tmp, atom);
 	selInfo = "{0}{1}\n".format(selInfo, tmp);
-	print selInfo
-	print uq_names;
+	#print selInfo
+	#print uq_names;
 	
 	selInfo = "{0}\n#SEG_ID\tRES_ID\tRES_NAME\tNAME\tTYPE\tX-axis\tY-axis\tZ-axis\n".format(selInfo);
 	types = [];

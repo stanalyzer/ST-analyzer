@@ -55,6 +55,10 @@
     background-color: #407A58;
 }
 
+/* indent */
+.idL15 {
+    margin: 0px 0px 0px 15px;
+}
 
 /* DIV */
 #user_err_msg {
@@ -65,6 +69,11 @@
   width: 200px;
   height: 100px;
   z-index: 2;
+}
+
+#quick_help {
+    color: #817679;
+    width: 250px;
 }
 
 /* table */
@@ -137,6 +146,12 @@ a.underline2:hover, a.underline2:active
 .module_txtbox_output {
     width: 100px;
     font-size: 10px;
+}
+
+.module_txtbox_digit {
+    width: 100px;
+    font-size: 10px;
+    text-align: right;
 }
 
 

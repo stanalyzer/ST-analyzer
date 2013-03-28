@@ -1,0 +1,101 @@
+### Tips ###
+1) All input variables in Step1 is read when "NEXT" button is clicked which can be found in "$j('.next-tab').click(function()" in /templates/desktop/index.html
+2) All input variables in Step2 is read whin "SUBMIT" button is clicked which can be found in "$j('#sendJob').click(function()" in /templates/desktop/index.html
+
+# Adding new module
+
+1. Making GUI interface
+    (1) Open /stanalyzer/templates/gui/stanalyzer.html
+    (2) Put GUI in one of categories. Let's say we are creating something in 'MEMBRANE' category in Step 2
+
+        1) Open '/stanalyzer/templates/gui/membrane.html' and Create HTML code to make GUI interface
+            - Simple module templete is located in 'stanalyzer/templates/gui/module_template.html'
+            **** Below is very important ****
+            Your first 'div ID' should be same as the name of background module
+            which is different from GUI and will be located in 'stanalyzer/static/analyzers/your_module_name.py'
+            <Example>
+                #### Name of module category ####
+            ==>  <div id="membrane"> 
+                    <table>
+                        <tr>
+                            <td colspan="2"><input type="checkbox" id="chk_membrane"><span class="st_font1 st_size3 st_color6"><b>Membrane(<span id="cnt_membrane" class="st_font1 st_size3 st_color5">0</span>)</b></span></td>
+                        </tr>
+                        <!--- Density --->
+                        <tr><td colspan="2">
+                            <table id="M_membrane">
+                                <tr>
+                                    <td class="w_module"> </td>
+                                    <td>
+                                    
+                                        #### This should be same as the name of background module (i.e. 'stanalyzer/static/analyzers/density.py') ####
+            ===>                        <div id="density"> 
+                                            <table>
+                                                <tr>
+                                                    <td colspan="2" class="st_color7 left">
+                                                        <input type="checkbox" id="density_title">Density <span id="density_read_pdb" class="message_warn"></span><br/><hr/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="w_module"></td>
+                                                    <td>
+                                                        <div id="density_form">
+        2) Once GUI is done, open 'stanalyzer/templates/desktop/index.html' and edit corresponding category in function eval_step2()
+            - We are working on MEMBRANE category, so find corresponding category. You can find following category definition in 'comments'
+                /*
+                *################################################
+                * MEMBRANE
+                *################################################
+               */
+            - What you need to do is simply fill out following variables
+                a. JOBs : Name of functional module or used name of 'ID' in step 1) above. In this case 'density' will be the name of module.
+                    ** <example> **
+                        JOBs.push('density');
+                        
+                b. PARs : Actual parameters passing to background module function (i.e. 'stanalyzer/static/analyzers/density.py': explained later)
+                    ** <example> **
+                    para = [6, frmInt, outFile, segID, segName, stRes, edRes];
+                    PARs.push(para);
+                    
+                c. PARinfo: parameter information corresponding to the stored parameter values defined above
+                    ** <example> **
+                    # idx0 is already defined and has to be assigned 1st column as shown below. 
+                    para_info = [idx0, 'Frame interval', 'Output name', 'Segment ID', 'Segment Name', 'Start Residue', 'Terminal Residue'];
+                    PARinfo.push(para_info);
+        
+        3) Write background module to 'stanalyzer/static/analyzers/density.py'
+            - using template to write your own code open 'stanalyzer/static/analyzers/module_template.py' and save as 'density.py'
+            - What the template does is passing all parameters from client to server side
+            - The list of passed parameters are shown below
+                #---------------------< assigned global parameters >---------------------------------
+                # para_idx 	  : parameter index for multiple jobs in a same form
+                # para_pkeys      : gui_parameter primary keys obtained from job submitting
+                # job_pkey        : gui_job primary keys obtained from job submitting
+                # job_title       : gui_job title
+                # prj_pkey        : gui_project primary key beloning to current job
+                # prj_title       : gui_project title beloning to current job
+                # SESSION_HOME    : default session home directory: ~/dJango_home/media/user_id
+                # OUTPUT_HOME     : output directory given by user
+                # PBS_HOME        : directory where PBS script is written (i.e. for using cluster)
+                # ANALYZER_HOME   : directory where all analyzers are located (i.e. the location of this file)
+                # MEDIA_HOME      : media directory ~/dJango_home/media
+                # DB_FILE         : database file name and full location 
+                # base_path       : base location of input files
+                # path_output     : the location of output directory
+                # path_python     : python path to run analyzers
+                # structure_file  : full path of structure file (i.e. PDB, PSF, etc)
+                # pdb_file        : full path of structure file (i.e. PDB, PSF, etc)
+                # pbs             : PBS script for using cluster machine
+                # num_frame	  : number of frames in the first trajectory file
+                # num_atoms	  : number of atomes in the system
+                # num_files	  : number of files chosen
+                # num_ps	  : simulation time ps/frame
+                # trajectoryFile  : the list of trajectory files
+                # rmodule   	  : running module name (e.g. box0)
+                # num_paras       : number of parameters
+                # frmInt          : Frame interval (list)
+                # outFile         : output file name (list)
+            - Modify below line '210' in backgrond module (i.e. 'stanalyzer/static/analyzers/density.py')
+                * from paras[0][0] to paras[2][para_idx] are already defined so do not modify them;
+                * your_variable_name = paras[3][para_idx], the index '3' is only increated to pass your variables from "function eval_step2()" in "stanalyzer/templates/desktop/index.html"
+                * do not modify 'para_idx' this variable is necessary to identify the desiginated variables used in background modules! 
+                * the index (e.g. '3') is corresponding to the order of variabes defined in "function eval_step2()" at "stanalyzer/templates/desktop/index.html"

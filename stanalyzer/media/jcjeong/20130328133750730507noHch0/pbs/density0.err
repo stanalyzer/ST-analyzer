@@ -1,0 +1,6 @@
+/home/sunhwan/local/python/lib/python2.7/site-packages/MDAnalysis-0.7.6-py2.7-linux-x86_64.egg/MDAnalysis/topology/PSFParser.py:208: FileFormatWarning: Guessing that this is actually a NAMD-type PSF file... continuing with fingers crossed!
+  category=FileFormatWarning)
+Traceback (most recent call last):
+  File "density.py", line 326, in <module>
+    intKEY.append(float(key));
+TypeError: float() argument must be a string or a number

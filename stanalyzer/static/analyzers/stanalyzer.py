@@ -64,6 +64,8 @@ import sqlite3
 # import others
 import re
 from datetime import datetime
+from collections import defaultdict
+from bisect import bisect_left
 
 #********************************************
 # Define global variables
@@ -229,4 +231,40 @@ def get_myfunction (funcName, dic):
 	fName = [idx, funcName];
     #print "[----- end get_myfunction ----]"
     return ([fName, pInfo, paras, para_pkey]);
-	
+
+
+#***************************************
+# Generating range for floating numbers
+#***************************************
+def frange (b, e, i):
+    # b: begining
+    # e: end
+    # i: interval
+    
+    # make sure they are all floating numbers
+    b = float(b);
+    e = float(e);
+    i = float(i);
+
+    cfloat = b;
+    while cfloat <= e:
+	yield cfloat
+	cfloat += i
+
+
+#***************************************
+# Calculating Items in bin
+#***************************************
+#from collections import defaultdict
+#from bisect import bisect_left
+
+def count_intervals (sequence, intervals):
+    count = defaultdict(int)
+    intervals.sort()
+    for item in sequence:
+        pos = bisect_left(intervals, item)
+        if pos == len(intervals):
+            count[None] += 1
+        else:
+            count[intervals[pos]] += 1
+    return count
