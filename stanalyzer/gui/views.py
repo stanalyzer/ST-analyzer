@@ -3005,9 +3005,9 @@ def stanalyzer_sendJob(request):
             #print "PBS: {}".format(pbs);
             for ifunc in func_name:
 		func_idx = func_name.index(ifunc);
-		#print "func_idx: {}".format(func_idx);
+		print "func_idx: {}".format(func_idx);
 		for cnt_frm in range(len(Paras[func_idx][1])):
-		    #print "cnt_frm: {}".format(cnt_frm);
+		    print "cnt_frm: {}".format(cnt_frm);
 		    tmp = "{0}/{1}{2}.pbs".format(PBS_HOME, ifunc, cnt_frm);
 		    fid_i = open(tmp, 'w');
 		    fid_i.write(pbs);
@@ -3029,10 +3029,12 @@ def stanalyzer_sendJob(request):
 		    fid_i.close();
                 
             # ---------------------------- Writing SHELL SCRIPT
-	    #print "Writing Shell script....";
+	    print "Writing Shell script....";
             for ifunc in func_name:
 		func_idx = func_name.index(ifunc);
+		print "func_idx: {}".format(func_idx);
 		for cnt_frm in range(len(Paras[func_idx][1])):
+		    print "cnt_frm: {}".format(cnt_frm);
 		    tmp = "{0}/{1}{2}.sh".format(SH_HOME, ifunc, cnt_frm);
 		    fid_i = open(tmp, 'w');
 		    
@@ -3170,7 +3172,11 @@ def stanalyzer_sendJob(request):
 			# Insert values into gui_outputs
 			conn = sqlite3.connect(dbName);
 			c    = conn.cursor();
-			uq_func = "{0}{1}".format(ifunc, cnt_frm);
+			#uq_func = "{0}{1}".format(ifunc, cnt_frm);
+			uq_func = "{0}{1}_{2}".format(ifunc, cnt_frm, Paras[func_idx][2][cnt_frm]);
+			print "*** details of function name *****"
+			print uq_func
+			
 			query = """INSERT INTO gui_outputs (job_id, name, status, qid, img, txt, gzip) VALUES ({0}, "{1}", "Queue", {2}, "N/A", "N/A", "N/A")""".format(job_pkey[0], uq_func, Q[0]);
 			c.execute(query);
 			conn.commit();
@@ -3182,13 +3188,18 @@ def stanalyzer_sendJob(request):
                 for ifunc in func_name:
 		    func_idx = func_name.index(ifunc);
 		    for cnt_frm in range(len(Paras[func_idx][1])):
+			#print "****** func_idx *******"
+			#print Paras[func_idx];
 			# Insert values into gui_outputs
 			uq_func = "{0}{1}".format(ifunc, cnt_frm);
 			q_id = 0;			# interactive mode set q_id as 0
 			conn = sqlite3.connect(dbName);
 			c    = conn.cursor();
-			uq_func = "{0}{1}".format(ifunc, cnt_frm);
+			uq_func = "{0}{1}_{2}".format(ifunc, cnt_frm, Paras[func_idx][2][cnt_frm]);
+			print "*** details of function name *****"
+			print uq_func
 			query = """INSERT INTO gui_outputs (job_id, name, status, qid, img, txt, gzip) VALUES ({0}, "{1}", "Sent", {2}, "N/A", "N/A", "N/A")""".format(job_pkey[0], uq_func, q_id);
+			#print query
 			c.execute(query);
 			conn.commit();
 			conn.close();

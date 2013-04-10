@@ -90,6 +90,12 @@ paras = myPara[2];      # actual parameters paras[0] contains 'the number of par
 para_pkey = myPara[3];  # primary key of parameter table contating this analzyer function. 
 rmodule   = "{0}{1}".format(exe_file[:len(exe_file)-3], para_idx);  # running module name (e.g. box0)
 
+#---------------------< assigned module specific parameters: fixed for every interface >---------------------------------
+num_paras = paras[0][0];			# pInfo[0] : number of parameters
+frmInt	  = paras[1][para_idx];			# pInfo[1] : Frame interval (list)
+frmInt	  = int(frmInt);
+outFile   = paras[2][para_idx];			# pInfo[2] : output file name (list)
+
 #print "NAME OF FUNCTION: {}".format(fName);
 #print "PARAMETER INFO: {}".format(pInfo);
 #print "PARMETERS: {}".format(paras);
@@ -116,9 +122,11 @@ conn.close();
 conn = sqlite3.connect(DB_FILE);
 c    = conn.cursor();
 # find gui_outputs related to current processing
-query = """SELECT id FROM gui_outputs WHERE job_id = {0} and name = "{1}" """.format(job_pkey[0], rmodule);
+jobName = "{}_{}".format(rmodule, outFile);
+query = """SELECT id FROM gui_outputs WHERE job_id = {0} and name = "{1}" """.format(job_pkey[0], jobName);
 c.execute(query);
 row = c.fetchone();
+print query
 pk_output = row[0];     # primary key for gui_outputs
 try:    
     query = """UPDATE gui_outputs SET status = "Running" WHERE id = {0}""".format(pk_output);
@@ -197,11 +205,6 @@ fid_in.close();
 # trajectoryFile  = [];                        # the list of trajectory files
 # rmodule   	  = "{0}{1}".format(exe_file[:len(exe_file)-3], para_idx);  # running module name (e.g. box0)
 
-#---------------------< assigned module specific parameters: fixed for every interface >---------------------------------
-num_paras = paras[0][0];			# pInfo[0] : number of parameters
-frmInt	  = paras[1][para_idx];			# pInfo[1] : Frame interval (list)
-frmInt	  = int(frmInt);
-outFile   = paras[2][para_idx];			# pInfo[2] : output file name (list)
 
 ###############################################################################################################################
 ######################################## PLEASE DO NOT MODIFY ABOVE THIST LINE!!!! ############################################
@@ -223,12 +226,12 @@ selQry = paras[7][para_idx];			# pInfo[7] : Query
 num_atoms = paras[8][para_idx];			# pInfo[8] : Total number of atoms
 num_atoms = int(num_atoms);
 
-print "AXIS = {}, {}".format(taxis, type(taxis));
-print "MIN = {}, {}".format(dnst_min, type(dnst_min));
-print "MAX = {}, {}".format(dnst_max, type(dnst_max));
-print "BIN = {}, {}".format(dnst_bin, type(dnst_bin));
-print "QUERY = {}, {}".format(selQry, type(selQry));
-print "Total # atoms = {}, {}".format(num_atoms, type(num_atoms));
+#print "AXIS = {}, {}".format(taxis, type(taxis));
+#print "MIN = {}, {}".format(dnst_min, type(dnst_min));
+#print "MAX = {}, {}".format(dnst_max, type(dnst_max));
+#print "BIN = {}, {}".format(dnst_bin, type(dnst_bin));
+#print "QUERY = {}, {}".format(selQry, type(selQry));
+#print "Total # atoms = {}, {}".format(num_atoms, type(num_atoms));
 
 #dummy = raw_input("Pause: ");
 

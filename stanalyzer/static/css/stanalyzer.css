@@ -148,6 +148,11 @@ a.underline2:hover, a.underline2:active
     font-size: 10px;
 }
 
+.module_txtbox_output2 {
+    width: 220px;
+    font-size: 10px;
+}
+
 .module_txtbox_digit {
     width: 100px;
     font-size: 10px;

@@ -325,57 +325,293 @@ function eval_step2() {
      *################################################
     */
     
-    /* calculating the tilt of helix */
+    
+    /* calculating density profile */
     var chk = $j('#membrane #density_title').prop('checked');
+    var chk_all = $j('#membrane #density_form #chk_density_all').prop('checked');
+    var chk_lpH = $j('#membrane #density_form #chk_density_lipidH').prop('checked');
+    var chk_lpT = $j('#membrane #density_form #chk_density_lipidT').prop('checked');
+    var chk_water   = $j('#membrane #density_form #chk_density_water').prop('checked');
+    var chk_waterdp = $j('#membrane #density_form #chk_density_waterdp').prop('checked');
+    var chk_vector  = $j('#membrane #density_form #chk_density_vector').prop('checked');
+    var chk_custom  = $j('#membrane #density_form #chk_density_custom').prop('checked');
+    
     if (chk == true) {
-	// check out return values
-	
-	/* frame interval */
 	var frmInt = [];
-	$j("#membrane #density_form input[name='density_frmInt']").each(function() {
-	    frmInt.push($(this).val());
-	});
-	
-	/* name of output files */
 	var outFile = [];
-	$j("#membrane #density_form input[name='density_outFile']").each(function() {
-	    outFile.push($(this).val());
-	});
-
-
-	// Check out the associated forms
 	axis = [];
-	$j("#membrane #density_form select[name='density_Axis'] option:selected").each(function() {
-	    axis.push($(this).val());
-	});
-	
 	dnstMin = [];
-	$j("#membrane #density_form input[name='density_hist_min']").each(function() {
-	    dnstMin.push($(this).val());
-	});
-
 	dnstMax = [];
-	$j("#membrane #density_form input[name='density_hist_max']").each(function() {
-	    dnstMax.push($(this).val());
-	});
-	
 	dnstBin = [];
-	$j("#membrane #density_form input[name='density_hist_bin']").each(function() {
-	    dnstBin.push($(this).val());
-	});
-
 	dnstQuery = [];
-	$j("#membrane #density_form textarea[name='density_query']").each(function() {
-	    dnstQuery.push($(this).val());
-	});
-	
 	numAtoms = [];
-	$j("#membrane #density_form input[name='density_hist_tatoms']").each(function() {
-	    numAtoms.push($(this).val());
-	});
 	
+	// for #density_frm_all lpH, lpT, water, waterdp, vector, custom
+	if (chk_all == true) {
+	    /* frame interval */
+	    $j("#membrane #density_form #density_frm_all input[name='density_frmInt']").each(function() {
+		frmInt.push($(this).val());
+	    });
+	    
+	    /* name of output files */
+	    $j("#membrane #density_form #density_frm_all input[name='density_outFile']").each(function() {
+		outFile.push($(this).val());
+	    });
+    
+	    // Check out the associated forms
+	    $j("#membrane #density_form #density_frm_all select[name='density_Axis_all'] option:selected").each(function() {
+		axis.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_all input[name='density_hist_min']").each(function() {
+		dnstMin.push($(this).val());
+	    });
+    
+	    $j("#membrane #density_form #density_frm_all input[name='density_hist_max']").each(function() {
+		dnstMax.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_all input[name='density_hist_bin']").each(function() {
+		dnstBin.push($(this).val());
+	    });
+    
+	    $j("#membrane #density_form #density_frm_all textarea[name='density_query']").each(function() {
+		dnstQuery.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_all input[name='density_hist_tatoms']").each(function() {
+		numAtoms.push($(this).val());
+	    });
+	}
 	
-	
+	// for #density_frm_lpH
+	if (chk_lpH == true) {
+	    /* frame interval */
+	    $j("#membrane #density_form #density_frm_lipidH input[name='density_frmInt']").each(function() {
+		frmInt.push($(this).val());
+	    });
+	    
+	    /* name of output files */
+	    $j("#membrane #density_form #density_frm_lipidH input[name='density_outFile']").each(function() {
+		outFile.push($(this).val());
+	    });
+    
+	    // Check out the associated forms
+	    $j("#membrane #density_form #density_frm_lipidH select[name='density_Axis_lipidH'] option:selected").each(function() {
+		axis.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_lipidH input[name='density_hist_min']").each(function() {
+		dnstMin.push($(this).val());
+	    });
+    
+	    $j("#membrane #density_form #density_frm_lipidH input[name='density_hist_max']").each(function() {
+		dnstMax.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_lipidH input[name='density_hist_bin']").each(function() {
+		dnstBin.push($(this).val());
+	    });
+    
+	    $j("#membrane #density_form #density_frm_lipidH textarea[name='density_query']").each(function() {
+		dnstQuery.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_lipidH input[name='density_hist_tatoms']").each(function() {
+		numAtoms.push($(this).val());
+	    });
+	}
+
+	// for #density_frm_lpT
+	if (chk_lpT == true) {
+	    /* frame interval */
+	    $j("#membrane #density_form #density_frm_lipidT input[name='density_frmInt']").each(function() {
+		frmInt.push($(this).val());
+	    });
+	    
+	    /* name of output files */
+	    $j("#membrane #density_form #density_frm_lipidT input[name='density_outFile']").each(function() {
+		outFile.push($(this).val());
+	    });
+    
+	    // Check out the associated forms
+	    $j("#membrane #density_form #density_frm_lipidT select[name='density_Axis_lipidT'] option:selected").each(function() {
+		axis.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_lipidT input[name='density_hist_min']").each(function() {
+		dnstMin.push($(this).val());
+	    });
+    
+	    $j("#membrane #density_form #density_frm_lipidT input[name='density_hist_max']").each(function() {
+		dnstMax.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_lipidT input[name='density_hist_bin']").each(function() {
+		dnstBin.push($(this).val());
+	    });
+    
+	    $j("#membrane #density_form #density_frm_lipidT textarea[name='density_query']").each(function() {
+		dnstQuery.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_lipidT input[name='density_hist_tatoms']").each(function() {
+		numAtoms.push($(this).val());
+	    });
+	}
+
+	// for #density_frm_water
+	if (chk_water == true) {
+	    /* frame interval */
+	    $j("#membrane #density_form #density_frm_water input[name='density_frmInt']").each(function() {
+		frmInt.push($(this).val());
+	    });
+	    
+	    /* name of output files */
+	    $j("#membrane #density_form #density_frm_water input[name='density_outFile']").each(function() {
+		outFile.push($(this).val());
+	    });
+    
+	    // Check out the associated forms
+	    $j("#membrane #density_form #density_frm_water select[name='density_Axis_water'] option:selected").each(function() {
+		axis.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_water input[name='density_hist_min']").each(function() {
+		dnstMin.push($(this).val());
+	    });
+    
+	    $j("#membrane #density_form #density_frm_water input[name='density_hist_max']").each(function() {
+		dnstMax.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_water input[name='density_hist_bin']").each(function() {
+		dnstBin.push($(this).val());
+	    });
+    
+	    $j("#membrane #density_form #density_frm_water textarea[name='density_query']").each(function() {
+		dnstQuery.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_water input[name='density_hist_tatoms']").each(function() {
+		numAtoms.push($(this).val());
+	    });
+	}
+
+	// for #density_frm_waterdp
+	if (chk_waterdp == true) {
+	    /* frame interval */
+	    $j("#membrane #density_form #density_frm_waterdp input[name='density_frmInt']").each(function() {
+		frmInt.push($(this).val());
+	    });
+	    
+	    /* name of output files */
+	    $j("#membrane #density_form #density_frm_waterdp input[name='density_outFile']").each(function() {
+		outFile.push($(this).val());
+	    });
+    
+	    // Check out the associated forms
+	    $j("#membrane #density_form #density_frm_waterdp select[name='density_Axis_waterdp'] option:selected").each(function() {
+		axis.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_waterdp input[name='density_hist_min']").each(function() {
+		dnstMin.push($(this).val());
+	    });
+    
+	    $j("#membrane #density_form #density_frm_waterdp input[name='density_hist_max']").each(function() {
+		dnstMax.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_waterdp input[name='density_hist_bin']").each(function() {
+		dnstBin.push($(this).val());
+	    });
+    
+	    $j("#membrane #density_form #density_frm_waterdp textarea[name='density_query']").each(function() {
+		dnstQuery.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_waterdp input[name='density_hist_tatoms']").each(function() {
+		numAtoms.push($(this).val());
+	    });
+	}
+
+	// for #density_frm_vector
+	if (chk_vector == true) {
+	    
+	    /* frame interval */
+	    $j("#membrane #density_form #density_frm_vector input[name='density_frmInt']").each(function() {
+		frmInt.push($(this).val());
+	    });
+	    
+	    /* name of output files */
+	    $j("#membrane #density_form #density_frm_vector input[name='density_outFile']").each(function() {
+		outFile.push($(this).val());
+	    });
+    
+	    // Check out the associated forms
+	    $j("#membrane #density_form #density_frm_vector select[name='density_Axis_vector'] option:selected").each(function() {
+		axis.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_vector input[name='density_hist_min']").each(function() {
+		dnstMin.push($(this).val());
+	    });
+    
+	    $j("#membrane #density_form #density_frm_vector input[name='density_hist_max']").each(function() {
+		dnstMax.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_vector input[name='density_hist_bin']").each(function() {
+		dnstBin.push($(this).val());
+	    });
+    
+	    $j("#membrane #density_form #density_frm_vector textarea[name='density_query']").each(function() {
+		dnstQuery.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_vector input[name='density_hist_tatoms']").each(function() {
+		numAtoms.push($(this).val());
+	    });
+	}
+
+	// for #density_frm_custom
+	if (chk_custom == true) {
+	    /* frame interval */
+	    $j("#membrane #density_form #density_frm_custom input[name='density_frmInt']").each(function() {
+		frmInt.push($(this).val());
+	    });
+	    
+	    /* name of output files */
+	    $j("#membrane #density_form #density_frm_custom input[name='density_outFile']").each(function() {
+		outFile.push($(this).val());
+	    });
+    
+	    // Check out the associated forms
+	    $j("#membrane #density_form #density_frm_custom select[name='density_Axis_custom'] option:selected").each(function() {
+		axis.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_custom input[name='density_hist_min']").each(function() {
+		dnstMin.push($(this).val());
+	    });
+    
+	    $j("#membrane #density_form #density_frm_custom input[name='density_hist_max']").each(function() {
+		dnstMax.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_custom input[name='density_hist_bin']").each(function() {
+		dnstBin.push($(this).val());
+	    });
+    
+	    $j("#membrane #density_form #density_frm_custom textarea[name='density_query']").each(function() {
+		dnstQuery.push($(this).val());
+	    });
+	    
+	    $j("#membrane #density_form #density_frm_custom input[name='density_hist_tatoms']").each(function() {
+		numAtoms.push($(this).val());
+	    });
+	}
 	JOBs.push('density');
 	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
 	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
@@ -383,8 +619,6 @@ function eval_step2() {
 	PARinfo.push(para_info);
 	//alert("PARAS:" + PARs[1]['num_para']);
     }
-    
-    
     return [JOBs, PARs, PARinfo];
 }
 
@@ -586,7 +820,7 @@ $j(document).ready(function(){
     
     /* Initializing tabs */
     $j("#tabs").tabs();
-    $j( "#tabs" ).tabs( "option", "disabled", [1] );
+    //$j( "#tabs" ).tabs( "option", "disabled", [1] );
 
     /* Filtering trajectory files */
     $j('#job_title').val('analyzing trajectory').css("color", "gray");
@@ -1998,7 +2232,9 @@ $j(document).ready(function(){
 	    str = str + tmp + '<br/>';
 	}
 	*/
-        var msg = "Total &#34<b>" + jobData[0].length + "</b>&#34 jobs have been selected<br/><br/> The jobs will be run on &#34<b>" + rdio_machine + "</b>&#34<br/><br/> Would you like to submit them?<br/>";
+        //var msg = "Total &#34<b>" + jobData[0].length + "</b>&#34 jobs have been selected<br/><br/> The jobs will be run on &#34<b>" + rdio_machine + "</b>&#34<br/><br/> Would you like to submit them?<br/>";
+	var totalJobs = cnt_sysinfo + cnt_protein + cnt_dnarna + cnt_carb + cnt_membrane + cnt_solvent + cnt_protein_DnaRna + cnt_protein_carbohydrate + cnt_protein_membrane + cnt_protein_solvent + cnt_DnaRna_solvent + cnt_carbohydrate_membrane + cnt_ccarbohydrate_solvent;
+	var msg = "Total &#34<b>" + totalJobs + "</b>&#34 jobs have been selected<br/><br/> The jobs will be run on &#34<b>" + rdio_machine + "</b>&#34<br/><br/> Would you like to submit them?<br/>";
 	$j("#dlg_confirm #dlg_msg").empty().append(msg).change();
 	$j( "#dlg_confirm" ).dialog({
 	    resizable: true,
@@ -2044,6 +2280,7 @@ $j(document).ready(function(){
 			'num_files'	: $num_files,
 			'num_ps'	: $num_ps,
 		    }
+		    //alert(jobData[0]);
 		    //alert(jobData[1]);
 		    //alert(jobData[2]);
 		    alert("Your jobs have been successfully submitted!");

@@ -161,8 +161,17 @@ function getStructureInfo(query, async_flg) {
 	systemInfo['num_atoms'] = obj.num_atoms;
 	
 	/* fill out the information about density min and max */
-	$j("#membrane #density #density_form #density_hist_min").empty().val(obj.crd_min);
-	$j("#membrane #density #density_form #density_hist_max").empty().val(obj.crd_max);
+	var smin = 0;
+	var smax = 0;
+	if (Math.abs(obj.crd_min) > Math.abs(obj.crd_max)) {
+	    smin = obj.crd_min;
+	    smax = Math.abs(obj.crd_min);
+	} else {
+	    smin = -1 * obj.crd_max;
+	    smax = obj.crd_max;
+	}
+	$j("#membrane #density #density_form #density_hist_min").empty().val(smin);
+	$j("#membrane #density #density_form #density_hist_max").empty().val(smax);
 	$j("#membrane #density #density_form #density_hist_tatoms").empty().val(obj.num_atoms);
     });
       
@@ -183,7 +192,7 @@ $j(document).ready(function(){
     $j("#chk_membrane").click(function () {
 	$j("#M_membrane").toggle(this.checked);
     });
-
+/*
     $j("#membrane #density #density_title").click(function() {
 	var chk = $j(this).prop('checked');
 	if (chk == true) {
@@ -196,10 +205,106 @@ $j(document).ready(function(){
 	}
 	$j("#membrane #cnt_membrane").empty().append(cnt_membrane);
     });
-    
-    
+*/
+    $j("#membrane #density #chk_density_all").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    cnt_membrane++;
+	} else {
+	    cnt_membrane--;
+	    if (cnt_membrane < 0) {
+		cnt_membrane = 0;
+	    }
+	}
+	$j("#membrane #cnt_membrane").empty().append(cnt_membrane);
+    });
+
+    $j("#membrane #density #chk_density_lipidH").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    cnt_membrane++;
+	} else {
+	    cnt_membrane--;
+	    if (cnt_membrane < 0) {
+		cnt_membrane = 0;
+	    }
+	}
+	$j("#membrane #cnt_membrane").empty().append(cnt_membrane);
+    });
+  
+    $j("#membrane #density #chk_density_lipidT").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    cnt_membrane++;
+	} else {
+	    cnt_membrane--;
+	    if (cnt_membrane < 0) {
+		cnt_membrane = 0;
+	    }
+	}
+	$j("#membrane #cnt_membrane").empty().append(cnt_membrane);
+    });
+      
+      $j("#membrane #density #chk_density_water").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    cnt_membrane++;
+	} else {
+	    cnt_membrane--;
+	    if (cnt_membrane < 0) {
+		cnt_membrane = 0;
+	    }
+	}
+	$j("#membrane #cnt_membrane").empty().append(cnt_membrane);
+    });
+      
+      $j("#membrane #density #chk_density_waterdp").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    cnt_membrane++;
+	} else {
+	    cnt_membrane--;
+	    if (cnt_membrane < 0) {
+		cnt_membrane = 0;
+	    }
+	}
+	$j("#membrane #cnt_membrane").empty().append(cnt_membrane);
+    });
+
+    $j("#membrane #density #chk_density_vector").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    cnt_membrane++;
+	} else {
+	    cnt_membrane--;
+	    if (cnt_membrane < 0) {
+		cnt_membrane = 0;
+	    }
+	}
+	$j("#membrane #cnt_membrane").empty().append(cnt_membrane);
+    });
+
+    $j("#membrane #density #chk_density_custom").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    cnt_membrane++;
+	} else {
+	    cnt_membrane--;
+	    if (cnt_membrane < 0) {
+		cnt_membrane = 0;
+	    }
+	}
+	$j("#membrane #cnt_membrane").empty().append(cnt_membrane);
+    });
+   
     $j('#membrane #density #density_frmInt').val('1').css("color", "gray");
-    $j('#membrane #density #density_outFile').val('output.dat').css("color", "gray");
+    $j('#membrane #density #density_frm_all #density_outFile').val('density_all.dat').css("color", "gray");
+    $j('#membrane #density #density_frm_lipidH #density_outFile').val('density_lipid_head.dat').css("color", "gray");
+    $j('#membrane #density #density_frm_lipidT #density_outFile').val('density_lipid_tail.dat').css("color", "gray");
+    $j('#membrane #density #density_frm_water #density_outFile').val('density_water.dat').css("color", "gray");
+    $j('#membrane #density #density_frm_waterdp #density_outFile').val('density_water_dipole.dat').css("color", "gray");
+    $j('#membrane #density #density_frm_vector #density_outFile').val('density_vector.dat').css("color", "gray");
+    $j('#membrane #density #density_frm_custom #density_outFile').val('density_custom.dat').css("color", "gray");
 
     $j("#membrane #density #density_form").hide();
     $j("#membrane #density #density_title").click(function () {
@@ -208,7 +313,7 @@ $j(document).ready(function(){
 	    // reading PDB file and extract information
 	    // msg = "<img src='/static/images/circle2.gif' height='20' width='20' > Reading structure information... "
 	    // $j("#systemInfo #density #density_read_pdb").append(msg);
-	    mySystem  = getStructureInfo('all', true);
+	    //mySystem  = getStructureInfo('all', true);
 	}
 
 	$j("#membrane #density #density_form").toggle(this.checked);
@@ -220,11 +325,52 @@ $j(document).ready(function(){
     /* ##########################################
      * Density
      * ########################################## */
+    $j("#membrane #density #density_frm_all").hide();
+    $j("#membrane #density #chk_density_all").click(function () {
+	$j("#membrane #density #density_frm_all").toggle(this.checked);
+    });
+
+    $j("#membrane #density #density_frm_lipidH").hide();
+    $j("#membrane #density #chk_density_lipidH").click(function () {
+	$j("#membrane #density #density_frm_lipidH").toggle(this.checked);
+    });
+
+    $j("#membrane #density #density_frm_lipidT").hide();
+    $j("#membrane #density #chk_density_lipidT").click(function () {
+	$j("#membrane #density #density_frm_lipidT").toggle(this.checked);
+    });
+
+    $j("#membrane #density #density_frm_water").hide();
+    $j("#membrane #density #chk_density_water").click(function () {
+	$j("#membrane #density #density_frm_water").toggle(this.checked);
+    });
+
+    $j("#membrane #density #density_frm_waterdp").hide();
+    $j("#membrane #density #chk_density_waterdp").click(function () {
+	$j("#membrane #density #density_frm_waterdp").toggle(this.checked);
+    });
+
+    $j("#membrane #density #density_frm_vector").hide();
+    $j("#membrane #density #chk_density_vector").click(function () {
+	$j("#membrane #density #density_frm_vector").toggle(this.checked);
+    });
+
+    $j("#membrane #density #density_frm_custom").hide();
+    $j("#membrane #density #chk_density_custom").click(function () {
+	$j("#membrane #density #density_frm_custom").toggle(this.checked);
+    });
+
     // Loading initial values
     $j("#membrane #density #density_form #density_hist_min").empty().val('Loading...').css("color", "gray");
     $j("#membrane #density #density_form #density_hist_max").empty().val('Loading...').css("color", "gray");
     $j("#membrane #density #density_form #density_hist_bin").empty().val('1');
-    $j("#membrane #density #density_form #density_query").empty().val('all');
+    $j("#membrane #density #density_form #density_frm_all #density_query").empty().val('all');
+    $j("#membrane #density #density_form #density_frm_lipidH #density_query").empty().val('segid MEMB and ( name P or name N or (name C1* and not name C1) or name O1* )');
+    $j("#membrane #density #density_form #density_frm_lipidT #density_query").empty().val('segid MEMB and ( name C2* or name C3* ) and not ( name C21 or  name C31 )');
+    $j("#membrane #density #density_form #density_frm_water #density_query").empty().val('segid TIP3 and name OH2');
+    $j("#membrane #density #density_form #density_frm_waterdp #density_query").empty().val('waterdp');
+    $j("#membrane #density #density_form #density_frm_vector #density_query").empty().val('vector');
+    $j("#membrane #density #density_form #density_frm_custom #density_query").empty().val('custom');
     
     // Buttons
     $j("#btn_selall").button();
@@ -550,16 +696,325 @@ $j(document).ready(function(){
 	$j("#membrane #quick_help").empty().append(str_help);
     });
     
-    
-    $j("#density_btn_vfy").click(function(){
-	var query = $j("#membrane #density #density_query").val().trim();
+    /*******************************************
+     * Verification for query
+     * *****************************************/
+    //---> For all 
+    $j("#density_frm_all #density_btn_vfy").click(function(){
+	var query = $j("#membrane #density #density_frm_all #density_query").val().trim();
 	var bpath = $j("#proot option:selected").text().trim();
 	var stfile = $j("#stfile option:selected").text().trim();
 	var pdbfile = $j("#pdbfile option:selected").text().trim();
 	
 	var vfy = chkSyntex(query);
 	if (vfy["flag"]) {
-	    $j("#vfy_msg").empty().append(vfy["err"]);
+	    $j("#density_frm_all #vfy_msg").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#density_frm_all #vfy_msg").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#density_frm_all #vfy_msg").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#density_frm_all #vfy_msg").empty().append(errorThrown);
+        });
+    });
+    
+    //---> For lipid head 
+    $j("#density_frm_lipidH #density_btn_vfy").click(function(){
+	var query = $j("#membrane #density #density_frm_lipidH #density_query").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#density_frm_lipidH #vfy_msg").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#density_frm_lipidH #vfy_msg").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#density_frm_lipidH #vfy_msg").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#density_frm_lipidH #vfy_msg").empty().append(errorThrown);
+        });
+    });
+    
+    //---> For lipid tail 
+    $j("#density_frm_lipidT #density_btn_vfy").click(function(){
+	var query = $j("#membrane #density #density_frm_lipidT #density_query").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#density_frm_lipidT #vfy_msg").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#density_frm_lipidT #vfy_msg").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#density_frm_lipidT #vfy_msg").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#density_frm_lipidT #vfy_msg").empty().append(errorThrown);
+        });
+    });
+
+    //---> For water 
+    $j("#density_frm_water #density_btn_vfy").click(function(){
+	var query = $j("#membrane #density #density_frm_water #density_query").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#density_frm_water #vfy_msg").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#density_frm_water #vfy_msg").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#density_frm_water #vfy_msg").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#density_frm_water #vfy_msg").empty().append(errorThrown);
+        });
+    });
+
+    //---> For water dipole 
+    $j("#density_frm_waterdp #density_btn_vfy").click(function(){
+	var query = $j("#membrane #density #density_frm_waterdp #density_query").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#density_frm_waterdp #vfy_msg").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#density_frm_waterdp #vfy_msg").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#density_frm_waterdp #vfy_msg").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#density_frm_waterdp #vfy_msg").empty().append(errorThrown);
+        });
+    });
+    
+    //---> For vector selection 
+    $j("#density_frm_vector #density_btn_vfy").click(function(){
+	var query = $j("#membrane #density #density_frm_vector #density_query").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#density_frm_vector #vfy_msg").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#density_frm_vector #vfy_msg").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#density_frm_vector #vfy_msg").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#density_frm_vector #vfy_msg").empty().append(errorThrown);
+        });
+    });
+    
+    //---> For custom selection 
+    $j("#density_frm_custom #density_btn_vfy").click(function(){
+	var query = $j("#membrane #density #density_frm_custom #density_query").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#density_frm_custom #vfy_msg").empty().append(vfy["err"]);
 	    return false;
 	}
 	/* display waiting message */
@@ -585,7 +1040,7 @@ $j(document).ready(function(){
 		    
         request.done(function(Jdata) {
             var obj = $j.parseJSON(Jdata);
-            $j("#vfy_msg").empty().append("Verified!");
+            $j("#density_frm_custom #vfy_msg").empty().append("Verified!");
             $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
 	    $j("#dlg_selInfo").dialog({
 		resizable: true,
@@ -597,7 +1052,7 @@ $j(document).ready(function(){
         });
           
         request.error(function(jqXHR, textStatus, errorThrown) {
-            $j("#vfy_msg").empty().append(errorThrown);
+            $j("#density_frm_custom #vfy_msg").empty().append(errorThrown);
         });
     });
 });
@@ -618,153 +1073,580 @@ $j(document).ready(function(){
 			    <table>
 				<tr>
 				    <td colspan="2" class="st_color7 left">
-					<input type="checkbox" id="density_title">Density <span id="density_read_pdb" class="message_warn"></span><br/><hr/>
+					<input type="checkbox" id="density_title">Density Profiles<span id="density_read_pdb" class="message_warn"></span><br/><hr/>
 				    </td>
 				</tr>
+			    </table>
+			    <table id="density_form">
 				<tr>
 				    <td class="w_module"></td>
 				    <td>
-					<div id="density_form">
-					    <table>
-						<tr>
-						    <td class="bottom"><span class="module_font">Frame Interval</span></td>
-						    <td class="bottom w15"></td>
-						    <td class="bottom"><span class="module_font">Output File Name</span></td>
-						    <td class="bottom w15"></td>
-						    <td></td><td></td><td></td><td></td><td></td>
-						</tr>
-						<tr>
-						    <td class="bottom"><input id="density_frmInt" class="module_txtbox_output" type="text" name="density_frmInt"></td>	
-						    <td class="bottom w15"></td>
-						    <td class="bottom"><input id="density_outFile" class="module_txtbox_output" type="text" name="density_outFile"></td>
-						    <td class="bottom w15"></td>
-						    <td></td><td></td><td></td><td></td><td></td>
-						</tr>
-						<tr>
-						    <td class="center"><span class="module_font">Axis</span></td>
-						    <td class="bottom w15"></td>
-						    <td class="center"><span class="module_font">Min</span></td>
-						    <td class="bottom w15"></td>
-						    <td class="center"><span class="module_font">Max</span></td>
-						    <td class="bottom w15"></td>
-						    <td class="center"><span class="module_font">Bin size</span></td>
-						    <td class="bottom w15"></td>
-						    <td class="bottom"></td>
-						</tr>
-						<tr>
-						    <td class="bottom">
-							<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="density_Axis" name="density_Axis">
-							<option>ALL</option>
-							<option>X</option>
-							<option>Y</option>
-							<option>Z</option>
-							</select>
-						    </td>
-						    <td class="bottom w15"></td>
-						    <td class="bottom"><input id="density_hist_min" class="module_txtbox_digit" type="text" name="density_hist_min"></td>	
-						    <td class="bottom w15"></td>
-						    <td class="bottom"><input id="density_hist_max" class="module_txtbox_digit" type="text" name="density_hist_max"></td>	
-						    <td class="bottom w15"></td>
-						    <td class="bottom"><input id="density_hist_bin" class="module_txtbox_digit" type="text" name="density_hist_bin"></td>	
-						    <td class="bottom w15"></td>
-						    <td class="bottom"><input id="density_hist_tatoms" type="hidden" name="density_hist_tatoms"></td>
-						</tr>
-						<tr>
-						    <td class="left bottom" colspan=8><textarea class="bottom" id="density_query" name="density_query" rows="2" cols="64"></textarea></td>
-						    <td class="bottom">
-							<table>
-							    <tr><td><button id="density_btn_vfy"><span class="module_font">Verify</span></button></td></tr>
-							    <tr><td><input type="checkbox" id="density_gquery">use GUI</td></tr>
-							</table>
-						    </td>
-						</tr>
-						<!--- GUI query builder --->
-						<tr id="density_gui_input">
-						    <td colspan=9>
+					<!--- START: density_all --->
+					<table>
+					    <tr>
+						<td colspan=2><input type="checkbox" id="chk_density_all">all</td>
+					    </tr>
+					    <tr id="density_frm_all">
+						<td class="w_module"></td>
+						<td>
 						    <table>
 							<tr>
-							    <td>
-								<table>
-								    <tr>
-									<td><button id="btn_selall" class="button_2letter">ALL</button></td>
-									<td><button id="btn_lt" class="button_2letter"><</button></td>
-									<td><button id="btn_gt" class="button_2letter">></button></td>
-									<td><button id="btn_eq" class="button_2letter">==</button></td>
-									<td><button id="btn_ne" class="button_2letter">!=</button></td>
-									<td><button id="btn_ge" class="button_2letter">>=</button></td>
-									<td><button id="btn_le" class="button_2letter"><=</button></td>
-									<td><button id="btn_and" class="button_2letter">AND</button></td>
-									<td><button id="btn_or" class="button_2letter">OR</button></td>
-									<td><button id="btn_not" class="button_2letter">NOT</button></td>
-									<td><button id="btn_around" class="button_2letter">AROUND</button></td>
-									<td><button id="btn_query_segid" class="button_2letter">SEGID</button></td>
-								    </tr>
-								</table>
-							    </td>
+							    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><span class="module_font">Output File Name</span></td>
+							    <td class="bottom w15"></td>
+							    <td></td><td></td><td></td><td></td><td></td>
 							</tr>
 							<tr>
-							    <td>
-								<table>
-								    <tr>
-									<td><button id="btn_query_resname" class="button_2letter">RESNAME</button></td>
-									<td><button id="btn_query_resid" class="button_2letter">RESID</button></td>
-									<td><button id="btn_query_name" class="button_2letter">NAME</button></td>
-									<td><button id="btn_query_type" class="button_2letter">TYPE</button></td>
-									<td><button id="btn_query_prop" class="button_2letter">PROP</button></td>
-									<!-- <td><button id="btn_query_all" class="button_2letter">ALL</button></td> -->
-									<td></td>
-								    </tr>
-								</table>
-							    </td>
+							    <td class="bottom"><input id="density_frmInt" class="module_txtbox_output" type="text" name="density_frmInt"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom" colspan=7><input id="density_outFile" class="module_txtbox_output2" type="text" name="density_outFile"></td>
 							</tr>
 							<tr>
-							    <td>
+							    <td class="center"><span class="module_font">Axis</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Min</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Max</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Bin size</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"></td>
+							</tr>
+							<tr>
+							    <td class="bottom">
+								<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="density_Axis_all" name="density_Axis_all">
+								<option>Z</option>
+								<option>Y</option>
+								<option>X</option>
+								</select>
+							    </td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_min" class="module_txtbox_digit" type="text" name="density_hist_min"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_max" class="module_txtbox_digit" type="text" name="density_hist_max"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_bin" class="module_txtbox_digit" type="text" name="density_hist_bin"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_tatoms" type="hidden" name="density_hist_tatoms"></td>
+							</tr>
+							<tr>
+							    <td class="left bottom" colspan=8><textarea class="bottom" id="density_query" name="density_query" rows="2" cols="64"></textarea></td>
+							    <td class="bottom">
 								<table>
-								    <tr>
-									<td>
-									    <select data-placeholder="key words" class="chzn-select" style="width:100px;" id="keywords" name="keywords"></select>
-									    <button id="btn_add_keywords">Add</button>
-									</td>
-									<td>
-									    <select data-placeholder="segid" class="chzn-select" style="width:100px;" id="uq_segid" name="uq_segid"></select>
-									    <button id="btn_add_segid">Add</button>
-									</td>
-									<td class="w15"></td>
-									<td rowspan=3><div id="quick_help"></div></td>
-								    </tr>
-								    <tr>
-									<td>
-									    <select data-placeholder="resname" class="chzn-select" style="width:100px;" id="uq_resname" name="uq_resname"></select>
-									    <button id="btn_add_resname">Add</button>
-									</td>
-									<td>
-									    <select data-placeholder="resid" class="chzn-select" style="width:100px;" id="uq_resid" name="uq_resid"></select>
-									    <button id="btn_add_resid">Add</button><span id="st_load"></span>
-									</td>
-									<td class="w15"></td>
-								    </tr>
-								    <tr>
-									<td>
-									    <select data-placeholder="name" class="chzn-select" style="width:100px;" id="uq_name" name="uq_name"></select>
-									    <button id="btn_add_name">Add</button>
-									</td>
-									<td>
-									    <select data-placeholder="type" class="chzn-select" style="width:100px;" id="uq_type" name="uq_type"></select>
-									    <button id="btn_add_type">Add</button>
-									</td>
-									<td class="w15"></td>
-								    </tr>
+								    <tr><td><button id="density_btn_vfy"><span class="module_font">Verify</span></button></td></tr>
 								</table>
 							    </td>
 							</tr>
+							<tr><td id="vfy_msg" class="center message_warn" colspan=5></td></tr>
 						    </table>
-						    </td>
-						</tr>
-						<tr><td id="vfy_msg" class="center message_warn" colspan=5></td></tr>
-					    </table>
-					</div>
+						</td>
+					    </tr>
+					</table>
 				    </td>
 				</tr>
+				<!--- END: density_all ----->
+				
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<!--- START: lipid head --->
+					<table>
+					    <tr>
+						<td colspan=2><input type="checkbox" id="chk_density_lipidH">lipid head (atom selection based on CHARMM force field)</td>
+					    </tr>
+					    <tr id="density_frm_lipidH">
+						<td class="w_module"></td>
+						<td>
+						    <table>
+							<tr>
+							    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><span class="module_font">Output File Name</span></td>
+							    <td class="bottom w15"></td>
+							    <td></td><td></td><td></td><td></td><td></td>
+							</tr>
+							<tr>
+							    <td class="bottom"><input id="density_frmInt" class="module_txtbox_output" type="text" name="density_frmInt"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom" colspan=7><input id="density_outFile" class="module_txtbox_output2" type="text" name="density_outFile"></td>
+							</tr>
+							<tr>
+							    <td class="center"><span class="module_font">Axis</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Min</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Max</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Bin size</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"></td>
+							</tr>
+							<tr>
+							    <td class="bottom">
+								<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="density_Axis_lipidH" name="density_Axis_lipidH">
+								<option>Z</option>
+								<option>Y</option>
+								<option>X</option>
+								</select>
+							    </td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_min" class="module_txtbox_digit" type="text" name="density_hist_min"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_max" class="module_txtbox_digit" type="text" name="density_hist_max"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_bin" class="module_txtbox_digit" type="text" name="density_hist_bin"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_tatoms" type="hidden" name="density_hist_tatoms"></td>
+							</tr>
+							<tr>
+							    <td class="left bottom" colspan=8><textarea class="bottom" id="density_query" name="density_query" rows="2" cols="64"></textarea></td>
+							    <td class="bottom">
+								<table>
+								    <tr><td><button id="density_btn_vfy"><span class="module_font">Verify</span></button></td></tr>
+								</table>
+							    </td>
+							</tr>
+							<tr><td id="vfy_msg" class="center message_warn" colspan=5></td></tr>
+						    </table>
+						</td>
+					    </tr>
+					</table>
+				    </td>
+				</tr>
+				<!--- END: lipid head ----->
+				
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<!--- START: lipid tail --->
+					<table>
+					    <tr>
+						<td colspan=2><input type="checkbox" id="chk_density_lipidT">lipid tail (atom selection based on CHARMM force field)</td>
+					    </tr>
+					    <tr id="density_frm_lipidT">
+						<td class="w_module"></td>
+						<td>
+						    <table>
+							<tr>
+							    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><span class="module_font">Output File Name</span></td>
+							    <td class="bottom w15"></td>
+							    <td></td><td></td><td></td><td></td><td></td>
+							</tr>
+							<tr>
+							    <td class="bottom"><input id="density_frmInt" class="module_txtbox_output" type="text" name="density_frmInt"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom" colspan=7><input id="density_outFile" class="module_txtbox_output2" type="text" name="density_outFile"></td>
+							</tr>
+							<tr>
+							    <td class="center"><span class="module_font">Axis</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Min</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Max</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Bin size</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"></td>
+							</tr>
+							<tr>
+							    <td class="bottom">
+								<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="density_Axis_lipidT" name="density_Axis_lipidT">
+								<option>Z</option>
+								<option>Y</option>
+								<option>X</option>
+								</select>
+							    </td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_min" class="module_txtbox_digit" type="text" name="density_hist_min"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_max" class="module_txtbox_digit" type="text" name="density_hist_max"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_bin" class="module_txtbox_digit" type="text" name="density_hist_bin"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_tatoms" type="hidden" name="density_hist_tatoms"></td>
+							</tr>
+							<tr>
+							    <td class="left bottom" colspan=8><textarea class="bottom" id="density_query" name="density_query" rows="2" cols="64"></textarea></td>
+							    <td class="bottom">
+								<table>
+								    <tr><td><button id="density_btn_vfy"><span class="module_font">Verify</span></button></td></tr>
+								</table>
+							    </td>
+							</tr>
+							<tr><td id="vfy_msg" class="center message_warn" colspan=5></td></tr>
+						    </table>
+						</td>
+					    </tr>
+					</table>
+				    </td>
+				</tr>
+				<!--- END: lipid tail ----->
+				
+				
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<!--- START: water --->
+					<table>
+					    <tr>
+						<td colspan=2><input type="checkbox" id="chk_density_water">water</td>
+					    </tr>
+					    <tr id="density_frm_water">
+						<td class="w_module"></td>
+						<td>
+						    <table>
+							<tr>
+							    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><span class="module_font">Output File Name</span></td>
+							    <td class="bottom w15"></td>
+							    <td></td><td></td><td></td><td></td><td></td>
+							</tr>
+							<tr>
+							    <td class="bottom"><input id="density_frmInt" class="module_txtbox_output" type="text" name="density_frmInt"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom" colspan=7><input id="density_outFile" class="module_txtbox_output2" type="text" name="density_outFile"></td>
+							</tr>
+							<tr>
+							    <td class="center"><span class="module_font">Axis</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Min</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Max</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Bin size</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"></td>
+							</tr>
+							<tr>
+							    <td class="bottom">
+								<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="density_Axis_water" name="density_Axis_water">
+								<option>Z</option>
+								<option>Y</option>
+								<option>X</option>
+								</select>
+							    </td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_min" class="module_txtbox_digit" type="text" name="density_hist_min"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_max" class="module_txtbox_digit" type="text" name="density_hist_max"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_bin" class="module_txtbox_digit" type="text" name="density_hist_bin"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_tatoms" type="hidden" name="density_hist_tatoms"></td>
+							</tr>
+							<tr>
+							    <td class="left bottom" colspan=8><textarea class="bottom" id="density_query" name="density_query" rows="2" cols="64"></textarea></td>
+							    <td class="bottom">
+								<table>
+								    <tr><td><button id="density_btn_vfy"><span class="module_font">Verify</span></button></td></tr>
+								</table>
+							    </td>
+							</tr>
+							<tr><td id="vfy_msg" class="center message_warn" colspan=5></td></tr>
+						    </table>
+						</td>
+					    </tr>
+					</table>
+				    </td>
+				</tr>
+				<!--- END: water ----->
+
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<!--- START: water dipole--->
+					<table>
+					    <tr>
+						<td colspan=2><input type="checkbox" id="chk_density_waterdp">water dipole</td>
+					    </tr>
+					    <tr id="density_frm_waterdp">
+						<td class="w_module"></td>
+						<td>
+						    <table>
+							<tr>
+							    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><span class="module_font">Output File Name</span></td>
+							    <td class="bottom w15"></td>
+							    <td></td><td></td><td></td><td></td><td></td>
+							</tr>
+							<tr>
+							    <td class="bottom"><input id="density_frmInt" class="module_txtbox_output" type="text" name="density_frmInt"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom" colspan=7><input id="density_outFile" class="module_txtbox_output2" type="text" name="density_outFile"></td>
+							</tr>
+							<tr>
+							    <td class="center"><span class="module_font">Axis</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Min</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Max</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Bin size</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"></td>
+							</tr>
+							<tr>
+							    <td class="bottom">
+								<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="density_Axis_waterdp" name="density_Axis_waterdp">
+								<option>Z</option>
+								<option>Y</option>
+								<option>X</option>
+								</select>
+							    </td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_min" class="module_txtbox_digit" type="text" name="density_hist_min"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_max" class="module_txtbox_digit" type="text" name="density_hist_max"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_bin" class="module_txtbox_digit" type="text" name="density_hist_bin"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_tatoms" type="hidden" name="density_hist_tatoms"></td>
+							</tr>
+							<tr>
+							    <td class="left bottom" colspan=8><textarea class="bottom" id="density_query" name="density_query" rows="2" cols="64"></textarea></td>
+							    <td class="bottom">
+								<table>
+								    <tr><td><button id="density_btn_vfy"><span class="module_font">Verify</span></button></td></tr>
+								</table>
+							    </td>
+							</tr>
+							<tr><td id="vfy_msg" class="center message_warn" colspan=5></td></tr>
+						    </table>
+						</td>
+					    </tr>
+					</table>
+				    </td>
+				</tr>
+				<!--- END: water dipole----->
+				
+				
+
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<!--- START: vector selection--->
+					<table>
+					    <tr>
+						<td colspan=2><input type="checkbox" id="chk_density_vector">vector selection</td>
+					    </tr>
+					    <tr id="density_frm_vector">
+						<td class="w_module"></td>
+						<td>
+						    <table>
+							<tr>
+							    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><span class="module_font">Output File Name</span></td>
+							    <td class="bottom w15"></td>
+							    <td></td><td></td><td></td><td></td><td></td>
+							</tr>
+							<tr>
+							    <td class="bottom"><input id="density_frmInt" class="module_txtbox_output" type="text" name="density_frmInt"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom" colspan=7><input id="density_outFile" class="module_txtbox_output2" type="text" name="density_outFile"></td>
+							</tr>
+							<tr>
+							    <td class="center"><span class="module_font">Axis</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Min</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Max</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Bin size</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"></td>
+							</tr>
+							<tr>
+							    <td class="bottom">
+								<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="density_Axis_vector" name="density_Axis_vector">
+								<option>Z</option>
+								<option>Y</option>
+								<option>X</option>
+								</select>
+							    </td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_min" class="module_txtbox_digit" type="text" name="density_hist_min"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_max" class="module_txtbox_digit" type="text" name="density_hist_max"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_bin" class="module_txtbox_digit" type="text" name="density_hist_bin"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_tatoms" type="hidden" name="density_hist_tatoms"></td>
+							</tr>
+							<tr>
+							    <td class="left bottom" colspan=8><textarea class="bottom" id="density_query" name="density_query" rows="2" cols="64"></textarea></td>
+							    <td class="bottom">
+								<table>
+								    <tr><td><button id="density_btn_vfy"><span class="module_font">Verify</span></button></td></tr>
+								</table>
+							    </td>
+							</tr>
+							<tr><td id="vfy_msg" class="center message_warn" colspan=5></td></tr>
+						    </table>
+						</td>
+					    </tr>
+					</table>
+				    </td>
+				</tr>
+				<!--- END: vector selection----->
+
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<!--- START: custom selection--->
+					<table>
+					    <tr>
+						<td colspan=2><input type="checkbox" id="chk_density_custom">custom selection</td>
+					    </tr>
+					    <tr id="density_frm_custom">
+						<td class="w_module"></td>
+						<td>
+						    <table>
+							<tr>
+							    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><span class="module_font">Output File Name</span></td>
+							    <td class="bottom w15"></td>
+							    <td></td><td></td><td></td><td></td><td></td>
+							</tr>
+							<tr>
+							    <td class="bottom"><input id="density_frmInt" class="module_txtbox_output" type="text" name="density_frmInt"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom" colspan=7><input id="density_outFile" class="module_txtbox_output2" type="text" name="density_outFile"></td>
+							</tr>
+							<tr>
+							    <td class="center"><span class="module_font">Axis</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Min</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Max</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Bin size</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"></td>
+							</tr>
+							<tr>
+							    <td class="bottom">
+								<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="density_Axis_custom" name="density_Axis_custom">
+								<option>Z</option>
+								<option>Y</option>
+								<option>X</option>
+								</select>
+							    </td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_min" class="module_txtbox_digit" type="text" name="density_hist_min"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_max" class="module_txtbox_digit" type="text" name="density_hist_max"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_bin" class="module_txtbox_digit" type="text" name="density_hist_bin"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_tatoms" type="hidden" name="density_hist_tatoms"></td>
+							</tr>
+							<tr>
+							    <td class="left bottom" colspan=8><textarea class="bottom" id="density_query" name="density_query" rows="2" cols="64"></textarea></td>
+							    <td class="bottom">
+								<table>
+								    <tr><td><button id="density_btn_vfy"><span class="module_font">Verify</span></button></td></tr>
+								    <tr><td><input type="checkbox" id="density_gquery">use GUI</td></tr>
+								</table>
+							    </td>
+							</tr>
+							<!--- GUI query builder --->
+							<tr id="density_gui_input">
+							    <td colspan=9>
+							    <table>
+								<tr>
+								    <td>
+									<table>
+									    <tr>
+										<td><button id="btn_selall" class="button_2letter">ALL</button></td>
+										<td><button id="btn_lt" class="button_2letter"><</button></td>
+										<td><button id="btn_gt" class="button_2letter">></button></td>
+										<td><button id="btn_eq" class="button_2letter">==</button></td>
+										<td><button id="btn_ne" class="button_2letter">!=</button></td>
+										<td><button id="btn_ge" class="button_2letter">>=</button></td>
+										<td><button id="btn_le" class="button_2letter"><=</button></td>
+										<td><button id="btn_and" class="button_2letter">AND</button></td>
+										<td><button id="btn_or" class="button_2letter">OR</button></td>
+										<td><button id="btn_not" class="button_2letter">NOT</button></td>
+										<td><button id="btn_around" class="button_2letter">AROUND</button></td>
+										<td><button id="btn_query_segid" class="button_2letter">SEGID</button></td>
+									    </tr>
+									</table>
+								    </td>
+								</tr>
+								<tr>
+								    <td>
+									<table>
+									    <tr>
+										<td><button id="btn_query_resname" class="button_2letter">RESNAME</button></td>
+										<td><button id="btn_query_resid" class="button_2letter">RESID</button></td>
+										<td><button id="btn_query_name" class="button_2letter">NAME</button></td>
+										<td><button id="btn_query_type" class="button_2letter">TYPE</button></td>
+										<td><button id="btn_query_prop" class="button_2letter">PROP</button></td>
+										<!-- <td><button id="btn_query_all" class="button_2letter">ALL</button></td> -->
+										<td></td>
+									    </tr>
+									</table>
+								    </td>
+								</tr>
+								<tr>
+								    <td>
+									<table>
+									    <tr>
+										<td>
+										    <select data-placeholder="key words" class="chzn-select" style="width:100px;" id="keywords" name="keywords"></select>
+										    <button id="btn_add_keywords">Add</button>
+										</td>
+										<td>
+										    <select data-placeholder="segid" class="chzn-select" style="width:100px;" id="uq_segid" name="uq_segid"></select>
+										    <button id="btn_add_segid">Add</button>
+										</td>
+										<td class="w15"></td>
+										<td rowspan=3><div id="quick_help"></div></td>
+									    </tr>
+									    <tr>
+										<td>
+										    <select data-placeholder="resname" class="chzn-select" style="width:100px;" id="uq_resname" name="uq_resname"></select>
+										    <button id="btn_add_resname">Add</button>
+										</td>
+										<td>
+										    <select data-placeholder="resid" class="chzn-select" style="width:100px;" id="uq_resid" name="uq_resid"></select>
+										    <button id="btn_add_resid">Add</button><span id="st_load"></span>
+										</td>
+										<td class="w15"></td>
+									    </tr>
+									    <tr>
+										<td>
+										    <select data-placeholder="name" class="chzn-select" style="width:100px;" id="uq_name" name="uq_name"></select>
+										    <button id="btn_add_name">Add</button>
+										</td>
+										<td>
+										    <select data-placeholder="type" class="chzn-select" style="width:100px;" id="uq_type" name="uq_type"></select>
+										    <button id="btn_add_type">Add</button>
+										</td>
+										<td class="w15"></td>
+									    </tr>
+									</table>
+								    </td>
+								</tr>
+							    </table>
+							    </td>
+							</tr>
+							<tr><td id="vfy_msg" class="center message_warn" colspan=5></td></tr>
+						    </table>
+						</td>
+					    </tr>
+					</table>
+				    </td>
+				</tr>
+				<!--- END: custom selection----->
+
 			    </table>
 			</div>
 		    </td>
