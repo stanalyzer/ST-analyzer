@@ -71,7 +71,7 @@
   z-index: 2;
 }
 
-#quick_help {
+.quick_help {
     color: #817679;
     width: 250px;
 }
@@ -97,6 +97,10 @@ td.w15 {
 
 td.w_module {
     width: 40px;
+}
+
+td.h15 {
+    height: 20px;
 }
 
 /* links */

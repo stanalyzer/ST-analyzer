@@ -1,6 +1,8 @@
 <script type="text/javascript">
 var $j = jQuery.noConflict();
 var cnt_membrane = 0;
+var cnt_density_custom_form  = 0;		// count number of adding new form for calculating helix_tilt
+var cnt_density_custom_index = 0;
 
 /* check numbers */
 function isNumber(n) {
@@ -192,6 +194,7 @@ $j(document).ready(function(){
     $j("#chk_membrane").click(function () {
 	$j("#M_membrane").toggle(this.checked);
     });
+
 /*
     $j("#membrane #density #density_title").click(function() {
 	var chk = $j(this).prop('checked');
@@ -206,6 +209,15 @@ $j(document).ready(function(){
 	$j("#membrane #cnt_membrane").empty().append(cnt_membrane);
     });
 */
+
+    // show/hide gui query
+    $j('tr[id^="density_gui_input"]').hide();
+    $j('input[id^="density_gquery"]').live("click", function() {
+	myfrm = $j(this).attr('mygui');
+	target_gui = "#density_gui_input" + myfrm;
+	$j(target_gui).toggle(this.checked);
+    });
+    
     $j("#membrane #density #chk_density_all").click(function() {
 	var chk = $j(this).prop('checked');
 	if (chk == true) {
@@ -304,7 +316,7 @@ $j(document).ready(function(){
     $j('#membrane #density #density_frm_water #density_outFile').val('density_water.dat').css("color", "gray");
     $j('#membrane #density #density_frm_waterdp #density_outFile').val('density_water_dipole.dat').css("color", "gray");
     $j('#membrane #density #density_frm_vector #density_outFile').val('density_vector.dat').css("color", "gray");
-    $j('#membrane #density #density_frm_custom #density_outFile').val('density_custom.dat').css("color", "gray");
+    $j('#membrane #density #density_frm_custom #density_outFile').val('density_custom0.dat').css("color", "gray");
 
     $j("#membrane #density #density_form").hide();
     $j("#membrane #density #density_title").click(function () {
@@ -370,284 +382,385 @@ $j(document).ready(function(){
     $j("#membrane #density #density_form #density_frm_water #density_query").empty().val('segid TIP3 and name OH2');
     $j("#membrane #density #density_form #density_frm_waterdp #density_query").empty().val('waterdp');
     $j("#membrane #density #density_form #density_frm_vector #density_query").empty().val('vector');
-    $j("#membrane #density #density_form #density_frm_custom #density_query").empty().val('custom');
+    $j("#membrane #density #density_form #density_frm_custom #density_query0").empty().val('');
     
     // Buttons
-    $j("#btn_selall").button();
-    $j("#btn_lt").button();
-    $j("#btn_gt").button();
-    $j("#btn_eq").button();
-    $j("#btn_ne").button();
-    $j("#btn_ge").button();
-    $j("#btn_le").button();
-    $j("#btn_and").button();
-    $j("#btn_or").button();
-    $j("#btn_not").button();
-    $j("#btn_around").button();
-    $j("#btn_query_segid").button();
-    $j("#btn_query_resname").button();
-    $j("#btn_query_resid").button();
-    $j("#btn_query_name").button();
-    $j("#btn_query_type").button();
-    $j("#btn_query_prop").button();
+    $j("#btn_selall0").button();
+    $j("#btn_lt0").button();
+    $j("#btn_gt0").button();
+    $j("#btn_eq0").button();
+    $j("#btn_ne0").button();
+    $j("#btn_ge0").button();
+    $j("#btn_le0").button();
+    $j("#btn_and0").button();
+    $j("#btn_or0").button();
+    $j("#btn_not0").button();
+    $j("#btn_around0").button();
+    $j("#btn_query_segid0").button();
+    $j("#btn_query_resname0").button();
+    $j("#btn_query_resid0").button();
+    $j("#btn_query_name0").button();
+    $j("#btn_query_type0").button();
+    $j("#btn_query_prop0").button();
 
     // click btn_lt button
-    $j("#membrane #density #btn_selall").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
-	new_query = query + "ALL ";
-	$j("#membrane #density #density_query").val('').val(new_query);
-    });
-
-    $j("#membrane #density #btn_lt").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
-	new_query = query + "< ";
-	$j("#membrane #density #density_query").val('').val(new_query);
-    });
-
-    // click btn_gt button 
-    $j("#membrane #density #btn_gt").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
-	new_query = query + "> ";
-	$j("#membrane #density #density_query").val('').val(new_query);
-    });
     
-    // click btn_eq button 
-    $j("#membrane #density #btn_eq").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
-	new_query = query + "== ";
-	$j("#membrane #density #density_query").val('').val(new_query);
+    $j("#membrane #density #density_frm_custom button[id^='btn_selall']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + "all ";
+	$j(target_id).val('').val(new_query);
     });
+
+    $j("#membrane #density #density_frm_custom button[id^='btn_lt']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + "< ";
+	$j(target_id).val('').val(new_query);
+    });
+
+    // click btn_gt button
+    $j("#membrane #density #density_frm_custom button[id^='btn_gt']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + "> ";
+	$j(target_id).val('').val(new_query);
+    });
+
+    
+    // click btn_eq button
+    $j("#membrane #density #density_frm_custom button[id^='btn_eq']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + "== ";
+	$j(target_id).val('').val(new_query);
+    });
+
     
     // click btn_ne button 
-    $j("#membrane #density #btn_ne").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
+    $j("#membrane #density #density_frm_custom button[id^='btn_ne']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
 	new_query = query + "!= ";
-	$j("#membrane #density #density_query").val('').val(new_query);
+	$j(target_id).val('').val(new_query);
     });
     
-    // click btn_ge button 
-    $j("#membrane #density #btn_ge").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
+    // click btn_ge button
+    $j("#membrane #density #density_frm_custom button[id^='btn_ge']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
 	new_query = query + ">= ";
-	$j("#membrane #density #density_query").val('').val(new_query);
+	$j(target_id).val('').val(new_query);
     });
+
     
-    // click btn_le button 
-    $j("#membrane #density #btn_le").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
+    // click btn_le button
+    $j("#membrane #density #density_frm_custom button[id^='btn_le']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
 	new_query = query + "<= ";
-	$j("#membrane #density #density_query").val('').val(new_query);
+	$j(target_id).val('').val(new_query);
     });
+
     
-    // click btn_and button 
-    $j("#membrane #density #btn_and").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
+    // click btn_and button
+    $j("#membrane #density #density_frm_custom button[id^='btn_and']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
 	new_query = query + "and ";
-	$j("#membrane #density #density_query").val('').val(new_query);
+	$j(target_id).val('').val(new_query);
     });
     
-    // click btn_or button 
-    $j("#membrane #density #btn_or").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
+    // click btn_or button
+    $j("#membrane #density #density_frm_custom button[id^='btn_or']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
 	new_query = query + "or ";
-	$j("#membrane #density #density_query").val('').val(new_query);
+	$j(target_id).val('').val(new_query);
     });
-    
-    // click btn_not button 
-    $j("#membrane #density #btn_not").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
+
+    // click btn_not button
+    $j("#membrane #density #density_frm_custom button[id^='btn_not']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
 	new_query = query + "not ";
-	$j("#membrane #density #density_query").val('').val(new_query);
+	$j(target_id).val('').val(new_query);
     });
-    
-    // click btn_around button 
-    $j("#membrane #density #btn_around").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
+
+
+    // click btn_around button
+    $j("#membrane #density #density_frm_custom button[id^='btn_around']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
 	new_query = query + "around ";
-	$j("#membrane #density #density_query").val('').val(new_query);
+	$j(target_id).val('').val(new_query);
     });
 
-    // click btn_query_segid button 
-    $j("#membrane #density #btn_query_segid").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
+
+    // click btn_query_segid button
+    $j("#membrane #density #density_frm_custom button[id^='btn_query_segid']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
 	new_query = query + "segid ";
-	$j("#membrane #density #density_query").val('').val(new_query);
+	$j(target_id).val('').val(new_query);
     });
 
-    // click btn_query_resname button 
-    $j("#membrane #density #btn_query_resname").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
+    // click btn_query_resname button
+    $j("#membrane #density #density_frm_custom button[id^='btn_query_resname']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
 	new_query = query + "resname ";
-	$j("#membrane #density #density_query").val('').val(new_query);
+	$j(target_id).val('').val(new_query);
     });
 
-    // click btn_query_resid button 
-    $j("#membrane #density #btn_query_resid").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
+    // click btn_query_resid button
+    $j("#membrane #density #density_frm_custom button[id^='btn_query_resid']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
 	new_query = query + "resid ";
-	$j("#membrane #density #density_query").val('').val(new_query);
+	$j(target_id).val('').val(new_query);
     });
 
-    // click btn_query_name button 
-    $j("#membrane #density #btn_query_name").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
+
+    // click btn_query_name button
+    $j("#membrane #density #density_frm_custom button[id^='btn_query_name']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
 	new_query = query + "name ";
-	$j("#membrane #density #density_query").val('').val(new_query);
+	$j(target_id).val('').val(new_query);
     });
 
-    // click btn_query_type button 
-    $j("#membrane #density #btn_query_type").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
+
+    // click btn_query_type button
+    $j("#membrane #density #density_frm_custom button[id^='btn_query_type']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
 	new_query = query + "type ";
-	$j("#membrane #density #density_query").val('').val(new_query);
+	$j(target_id).val('').val(new_query);
     });
 
-    // click btn_query_prop button 
-    $j("#membrane #density #btn_query_prop").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
+    // click btn_query_prop button
+    $j("#membrane #density #density_frm_custom button[id^='btn_query_prop']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
 	new_query = query + "prop ";
-	$j("#membrane #density #density_query").val('').val(new_query);
+	$j(target_id).val('').val(new_query);
     });
     
-    $j("#membrane #density #density_gui_input").hide();
-    $j("#membrane #density #density_gquery").click(function () {
+    $j("#membrane #density #density_frm_custom #density_gui_input0").hide();
+    $j("#membrane #density #density_frm_custom #density_gquery0").click(function () {
 	if (this.checked){
 	    // make list of input forms
 	    // keywords
-	    $j("#membrane #density #density_gui_input #keywords").empty().append("<option>Key Words</option>");
+	    $j("#membrane #density #density_frm_custom #density_gui_input0 #keywords0").empty().append("<option>Key Words</option>");
 	    for (var i = 0; i < key_words.length; i++) {
 		options = "<option>" + key_words[i] + "</option>";
-		$j("#membrane #density #density_gui_input #keywords").append(options);
+		$j("#membrane #density #density_frm_custom #density_gui_input0 #keywords0").append(options);
 	    }
-	    $j("#membrane #density #density_gui_input #keywords").trigger("liszt:updated");
+	    $j("#membrane #density #density_frm_custom #density_gui_input0 #keywords0").trigger("liszt:updated");
 	    
 	    // segid
-	    $j("#membrane #density #density_gui_input #uq_segid").empty().append("<option>segid</option>");
+	    $j("#membrane #density #density_frm_custom #density_gui_input0 #uq_segid0").empty().append("<option>segid</option>");
 	    uq_segid = mySystem["segid"];
 	    for (var i = 0; i < uq_segid.length; i++) {
 		options = "<option>" + uq_segid[i] + "</option>";
-		$j("#membrane #density #density_gui_input #uq_segid").append(options);
+		$j("#membrane #density #density_frm_custom #density_gui_input0 #uq_segid0").append(options);
 	    }
-	    $j("#membrane #density #density_gui_input #uq_segid").trigger("liszt:updated");
+	    $j("#membrane #density #density_frm_custom #density_gui_input0 #uq_segid0").trigger("liszt:updated");
 	    
 	}
-	$j("#membrane #density #density_gui_input").toggle(this.checked);
+	$j("#membrane #density #density_frm_custom #density_gui_input0").toggle(this.checked);
     });
     
-    // add segid in query
-    $j("#membrane #density #btn_add_keywords").click(function(){
-	query = $j("#membrane #density #density_query").val();
-	tmp = $j("#membrane #density #density_gui_input #keywords option:selected").text();
+    //keywards
+    $j("#membrane #density #density_frm_custom button[id^='btn_add_keywords']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	
+	var target_selid = "#membrane #density #density_frm_custom #density_gui_input" + myfrm + " #keywords" + myfrm + " option:selected";
+	tmp = $j(target_selid).text();
 	new_query = query + tmp + " ";
-	 $j("#membrane #density #density_query").val('').val(new_query);
+	 $j(target_id).val('').val(new_query);
     });
     
-    // click segid button 
-    $j("#membrane #density #btn_add_segid").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
-	tmp = $j("#membrane #density #density_gui_input #uq_segid option:selected").text();
+    // click segid button
+    $j("#membrane #density #density_frm_custom button[id^='btn_add_segid']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+
+	var target_selid = "#membrane #density #density_frm_custom #density_gui_input" + myfrm + " #uq_segid" + myfrm + " option:selected";
+	tmp = $j(target_selid).text();
 	new_query = query + tmp + " ";
-	$j("#membrane #density #density_query").val('').val(new_query);
+	$j(target_id).val('').val(new_query);
+	
 	if (tmp != 'segid') {
 	    //$j("#membrane #density #st_load").empty().append("<img src='/static/images/circle2.gif' height='20' width='20' >");
-	    var query = "segid " + tmp;
+	    var query = "segid " + tmp; // choose one of segid 
 	    tmpSystem = getStructureInfo(query, false);
 	    //$j("#membrane #density #st_load").empty();
+	    
 	    // resname
-	    $j("#membrane #density #density_gui_input #uq_resname").empty().append("<option>resname</option>");
+	    tmp_myid = "#membrane #density #density_frm_custom #density_gui_input" + myfrm + " #uq_resname" + myfrm;
+	    $j(tmp_myid).empty().append("<option>resname</option>");
 	    uq_resname = tmpSystem["resname"];
 	    for (var i = 0; i < uq_resname.length; i++) {
 		options = "<option>" + uq_resname[i] + "</option>";
-		$j("#membrane #density #density_gui_input #uq_resname").append(options);
+		$j(tmp_myid).append(options);
 	    }
-	    $j("#membrane #density #density_gui_input #uq_resname").trigger("liszt:updated");
+	    $j(tmp_myid).trigger("liszt:updated");
 
 	    // resid
-	    $j("#membrane #density #density_gui_input #uq_resid").empty().append("<option>resid</option>");
+	    tmp_myid = "#membrane #density #density_frm_custom #density_gui_input" + myfrm + " #uq_resid" + myfrm;
+	    $j(tmp_myid).empty().append("<option>resid</option>");
 	    uq_resid = tmpSystem["resid"];
 	    for (var i = 0; i < uq_resid.length; i++) {
 		options = "<option>" + uq_resid[i] + "</option>";
-		$j("#membrane #density #density_gui_input #uq_resid").append(options);
+		$j(tmp_myid).append(options);
 	    }
-	    $j("#membrane #density #density_gui_input #uq_resid").trigger("liszt:updated");
+	    $j(tmp_myid).trigger("liszt:updated");
 
 	    // name
-	    $j("#membrane #density #density_gui_input #uq_name").empty().append("<option>name</option>");
+	    tmp_myid = "#membrane #density #density_frm_custom #density_gui_input" + myfrm + " #uq_name" + myfrm;
+	    $j(tmp_myid).empty().append("<option>name</option>");
 	    uq_name = tmpSystem["name"];
 	    for (var i = 0; i < uq_name.length; i++) {
 		options = "<option>" + uq_name[i] + "</option>";
-		$j("#membrane #density #density_gui_input #uq_name").append(options);
+		$j(tmp_myid).append(options);
 	    }
-	    $j("#membrane #density #density_gui_input #uq_name").trigger("liszt:updated");
+	    $j(tmp_myid).trigger("liszt:updated");
 
 	    // type
-	    $j("#membrane #density #density_gui_input #uq_type").empty().append("<option>type</option>");
+	    tmp_myid = "#membrane #density #density_frm_custom #density_gui_input" + myfrm + " #uq_type" + myfrm;
+	    $j(tmp_myid).empty().append("<option>type</option>");
 	    uq_type = tmpSystem["type"];
 	    for (var i = 0; i < uq_type.length; i++) {
 		options = "<option>" + uq_type[i] + "</option>";
-		$j("#membrane #density #density_gui_input #uq_type").append(options);
+		$j(tmp_myid).append(options);
 	    }
-	    $j("#membrane #density #density_gui_input #uq_type").trigger("liszt:updated");
+	    $j(tmp_myid).trigger("liszt:updated");
 	}
     });
     
-    // click resname button 
-    $j("#membrane #density #btn_add_resname").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
-	tmp = $j("#membrane #density #density_gui_input #uq_resname option:selected").text();
+    // click resname button
+    $j("#membrane #density #density_frm_custom button[id^='btn_add_resname']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	
+	var target_selid = "#membrane #density #density_frm_custom #density_gui_input" + myfrm + " #uq_resname" + myfrm + " option:selected";
+	tmp = $j(target_selid).text();
 	new_query = query + tmp + " ";
-	$j("#membrane #density #density_query").val('').val(new_query);
+	 $j(target_id).val('').val(new_query);
     });
 
-    // click resid button 
-    $j("#membrane #density #btn_add_resid").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
-	tmp = $j("#membrane #density #density_gui_input #uq_resid option:selected").text();
+
+    // click resid button
+    $j("#membrane #density #density_frm_custom button[id^='btn_add_resid']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	
+	var target_selid = "#membrane #density #density_frm_custom #density_gui_input" + myfrm + " #uq_resid" + myfrm + " option:selected";
+	tmp = $j(target_selid).text();
 	new_query = query + tmp + " ";
-	$j("#membrane #density #density_query").val('').val(new_query);
+	 $j(target_id).val('').val(new_query);
     });
 
-    // click name button 
-    $j("#membrane #density #btn_add_name").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
-	tmp = $j("#membrane #density #density_gui_input #uq_name option:selected").text();
+    // click name button
+    $j("#membrane #density #density_frm_custom button[id^='btn_add_name']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	
+	var target_selid = "#membrane #density #density_frm_custom #density_gui_input" + myfrm + " #uq_name" + myfrm + " option:selected";
+	tmp = $j(target_selid).text();
 	new_query = query + tmp + " ";
-	$j("#membrane #density #density_query").val('').val(new_query);
+	 $j(target_id).val('').val(new_query);
     });
     
-    // click type button 
-    $j("#membrane #density #btn_add_type").click(function(){
-	$j("#membrane #density #density_from #vfy_msg").empty();
-	query = $j("#membrane #density #density_query").val();
-	tmp = $j("#membrane #density #density_gui_input #uq_type option:selected").text();
+    // click type button
+    $j("#membrane #density #density_frm_custom button[id^='btn_add_type']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	
+	var target_selid = "#membrane #density #density_frm_custom #density_gui_input" + myfrm + " #uq_type" + myfrm + " option:selected";
+	tmp = $j(target_selid).text();
 	new_query = query + tmp + " ";
-	$j("#membrane #density #density_query").val('').val(new_query);
+	 $j(target_id).val('').val(new_query);
     });
 
+
     /* Show quick menu when list box is changed */
-    $j("#membrane #density #density_gui_input #keywords").live("change", function(){
-	tmp_kwds = $j("#membrane #density #density_gui_input #keywords option:selected").text();
+    $j("#membrane #density #density_frm_custom select[id^='keywords']").live("change", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#membrane #density #density_frm_custom #keywords" + myfrm + " option:selected";
+	tmp_kwds = $j(target_id).text();
 	switch (tmp_kwds)
 	{
 	    case "protein":
@@ -693,7 +806,8 @@ $j(document).ready(function(){
 		break;
 	}
 	
-	$j("#membrane #quick_help").empty().append(str_help);
+	qhelp_id = "#membrane #density #density_frm_custom #quick_help" + myfrm;
+	$j(qhelp_id).empty().append(str_help);
     });
     
     /*******************************************
@@ -1005,23 +1119,32 @@ $j(document).ready(function(){
         });
     });
     
-    //---> For custom selection 
-    $j("#density_frm_custom #density_btn_vfy").click(function(){
-	var query = $j("#membrane #density #density_frm_custom #density_query").val().trim();
+    //---> For custom selection
+    $j("#membrane #density #density_frm_custom button[id^='density_btn_vfy']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	target_id = "#membrane #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val().trim();
+	if (query.length < 1) {
+	    alert("Query should be given!");
+	    $j(target_id).focus();
+	    return false;
+	}
+	
 	var bpath = $j("#proot option:selected").text().trim();
 	var stfile = $j("#stfile option:selected").text().trim();
 	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	var vfy_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
 	
 	var vfy = chkSyntex(query);
 	if (vfy["flag"]) {
-	    $j("#density_frm_custom #vfy_msg").empty().append(vfy["err"]);
+	    $j(vfy_id).empty().append(vfy["err"]);
 	    return false;
 	}
+	
 	/* display waiting message */
 	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
 	
-	
-	$j("#vfy_msg").empty().append(msgWait);
+	$j(vfy_id).empty().append(msgWait);
 	    var sndData = {
 		'cmd'       : 'verify',
 		'query'	    : query,
@@ -1040,7 +1163,7 @@ $j(document).ready(function(){
 		    
         request.done(function(Jdata) {
             var obj = $j.parseJSON(Jdata);
-            $j("#density_frm_custom #vfy_msg").empty().append("Verified!");
+            $j(vfy_id).empty().append("Verified!");
             $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
 	    $j("#dlg_selInfo").dialog({
 		resizable: true,
@@ -1052,13 +1175,189 @@ $j(document).ready(function(){
         });
           
         request.error(function(jqXHR, textStatus, errorThrown) {
-            $j("#density_frm_custom #vfy_msg").empty().append(errorThrown);
+            $j(vfy_id).empty().append(errorThrown);
         });
+    });
+    
+    //--> Adding custom forms
+    $j("#membrane #density #density_frm_custom #add_density_form").live("click", function() {
+	var frm_int = $j("#membrane #density #density_frm_custom #density_frmInt").val();
+	var b_min = $j("#membrane #density #density_frm_custom #density_hist_min").val();
+	var b_max = $j("#membrane #density #density_frm_custom #density_hist_max").val();
+	var b_size = $j("#membrane #density #density_frm_custom #density_hist_bin").val();
+	
+	cnt_density_custom_form++;
+	cnt_density_custom_index++;
+
+	
+	//var html_jscript = '<script type="text/javascript">'
+	var html_jscript = 'var $j = jQuery.noConflict();'
+			// click check box
+			+ 'curr_chkbox = "#membrane #density #density_frm_custom #density_gquery' + cnt_density_custom_form + '";'
+			+ 'curr_querybox = "#membrane #density #density_frm_custom #density_gui_input' + cnt_density_custom_form + '";'
+			+ '$j(curr_querybox).hide();'
+			+ '$j(curr_chkbox).click(function () {'
+			+ '$j(curr_querybox).toggle(this.checked);'
+			+ '});'
+	//		+ '<\/script>';
+	
+	//var html_density_form = html_jscript
+	var html_density_form = '<tr id="density_custom_form_add_' + cnt_density_custom_form
+	+ '"><td class="bottom h15"></td></tr>'
+	+ '<tr id="density_custom_form_add_' + cnt_density_custom_form
+	+ '"><td><table>'
+	+ '<tr><td class="bottom"><span class="module_font">Frame Interval</span></td>'
+	+ '<td class="bottom w15"></td>'
+	+ '<td class="bottom"><span class="module_font">Output File Name</span></td>'
+	+ '<td class="bottom w15"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>'
+	+ '<tr><td class="bottom"><input id="density_frmInt' + cnt_density_custom_form
+	+ '" class="module_txtbox_output" type="text" name="density_frmInt" value="' + frm_int
+	+ '" ></td><td class="bottom w15"></td>'
+	+ '<td class="bottom" colspan=7><input id="density_outFile' + cnt_density_custom_form
+	+ '" class="module_txtbox_output2" type="text" name="density_outFile" value="density_custom' + cnt_density_custom_index
+	+ '.dat" ></td><td class="bottom"></td></tr>'
+	+ '<tr><td class="center"><span class="module_font">Axis</span></td>'
+	+ '<td class="bottom w15"></td>'
+	+ '<td class="center"><span class="module_font">Min</span></td>'
+	+ '<td class="bottom w15"></td>'
+	+ '<td class="center"><span class="module_font">Max</span></td> '
+	+ '<td class="bottom w15"></td>'
+	+ '<td class="center"><span class="module_font">Bin size</span></td>'
+	+ '<td class="bottom w15"></td>'
+	+ '<td class="bottom"></td><td class="bottom"></td></tr>'
+	+ '<tr><td class="bottom">'
+	+ '<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="density_Axis_custom' + cnt_density_custom_form + '" name="density_Axis_custom"><option>Z</option><option>Y</option><option>X</option></select></td><td class="bottom w15"></td><td class="bottom">'
+	+ '<input id="density_hist_min' + cnt_density_custom_form + '" class="module_txtbox_digit" type="text" name="density_hist_min" value="' + b_min + '"></td><td class="bottom w15"></td><td class="bottom">'
+	+ '<input id="density_hist_max' + cnt_density_custom_form + '" class="module_txtbox_digit" type="text" name="density_hist_max" value="' + b_max + '"></td><td class="bottom w15"></td><td class="bottom">'
+	+ '<input id="density_hist_bin' + cnt_density_custom_form + '" class="module_txtbox_digit" type="text" name="density_hist_bin" value="' + b_size + '"></td><td class="bottom w15"></td><td class="bottom">'
+	+ '<input id="density_hist_tatoms' + cnt_density_custom_form + '" type="hidden" name="density_hist_tatoms"></td><td class="bottom"></td></tr>'
+	+ '<tr><td class="left bottom" colspan=8>'
+	+ '<textarea class="bottom" id="density_query' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  name="density_query" rows="2" cols="64"></textarea></td><td class="bottom"><table><tr><td>'
+	+ '<button id="density_btn_vfy' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"><span class="module_font">Verify</span></button></td></tr>'
+	+ '<tr><td><input type="checkbox" id="density_gquery' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '">use GUI</td></tr></table></td><td>'
+	+ '<button id="delete_density_form_' + cnt_density_custom_form + '" num_idx="' + cnt_density_custom_form + '">delete</button></td></tr>'
+	+ '<tr id="density_gui_input' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"><td colspan=9><table><tr><td>'
+	+ '<table><tr><td><button id="btn_selall' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '" class="button_2letter">ALL</button></td>'
+	+ '<td><button id="btn_lt' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '" class="button_2letter"><</button></td>'
+	+ '<td><button id="btn_gt' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">></button></td>'
+	+ '<td><button id="btn_eq' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">==</button></td>'
+	+ '<td><button id="btn_ne' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">!=</button></td>'
+	+ '<td><button id="btn_ge' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">>=</button></td>'
+	+ '<td><button id="btn_le' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter"><=</button></td>'
+	+ '<td><button id="btn_and' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">AND</button></td>'
+	+ '<td><button id="btn_or' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">OR</button></td>'
+	+ '<td><button id="btn_not' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">NOT</button></td>'
+	+ '<td><button id="btn_around' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">AROUND</button></td>'
+	+ '<td><button id="btn_query_segid' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">SEGID</button></td></tr></table></td></tr>'
+	+ '<tr><td><table><tr>'
+	+ '<td><button id="btn_query_resname' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">RESNAME</button></td>'
+	+ '<td><button id="btn_query_resid' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">RESID</button></td>'
+	+ '<td><button id="btn_query_name' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">NAME</button></td>'
+	+ '<td><button id="btn_query_type' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">TYPE</button></td>'
+	+ '<td><button id="btn_query_prop' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">PROP</button></td><td></td></tr></table></td></tr>'
+	+ '<tr><td><table><tr><td>'
+	+ '<select data-placeholder="key words" class="chzn-select" style="width:100px;" id="keywords' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  name="keywords"></select>'
+	+ '<button id="btn_add_keywords' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '">Add</button></td><td>'
+	+ '<select data-placeholder="segid" class="chzn-select" style="width:100px;" id="uq_segid' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  name="uq_segid"></select>'
+	+ '<button id="btn_add_segid' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '">Add</button></td><td class="w15"></td><td rowspan=3><div id="quick_help' + cnt_density_custom_form + '" class="quick_help"></div></td></tr>'
+	+ '<tr><td><select data-placeholder="resname" class="chzn-select" style="width:100px;" id="uq_resname' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  name="uq_resname"></select>'
+	+ '<button id="btn_add_resname' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '">Add</button></td><td>'
+	+ '<select data-placeholder="resid" class="chzn-select" style="width:100px;" id="uq_resid' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  name="uq_resid"></select>'
+	+ '<button id="btn_add_resid' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '">Add</button><span id="st_load"></span></td><td class="w15"></td></tr>'
+	+ '<tr><td><select data-placeholder="name" class="chzn-select" style="width:100px;" id="uq_name' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  name="uq_name"></select>'
+	+ '<button id="btn_add_name' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '">Add</button></td>'
+	+ '<td><select data-placeholder="type" class="chzn-select" style="width:100px;" id="uq_type' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  name="uq_type"></select>'
+	+ '<button id="btn_add_type' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '">Add</button></td>'
+	+ '<td class="w15"></td></tr></table></td></tr></table></td></tr>'
+	+ '<tr><td id="vfy_msg' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="center message_warn" colspan=5></td></tr>'
+	+ '</table></td></tr>';
+
+	
+	//console.log(html_density_form);
+	
+	$j("#membrane #density #density_frm_custom #density_new_form").append(html_density_form);
+	mygui = "#density_gui_input" + cnt_density_custom_form;
+	$j(mygui).hide();
+	
+	/* copy option values from density_Axis_custom to density_Axis_custom# */
+	var new_density_Axis = "#membrane #density #density_frm_custom #density_Axis_custom" + cnt_density_custom_form;
+	$j('#membrane #density #density_frm_custom #density_Axis_custom option').clone().appendTo(new_density_Axis);
+	
+	/* copy option values from keywords to keywords# */
+	var new_keywords = "#membrane #density #density_frm_custom #keywords" + cnt_density_custom_form;
+	$j('#membrane #density #density_frm_custom #keywords0 option').clone().appendTo(new_keywords);
+	
+	/* copy option values from uq_segid to uq_segid */
+	var new_uq_segid = "#membrane #density #density_frm_custom #uq_segid" + cnt_density_custom_form;
+	$j('#membrane #density #density_frm_custom #uq_segid0 option').clone().appendTo(new_uq_segid);
+
+	/* copy option values from uq_resname to uq_resname */
+	var new_uq_resname = "#membrane #density #density_frm_custom #uq_resname" + cnt_density_custom_form;
+	$j('#membrane #density #density_frm_custom #uq_resname0 option').clone().appendTo(new_uq_resname);
+
+	/* copy option values from uq_resid to uq_resid */
+	var new_uq_resid = "#membrane #density #density_frm_custom #uq_resid" + cnt_density_custom_form;
+	$j('#membrane #density #density_frm_custom #uq_resid0 option').clone().appendTo(new_uq_resid);
+
+	/* copy option values from uq_segid to uq_name */
+	var new_uq_name = "#membrane #density #density_frm_custom #uq_name" + cnt_density_custom_form;
+	$j('#membrane #density #density_frm_custom #uq_name0 option').clone().appendTo(new_uq_name);
+
+	/* copy option values from uq_type to uq_type */
+	var new_uq_type = "#membrane #density #density_frm_custom #uq_type" + cnt_density_custom_form;
+	$j('#membrane #density #density_frm_custom #uq_type0 option').clone().appendTo(new_uq_type);
+	
+	/* copy hidden atom number */
+	var new_density_hist_tatoms = "#membrane #density #density_frm_custom #density_hist_tatoms" + cnt_density_custom_form;
+	var tatoms = $j("#membrane #density #density_frm_custom #density_hist_tatoms").val();
+	$j(new_density_hist_tatoms).empty().val(tatoms);
+	
+	//var curr_form = "#membrane #density #density_frm_custom #density_custom_form_add_" + cnt_density_custom_form;
+	//console.log(curr_form);
+	//$j(curr_form).filter('.chzn-select').chosen(); // apply to top level elems
+	
+	// add buttons 
+	
+    
+	$j("#membrane #density #density_new_form").filter('.chzn-select').chosen(); // apply to top level elems
+        $j("#membrane #density #density_new_form").find('.chzn-select').chosen();   // apply to nested elems
+	
+	//$j("#membrane #density #density_frm_custom #density_new_form").append(html_jscript);
+	//$j("#head_js_script").append(html_jscript);
+	$j("#membrane #density #density_new_form").find('.button_2letter').button();
+	//console.log(html_jscript)
+    });
+    
+    
+    /* deleting forms for calculating helix tilt */
+    $j("#membrane #density #density_frm_custom button[id^='delete_density_form']").live("click", function() {
+	idx = $j(this).attr('num_idx');
+	var del_form = "#membrane #density #density_frm_custom #density_custom_form_add_" + idx;
+	//alert("num_idx=" + idx + "del_form=" + del_form);
+	$j(del_form).remove();
+	
+	// Initializing file name
+	var outFile = [];
+	var cnt = 0;
+	$j("#membrane #density #density_frm_custom input[name='density_outFile']").each(function() {
+	    cnt++;
+	    var new_file = "density_custom" + cnt + ".dat";
+	    $j(this).val('');
+	    $j(this).val(new_file);
+	    cnt_density_custom_index = cnt;
+	    if (cnt_density_custom_index < 0) {
+		cnt_density_custom_index = 0;
+	    }
+	});
+
     });
 });
 </script>
 
 <div id="membrane">
+    <table>
+	<tr><td id="head_js_script"></td></tr>
+    </table>
     <table>
 	<tr>
 	    <td colspan="2"><input type="checkbox" id="chk_membrane"><span class="st_font1 st_size3 st_color6"><b>Membrane(<span id="cnt_membrane" class="st_font1 st_size3 st_color5">0</span>)</b></span></td>
@@ -1512,12 +1811,13 @@ $j(document).ready(function(){
 							    <td class="bottom w15"></td>
 							    <td class="bottom"><span class="module_font">Output File Name</span></td>
 							    <td class="bottom w15"></td>
-							    <td></td><td></td><td></td><td></td><td></td>
+							    <td></td><td></td><td></td><td></td><td></td><td></td>
 							</tr>
 							<tr>
 							    <td class="bottom"><input id="density_frmInt" class="module_txtbox_output" type="text" name="density_frmInt"></td>	
 							    <td class="bottom w15"></td>
 							    <td class="bottom" colspan=7><input id="density_outFile" class="module_txtbox_output2" type="text" name="density_outFile"></td>
+							    <td class="bottom"></td>
 							</tr>
 							<tr>
 							    <td class="center"><span class="module_font">Axis</span></td>
@@ -1528,6 +1828,7 @@ $j(document).ready(function(){
 							    <td class="bottom w15"></td>
 							    <td class="center"><span class="module_font">Bin size</span></td>
 							    <td class="bottom w15"></td>
+							    <td class="bottom"></td>
 							    <td class="bottom"></td>
 							</tr>
 							<tr>
@@ -1546,36 +1847,38 @@ $j(document).ready(function(){
 							    <td class="bottom"><input id="density_hist_bin" class="module_txtbox_digit" type="text" name="density_hist_bin"></td>	
 							    <td class="bottom w15"></td>
 							    <td class="bottom"><input id="density_hist_tatoms" type="hidden" name="density_hist_tatoms"></td>
+							    <td class="bottom"></td>
 							</tr>
 							<tr>
-							    <td class="left bottom" colspan=8><textarea class="bottom" id="density_query" name="density_query" rows="2" cols="64"></textarea></td>
+							    <td class="left bottom" colspan=8><textarea class="bottom" id="density_query0" mygui="0" name="density_query" rows="2" cols="64"></textarea></td>
 							    <td class="bottom">
 								<table>
-								    <tr><td><button id="density_btn_vfy"><span class="module_font">Verify</span></button></td></tr>
-								    <tr><td><input type="checkbox" id="density_gquery">use GUI</td></tr>
+								    <tr><td><button id="density_btn_vfy0" mygui="0"><span class="module_font">Verify</span></button></td></tr>
+								    <tr><td><input type="checkbox" id="density_gquery0" mygui="0">use GUI</td></tr>
 								</table>
 							    </td>
+							    <td><button id="add_density_form">add</button></td>
 							</tr>
 							<!--- GUI query builder --->
-							<tr id="density_gui_input">
-							    <td colspan=9>
+							<tr id="density_gui_input0">
+							    <td colspan=10>
 							    <table>
 								<tr>
 								    <td>
 									<table>
 									    <tr>
-										<td><button id="btn_selall" class="button_2letter">ALL</button></td>
-										<td><button id="btn_lt" class="button_2letter"><</button></td>
-										<td><button id="btn_gt" class="button_2letter">></button></td>
-										<td><button id="btn_eq" class="button_2letter">==</button></td>
-										<td><button id="btn_ne" class="button_2letter">!=</button></td>
-										<td><button id="btn_ge" class="button_2letter">>=</button></td>
-										<td><button id="btn_le" class="button_2letter"><=</button></td>
-										<td><button id="btn_and" class="button_2letter">AND</button></td>
-										<td><button id="btn_or" class="button_2letter">OR</button></td>
-										<td><button id="btn_not" class="button_2letter">NOT</button></td>
-										<td><button id="btn_around" class="button_2letter">AROUND</button></td>
-										<td><button id="btn_query_segid" class="button_2letter">SEGID</button></td>
+										<td><button id="btn_selall0" mygui="0" class="button_2letter">ALL</button></td>
+										<td><button id="btn_lt0" mygui="0" class="button_2letter"><</button></td>
+										<td><button id="btn_gt0" mygui="0" class="button_2letter">></button></td>
+										<td><button id="btn_eq0" mygui="0" class="button_2letter">==</button></td>
+										<td><button id="btn_ne0" mygui="0" class="button_2letter">!=</button></td>
+										<td><button id="btn_ge0" mygui="0" class="button_2letter">>=</button></td>
+										<td><button id="btn_le0" mygui="0" class="button_2letter"><=</button></td>
+										<td><button id="btn_and0" mygui="0" class="button_2letter">AND</button></td>
+										<td><button id="btn_or0" mygui="0" class="button_2letter">OR</button></td>
+										<td><button id="btn_not0" mygui="0" class="button_2letter">NOT</button></td>
+										<td><button id="btn_around0" mygui="0" class="button_2letter">AROUND</button></td>
+										<td><button id="btn_query_segid0" mygui="0" class="button_2letter">SEGID</button></td>
 									    </tr>
 									</table>
 								    </td>
@@ -1584,11 +1887,11 @@ $j(document).ready(function(){
 								    <td>
 									<table>
 									    <tr>
-										<td><button id="btn_query_resname" class="button_2letter">RESNAME</button></td>
-										<td><button id="btn_query_resid" class="button_2letter">RESID</button></td>
-										<td><button id="btn_query_name" class="button_2letter">NAME</button></td>
-										<td><button id="btn_query_type" class="button_2letter">TYPE</button></td>
-										<td><button id="btn_query_prop" class="button_2letter">PROP</button></td>
+										<td><button id="btn_query_resname0" mygui="0" class="button_2letter">RESNAME</button></td>
+										<td><button id="btn_query_resid0" mygui="0" class="button_2letter">RESID</button></td>
+										<td><button id="btn_query_name0" mygui="0" class="button_2letter">NAME</button></td>
+										<td><button id="btn_query_type0" mygui="0" class="button_2letter">TYPE</button></td>
+										<td><button id="btn_query_prop0" mygui="0" class="button_2letter">PROP</button></td>
 										<!-- <td><button id="btn_query_all" class="button_2letter">ALL</button></td> -->
 										<td></td>
 									    </tr>
@@ -1600,37 +1903,39 @@ $j(document).ready(function(){
 									<table>
 									    <tr>
 										<td>
-										    <select data-placeholder="key words" class="chzn-select" style="width:100px;" id="keywords" name="keywords"></select>
-										    <button id="btn_add_keywords">Add</button>
+										    <select data-placeholder="key words" class="chzn-select" style="width:100px;" id="keywords0" mygui="0" name="keywords"></select>
+										    <button id="btn_add_keywords0" mygui="0">Add</button>
 										</td>
 										<td>
-										    <select data-placeholder="segid" class="chzn-select" style="width:100px;" id="uq_segid" name="uq_segid"></select>
-										    <button id="btn_add_segid">Add</button>
+										    <select data-placeholder="segid" class="chzn-select" style="width:100px;" id="uq_segid0" mygui="0" name="uq_segid"></select>
+										    <button id="btn_add_segid0" mygui="0">Add</button>
 										</td>
 										<td class="w15"></td>
-										<td rowspan=3><div id="quick_help"></div></td>
+										<td rowspan=3><div id="quick_help0" class="quick_help"></div></td>
 									    </tr>
 									    <tr>
 										<td>
-										    <select data-placeholder="resname" class="chzn-select" style="width:100px;" id="uq_resname" name="uq_resname"></select>
-										    <button id="btn_add_resname">Add</button>
+										    <select data-placeholder="resname" class="chzn-select" style="width:100px;" id="uq_resname0" mygui="0" name="uq_resname"></select>
+										    <button id="btn_add_resname0" mygui="0">Add</button>
 										</td>
 										<td>
-										    <select data-placeholder="resid" class="chzn-select" style="width:100px;" id="uq_resid" name="uq_resid"></select>
-										    <button id="btn_add_resid">Add</button><span id="st_load"></span>
+										    <select data-placeholder="resid" class="chzn-select" style="width:100px;" id="uq_resid0" mygui="0" name="uq_resid"></select>
+										    <button id="btn_add_resid0" mygui="0">Add</button><span id="st_load"></span>
 										</td>
 										<td class="w15"></td>
+										<td></td>
 									    </tr>
 									    <tr>
 										<td>
-										    <select data-placeholder="name" class="chzn-select" style="width:100px;" id="uq_name" name="uq_name"></select>
-										    <button id="btn_add_name">Add</button>
+										    <select data-placeholder="name" class="chzn-select" style="width:100px;" id="uq_name0" mygui="0" name="uq_name"></select>
+										    <button id="btn_add_name0" mygui="0">Add</button>
 										</td>
 										<td>
-										    <select data-placeholder="type" class="chzn-select" style="width:100px;" id="uq_type" name="uq_type"></select>
-										    <button id="btn_add_type">Add</button>
+										    <select data-placeholder="type" class="chzn-select" style="width:100px;" id="uq_type0" mygui="0" name="uq_type"></select>
+										    <button id="btn_add_type0" mygui="0">Add</button>
 										</td>
 										<td class="w15"></td>
+										<td></td>
 									    </tr>
 									</table>
 								    </td>
@@ -1638,7 +1943,14 @@ $j(document).ready(function(){
 							    </table>
 							    </td>
 							</tr>
-							<tr><td id="vfy_msg" class="center message_warn" colspan=5></td></tr>
+							<tr><td id="vfy_msg0" class="center message_warn" colspan=5></td></tr>
+							<tr>
+							    <td colspan=10>
+								<table id="density_new_form">
+								    
+								</table>
+							    </td>
+							</tr>
 						    </table>
 						</td>
 					    </tr>
@@ -1655,5 +1967,11 @@ $j(document).ready(function(){
 	</td></tr>
 	<!--- Density end--->
     </table>
+    <table>
+	<tr>
+	    <td id=""bottom_js_script"></td>
+	</tr>
+    </table>
 </div>
+
 

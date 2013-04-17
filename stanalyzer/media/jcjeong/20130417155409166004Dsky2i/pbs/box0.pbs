@@ -1,0 +1,11 @@
+#!/bin/bash
+#PBS -l nodes=1:ppn=1
+#PBS -l mem=500mb
+#PBS -l walltime=72:00:00
+#PBS -l cput=72:00:00
+#PBS -q charmm_nmr
+#PBS -N box0
+#PBS -e /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130417155409166004Dsky2i/pbs/box0.err
+#PBS -o /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130417155409166004Dsky2i/pbs/box0.log
+cd /home2/jcjeong/project/stanalyzer0/stanalyzer/static/analyzers
+/home/sunhwan/local/python/bin/python box.py /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130417155409166004Dsky2i/para 0

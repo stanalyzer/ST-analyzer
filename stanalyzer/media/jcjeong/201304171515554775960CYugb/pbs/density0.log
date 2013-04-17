@@ -1,0 +1,10 @@
+### execution file: density.py ###
+	- input file: /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/201304171515554775960CYugb/para
+SELECT id FROM gui_outputs WHERE job_id = 160 and name = "density0_all.dat" 
+AXIS = Z, <type 'unicode'>
+MIN = -77.0, <type 'float'>
+MAX = 77.0, <type 'float'>
+BIN = 1.0, <type 'float'>
+QUERY = all, <type 'unicode'>
+Total # atoms = 16476, <type 'int'>
+Pause: 

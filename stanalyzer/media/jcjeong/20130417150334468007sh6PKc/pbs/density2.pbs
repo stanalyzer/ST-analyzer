@@ -1,0 +1,11 @@
+#!/bin/bash
+#PBS -l nodes=1:ppn=1
+#PBS -l mem=500mb
+#PBS -l walltime=72:00:00
+#PBS -l cput=72:00:00
+#PBS -q charmm_nmr
+#PBS -N density2
+#PBS -e /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130417150334468007sh6PKc/pbs/density2.err
+#PBS -o /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130417150334468007sh6PKc/pbs/density2.log
+cd /home2/jcjeong/project/stanalyzer0/stanalyzer/static/analyzers
+python density.py /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130417150334468007sh6PKc/para 2

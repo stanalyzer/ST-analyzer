@@ -226,12 +226,12 @@ selQry = paras[7][para_idx];			# pInfo[7] : Query
 num_atoms = paras[8][para_idx];			# pInfo[8] : Total number of atoms
 num_atoms = int(num_atoms);
 
-#print "AXIS = {}, {}".format(taxis, type(taxis));
-#print "MIN = {}, {}".format(dnst_min, type(dnst_min));
-#print "MAX = {}, {}".format(dnst_max, type(dnst_max));
-#print "BIN = {}, {}".format(dnst_bin, type(dnst_bin));
-#print "QUERY = {}, {}".format(selQry, type(selQry));
-#print "Total # atoms = {}, {}".format(num_atoms, type(num_atoms));
+print "AXIS = {}, {}".format(taxis, type(taxis));
+print "MIN = {}, {}".format(dnst_min, type(dnst_min));
+print "MAX = {}, {}".format(dnst_max, type(dnst_max));
+print "BIN = {}, {}".format(dnst_bin, type(dnst_bin));
+print "QUERY = {}, {}".format(selQry, type(selQry));
+print "Total # atoms = {}, {}".format(num_atoms, type(num_atoms));
 
 #dummy = raw_input("Pause: ");
 

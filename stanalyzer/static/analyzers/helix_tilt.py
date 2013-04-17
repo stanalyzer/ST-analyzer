@@ -87,6 +87,7 @@ pInfo = myPara[1];      # parameter information pInfo[0] = "number of parameters
 paras = myPara[2];      # actual parameters paras[0] contains 'the number of parameters'
 para_pkey = myPara[3];  # primary key of parameter table contating this analzyer function. 
 rmodule   = "{0}{1}".format(exe_file[:len(exe_file)-3], para_idx);  # running module name (e.g. box0)
+outFile   = paras[2][para_idx];			# pInfo[2] : output file name (list)
 
 #print "NAME OF FUNCTION: {}".format(fName);
 #print "PARAMETER INFO: {}".format(pInfo);
@@ -114,7 +115,9 @@ conn.close();
 conn = sqlite3.connect(DB_FILE);
 c    = conn.cursor();
 # find gui_outputs related to current processing
-query = """SELECT id FROM gui_outputs WHERE job_id = {0} and name = "{1}" """.format(job_pkey[0], rmodule);
+#query = """SELECT id FROM gui_outputs WHERE job_id = {0} and name = "{1}" """.format(job_pkey[0], rmodule);
+jobName = "{}_{}".format(rmodule, outFile);
+query = """SELECT id FROM gui_outputs WHERE job_id = {0} and name = "{1}" """.format(job_pkey[0], jobName);
 c.execute(query);
 row = c.fetchone();
 pk_output = row[0];     # primary key for gui_outputs
@@ -199,7 +202,7 @@ fid_in.close();
 num_paras = paras[0][0];			# pInfo[0] : number of parameters
 frmInt	  = paras[1][para_idx];			# pInfo[1] : Frame interval (list)
 frmInt	  = int(frmInt);
-outFile   = paras[2][para_idx];			# pInfo[2] : output file name (list)
+
 
 ######################################## PLEASE DO NOT MODIFY ABOVE THIST LINE!!!! ############################################
 #---------------------< assigned module specific parameters: defined by users >---------------------------------
@@ -272,7 +275,7 @@ if run:
     gScript = gScript + "set xlabel 'ps/frame'\n";
     gScript = gScript + "set ylabel 'Tilt Angle'\n";
     gScript = gScript + "set output '{0}'\n".format(imgPath);
-    gScript = gScript + """plot "{0}/{1}" using 1:2 title "Helix Tilt" with linespoints\n""".format(out_dir, outFile);
+    gScript = gScript + """plot "{0}/{1}" using 1:2 title "Helix Tilt" with lines lw 3\n""".format(out_dir, outFile);
     fid_out.write(gScript);
     fid_out.close()
     

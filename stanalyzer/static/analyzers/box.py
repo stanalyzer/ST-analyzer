@@ -99,6 +99,7 @@ pInfo = myPara[1];      # parameter information pInfo[0] = "number of parameters
 paras = myPara[2];      # actual parameters paras[0] contains 'the number of parameters'
 para_pkey = myPara[3];  # primary key of parameter table contating this analzyer function.
 rmodule   = "{0}{1}".format(exe_file[:len(exe_file)-3], para_idx);  # running module name (e.g. box0)
+outFile   = paras[2][para_idx];			# pInfo[2] : output file name (list)
 
 #print "================= Okay Show me my parameters in box.py ===================="
 #print fName
@@ -130,7 +131,9 @@ conn.close();
 conn = sqlite3.connect(DB_FILE);
 c    = conn.cursor();
 # find gui_outputs related to current processing
-query = """SELECT id FROM gui_outputs WHERE job_id = {0} and name = "{1}" """.format(job_pkey[0], rmodule);
+#query = """SELECT id FROM gui_outputs WHERE job_id = {0} and name = "{1}" """.format(job_pkey[0], rmodule);
+jobName = "{}_{}".format(rmodule, outFile);
+query = """SELECT id FROM gui_outputs WHERE job_id = {0} and name = "{1}" """.format(job_pkey[0], jobName);
 c.execute(query);
 row = c.fetchone();
 pk_output = row[0];     # primary key for gui_outputs
@@ -299,7 +302,7 @@ try:
     gScript = gScript + "set xlabel 'ps/frame'\n";
     gScript = gScript + "set ylabel 'System size'\n";
     gScript = gScript + "set output '{0}'\n".format(imgPath);
-    gScript = gScript + """plot "{0}/{1}" using 1:2 title "X-axis" with linespoints, "{2}/{1}" using 1:3 title "Y-axis" with linespoints, "{3}/{1}" using 1:4 title "Z-axis" with linespoints\n""".format(out_dir, out_file, out_dir, out_dir);
+    gScript = gScript + """plot "{0}/{1}" using 1:2 title "X-axis" with lines lw 3, "{2}/{1}" using 1:3 title "Y-axis" with lines lw 3, "{3}/{1}" using 1:4 title "Z-axis" with lines lw 3\n""".format(out_dir, out_file, out_dir, out_dir);
     fid_out.write(gScript);
     fid_out.close()
     #print gScript

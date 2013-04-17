@@ -21,8 +21,9 @@
 <script type="text/javascript" src="/static/admin/js/SelectBox.js"></script>
 <script type="text/javascript" src="/static/admin/js/SelectFilter2.js"></script>
 <script type="text/javascript" src="/static/js/jsi18n.js"></script>
-    
-<script type="text/javascript" src="/static/js/jquery-1.8.3.min.js"></script>
+
+<script type="text/javascript" src="/static/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery-migrate-1.1.1.min.js"></script>
 <script type="text/javascript" src="/static/js/jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.min.js"></script>
 <script type="text/javascript" src="/static/js/jquery.tinysort.min.js"></script>
 <script type="text/javascript" src="/static/js/jquery.tinysort.charorder.min.js"></script>
@@ -617,7 +618,7 @@ function eval_step2() {
 	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
 	PARs.push(para);
 	PARinfo.push(para_info);
-	//alert("PARAS:" + PARs[1]['num_para']);
+	//alert("numAtoms:" + numAtoms);
     }
     return [JOBs, PARs, PARinfo];
 }
