@@ -1,0 +1,136 @@
+### execution file: density.py ###
+	- input file: /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130418100638490024ifgMy4/para
+SELECT id FROM gui_outputs WHERE job_id = 174 and name = "density4_density_segMEMB.dat" 
+AXIS = Z, <type 'unicode'>
+MIN = -54.0, <type 'float'>
+MAX = 54.0, <type 'float'>
+BIN = 1.0, <type 'float'>
+QUERY = segid MEMB , <type 'unicode'>
+Total # atoms = 25, <type 'int'>
+Reading PSF: /home2/jcjeong/project/stanalyzer1/stanalyzer/trajectory/step5_assembly.psf
+Reading DCD: /home2/jcjeong/project/stanalyzer1/stanalyzer/trajectory/step6_1.dcd
+0 is done!
+[0.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[2.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[4.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[6.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[8.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[10.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[12.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[14.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[16.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[18.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[20.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[22.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[24.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[26.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[28.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[30.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[32.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[34.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[36.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[38.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+Reading PSF: /home2/jcjeong/project/stanalyzer1/stanalyzer/trajectory/step5_assembly.psf
+Reading DCD: /home2/jcjeong/project/stanalyzer1/stanalyzer/trajectory/step6_2.dcd
+1 is done!
+[40.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[42.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[44.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[46.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[48.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[50.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[52.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[54.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[56.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[58.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[60.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[62.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[64.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[66.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[68.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[70.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[72.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[74.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[76.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+[78.0ps]selecting atoms...
+DONE!
+crdZ is selected!
+okay!

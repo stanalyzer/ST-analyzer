@@ -380,8 +380,10 @@ $j(document).ready(function(){
     $j("#membrane #density #density_form #density_frm_lipidH #density_query").empty().val('segid MEMB and ( name P or name N or (name C1* and not name C1) or name O1* )');
     $j("#membrane #density #density_form #density_frm_lipidT #density_query").empty().val('segid MEMB and ( name C2* or name C3* ) and not ( name C21 or  name C31 )');
     $j("#membrane #density #density_form #density_frm_water #density_query").empty().val('segid TIP3 and name OH2');
-    $j("#membrane #density #density_form #density_frm_waterdp #density_query").empty().val('waterdp');
-    $j("#membrane #density #density_form #density_frm_vector #density_query").empty().val('vector');
+    $j("#membrane #density #density_form #density_frm_waterdp #density_query").empty().val('segid TIP3');
+    //$j("#membrane #density #density_form #density_frm_waterdp #density_cos_min").empty().val('0');
+    //$j("#membrane #density #density_form #density_frm_waterdp #density_cos_max").empty().val('180');
+    $j("#membrane #density #density_form #density_frm_vector #density_query").empty().val('segid MEMB and name P');
     $j("#membrane #density #density_form #density_frm_custom #density_query0").empty().val('');
     
     // Buttons
@@ -1452,7 +1454,7 @@ $j(document).ready(function(){
 					<!--- START: lipid head --->
 					<table>
 					    <tr>
-						<td colspan=2><input type="checkbox" id="chk_density_lipidH">lipid head (atom selection based on CHARMM force field)</td>
+						<td colspan=2><input type="checkbox" id="chk_density_lipidH">lipid head (atom selection for CHARMM phosphatidylcholine head group)</td>
 					    </tr>
 					    <tr id="density_frm_lipidH">
 						<td class="w_module"></td>
@@ -1521,7 +1523,7 @@ $j(document).ready(function(){
 					<!--- START: lipid tail --->
 					<table>
 					    <tr>
-						<td colspan=2><input type="checkbox" id="chk_density_lipidT">lipid tail (atom selection based on CHARMM force field)</td>
+						<td colspan=2><input type="checkbox" id="chk_density_lipidT">lipid tail (atom selection for CHARMM lipid tails)</td>
 					    </tr>
 					    <tr id="density_frm_lipidT">
 						<td class="w_module"></td>
