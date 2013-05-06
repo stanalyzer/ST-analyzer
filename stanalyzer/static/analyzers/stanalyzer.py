@@ -268,3 +268,27 @@ def count_intervals (sequence, intervals):
         else:
             count[intervals[pos]] += 1
     return count
+
+# convert degree to radian
+def toRadian (fromDeg):
+    rad = float(fromDeg) * math.pi / 180.0;
+    return rad;
+
+# convert radian to degree
+def toDegree(fromRad):
+    deg = float(fromRad) * 180.0 / math.pi;
+    return deg;
+
+# get cosin theta
+def getCosT(v1, v2):
+    r1 = 0;
+    r2 = 0;
+    r1r2 = 0;
+    for i in range(len(v1)):
+	r1 += v1[i] * v1[i];
+	r2 += v2[i] * v2[i];
+	r1r2 += v1[i] * v2[i];
+    r1 = math.sqrt(r1);
+    r2 = math.sqrt(r2);
+    cosT = r1r2 / (r1 * r2);
+    return cosT;

@@ -13,6 +13,53 @@
 <script type="text/javascript" src="/static/js/jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.min.js"></script>
 </head>
 <body>
+<h1>Objective</h1>
+    <p>
+	ST-analyzer is a standalone GUI toolset to perform various analyses of membrane simulation trajectories and
+	provides a variety of analysis routines especially foucused on membrane systems (e.g., lipid chain order parameter, lipid area, etc).
+	Since trajectory files are generally too large to upload to a remote server, ST-analyzer has been developed in cross-platform
+	and distributed freely through Github (<a class="underline2" href="https://github.com/stanalyzer/ST-analyzer" target="_blank">https://github.com/stanalyzer/ST-analyzer</a>),
+	so that users can install and use it on their local machines with various operating systems.
+	This toolset would be crucial for non-expert users to easily analyze their simulation results.
+	This project is supported by NSF ABI.
+    </p>
+<hr/>
+<h1>Snapshot</h1>
+    <img src="/static/help/systemflow.png" width="50%"><br/>
+    <img src="/static/help/userInterface.png" width="50%"><br/>
+<hr/>
+<h1>Prospective Modules</h1>
+    <ul>
+	<li class="help_font2"> System size (done) </li>
+	<li class="help_font2"> Density profile (done) </li>
+	<li class="help_font2"> Lipid deuterium order parameters (progressing) </li>
+	<li class="help_font2"> Root-mean-squared (progressing) </li>
+	<li class="help_font2"> Root-mean-squared fluctuation (progressing) </li>
+	<li class="help_font2"> Lipid surface area </li>
+	<li class="help_font2"> Lipid hydrophobic thickness </li>
+	<li class="help_font2"> Crystallographic B-factors </li>
+	<li class="help_font2"> Residue-residue contacts </li>
+	<li class="help_font2"> Secondary structure </li>
+	<li class="help_font2"> Dihedral angles </li>
+	<li class="help_font2"> Distance between two atoms </li>
+	<li class="help_font2"> H-bond / salt-bridge profile </li>
+	<li class="help_font2"> Helix (&#223;-hairpin) tilt, rotation,crossing angles, and distance </li>
+	<li class="help_font2"> Solid-state NMR properties (chemical shift, dipolar/quadropolar coupling constant) </li>
+	<li class="help_font2"> Channel pore size </li>
+	<li class="help_font2"> Membrane potential  </li>
+	<li class="help_font2"> Water/ion movement </li>
+	<li class="help_font2"> Lipid lateral diffusion constant </li>
+	<li class="help_font2"> Lipid chain relaxation time </li>
+	<li class="help_font2"> Lipid rotation/wobble motions </li>
+	<li class="help_font2"> Sterol tilt angle </li>
+	<li class="help_font2"> Lateral ion density inside channel </li>
+	<li class="help_font2"> Residue-water/lipid contact information </li>
+	<li class="help_font2"> Solvent accessible surface area </li>
+	<li class="help_font2"> Lipid adaptation (through selection of "local" and "bulk" lipids) </li>
+	<li class="help_font2"> Substrate binding </li>
+	<li class="help_font2"> Pore hydration </li>
+    </ul>
+<hr/>
 <h1>Requirement</h1>
     <ul>
 	<li class="help_font2 help_size1"><a class="underline2" href="http://www.python.org/" target="_blank">Python</a></li>
@@ -46,7 +93,7 @@
 
 	<li class="help_font2 help_size1">Configuration</li>
 	    <ol type="i">
-		<p class="indent0"><b><i>Let's assume ST-analyzer is stored into /home/your_account/Membrane-Analyzer/stanalyzer</i></b></p>
+		<p class="indent0"><b><i>Let's assume ST-analyzer is stored into /home/your_account/ST-analyzer/stanalyzer</i></b></p>
 		<li>You now can see files including 'manage.py' 'stanalyzer.db' and directories including 'gui', 'stanalyzer', 'templates', and 'trajectory'
 		<br/> - <b><i>manage.py</i></b>: executable python file to run Django server
 		<br/> - <b><i>stanalyzer.db</i></b>: Database file to store information (e.g. account, project, jobs and etc). Initital account and password are 'admin' and '12345' respectively.
@@ -66,11 +113,11 @@
 		</li><br/>
 		-->
 		<li>Check out DB consistency
-		<br/> 1) you@system> cd /home/your_account/Membrane-Analyzer/stanalyzer
+		<br/> 1) you@system> cd /home/your_account/ST-analyzer/stanalyzer
 		<br/> 2) you@system> python manage.py syncdb
 		</li><br/>
 		<li>Run Django to launch ST-analyzer
-		<br/> 1) you@system> cd /home/your_account/Membrane-Analyzer/stanalyzer
+		<br/> 1) you@system> cd /home/your_account/ST-analyzer/stanalyzer
 		<br/> 2) you@system> python manage.py runserver [8000]   # the number corresponding to the port that you want to communicate with ST-analyzer
 		</li><br/>
 		<li>Open your browser and connect to ST-analyzer through http://127.0.0.1:8000/
@@ -79,6 +126,16 @@
 		</li>
 	    </ol>
     </ol>
+<hr/>
+<h1>Adding your own modules</h1>
+    <ul>
+	<li class="help_font2">To add your own codes to the official version, the codes should be screened and approved by the committee of ST-analyzer version control. Other than that you can add your own modules to ST-analyzer for personal purpose as following:</li>
+	<ul>
+	    <li> We have not released official documents for ST-analyzer yet,
+		 but you can start or involve our open source project for ST-analyzer through our <a class="underline2" href="/static/help/tutorial.txt"> scratch tutorial </a>
+	    </li>
+	</ul>
+    </ul>
 <hr/>
 <h1>Known Issues</h1>
     <ul>
@@ -103,6 +160,23 @@
 		<li> you@system> kill -9 pid					# shutdown Django </li>
 	    </ul>
     </ul>
-    
+<hr/>
+<h1>Coworkers</h1>
+    <ul>
+	<li class="help_font2"> Wonpil Im (University of Kansas)</li>
+	<li class="help_font2"> Jong Cheol Jeong (University of Kansas)</li>
+	<li class="help_font2"> Sunhwan Jo (University of Kansas)</li>
+	<li class="help_font2"> Jeffery B. Klauda (University of Maryland)</li>
+	<li class="help_font2"> Lev Gorenstein (Purdue University)</li>
+	<li class="help_font2"> Min Sun Yeom (Korea Institute of Science and Technology Information)</li>
+    </ul>
+<hr/>
+<h1>Sponsors</h1>
+    <ul>
+	<li class="help_font2"> This work is supported by NSF ABI</li>
+    </ul>
+    <img src="/static/help/nsf_logo.png">
+<hr/>
+<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
 </body>
 </html>

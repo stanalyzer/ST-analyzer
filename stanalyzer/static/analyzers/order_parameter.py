@@ -226,13 +226,13 @@ selQry = paras[7][para_idx];			# pInfo[7] : Query
 num_atoms = paras[8][para_idx];			# pInfo[8] : Total number of atoms
 num_atoms = int(num_atoms);
 
+print "Okay I am in ORDER PARAMETER!!!!!";
 print "AXIS = {}, {}".format(taxis, type(taxis));
 print "MIN = {}, {}".format(dnst_min, type(dnst_min));
 print "MAX = {}, {}".format(dnst_max, type(dnst_max));
 print "BIN = {}, {}".format(dnst_bin, type(dnst_bin));
 print "QUERY = {}, {}".format(selQry, type(selQry));
 print "Total # atoms = {}, {}".format(num_atoms, type(num_atoms));
-
 #dummy = raw_input("Pause: ");
 
 #///////////////////////////////////////////////////////////////////////////
@@ -269,6 +269,9 @@ if run:
     for ibin in frange(dnst_min, dnst_max, dnst_bin):
 	DNST.append(0.0);
     
+    # new query including hydrogens
+    newQry = "{0} and H*".format(selQry);
+
     for idx in range(len(trajectoryFile)):
 	
 	# turning on periodic boundary conditions
@@ -295,71 +298,101 @@ if run:
 		print "DONE!"
 		if len(selAtoms) > 1:
 		    # get coordinates
+		    CAs = selAtoms.names();
+		    ca0 = CAs[0:1];			# Ca index
+		    
+		    c_ini = CAs[0];
+		    c_ini = int(c_ini[1:]);		# initial C index of tail
+		    
+		    c_end = CAs[len(selAtoms)-1];
+		    c_end = int(c_end[1:]);		# last C index of tail
+		    
+		    print "-- Order parameter: start:{0}, end:{1}".format(c_ini, c_end);
+		    newAtoms = u.selectAtoms(newQry);
 		    CRDs = selAtoms.coordinates();
 		    
 		    # calculating vector start from between H1 and H2 to O
-		    for catom_idx in range(len(selAtoms)):
-			tmp_name = selAtoms[catom_idx].name;
-			if (tmp_name == "OH2"):
-			    Ox = CRDs[catom_idx][0];
-			    Oy = CRDs[catom_idx][1];
-			    Oz = CRDs[catom_idx][2];
-			elif (tmp_name == "H1"):
-			    h1x = CRDs[catom_idx][0];
-			    h1y = CRDs[catom_idx][1];
-			    h1z = CRDs[catom_idx][2];
-			elif (tmp_name == "H2"):
-			    h2x = CRDs[catom_idx][0];
-			    h2y = CRDs[catom_idx][1];
-			    h2z = CRDs[catom_idx][2];
+		    flag_H = 0;
+		    flag_end = 0;
+		    for catom_idx in range(len(newAtoms)):
+			tmp_name = newAtoms[catom_idx].name;
+			Cxx = "{0}{1}".format(ca0, c_ini);
+			HxR = "H{0}R".format(c_ini);
+			HxS = "H{0}S".format(c_ini);
+			HxT = "H{0}S".format(c_end);
 			
-			# calculating cosine 
-			if (((catom_idx + 1.0) % 3.0) == 0.0):
-			    vx = Ox + (h1x-h2x)/2;
-			    vy = Oy + (h1y-h2y)/2;
-			    vz = Oz + (h1z-h2z)/2;
-			    r2 = vx*vx + vy*vy + vz*vz;
-			    cosx = vx/math.sqrt(r2);
-			    cosy = vy/math.sqrt(r2);
-			    cosz = vz/math.sqrt(r2);
+			if (tmp_name == Cxx):
+			    CAx = CRDs[catom_idx][0];
+			    CAy = CRDs[catom_idx][1];
+			    CAz = CRDs[catom_idx][2];
+			    flag_H += 1;
+			elif (tmp_name == HxR):
+			    HRx = CRDs[catom_idx][0];
+			    HRy = CRDs[catom_idx][1];
+			    HRz = CRDs[catom_idx][2];
+			    flag_H += 1;
+			elif (tmp_name == HxS):
+			    HSx = CRDs[catom_idx][0];
+			    HSy = CRDs[catom_idx][1];
+			    HSz = CRDs[catom_idx][2];
+			    flag_H += 1;
 			    
+			if (tmp_name == HxT):
+			    HTx = CRDs[catom_idx][0];
+			    HTy = CRDs[catom_idx][1];
+			    HTz = CRDs[catom_idx][2];
+			    flag_H = 4;
+			    flag_end = 1;
+			    
+			# calculating cosine 
+			if (flag_H > 2):
+			    x1 = HRx - CAx;
+			    y1 = HRy - CAy;
+			    z1 = HRz - CAz;
+
+			    r = x1*x1 + y1*y1 + z1*z1;
+			    r  = math.sqrt(r);
+			    cosx1 = x1/r;
+			    cosy1 = y1/r;
+			    cosz1 = z1/r;
+
+			    x2 = HSx - CAx;
+			    y2 = HSy - CAy;
+			    z2 = HSz - CAz;
+			    
+			    r = x2*x2 + y2*y2 + z2*z2;
+			    r  = math.sqrt(r);
+			    cosx2 = x2/r;
+			    cosy2 = y2/r;
+			    cosz2 = z2/r;
+    
 			    if taxis == 'X':
+				pos = bisect_left(BIN, c_ini); # defining location of bin
 				tcosx = 1;
 				tcosy = 0;
 				tcosz = 0;
+    
 			    elif taxis == 'Y':
+				pos = bisect_left(BIN, c_ini); # defining location of bin
 				tcosx = 0;
 				tcosy = 1;
 				tcosz = 0;
+				
 			    elif taxis == 'Z':
+				pos = bisect_left(BIN, c_ini); # defining location of bin
 				tcosx = 0;
 				tcosy = 0;
 				tcosz = 1;
-    
+			    
 			    # calculating cosine between two vector
-			    cosT = cosx*tcosx + cosy*tcosy + cosz*tcosz;
-			    #print "COS:{}".format(cosT);
-			    rdnT = math.acos(cosT);
-			    #print "Radian:{}".format(rdnT);
-			    # calculating degree
-			    T = (rdnT * 180) / (math.pi);			
-			    DegT.append(T);
-			
-		    # counting items based on BIN interval
-		    #print DegT
-		    tmpDNST = count_intervals(DegT, BIN);
-		    #print tmpDNST
-		    # sort key based on numbering*
-		    intKEY = [];
-		    for key in sorted(tmpDNST.iterkeys()):
-			#print key
-			intKEY.append(float(key));
-		    intKEY.sort();
-		    
-		    # reordering dictionary based on sorted key
-		    for key in intKEY:
-			idx_bin = BIN.index(key);
-			DNST[idx_bin] += float(tmpDNST[key]) / float(len(selAtoms)/3.0); # normalizing based on volume
+			    cosT1 = cosx1*tcosx + cosy1*tcosy + cosz1*tcosz;
+			    Scd1  = (3 * costT1 * costT1 - 1);
+			    cosT2 = cosx2*tcosx + cosy2*tcosy + cosz2*tcosz;
+			    Scd2  = (3 * costT2 * costT2 - 1);
+			    Scd   = 1/2 * Scd1 * Scd2;
+
+			    DNST[pos] += Scd / float(c_end);
+
     # Write down results
     finalDNST = [];
     for i in DNST:

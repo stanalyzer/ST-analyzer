@@ -175,6 +175,8 @@ function getStructureInfo(query, async_flg) {
 	$j("#membrane #density #density_form #density_hist_min").empty().val(smin);
 	$j("#membrane #density #density_form #density_hist_max").empty().val(smax);
 	$j("#membrane #density #density_form #density_hist_tatoms").empty().val(obj.num_atoms);
+	$j("#membrane #ordpara #ordpara_form #ordpara_hist_tatoms").empty().val(obj.num_atoms);
+	
     });
       
     request.error(function(jqXHR, textStatus, errorThrown) {
@@ -212,11 +214,13 @@ $j(document).ready(function(){
 
     // show/hide gui query
     $j('tr[id^="density_gui_input"]').hide();
+    
     $j('input[id^="density_gquery"]').live("click", function() {
 	myfrm = $j(this).attr('mygui');
 	target_gui = "#density_gui_input" + myfrm;
 	$j(target_gui).toggle(this.checked);
     });
+    
     
     $j("#membrane #density #chk_density_all").click(function() {
 	var chk = $j(this).prop('checked');
@@ -308,7 +312,8 @@ $j(document).ready(function(){
 	}
 	$j("#membrane #cnt_membrane").empty().append(cnt_membrane);
     });
-   
+
+
     $j('#membrane #density #density_frmInt').val('1').css("color", "gray");
     $j('#membrane #density #density_frm_all #density_outFile').val('density_all.dat').css("color", "gray");
     $j('#membrane #density #density_frm_lipidH #density_outFile').val('density_lipid_head.dat').css("color", "gray");
@@ -386,7 +391,7 @@ $j(document).ready(function(){
     $j("#membrane #density #density_form #density_frm_vector #density_query").empty().val('segid MEMB and name P');
     $j("#membrane #density #density_form #density_frm_custom #density_query0").empty().val('');
     
-    // Buttons
+    // Buttons -density
     $j("#btn_selall0").button();
     $j("#btn_lt0").button();
     $j("#btn_gt0").button();
@@ -406,7 +411,6 @@ $j(document).ready(function(){
     $j("#btn_query_prop0").button();
 
     // click btn_lt button
-    
     $j("#membrane #density #density_frm_custom button[id^='btn_selall']").live("click", function(){
 	myfrm = $j(this).attr('mygui');
 	var target_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
@@ -1331,7 +1335,7 @@ $j(document).ready(function(){
     });
     
     
-    /* deleting forms for calculating helix tilt */
+    /* deleting forms */
     $j("#membrane #density #density_frm_custom button[id^='delete_density_form']").live("click", function() {
 	idx = $j(this).attr('num_idx');
 	var del_form = "#membrane #density #density_frm_custom #density_custom_form_add_" + idx;
@@ -1353,6 +1357,46 @@ $j(document).ready(function(){
 	});
 
     });
+
+    
+/*----------------------------------------------------
+ * Order parameter
+ * ---------------------------------------------------*/
+    $j("#membrane #ordpara #ordpara_form").hide();
+    $j("#membrane #ordpara #ordpara_title").click(function () {
+	$j("#vfy_msg").empty();
+	if (this.checked) {
+	    // reading PDB file and extract information
+	    // msg = "<img src='/static/images/circle2.gif' height='20' width='20' > Reading structure information... "
+	    // $j("#systemInfo #density #density_read_pdb").append(msg);
+	    //mySystem  = getStructureInfo('all', true);
+	}
+
+	$j("#membrane #ordpara #ordpara_form").toggle(this.checked);
+	//alert($j(this).is(":checked"));
+    });
+
+    //--------- DOPC start --------------//
+    $j("#membrane #ordpara #ordpara_form #ordpara_form_dopc").hide();
+    
+    $j("#membrane #ordpara #ordpara_form #chk_ordpara_dopc").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    cnt_membrane++;
+	} else {
+	    cnt_membrane--;
+	    if (cnt_membrane < 0) {
+		cnt_membrane = 0;
+	    }
+	}
+	$j("#membrane #cnt_membrane").empty().append(cnt_membrane);
+	$j("#membrane #ordpara #ordpara_form #ordpara_form_dopc").toggle(this.checked);
+    });
+   
+    $j('#membrane #ordpara #ordpara_form #ordpara_form_dopc #ordpara_dopc_frmInt').val('1').css("color", "gray");
+    $j('#membrane #ordpara #ordpara_form #ordpara_form_dopc #ordpara_dopc_outFile').val('ordpara_dopc.dat').css("color", "gray");
+    //--------- DOPC end --------------//
+
 });
 </script>
 
@@ -1364,8 +1408,9 @@ $j(document).ready(function(){
 	<tr>
 	    <td colspan="2"><input type="checkbox" id="chk_membrane"><span class="st_font1 st_size3 st_color6"><b>Membrane(<span id="cnt_membrane" class="st_font1 st_size3 st_color5">0</span>)</b></span></td>
 	</tr>
-	<!--- Density --->
-	<tr><td colspan="2">
+	<!--- Density Profiles--->
+	<tr>
+	    <td colspan="2">
 	    <table id="M_membrane">
 		<tr>
 		    <td class="w_module"> </td>
@@ -1965,6 +2010,66 @@ $j(document).ready(function(){
 			</div>
 		    </td>
 		</tr>
+		<!--- Density profile end --->
+		
+		<!--- Order parameters start --->
+		<tr>
+		    <td class="w_module"> </td>
+		    <td>
+			<div id="ordpara">
+			    <table>
+				<tr>
+				    <td colspan="2" class="st_color7 left">
+					<input type="checkbox" id="ordpara_title">Order Parameters
+				    </td>
+				</tr>
+			    </table>
+			    <table id="ordpara_form">
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<!--- DXPE start--->
+					<table>
+					    <tr>
+						<td colspan=2><input type="checkbox" id="chk_ordpara_dopc">DXPE</td>
+					    </tr>
+					    <tr id="ordpara_form_dopc">
+						<td class="w_module"></td>
+						<td>
+						    <table>
+							<tr>
+							    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom" colspan="7"><span class="module_font">Output File Name</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Axis</span></td>
+							</tr>
+							<tr>
+							    <td class="bottom"><input id="ordpara_dopc_frmInt" class="module_txtbox_output" type="text" name="ordpara_dopc_frmInt"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom" colspan=7><input id="ordpara_dopc_outFile" class="module_txtbox_output2" type="text" name="ordpara_dopc_outFile"></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom">
+								<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="ordpara_dopc_Axis" name="ordpara_dopc_Axis">
+								<option>Z</option>
+								<option>Y</option>
+								<option>X</option>
+								</select>
+							    </td>
+							</tr>
+							<tr><td class="bottom" colspan="11"><input id="ordpara_hist_tatoms" type="hidden" name="ordpara_hist_tatoms"></td></tr>
+							<tr><td id="vfy_msg" class="center message_warn" colspan="11"></td></tr>
+						    </table>
+						</td>
+					    </tr>
+					</table>
+				    </td>
+				</tr>
+			    </table>
+			</div>
+		    </td>
+		</tr>
+		<!--- Order parameters end --->
 	    </table>
 	</td></tr>
 	<!--- Density end--->

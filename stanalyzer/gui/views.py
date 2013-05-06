@@ -3876,6 +3876,7 @@ def verifyQuery(request):
 	    x = CRDs[cnt][0];
 	    y = CRDs[cnt][1];
 	    z = CRDs[cnt][2];
+	    cnt = cnt + 1;
 	    typ = t.type;
 	    types.append(typ);
 	    selInfo = "{0}{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\r\n".format(selInfo, segid, resid, resname, name, typ, x, y, z);

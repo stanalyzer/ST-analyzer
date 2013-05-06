@@ -336,6 +336,42 @@ function eval_step2() {
     var chk_waterdp = $j('#membrane #density_form #chk_density_waterdp').prop('checked');
     var chk_vector  = $j('#membrane #density_form #chk_density_vector').prop('checked');
     var chk_custom  = $j('#membrane #density_form #chk_density_custom').prop('checked');
+    var chk_ordpara = $j('#membrane #ordpara #ordpara_title').prop('checked');
+    var chk_ordpara_dopc = $j('#membrane #ordpara #ordpara_form #chk_ordpara_dopc').prop('checked');
+    
+    if (chk_ordpara == true) {
+	if (chk_ordpara_dopc == true)
+	    var frmInt = [];
+	    var outFile = [];
+	    axis = [];
+	    numAtoms = [];
+
+	    /* frame interval */
+	    $j("#membrane #ordpara #ordpara_form #ordpara_form_dopc input[name='ordpara_dopc_frmInt']").each(function() {
+		frmInt.push($(this).val());
+	    });
+	    
+	    /* name of output files */
+	    $j("#membrane #ordpara #ordpara_form #ordpara_form_dopc input[name='ordpara_dopc_outFile']").each(function() {
+		outFile.push($(this).val());
+	    });
+    
+	    // Check out the associated forms
+	    $j("#membrane #ordpara #ordpara_form #ordpara_form_dopc select[name='ordpara_dopc_Axis'] option:selected").each(function() {
+		axis.push($(this).val());
+	    });
+	    
+	    $j("#membrane #ordpara #ordpara_form #ordpara_form_dopc input[name='ordpara_hist_tatoms']").each(function() {
+		numAtoms.push($(this).val());
+	    });
+	    
+	    JOBs.push('ordpara_dopc');
+	    para = [4, frmInt, outFile, axis, numAtoms];
+	    para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Total number of atoms'];
+	    PARs.push(para);
+	    PARinfo.push(para_info);
+	    //alert("numAtoms:" + numAtoms);
+    }
     
     if (chk == true) {
 	
