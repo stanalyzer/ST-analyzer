@@ -3,6 +3,8 @@ var $j = jQuery.noConflict();
 var cnt_membrane = 0;
 var cnt_density_custom_form  = 0;		// count number of adding new form for calculating helix_tilt
 var cnt_density_custom_index = 0;
+var cnt_ordpara_charmm_form  = 0;		// count new forms in CHARMM order parameters
+var cnt_ordpara_charmm_index = 0;
 
 /* check numbers */
 function isNumber(n) {
@@ -176,6 +178,7 @@ function getStructureInfo(query, async_flg) {
 	$j("#membrane #density #density_form #density_hist_max").empty().val(smax);
 	$j("#membrane #density #density_form #density_hist_tatoms").empty().val(obj.num_atoms);
 	$j("#membrane #ordpara #ordpara_form #ordpara_hist_tatoms").empty().val(obj.num_atoms);
+	$j("#membrane #ordpara #ordpara_charmm_form #ordpara_hist_tatoms").empty().val(obj.num_atoms);
 	
     });
       
@@ -1362,7 +1365,9 @@ $j(document).ready(function(){
 /*----------------------------------------------------
  * Order parameter
  * ---------------------------------------------------*/
-    $j("#membrane #ordpara #ordpara_form").hide();
+    $j("#membrane #ordpara #ordpara_charmm").hide();
+    $j("#membrane #ordpara #ordpara_charmm_form").hide();
+    
     $j("#membrane #ordpara #ordpara_title").click(function () {
 	$j("#vfy_msg").empty();
 	if (this.checked) {
@@ -1372,17 +1377,39 @@ $j(document).ready(function(){
 	    //mySystem  = getStructureInfo('all', true);
 	}
 
-	$j("#membrane #ordpara #ordpara_form").toggle(this.checked);
+	$j("#membrane #ordpara #ordpara_charmm").toggle(this.checked);
+	
+	var chk = $j("#membrane #ordpara #ordpara_charmm #ordpara_title_charmm").prop('checked');
+	if (chk == true) {
+	    $j("#membrane #ordpara #ordpara_charmm_form").toggle(this.checked);
+	}
+    });
+
+    $j("#membrane #ordpara #ordpara_title_charmm").click(function () {
+	$j("#vfy_msg").empty();
+	if (this.checked) {
+	    // fill out segid and resid
+	}
+
+	$j("#membrane #ordpara #ordpara_charmm_form").toggle(this.checked);
 	//alert($j(this).is(":checked"));
     });
 
-    //--------- DOPC start --------------//
-    $j("#membrane #ordpara #ordpara_form #ordpara_form_dopc").hide();
-    
-    $j("#membrane #ordpara #ordpara_form #chk_ordpara_dopc").click(function() {
+
+    //--------- Charmm format --------------//
+    $j("#membrane #ordpara #ordpara_charmm #ordpara_title_charmm").live("click", function() {
 	var chk = $j(this).prop('checked');
 	if (chk == true) {
 	    cnt_membrane++;
+	    // fill out segid
+	    $j("#membrane #ordpara #ordpara_charmm_form #ordpara_charmm_form_0 #charmm_uq_segid0").empty().append("<option>segid</option>");
+	    var uq_segid = mySystem["segid"];
+	    for (var i = 0; i < uq_segid.length; i++) {
+		options = "<option>" + uq_segid[i] + "</option>";
+		$j("#membrane #ordpara #ordpara_charmm_form #ordpara_charmm_form_0 #charmm_uq_segid0").append(options);
+	    }
+	    $j("#membrane #ordpara #ordpara_charmm_form #ordpara_charmm_form_0 #charmm_uq_segid0").trigger("liszt:updated");
+
 	} else {
 	    cnt_membrane--;
 	    if (cnt_membrane < 0) {
@@ -1390,12 +1417,199 @@ $j(document).ready(function(){
 	    }
 	}
 	$j("#membrane #cnt_membrane").empty().append(cnt_membrane);
-	$j("#membrane #ordpara #ordpara_form #ordpara_form_dopc").toggle(this.checked);
     });
+
    
-    $j('#membrane #ordpara #ordpara_form #ordpara_form_dopc #ordpara_dopc_frmInt').val('1').css("color", "gray");
-    $j('#membrane #ordpara #ordpara_form #ordpara_form_dopc #ordpara_dopc_outFile').val('ordpara_dopc.dat').css("color", "gray");
-    //--------- DOPC end --------------//
+   // set initial values
+    $j('#membrane #ordpara #ordpara_charmm_form #ordpara_charmm_frmInt_0').val('1').css("color", "gray");
+    $j('#membrane #ordpara #ordpara_charmm_form #ordpara_charmm_outFile_0').val('ordpara_charmm_0.dat').css("color", "gray");
+    $j('#membrane #ordpara #ordpara_charmm_form #charmm_query_0').val('name C2* and not (name C2 or name C21)').css("color", "gray");
+    
+    // change segid
+    $j("#membrane #ordpara #ordpara_charmm_form select[id^='charmm_uq_segid']").live("change", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_segid = "#membrane #ordpara #ordpara_charmm_form #charmm_uq_segid" + myfrm + " option:selected";
+	tmp = $(target_segid).text();
+	if (tmp != 'segid') {
+	    query = "segid " + tmp;
+	    tmpSystem = getStructureInfo(query, false);
+	    // add resname
+	    var sel_resname =  "#membrane #ordpara #ordpara_charmm_form #charmm_uq_resname" + myfrm;
+	    $j(sel_resname).empty().append("<option>resname</option>");
+	    uq_resname = tmpSystem["resname"];
+	    for (var i = 0; i < uq_resname.length; i++) {
+		options = "<option>" + uq_resname[i] + "</option>";
+		$j(sel_resname).append(options);
+	    }
+	    $j(sel_resname).trigger("liszt:updated");
+	}
+    });
+
+    // click varification button
+    $j("#membrane #ordpara #ordpara_charmm_form button[id^='ordpara_btn_vfy']").live("click", function(){
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	
+	var myfrm = $j(this).attr('mygui');	
+	var target_query = "#membrane #ordpara #ordpara_charmm_form #charmm_query_" + myfrm;
+	var target_segid = "#membrane #ordpara #ordpara_charmm_form #charmm_uq_segid" + myfrm + " option:selected";
+	var segid = $j(target_segid).text();
+	var target_resname = "#membrane #ordpara #ordpara_charmm_form #charmm_uq_resname" + myfrm + " option:selected";
+	var resname = $j(target_resname).text();
+	var tmp_query = $j(target_query).val().trim();
+	
+	var query = "segid " + segid + " and resname " + resname + " and " + tmp_query;
+	
+	var my_vfy_msg = "#membrane #ordpara #ordpara_charmm_form #vfy_msg" + myfrm;
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j(my_vfy_msg).empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j(my_vfy_msg).empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j(my_vfy_msg).empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j(my_vfy_msg).empty().append(errorThrown);
+        });
+    });
+    
+    // Click add button
+    $j("#membrane #ordpara #ordpara_charmm_form button[id^='ordpara_btn_add']").click(function() {
+	// increase my form number 
+	cnt_ordpara_charmm_form++;
+	cnt_ordpara_charmm_index++;
+	
+	var html_new_charmm_form = '<table id="ordpara_charmm_form_' + cnt_ordpara_charmm_form +
+			    '"><tr colspan="14"><td class="bottom h15"></td></tr>' +
+			    '<tr>' +
+			    '<td colspan="14">' +
+				'<table>' +
+				    '<tr>' + 
+					'<td class="center"><select data-placeholder="segid" class="chzn-select" style="width:100px;" id="charmm_uq_segid' + cnt_ordpara_charmm_form + '" mygui="' + cnt_ordpara_charmm_form + '" name="ordpara_charmm_uq_segid"></select></td>' + 
+					'<td class="bottom w15"></td>' +
+					'<td class="center"><select data-placeholder="resname" class="chzn-select" style="width:100px;" id="charmm_uq_resname' + cnt_ordpara_charmm_form + '" mygui="' + cnt_ordpara_charmm_form + '" name="ordpara_charmm_uq_resname"></select></td>' + 
+					'<td class="bottom w15"></td>' + 
+					'<td class="bottom"><input id="charmm_query_' + cnt_ordpara_charmm_form + '" mygui=" ' + cnt_ordpara_charmm_form + '" class="module_txtbox_query1" type="text" name="ordpara_charmm_query"></td>' + 
+				    '</tr>' + 
+				'</table>' + 
+			    '</td>' +
+			'</tr>' +
+			'<tr>' +
+			    '<td class="bottom"><span class="module_font">Frame Interval</span></td>' +
+			    '<td class="bottom w15"></td>' + 
+			    '<td class="bottom" colspan="7"><span class="module_font">Output File Name</span></td>' +
+			    '<td class="bottom w15"></td>' +
+			    '<td class="center"><span class="module_font">Axis</span></td>' +
+			    '<td colspan="3"></td>' +
+			'</tr>' +
+			'<tr>' +
+			    '<td class="bottom"><input id="ordpara_charmm_frmInt_' + cnt_ordpara_charmm_form + '" mygui="' + cnt_ordpara_charmm_form + '" class="module_txtbox_output" type="text" name="ordpara_charmm_frmInt"></td>' +
+			    '<td class="bottom w15"></td>' +
+			    '<td class="bottom" colspan="7"><input id="ordpara_charmm_outFile_' + cnt_ordpara_charmm_form + '" mygui="' + cnt_ordpara_charmm_form + '" class="module_txtbox_output2" type="text" name="ordpara_charmm_outFile"></td>' +
+			    '<td class="bottom w15"></td>' +
+			    '<td class="bottom">' +
+				'<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="ordpara_charmm_Axis_' + cnt_ordpara_charmm_form + '" name="ordpara_charmm_Axis">' + 
+				'<option>Z</option>' +
+				'<option>Y</option>' +
+				'<option>X</option>' +
+				'</select>' +
+			    '</td>' +
+			    '<td class="bottom w15"></td>' +
+			    '<td><button id="ordpara_btn_vfy' + cnt_ordpara_charmm_form + '" mygui="' + cnt_ordpara_charmm_form + '"><span class="module_font">Verify</span></button></td>' +
+			    '<td><button id="ordpara_btn_del' + cnt_ordpara_charmm_form + '" mygui="' + cnt_ordpara_charmm_form + '"><span class="module_font">Delete</span></button></td>' +
+			'</tr>' +
+			'<tr><td class="bottom" colspan="13"><input id="ordpara_hist_tatoms_' + cnt_ordpara_charmm_form + '" mygui="' + cnt_ordpara_charmm_form + '" type="hidden" name="ordpara_hist_tatoms"></td></tr>' +
+			'<tr><td id="vfy_msg' + cnt_ordpara_charmm_form + '" mygui="' + cnt_ordpara_charmm_form + '" class="center message_warn" colspan="13"></td></tr>' + 
+			'</table>';
+	
+	$j("#membrane #ordpara #ordpara_charmm_form #charmm_add_form").append(html_new_charmm_form);
+	
+	// copy origianl segid to new segid
+	var new_uq_segid = "#membrane #ordpara #ordpara_charmm_form #charmm_uq_segid" + cnt_ordpara_charmm_form;
+	$j('#membrane #ordpara #ordpara_charmm_form #charmm_uq_segid0 option').clone().appendTo(new_uq_segid);
+	
+	// copy original resname to new resname
+	var new_uq_resname = "#membrane #ordpara #ordpara_charmm_form #charmm_uq_resname" + cnt_ordpara_charmm_form;
+	$j('#membrane #ordpara #ordpara_charmm_form #charmm_uq_resname0 option').clone().appendTo(new_uq_resname);
+	
+	// copy frame interval
+	var new_frm_intv_id = "#membrane #ordpara #ordpara_charmm_form #ordpara_charmm_frmInt_" + cnt_ordpara_charmm_form;
+	var old_frm_intv = $j("#membrane #ordpara #ordpara_charmm_form #ordpara_charmm_frmInt_0").val();
+	$j(new_frm_intv_id).val(old_frm_intv);
+	
+	// new output file name
+	var new_outfile_id = "#membrane #ordpara #ordpara_charmm_form #ordpara_charmm_outFile_" + cnt_ordpara_charmm_form;
+	var new_outfile_name = "ordpara_charmm_" + cnt_ordpara_charmm_index + ".dat";
+	$j(new_outfile_id).val(new_outfile_name);
+	
+	var tatoms = $j("#membrane #ordpara #ordpara_charmm_form #ordpara_hist_tatoms").val();
+	var new_tatoms_id = "#membrane #ordpara #ordpara_charmm_form #ordpara_hist_tatoms_" + cnt_ordpara_charmm_form;
+	$j(new_tatoms_id).empty().val(tatoms);
+	
+    
+	$j("#membrane #ordpara #ordpara_charmm_form").filter('.chzn-select').chosen(); // apply to top level elems
+        $j("#membrane #ordpara #ordpara_charmm_form").find('.chzn-select').chosen();   // apply to nested elems
+    });
+    
+    
+    // click delete button
+    $j("#membrane #ordpara #ordpara_charmm_form button[id^='ordpara_btn_del']").live("click", function() {
+	myfrm = $j(this).attr('mygui');
+	var del_form = "#membrane #ordpara #ordpara_charmm_form #ordpara_charmm_form_" + myfrm;
+	$j(del_form).remove();
+	
+	// Initializing file name
+	var outFile = [];
+	var cnt = -1;
+	$j("#membrane #ordpara #ordpara_charmm_form input[name='ordpara_charmm_outFile']").each(function() {
+	    cnt++;
+	    var new_file = "ordpara_charmm_" + cnt + ".dat";
+	    $j(this).val('');
+	    $j(this).val(new_file);
+	    cnt_ordpara_charmm_index = cnt;
+	    if (cnt_ordpara_charmm_index < 0) {
+		cnt_ordpara_charmm_index = 0;
+	    }
+	});
+
+    });
+
+
+    //--------- Order parameter CHARMM end --------------//
 
 });
 </script>
@@ -2024,42 +2238,68 @@ $j(document).ready(function(){
 				    </td>
 				</tr>
 			    </table>
-			    <table id="ordpara_form">
+			    <!-- order parameter for CHARMM format -->
+			    <table id="ordpara_charmm">
+				<tr>
+				    <td class="w_module"></td>
+				    <td colspan=2><input type="checkbox" id="ordpara_title_charmm">CHARMM format</td>
+				</tr>
+			    </table>
+			    <table id="ordpara_charmm_form">
 				<tr>
 				    <td class="w_module"></td>
 				    <td>
-					<!--- DXPE start--->
 					<table>
-					    <tr>
-						<td colspan=2><input type="checkbox" id="chk_ordpara_dopc">DXPE</td>
-					    </tr>
-					    <tr id="ordpara_form_dopc">
+					    <tr id="ordpara_charmm_form_0">
 						<td class="w_module"></td>
 						<td>
 						    <table>
+							<tr>
+							    <td colspan="14">
+								<table>
+								    <tr>
+									<td class="center"><select data-placeholder="segid" class="chzn-select" style="width:100px;" id="charmm_uq_segid0" mygui="0" name="ordpara_charmm_uq_segid"></select></td>	
+									<td class="bottom w15"></td>
+									<td class="center"><select data-placeholder="resname" class="chzn-select" style="width:100px;" id="charmm_uq_resname0" mygui="0" name="ordpara_charmm_uq_resname"></select></td>
+									<td class="bottom w15"></td>
+									<td class="bottom"><input id="charmm_query_0" class="module_txtbox_query1" type="text" name="ordpara_charmm_query"></td>
+								    </tr>
+								</table>
+							    </td>
+							</tr>
 							<tr>
 							    <td class="bottom"><span class="module_font">Frame Interval</span></td>
 							    <td class="bottom w15"></td>
 							    <td class="bottom" colspan="7"><span class="module_font">Output File Name</span></td>
 							    <td class="bottom w15"></td>
 							    <td class="center"><span class="module_font">Axis</span></td>
+							    <td colspan="3"></td>
 							</tr>
 							<tr>
-							    <td class="bottom"><input id="ordpara_dopc_frmInt" class="module_txtbox_output" type="text" name="ordpara_dopc_frmInt"></td>	
+							    <td class="bottom"><input id="ordpara_charmm_frmInt_0" mygui="0" class="module_txtbox_output" type="text" name="ordpara_charmm_frmInt"></td>	
 							    <td class="bottom w15"></td>
-							    <td class="bottom" colspan=7><input id="ordpara_dopc_outFile" class="module_txtbox_output2" type="text" name="ordpara_dopc_outFile"></td>
+							    <td class="bottom" colspan="7"><input id="ordpara_charmm_outFile_0" mygui="0" class="module_txtbox_output2" type="text" name="ordpara_charmm_outFile"></td>
 							    <td class="bottom w15"></td>
 							    <td class="bottom">
-								<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="ordpara_dopc_Axis" name="ordpara_dopc_Axis">
+								<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="ordpara_charmm_Axis_0" name="ordpara_charmm_Axis">
 								<option>Z</option>
 								<option>Y</option>
 								<option>X</option>
 								</select>
 							    </td>
+							    <td class="bottom w15"></td>
+							    <td><button id="ordpara_btn_vfy0" mygui="0"><span class="module_font">Verify</span></button></td>
+							    <td><button id="ordpara_btn_add0" mygui="0"><span class="module_font">Add</span></button></td>
 							</tr>
-							<tr><td class="bottom" colspan="11"><input id="ordpara_hist_tatoms" type="hidden" name="ordpara_hist_tatoms"></td></tr>
-							<tr><td id="vfy_msg" class="center message_warn" colspan="11"></td></tr>
+							<tr><td class="bottom" colspan="13"><input id="ordpara_hist_tatoms" type="hidden" name="ordpara_hist_tatoms"></td></tr>
+							<tr><td id="vfy_msg0" mygui="0" class="center message_warn" colspan="13"></td></tr>
 						    </table>
+						</td>
+					    </tr>
+					    <tr>
+						<td class="w_module"></td>
+						<td>
+						    <table id="charmm_add_form"></table>
 						</td>
 					    </tr>
 					</table>

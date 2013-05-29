@@ -292,3 +292,80 @@ def getCosT(v1, v2):
     r2 = math.sqrt(r2);
     cosT = r1r2 / (r1 * r2);
     return cosT;
+
+
+#********************************************************
+# *  File sort containing both string and numbers
+#********************************************************
+def getSortedList(myList, rev):
+    print "+++ getSortedList +++"
+    #i[0]: use key index, x[1]: use file name for comparision
+    idx = [i[0] for i in sorted(enumerate(myList), key=lambda x:x[1], reverse=rev)]; 
+    #print "** func: idx"
+    #print idx
+    sList = sorted(myList, reverse=rev);
+    #print "** func: sList"
+    #print sList
+    return [idx, sList];
+
+def extStrings(myList):
+    print "+++ extStrings +++"
+    # find every number and find maximum number in a certain range
+    fixDigit = 7;
+    newList = [];
+    for strLine in myList:
+	subStr = '';
+	subInt = '';
+	num_cnt = 0;
+	for i in strLine:
+	    #print "*** strLine: {}".format(strLine);
+	    #print "ord({0})={1}".format(i, ord(i));
+	    if (ord(i) > 47) and (ord(i) < 58):
+		num_cnt = num_cnt + 1;
+		subInt = "{0}{1}".format(subInt, i);
+		#print "subInt : {}".format(subInt);
+	    else:
+		subStr = "{0}{1}".format(subStr, i);
+	
+	if num_cnt > 0:
+	    num_zero = fixDigit - num_cnt;
+	    newNum = '0' * num_zero;
+	    newNum = "{0}{1}".format(newNum, subInt);
+	    subStr = "{0}{1}".format(subStr, newNum);
+	    subStr = "{0}{1}".format(subStr, i);
+	    subInt = '';
+	    num_cnt = 0;
+
+	#print "subStr: {}".format(subStr);		
+	newList.append(subStr);
+    return newList;
+
+def sort_str_num(myList, order):
+    print "+++ sort_str_num +++"
+    #print '{0}-{1}'.format(order, order.upper())
+
+    if (order.upper() == 'DESC'):
+	order = True;
+    else:
+	order = False;
+    
+    # Sort original list and get the index information
+    sListInfo = getSortedList(myList, order);		# False:ascending, True: descending
+    sIdx  = sListInfo[0];
+    sList = sListInfo[1];
+    
+    # Extend file name by extending digits with fixed length
+    new_sList = extStrings(sList);
+    #print new_sList;
+
+    # Sort extended file and get the index of sorted one
+    new_sListInfo = getSortedList(new_sList, order);		# False:ascending, True: descending
+    new_sIdx = new_sListInfo[0];
+    new_sList = new_sListInfo[1];
+    
+    # Using the index to order original file names
+    afterSort = [];
+    for i in new_sIdx:
+	afterSort.append(sList[i]);
+    
+    return afterSort;

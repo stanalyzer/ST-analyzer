@@ -1,0 +1,13 @@
+### execution file: ordpara_charmm.py ###
+	- input file: /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130528144832087400kfXLvr/para
+SELECT id FROM gui_outputs WHERE job_id = 358 and name = "ordpara_charmm1_ordpara_charmm_1.dat" 
++++ sort_str_num +++
++++ getSortedList +++
++++ extStrings +++
++++ getSortedList +++
+total 98 tails: 1862 atoms and 19 unique atoms
+dnst_min=2, dnst_max=18, dnst_bin=1
+Okay I am in ordpara_charmm.py!!!!!
+AXIS = Z, <type 'unicode'>
+Total # atoms = 13524, <type 'int'>
+okay!

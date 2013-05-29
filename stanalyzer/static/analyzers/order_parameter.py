@@ -212,26 +212,25 @@ fid_in.close();
 
 #---------------------< assigned module specific parameters: defined by users >---------------------------------
 taxis	  = paras[3][para_idx];			# pInfo[3] : target axis 'ALL' 'X' 'Y' 'Z'
-dnst_min  = paras[4][para_idx];			# pInfo[4] : Density min
-dnst_min = float(dnst_min);
-
-dnst_max  = paras[5][para_idx];			# pInfo[5] : Density max
-dnst_max = float(dnst_max);
-
-dnst_bin  = paras[6][para_idx];			# pInfo[6] : Bin size
-dnst_bin = float(dnst_bin);
-
-selQry = paras[7][para_idx];			# pInfo[7] : Query
-
-num_atoms = paras[8][para_idx];			# pInfo[8] : Total number of atoms
+num_atoms = paras[4][para_idx];			# pInfo[8] : Total number of atoms
 num_atoms = int(num_atoms);
+segID     = paras[5][para_idx];
+resName   = paras[6][para_idx];
+charmm_query = paras[7][para_idx];
 
-print "Okay I am in ORDER PARAMETER!!!!!";
+# defining the order of lipid tail
+dnst_min = 2;
+dnst_max = 16;
+dnst_bin = 1;
+
+# query selecting carbon tail
+selQryC2 = "resname DPPE and name C2* and not name C21"; #SCD2
+selQryC3 = "resname DXPE and name C3* and not name C31"; #SCD1
+newQryC2 = "resname DPPE and (name C2* or name H*) and not name C21"; #SCD2
+newQryC3 = "resname DXPE and (name C3* or name H*) and not name C31"; #SCD1
+
+print "Okay I am in DPPE!!!!!";
 print "AXIS = {}, {}".format(taxis, type(taxis));
-print "MIN = {}, {}".format(dnst_min, type(dnst_min));
-print "MAX = {}, {}".format(dnst_max, type(dnst_max));
-print "BIN = {}, {}".format(dnst_bin, type(dnst_bin));
-print "QUERY = {}, {}".format(selQry, type(selQry));
 print "Total # atoms = {}, {}".format(num_atoms, type(num_atoms));
 #dummy = raw_input("Pause: ");
 
@@ -242,9 +241,7 @@ run = 1;
 if run:
     out_file = '{0}/{1}'.format(out_dir, outFile);
     fid_out = open(out_file, 'w')
-    cmt = "# Min={0}, Max={1}, Bin size = {2}\n".format(dnst_min, dnst_max, dnst_bin);
-    fid_out.write(cmt)
-    
+
     # describing BIN
     cmt = "# Bin ranges\n#"
     fid_out.write(cmt);
@@ -268,12 +265,23 @@ if run:
     STMP = [];
     for ibin in frange(dnst_min, dnst_max, dnst_bin):
 	DNST.append(0.0);
-    
-    # new query including hydrogens
-    newQry = "{0} and H*".format(selQry);
 
+    # defining unit vector
+    if taxis == 'X':
+	tx = 1.0;
+	ty = 0.0;
+	tz = 0.0;
+    elif taxis == 'Y':
+	tx = 0.0;
+	ty = 1.0;
+	tz = 0.0;
+    elif taxis == 'Z':
+	tx = 0.0;
+	ty = 0.0;
+	tz = 1.0;
+    v2 = [tx, ty, tz];
+    
     for idx in range(len(trajectoryFile)):
-	
 	# turning on periodic boundary conditions
 	MDAnalysis.core.flags['use_periodic_selections'] = True
 	MDAnalysis.core.flags['use_KDTree_routines'] = False
@@ -294,109 +302,111 @@ if run:
 		tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		STMP.append(tmp_time);
 		print "[{0}ps]selecting atoms...".format(tmp_time);
-		selAtoms = u.selectAtoms(selQry);
+		selAtoms = u.selectAtoms(selQryC3);
 		print "DONE!"
 		if len(selAtoms) > 1:
 		    # get coordinates
 		    CAs = selAtoms.names();
 		    ca0 = CAs[0:1];			# Ca index
+		    print "Ca0: {0}".format(ca0);
 		    
-		    c_ini = CAs[0];
-		    c_ini = int(c_ini[1:]);		# initial C index of tail
+		    c_ini = CAs[1];
+		    c_ini = int(c_ini[2:]);		# initial C index of tail
 		    
 		    c_end = CAs[len(selAtoms)-1];
-		    c_end = int(c_end[1:]);		# last C index of tail
-		    
+		    c_end = int(c_end[2:]);		# last C index of tail
+
 		    print "-- Order parameter: start:{0}, end:{1}".format(c_ini, c_end);
-		    newAtoms = u.selectAtoms(newQry);
-		    CRDs = selAtoms.coordinates();
-		    
-		    # calculating vector start from between H1 and H2 to O
-		    flag_H = 0;
-		    flag_end = 0;
-		    for catom_idx in range(len(newAtoms)):
-			tmp_name = newAtoms[catom_idx].name;
-			Cxx = "{0}{1}".format(ca0, c_ini);
-			HxR = "H{0}R".format(c_ini);
-			HxS = "H{0}S".format(c_ini);
-			HxT = "H{0}S".format(c_end);
+		    newAtoms = u.selectAtoms(newQryC3);
+		    CRDs = newAtoms.coordinates();
+
+		    # get list of all atom names
+		    ANames = newAtoms.names();			
+		    for b_cnt in BIN:
+			tmp_Scd = 0.0;
+			num_Hs = 0.0;				# count number of Hyderogen at each carbon
+			c_cnt = int(b_cnt);
+			catom_idx = -1;
+			print "tmp_Scd={}".format(tmp_Scd);
 			
-			if (tmp_name == Cxx):
+			# defining current atoms 
+			Cxx = "{0}{1}".format(ca0[0], c_cnt);
+			HxR = "H{0}X".format(c_cnt);
+			HxS = "H{0}Y".format(c_cnt);
+			HxT = "H{0}Z".format(c_cnt);
+			print "c_cnt={0}, b_cnt={1}, Cxx={2}, HxR={3}, HxS={4}, HxT={5}".format(c_cnt, b_cnt, Cxx, HxR, HxS, HxT)
+			
+			# CA atom
+			if (Cxx in ANames):
+			    catom_idx = ANames.index(Cxx);
 			    CAx = CRDs[catom_idx][0];
 			    CAy = CRDs[catom_idx][1];
 			    CAz = CRDs[catom_idx][2];
-			    flag_H += 1;
-			elif (tmp_name == HxR):
-			    HRx = CRDs[catom_idx][0];
-			    HRy = CRDs[catom_idx][1];
-			    HRz = CRDs[catom_idx][2];
-			    flag_H += 1;
-			elif (tmp_name == HxS):
-			    HSx = CRDs[catom_idx][0];
-			    HSy = CRDs[catom_idx][1];
-			    HSz = CRDs[catom_idx][2];
-			    flag_H += 1;
+			    print "CAx={}, CAy={}, CAz={}".format(CAx, CAy, CAz);
 			    
-			if (tmp_name == HxT):
-			    HTx = CRDs[catom_idx][0];
-			    HTy = CRDs[catom_idx][1];
-			    HTz = CRDs[catom_idx][2];
-			    flag_H = 4;
-			    flag_end = 1;
+			# H-R atom
+			if (catom_idx >= 0) and (HxR in ANames):
+			    hratom_idx = ANames.index(HxR);
+			    HRx = CRDs[hratom_idx][0];
+			    HRy = CRDs[hratom_idx][1];
+			    HRz = CRDs[hratom_idx][2];
 			    
-			# calculating cosine 
-			if (flag_H > 2):
-			    x1 = HRx - CAx;
-			    y1 = HRy - CAy;
-			    z1 = HRz - CAz;
+			    x = HRx - CAx;
+			    y = HRy - CAy;
+			    z = HRz - CAz;
+			    v1 = [x, y, z];
+			    
+			    cosT = getCosT(v1, v2);
+			    tmp_Scd  += (3.0 * cosT * cosT - 1.0);
+			    num_Hs += 1.0;
+			
+			# H-S atom
+			if (catom_idx > 0) and (HxS in ANames):
+			    hsatom_idx = ANames.index(HxS);
+			    HSx = CRDs[hsatom_idx][0];
+			    HSy = CRDs[hsatom_idx][1];
+			    HSz = CRDs[hsatom_idx][2];
+			    
+			    x = HSx - CAx;
+			    y = HSy - CAy;
+			    z = HSz - CAz;
+			    
+			    v1 = [x, y, z];
 
-			    r = x1*x1 + y1*y1 + z1*z1;
-			    r  = math.sqrt(r);
-			    cosx1 = x1/r;
-			    cosy1 = y1/r;
-			    cosz1 = z1/r;
+			    cosT = getCosT(v1, v2);
+			    tmp_Scd  += (3.0 * cosT * cosT - 1.0);
+			    num_Hs += 1.0;
 
-			    x2 = HSx - CAx;
-			    y2 = HSy - CAy;
-			    z2 = HSz - CAz;
+			# H-T atom
+			if  (catom_idx > 0) and (HxT in ANames):
+			    htatom_idx = ANames.index(HxT);
+			    HTx = CRDs[htatom_idx][0];
+			    HTy = CRDs[htatom_idx][1];
+			    HTz = CRDs[htatom_idx][2];
 			    
-			    r = x2*x2 + y2*y2 + z2*z2;
-			    r  = math.sqrt(r);
-			    cosx2 = x2/r;
-			    cosy2 = y2/r;
-			    cosz2 = z2/r;
-    
-			    if taxis == 'X':
-				pos = bisect_left(BIN, c_ini); # defining location of bin
-				tcosx = 1;
-				tcosy = 0;
-				tcosz = 0;
-    
-			    elif taxis == 'Y':
-				pos = bisect_left(BIN, c_ini); # defining location of bin
-				tcosx = 0;
-				tcosy = 1;
-				tcosz = 0;
-				
-			    elif taxis == 'Z':
-				pos = bisect_left(BIN, c_ini); # defining location of bin
-				tcosx = 0;
-				tcosy = 0;
-				tcosz = 1;
-			    
-			    # calculating cosine between two vector
-			    cosT1 = cosx1*tcosx + cosy1*tcosy + cosz1*tcosz;
-			    Scd1  = (3 * costT1 * costT1 - 1);
-			    cosT2 = cosx2*tcosx + cosy2*tcosy + cosz2*tcosz;
-			    Scd2  = (3 * costT2 * costT2 - 1);
-			    Scd   = 1/2 * Scd1 * Scd2;
+			    x = HTx - CAx;
+			    y = HTy - CAy;
+			    z = HTz - CAz;
+			    v1 = [x, y, z];
 
-			    DNST[pos] += Scd / float(c_end);
+			    cosT = getCosT(v1, v2);
+			    tmp_Scd  += (3.0 * cosT * cosT - 1.0);
+			    num_Hs += 1.0;
+			
+			print "after tmp_Scd={}".format(tmp_Scd);
+			
+			# average Scd
+			total_Scd   = 0.5 * (tmp_Scd / num_Hs);
+			pos = bisect_left(BIN, b_cnt);
+			DNST[pos] += total_Scd;
+			print "+----------------------------------------------------------+";
+
+
 
     # Write down results
     finalDNST = [];
     for i in DNST:
-	tmp = i/len(STMP);	# average through trajectory
+	tmp = abs(i/len(STMP));	# average through trajectory
 	finalDNST.append(tmp);
     
     # Writing final output
@@ -412,10 +422,10 @@ if run:
     imgPath = "{0}/{1}".format(out_dir, outImg);
     fid_out = open(outScr, 'w');
     gScript = "set terminal png\n";
-    gScript = gScript + "set xlabel 'degree'\n";
-    gScript = gScript + "set ylabel 'density'\n";
+    gScript = gScript + "set xlabel 'Carbon Index'\n";
+    gScript = gScript + "set ylabel 'S_CD'\n";
     gScript = gScript + "set output '{0}'\n".format(imgPath);
-    gScript = gScript + """plot "{0}/{1}" using 1:2 title "Density" with lines lw 3\n""".format(out_dir, outFile);
+    gScript = gScript + """plot "{0}/{1}" using 1:2 title "DOPC" with lines lw 3\n""".format(out_dir, outFile);
     fid_out.write(gScript);
     fid_out.close()
     

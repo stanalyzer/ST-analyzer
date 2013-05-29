@@ -51,8 +51,20 @@
 }
 
 /* Background */
+.bgcolor0 {
+    background-color: #FFFFFF;
+}
+
 .bgcolor1 {
     background-color: #407A58;
+}
+
+.bgcolor2 {
+    background: url('/static/desktop/images/misc/wallpaper3.png') no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
 }
 
 /* indent */
@@ -156,6 +168,12 @@ a.underline2:hover, a.underline2:active
     width: 220px;
     font-size: 10px;
 }
+
+.module_txtbox_query1 {
+    width: 230px;
+    font-size: 10px;
+}
+
 
 .module_txtbox_digit {
     width: 100px;

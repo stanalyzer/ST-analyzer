@@ -640,6 +640,7 @@ def getSortedList(myList, rev):
     #print sList
     return [idx, sList];
 
+
 def extStrings(myList):
     print "+++ extStrings +++"
     # find every number and find maximum number in a certain range
@@ -665,6 +666,37 @@ def extStrings(myList):
 		    num_cnt = 0;
 		else:
 		    subStr = "{0}{1}".format(subStr, i);
+	newList.append(subStr);
+    return newList;
+def extStrings2(myList):
+    print "+++ extStrings +++"
+    # find every number and find maximum number in a certain range
+    fixDigit = 7;
+    newList = [];
+    for strLine in myList:
+	subStr = '';
+	subInt = '';
+	num_cnt = 0;
+	for i in strLine:
+	    #print "*** strLine: {}".format(strLine);
+	    #print "ord({0})={1}".format(i, ord(i));
+	    if (ord(i) > 47) and (ord(i) < 58):
+		num_cnt = num_cnt + 1;
+		subInt = "{0}{1}".format(subInt, i);
+		#print "subInt : {}".format(subInt);
+	    else:
+		subStr = "{0}{1}".format(subStr, i);
+	
+	if num_cnt > 0:
+	    num_zero = fixDigit - num_cnt;
+	    newNum = '0' * num_zero;
+	    newNum = "{0}{1}".format(newNum, subInt);
+	    subStr = "{0}{1}".format(subStr, newNum);
+	    subStr = "{0}{1}".format(subStr, i);
+	    subInt = '';
+	    num_cnt = 0;
+
+	#print "subStr: {}".format(subStr);		
 	newList.append(subStr);
     return newList;
 

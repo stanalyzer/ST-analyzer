@@ -336,422 +336,436 @@ function eval_step2() {
     var chk_waterdp = $j('#membrane #density_form #chk_density_waterdp').prop('checked');
     var chk_vector  = $j('#membrane #density_form #chk_density_vector').prop('checked');
     var chk_custom  = $j('#membrane #density_form #chk_density_custom').prop('checked');
-    var chk_ordpara = $j('#membrane #ordpara #ordpara_title').prop('checked');
-    var chk_ordpara_dopc = $j('#membrane #ordpara #ordpara_form #chk_ordpara_dopc').prop('checked');
+    var chk_ordpara_charmm = $j('#membrane #ordpara #ordpara_charmm #ordpara_title_charmm').prop('checked');
     
-    if (chk_ordpara == true) {
-	if (chk_ordpara_dopc == true)
-	    var frmInt = [];
-	    var outFile = [];
-	    axis = [];
-	    numAtoms = [];
+    /*----- Order parameter ------*/
+    if (chk_ordpara_charmm == true) {
+	var frmInt = [];
+	var outFile = [];
+	var axis = [];
+	var numAtoms = [];
+	var segID = [];
+	var resName = [];
+	var charmmQry = [];
+	
+	/* frame interval */
+	$j("#membrane #ordpara #ordpara_charmm_form input[name='ordpara_charmm_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	$j("#membrane #ordpara #ordpara_charmm_form input[name='ordpara_charmm_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
 
-	    /* frame interval */
-	    $j("#membrane #ordpara #ordpara_form #ordpara_form_dopc input[name='ordpara_dopc_frmInt']").each(function() {
-		frmInt.push($(this).val());
-	    });
-	    
-	    /* name of output files */
-	    $j("#membrane #ordpara #ordpara_form #ordpara_form_dopc input[name='ordpara_dopc_outFile']").each(function() {
-		outFile.push($(this).val());
-	    });
-    
-	    // Check out the associated forms
-	    $j("#membrane #ordpara #ordpara_form #ordpara_form_dopc select[name='ordpara_dopc_Axis'] option:selected").each(function() {
-		axis.push($(this).val());
-	    });
-	    
-	    $j("#membrane #ordpara #ordpara_form #ordpara_form_dopc input[name='ordpara_hist_tatoms']").each(function() {
-		numAtoms.push($(this).val());
-	    });
-	    
-	    JOBs.push('ordpara_dopc');
-	    para = [4, frmInt, outFile, axis, numAtoms];
-	    para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Total number of atoms'];
-	    PARs.push(para);
-	    PARinfo.push(para_info);
-	    //alert("numAtoms:" + numAtoms);
+	// Check out the associated forms
+	$j("#membrane #ordpara #ordpara_charmm_form select[name='ordpara_charmm_Axis'] option:selected").each(function() {
+	    axis.push($(this).val());
+	});
+	
+	// total number of atoms - the value is initialized at getStructureInfo(query, async_flg) in membrane.html
+	$j("#membrane #ordpara #ordpara_charmm_form input[name='ordpara_hist_tatoms']").each(function() {
+	    numAtoms.push($(this).val());
+	});
+	
+	// segid 
+	$j("#membrane #ordpara #ordpara_charmm_form select[name='ordpara_charmm_uq_segid'] option:selected").each(function() {
+	    segID.push($(this).val());
+	});
+	
+	// resname
+	$j("#membrane #ordpara #ordpara_charmm_form select[name='ordpara_charmm_uq_resname'] option:selected").each(function() {
+	    resName.push($(this).val());
+	});
+	
+	// query
+	$j("#membrane #ordpara #ordpara_charmm_form input[name='ordpara_charmm_query']").each(function() {
+	    charmmQry.push($(this).val());
+	});
+	
+	JOBs.push('ordpara_charmm');
+	para = [7, frmInt, outFile, axis, numAtoms, segID, resName, charmmQry];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Total number of atoms', 'segment ID', 'residue name', 'charmm query'];
+	PARs.push(para);
+	PARinfo.push(para_info);
+	//alert("numAtoms:" + numAtoms);
     }
     
-    if (chk == true) {
+    // for #density_frm_all lpH, lpT, water, waterdp, vector, custom
+    if (chk_all == true) {
+	var frmInt = [];
+	var outFile = [];
+	axis = [];
+	dnstMin = [];
+	dnstMax = [];
+	dnstBin = [];
+	dnstQuery = [];
+	numAtoms = [];
+
+	/* frame interval */
+	$j("#membrane #density_form #density_frm_all input[name='density_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
 	
-	// for #density_frm_all lpH, lpT, water, waterdp, vector, custom
-	if (chk_all == true) {
-	    var frmInt = [];
-	    var outFile = [];
-	    axis = [];
-	    dnstMin = [];
-	    dnstMax = [];
-	    dnstBin = [];
-	    dnstQuery = [];
-	    numAtoms = [];
+	/* name of output files */
+	$j("#membrane #density_form #density_frm_all input[name='density_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
 
-	    /* frame interval */
-	    $j("#membrane #density_form #density_frm_all input[name='density_frmInt']").each(function() {
-		frmInt.push($(this).val());
-	    });
-	    
-	    /* name of output files */
-	    $j("#membrane #density_form #density_frm_all input[name='density_outFile']").each(function() {
-		outFile.push($(this).val());
-	    });
-    
-	    // Check out the associated forms
-	    $j("#membrane #density_form #density_frm_all select[name='density_Axis_all'] option:selected").each(function() {
-		axis.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_all input[name='density_hist_min']").each(function() {
-		dnstMin.push($(this).val());
-	    });
-    
-	    $j("#membrane #density_form #density_frm_all input[name='density_hist_max']").each(function() {
-		dnstMax.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_all input[name='density_hist_bin']").each(function() {
-		dnstBin.push($(this).val());
-	    });
-    
-	    $j("#membrane #density_form #density_frm_all textarea[name='density_query']").each(function() {
-		dnstQuery.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_all input[name='density_hist_tatoms']").each(function() {
-		numAtoms.push($(this).val());
-	    });
-	    
-	    JOBs.push('density');
-	    para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
-	    para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
-	    PARs.push(para);
-	    PARinfo.push(para_info);
-	    //alert("numAtoms:" + numAtoms);
-	}
+	// Check out the associated forms
+	$j("#membrane #density_form #density_frm_all select[name='density_Axis_all'] option:selected").each(function() {
+	    axis.push($(this).val());
+	});
 	
-	// for #density_frm_lpH
-	if (chk_lpH == true) {
-	    var frmInt = [];
-	    var outFile = [];
-	    axis = [];
-	    dnstMin = [];
-	    dnstMax = [];
-	    dnstBin = [];
-	    dnstQuery = [];
-	    numAtoms = [];
+	$j("#membrane #density_form #density_frm_all input[name='density_hist_min']").each(function() {
+	    dnstMin.push($(this).val());
+	});
 
-	    /* frame interval */
-	    $j("#membrane #density_form #density_frm_lipidH input[name='density_frmInt']").each(function() {
-		frmInt.push($(this).val());
-	    });
-	    
-	    /* name of output files */
-	    $j("#membrane #density_form #density_frm_lipidH input[name='density_outFile']").each(function() {
-		outFile.push($(this).val());
-	    });
-    
-	    // Check out the associated forms
-	    $j("#membrane #density_form #density_frm_lipidH select[name='density_Axis_lipidH'] option:selected").each(function() {
-		axis.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_lipidH input[name='density_hist_min']").each(function() {
-		dnstMin.push($(this).val());
-	    });
-    
-	    $j("#membrane #density_form #density_frm_lipidH input[name='density_hist_max']").each(function() {
-		dnstMax.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_lipidH input[name='density_hist_bin']").each(function() {
-		dnstBin.push($(this).val());
-	    });
-    
-	    $j("#membrane #density_form #density_frm_lipidH textarea[name='density_query']").each(function() {
-		dnstQuery.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_lipidH input[name='density_hist_tatoms']").each(function() {
-		numAtoms.push($(this).val());
-	    });
-	    
-	    JOBs.push('density');
-	    para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
-	    para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
-	    PARs.push(para);
-	    PARinfo.push(para_info);
-	    //alert("numAtoms:" + numAtoms);
-	}
+	$j("#membrane #density_form #density_frm_all input[name='density_hist_max']").each(function() {
+	    dnstMax.push($(this).val());
+	});
+	
+	$j("#membrane #density_form #density_frm_all input[name='density_hist_bin']").each(function() {
+	    dnstBin.push($(this).val());
+	});
 
-	// for #density_frm_lpT
-	if (chk_lpT == true) {
-	    var frmInt = [];
-	    var outFile = [];
-	    axis = [];
-	    dnstMin = [];
-	    dnstMax = [];
-	    dnstBin = [];
-	    dnstQuery = [];
-	    numAtoms = [];
+	$j("#membrane #density_form #density_frm_all textarea[name='density_query']").each(function() {
+	    dnstQuery.push($(this).val());
+	});
+	
+	$j("#membrane #density_form #density_frm_all input[name='density_hist_tatoms']").each(function() {
+	    numAtoms.push($(this).val());
+	});
+	
+	JOBs.push('density');
+	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
+	PARs.push(para);
+	PARinfo.push(para_info);
+	//alert("numAtoms:" + numAtoms);
+    }
+    
+    // for #density_frm_lpH
+    if (chk_lpH == true) {
+	var frmInt = [];
+	var outFile = [];
+	axis = [];
+	dnstMin = [];
+	dnstMax = [];
+	dnstBin = [];
+	dnstQuery = [];
+	numAtoms = [];
 
-	    /* frame interval */
-	    $j("#membrane #density_form #density_frm_lipidT input[name='density_frmInt']").each(function() {
-		frmInt.push($(this).val());
-	    });
-	    
-	    /* name of output files */
-	    $j("#membrane #density_form #density_frm_lipidT input[name='density_outFile']").each(function() {
-		outFile.push($(this).val());
-	    });
-    
-	    // Check out the associated forms
-	    $j("#membrane #density_form #density_frm_lipidT select[name='density_Axis_lipidT'] option:selected").each(function() {
-		axis.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_lipidT input[name='density_hist_min']").each(function() {
-		dnstMin.push($(this).val());
-	    });
-    
-	    $j("#membrane #density_form #density_frm_lipidT input[name='density_hist_max']").each(function() {
-		dnstMax.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_lipidT input[name='density_hist_bin']").each(function() {
-		dnstBin.push($(this).val());
-	    });
-    
-	    $j("#membrane #density_form #density_frm_lipidT textarea[name='density_query']").each(function() {
-		dnstQuery.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_lipidT input[name='density_hist_tatoms']").each(function() {
-		numAtoms.push($(this).val());
-	    });
-	    
-	    JOBs.push('density');
-	    para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
-	    para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
-	    PARs.push(para);
-	    PARinfo.push(para_info);
-	    //alert("numAtoms:" + numAtoms);
-	}
+	/* frame interval */
+	$j("#membrane #density_form #density_frm_lipidH input[name='density_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	$j("#membrane #density_form #density_frm_lipidH input[name='density_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
 
-	// for #density_frm_water
-	if (chk_water == true) {
-	    var frmInt = [];
-	    var outFile = [];
-	    axis = [];
-	    dnstMin = [];
-	    dnstMax = [];
-	    dnstBin = [];
-	    dnstQuery = [];
-	    numAtoms = [];
+	// Check out the associated forms
+	$j("#membrane #density_form #density_frm_lipidH select[name='density_Axis_lipidH'] option:selected").each(function() {
+	    axis.push($(this).val());
+	});
+	
+	$j("#membrane #density_form #density_frm_lipidH input[name='density_hist_min']").each(function() {
+	    dnstMin.push($(this).val());
+	});
 
-	    /* frame interval */
-	    $j("#membrane #density_form #density_frm_water input[name='density_frmInt']").each(function() {
-		frmInt.push($(this).val());
-	    });
-	    
-	    /* name of output files */
-	    $j("#membrane #density_form #density_frm_water input[name='density_outFile']").each(function() {
-		outFile.push($(this).val());
-	    });
-    
-	    // Check out the associated forms
-	    $j("#membrane #density_form #density_frm_water select[name='density_Axis_water'] option:selected").each(function() {
-		axis.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_water input[name='density_hist_min']").each(function() {
-		dnstMin.push($(this).val());
-	    });
-    
-	    $j("#membrane #density_form #density_frm_water input[name='density_hist_max']").each(function() {
-		dnstMax.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_water input[name='density_hist_bin']").each(function() {
-		dnstBin.push($(this).val());
-	    });
-    
-	    $j("#membrane #density_form #density_frm_water textarea[name='density_query']").each(function() {
-		dnstQuery.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_water input[name='density_hist_tatoms']").each(function() {
-		numAtoms.push($(this).val());
-	    });
-	    
-	    JOBs.push('density');
-	    para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
-	    para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
-	    PARs.push(para);
-	    PARinfo.push(para_info);
-	    //alert("numAtoms:" + numAtoms);
-	}
+	$j("#membrane #density_form #density_frm_lipidH input[name='density_hist_max']").each(function() {
+	    dnstMax.push($(this).val());
+	});
+	
+	$j("#membrane #density_form #density_frm_lipidH input[name='density_hist_bin']").each(function() {
+	    dnstBin.push($(this).val());
+	});
 
-	// for #density_frm_waterdp
-	if (chk_waterdp == true) {
-	    var frmInt = [];
-	    var outFile = [];
-	    axis = [];
-	    dnstMin = [];
-	    dnstMax = [];
-	    dnstBin = [];
-	    dnstQuery = [];
-	    numAtoms = [];
+	$j("#membrane #density_form #density_frm_lipidH textarea[name='density_query']").each(function() {
+	    dnstQuery.push($(this).val());
+	});
+	
+	$j("#membrane #density_form #density_frm_lipidH input[name='density_hist_tatoms']").each(function() {
+	    numAtoms.push($(this).val());
+	});
+	
+	JOBs.push('density');
+	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
+	PARs.push(para);
+	PARinfo.push(para_info);
+	//alert("numAtoms:" + numAtoms);
+    }
 
-	    /* frame interval */
-	    $j("#membrane #density_form #density_frm_waterdp input[name='density_frmInt']").each(function() {
-		frmInt.push($(this).val());
-	    });
-	    
-	    /* name of output files */
-	    $j("#membrane #density_form #density_frm_waterdp input[name='density_outFile']").each(function() {
-		outFile.push($(this).val());
-	    });
-    
-	    // Check out the associated forms
-	    $j("#membrane #density_form #density_frm_waterdp select[name='density_Axis_waterdp'] option:selected").each(function() {
-		axis.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_waterdp input[name='density_hist_min']").each(function() {
-		dnstMin.push($(this).val());
-	    });
-    
-	    $j("#membrane #density_form #density_frm_waterdp input[name='density_hist_max']").each(function() {
-		dnstMax.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_waterdp input[name='density_hist_bin']").each(function() {
-		dnstBin.push($(this).val());
-	    });
-    
-	    $j("#membrane #density_form #density_frm_waterdp textarea[name='density_query']").each(function() {
-		dnstQuery.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_waterdp input[name='density_hist_tatoms']").each(function() {
-		numAtoms.push($(this).val());
-	    });
-	    JOBs.push('density_vector');
-	    para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
-	    para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
-	    PARs.push(para);
-	    PARinfo.push(para_info);
-	}
+    // for #density_frm_lpT
+    if (chk_lpT == true) {
+	var frmInt = [];
+	var outFile = [];
+	axis = [];
+	dnstMin = [];
+	dnstMax = [];
+	dnstBin = [];
+	dnstQuery = [];
+	numAtoms = [];
 
-	// for #density_frm_vector
-	if (chk_vector == true) {
-	    var frmInt = [];
-	    var outFile = [];
-	    axis = [];
-	    dnstMin = [];
-	    dnstMax = [];
-	    dnstBin = [];
-	    dnstQuery = [];
-	    numAtoms = [];
+	/* frame interval */
+	$j("#membrane #density_form #density_frm_lipidT input[name='density_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	$j("#membrane #density_form #density_frm_lipidT input[name='density_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
 
-	    
-	    /* frame interval */
-	    $j("#membrane #density_form #density_frm_vector input[name='density_frmInt']").each(function() {
-		frmInt.push($(this).val());
-	    });
-	    
-	    /* name of output files */
-	    $j("#membrane #density_form #density_frm_vector input[name='density_outFile']").each(function() {
-		outFile.push($(this).val());
-	    });
-    
-	    // Check out the associated forms
-	    $j("#membrane #density_form #density_frm_vector select[name='density_Axis_vector'] option:selected").each(function() {
-		axis.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_vector input[name='density_hist_min']").each(function() {
-		dnstMin.push($(this).val());
-	    });
-    
-	    $j("#membrane #density_form #density_frm_vector input[name='density_hist_max']").each(function() {
-		dnstMax.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_vector input[name='density_hist_bin']").each(function() {
-		dnstBin.push($(this).val());
-	    });
-    
-	    $j("#membrane #density_form #density_frm_vector textarea[name='density_query']").each(function() {
-		dnstQuery.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_vector input[name='density_hist_tatoms']").each(function() {
-		numAtoms.push($(this).val());
-	    });
-	    
-	    JOBs.push('vector_selection');
-	    para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
-	    para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
-	    PARs.push(para);
-	    PARinfo.push(para_info);
-	    //alert("numAtoms:" + numAtoms);
-	}
+	// Check out the associated forms
+	$j("#membrane #density_form #density_frm_lipidT select[name='density_Axis_lipidT'] option:selected").each(function() {
+	    axis.push($(this).val());
+	});
+	
+	$j("#membrane #density_form #density_frm_lipidT input[name='density_hist_min']").each(function() {
+	    dnstMin.push($(this).val());
+	});
 
-	// for #density_frm_custom
-	if (chk_custom == true) {
-	    var frmInt = [];
-	    var outFile = [];
-	    axis = [];
-	    dnstMin = [];
-	    dnstMax = [];
-	    dnstBin = [];
-	    dnstQuery = [];
-	    numAtoms = [];
+	$j("#membrane #density_form #density_frm_lipidT input[name='density_hist_max']").each(function() {
+	    dnstMax.push($(this).val());
+	});
+	
+	$j("#membrane #density_form #density_frm_lipidT input[name='density_hist_bin']").each(function() {
+	    dnstBin.push($(this).val());
+	});
 
-	    /* frame interval */
-	    $j("#membrane #density_form #density_frm_custom input[name='density_frmInt']").each(function() {
-		frmInt.push($(this).val());
-	    });
-	    
-	    /* name of output files */
-	    $j("#membrane #density_form #density_frm_custom input[name='density_outFile']").each(function() {
-		outFile.push($(this).val());
-	    });
-    
-	    // Check out the associated forms
-	    $j("#membrane #density_form #density_frm_custom select[name='density_Axis_custom'] option:selected").each(function() {
-		axis.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_custom input[name='density_hist_min']").each(function() {
-		dnstMin.push($(this).val());
-	    });
-    
-	    $j("#membrane #density_form #density_frm_custom input[name='density_hist_max']").each(function() {
-		dnstMax.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_custom input[name='density_hist_bin']").each(function() {
-		dnstBin.push($(this).val());
-	    });
-    
-	    $j("#membrane #density_form #density_frm_custom textarea[name='density_query']").each(function() {
-		dnstQuery.push($(this).val());
-	    });
-	    
-	    $j("#membrane #density_form #density_frm_custom input[name='density_hist_tatoms']").each(function() {
-		numAtoms.push($(this).val());
-	    });
-	    
-	    JOBs.push('density');
-	    para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
-	    para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
-	    PARs.push(para);
-	    PARinfo.push(para_info);
-	    //alert("numAtoms:" + numAtoms);
-	}
+	$j("#membrane #density_form #density_frm_lipidT textarea[name='density_query']").each(function() {
+	    dnstQuery.push($(this).val());
+	});
+	
+	$j("#membrane #density_form #density_frm_lipidT input[name='density_hist_tatoms']").each(function() {
+	    numAtoms.push($(this).val());
+	});
+	
+	JOBs.push('density');
+	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
+	PARs.push(para);
+	PARinfo.push(para_info);
+	//alert("numAtoms:" + numAtoms);
+    }
 
+    // for #density_frm_water
+    if (chk_water == true) {
+	var frmInt = [];
+	var outFile = [];
+	axis = [];
+	dnstMin = [];
+	dnstMax = [];
+	dnstBin = [];
+	dnstQuery = [];
+	numAtoms = [];
+
+	/* frame interval */
+	$j("#membrane #density_form #density_frm_water input[name='density_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	$j("#membrane #density_form #density_frm_water input[name='density_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
+
+	// Check out the associated forms
+	$j("#membrane #density_form #density_frm_water select[name='density_Axis_water'] option:selected").each(function() {
+	    axis.push($(this).val());
+	});
+	
+	$j("#membrane #density_form #density_frm_water input[name='density_hist_min']").each(function() {
+	    dnstMin.push($(this).val());
+	});
+
+	$j("#membrane #density_form #density_frm_water input[name='density_hist_max']").each(function() {
+	    dnstMax.push($(this).val());
+	});
+	
+	$j("#membrane #density_form #density_frm_water input[name='density_hist_bin']").each(function() {
+	    dnstBin.push($(this).val());
+	});
+
+	$j("#membrane #density_form #density_frm_water textarea[name='density_query']").each(function() {
+	    dnstQuery.push($(this).val());
+	});
+	
+	$j("#membrane #density_form #density_frm_water input[name='density_hist_tatoms']").each(function() {
+	    numAtoms.push($(this).val());
+	});
+	
+	JOBs.push('density');
+	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
+	PARs.push(para);
+	PARinfo.push(para_info);
+	//alert("numAtoms:" + numAtoms);
+    }
+
+    // for #density_frm_waterdp
+    if (chk_waterdp == true) {
+	var frmInt = [];
+	var outFile = [];
+	axis = [];
+	dnstMin = [];
+	dnstMax = [];
+	dnstBin = [];
+	dnstQuery = [];
+	numAtoms = [];
+
+	/* frame interval */
+	$j("#membrane #density_form #density_frm_waterdp input[name='density_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	$j("#membrane #density_form #density_frm_waterdp input[name='density_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
+
+	// Check out the associated forms
+	$j("#membrane #density_form #density_frm_waterdp select[name='density_Axis_waterdp'] option:selected").each(function() {
+	    axis.push($(this).val());
+	});
+	
+	$j("#membrane #density_form #density_frm_waterdp input[name='density_hist_min']").each(function() {
+	    dnstMin.push($(this).val());
+	});
+
+	$j("#membrane #density_form #density_frm_waterdp input[name='density_hist_max']").each(function() {
+	    dnstMax.push($(this).val());
+	});
+	
+	$j("#membrane #density_form #density_frm_waterdp input[name='density_hist_bin']").each(function() {
+	    dnstBin.push($(this).val());
+	});
+
+	$j("#membrane #density_form #density_frm_waterdp textarea[name='density_query']").each(function() {
+	    dnstQuery.push($(this).val());
+	});
+	
+	$j("#membrane #density_form #density_frm_waterdp input[name='density_hist_tatoms']").each(function() {
+	    numAtoms.push($(this).val());
+	});
+	JOBs.push('density_vector');
+	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
+	PARs.push(para);
+	PARinfo.push(para_info);
+    }
+
+    // for #density_frm_vector
+    if (chk_vector == true) {
+	var frmInt = [];
+	var outFile = [];
+	axis = [];
+	dnstMin = [];
+	dnstMax = [];
+	dnstBin = [];
+	dnstQuery = [];
+	numAtoms = [];
+
+	
+	/* frame interval */
+	$j("#membrane #density_form #density_frm_vector input[name='density_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	$j("#membrane #density_form #density_frm_vector input[name='density_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
+
+	// Check out the associated forms
+	$j("#membrane #density_form #density_frm_vector select[name='density_Axis_vector'] option:selected").each(function() {
+	    axis.push($(this).val());
+	});
+	
+	$j("#membrane #density_form #density_frm_vector input[name='density_hist_min']").each(function() {
+	    dnstMin.push($(this).val());
+	});
+
+	$j("#membrane #density_form #density_frm_vector input[name='density_hist_max']").each(function() {
+	    dnstMax.push($(this).val());
+	});
+	
+	$j("#membrane #density_form #density_frm_vector input[name='density_hist_bin']").each(function() {
+	    dnstBin.push($(this).val());
+	});
+
+	$j("#membrane #density_form #density_frm_vector textarea[name='density_query']").each(function() {
+	    dnstQuery.push($(this).val());
+	});
+	
+	$j("#membrane #density_form #density_frm_vector input[name='density_hist_tatoms']").each(function() {
+	    numAtoms.push($(this).val());
+	});
+	
+	JOBs.push('vector_selection');
+	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
+	PARs.push(para);
+	PARinfo.push(para_info);
+	//alert("numAtoms:" + numAtoms);
+    }
+
+    // for #density_frm_custom
+    if (chk_custom == true) {
+	var frmInt = [];
+	var outFile = [];
+	axis = [];
+	dnstMin = [];
+	dnstMax = [];
+	dnstBin = [];
+	dnstQuery = [];
+	numAtoms = [];
+
+	/* frame interval */
+	$j("#membrane #density_form #density_frm_custom input[name='density_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	$j("#membrane #density_form #density_frm_custom input[name='density_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
+
+	// Check out the associated forms
+	$j("#membrane #density_form #density_frm_custom select[name='density_Axis_custom'] option:selected").each(function() {
+	    axis.push($(this).val());
+	});
+	
+	$j("#membrane #density_form #density_frm_custom input[name='density_hist_min']").each(function() {
+	    dnstMin.push($(this).val());
+	});
+
+	$j("#membrane #density_form #density_frm_custom input[name='density_hist_max']").each(function() {
+	    dnstMax.push($(this).val());
+	});
+	
+	$j("#membrane #density_form #density_frm_custom input[name='density_hist_bin']").each(function() {
+	    dnstBin.push($(this).val());
+	});
+
+	$j("#membrane #density_form #density_frm_custom textarea[name='density_query']").each(function() {
+	    dnstQuery.push($(this).val());
+	});
+	
+	$j("#membrane #density_form #density_frm_custom input[name='density_hist_tatoms']").each(function() {
+	    numAtoms.push($(this).val());
+	});
+	
+	JOBs.push('density');
+	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
+	PARs.push(para);
+	PARinfo.push(para_info);
+	//alert("numAtoms:" + numAtoms);
     }
     return [JOBs, PARs, PARinfo];
 }
@@ -2169,7 +2183,7 @@ $j(document).ready(function(){
 	     * #############################################
 	     */
 	    mySystem = getStructureInfo('all', true); // defined in membrane.html
-	    
+
 	    var options = $j("#prj option");
 	    var idx = options.index(options.filter(":selected"));
 	    pkey = idx + 1;
@@ -2469,7 +2483,8 @@ window.top.location = 'http://desktop.sonspring.com/ie.html';
 
 </head>
 <body onload="noBack();" onpageshow="if (event.persisted) noBack();" onunload="">
-<img id="wallpaper" class="abs" src="/static/desktop/images/misc/wallpaper2.jpg" />  
+<!-- <img id="wallpaper" class="abs" src="/static/desktop/images/misc/wallpaper2.jpg" />  -->
+<img id="wallpaper" class="abs" src="/static/desktop/images/misc/wallpaper4.png" />
 <div class="abs" id="wrapper">
   <div class="abs" id="desktop">
     
@@ -2482,7 +2497,8 @@ window.top.location = 'http://desktop.sonspring.com/ie.html';
   <!-- 3. setting up bottom bar: image should be 22x22
   <!--- ///////////////////////////////////////////////////////////////////////////// --->
     <a class="abs icon" style="left:20px;top:20px;" href="#icon_dock_stanalyzer">
-      <img src="/static/desktop/images/icons/icon_32_computer.png" />
+      <!-- <img src="/static/desktop/images/icons/icon_32_computer.png" /> --->
+      <img src="/static/desktop/images/icons/icon32_analyzer.png" />
       ST-analyzer
     </a>
     <!--
@@ -2492,11 +2508,13 @@ window.top.location = 'http://desktop.sonspring.com/ie.html';
     </a>
     -->
     <a class="abs icon" style="left:20px;top:100px;" href="#icon_dock_account">
-      <img src="/static/desktop/images/icons/icon_32_people.png" />
+      <!-- <img src="/static/desktop/images/icons/icon_32_people.png" /> -->
+      <img src="/static/desktop/images/icons/icon32_user.png" />
       USER accounts
     </a>
     <a class="abs icon" style="left:20px;top:200px;" href="#icon_dock_result">
-      <img src="/static/desktop/images/icons/icon_32_database.png" />
+      <!-- <img src="/static/desktop/images/icons/icon_32_database.png" /> -->
+      <img src="/static/desktop/images/icons/icon32_result.png" />
       Result Viewer
     </a>
     
@@ -2511,7 +2529,8 @@ window.top.location = 'http://desktop.sonspring.com/ie.html';
         <div class="window_top">
           <!-- Window title -->
           <span class="float_left">
-            <img src="/static/desktop/images/icons/icon_16_computer.png" />
+            <!-- <img src="/static/desktop/images/icons/icon_16_computer.png" /> -->
+	    <img src="/static/desktop/images/icons/icon16_analyzer.png" />
             ST-analyzer
           </span>
           <!-- Window icons -->
@@ -2549,7 +2568,8 @@ window.top.location = 'http://desktop.sonspring.com/ie.html';
         <div class="window_top">
           <!-- Window title -->
           <span class="float_left">
-            <img src="/static/desktop/images/icons/icon_16_drive.png" />
+            <!-- <img src="/static/desktop/images/icons/icon_16_drive.png" /> -->
+	    <img src="/static/desktop/images/icons/icon16_result.png" />
             JOB Viewer
           </span>
           <!-- Window icons -->
@@ -2588,7 +2608,8 @@ window.top.location = 'http://desktop.sonspring.com/ie.html';
         <div class="window_top">
           <!-- Window title -->
           <span class="float_left">
-            <img src="/static/desktop/images/icons/icon_16_people.png" />
+            <!-- <img src="/static/desktop/images/icons/icon_16_people.png" /> -->
+	    <img src="/static/desktop/images/icons/icon16_user.png" />
             USER accounts
           </span>
           <!-- Window icons -->
@@ -2626,7 +2647,8 @@ window.top.location = 'http://desktop.sonspring.com/ie.html';
         <div class="window_top">
           <!-- Window title -->
           <span class="float_left">
-            <img src="/static/desktop/images/icons/icon_16_database.png" />
+            <!-- <img src="/static/desktop/images/icons/icon_16_database.png" /> -->
+	    <img src="/static/desktop/images/icons/icon16_result.png" />
             Result Viewer
           </span>
           <!-- Window icons -->
@@ -2699,14 +2721,16 @@ window.top.location = 'http://desktop.sonspring.com/ie.html';
         <!--- For ST-analyzer ------------------------------------------------------------------->
       <li id="icon_dock_stanalyzer">
         <a href="#window_stanalyzer">
-          <img src="/static/desktop/images/icons/icon_22_computer.png" />
+          <!-- <img src="/static/desktop/images/icons/icon_22_computer.png" /> -->
+	  <img src="/static/desktop/images/icons/icon22_analyzer.png" />
           ST-analyzer
         </a>
       </li>
         <!--- For JOB Viewer ------------------------------------------------------------------->
       <li id="icon_dock_jobviewer">
         <a href="#window_jobviewer">
-          <img src="/static/desktop/images/icons/icon_22_drive.png" />
+          <!-- <img src="/static/desktop/images/icons/icon_22_drive.png" /> -->
+	  <img src="/static/desktop/images/icons/icon22_result.png" />
           JOB viewer
         </a>
       </li>
@@ -2715,7 +2739,8 @@ window.top.location = 'http://desktop.sonspring.com/ie.html';
       <!--- For User accounts ------------------------------------------------------------------->
       <li id="icon_dock_account">
         <a href="#window_account">
-          <img src="/static/desktop/images/icons/icon_22_people.png" />
+          <!-- <img src="/static/desktop/images/icons/icon_22_people.png" /> -->
+	  <img src="/static/desktop/images/icons/icon22_user.png" />
           USER accounts
         </a>
       </li>
@@ -2724,7 +2749,8 @@ window.top.location = 'http://desktop.sonspring.com/ie.html';
       <!--- For Result Viewer ------------------------------------------------------------------->
       <li id="icon_dock_result">
         <a href="#window_result">
-          <img src="/static/desktop/images/icons/icon_22_database.png" />
+          <!-- <img src="/static/desktop/images/icons/icon_22_database.png" /> -->
+	  <img src="/static/desktop/images/icons/icon22_result.png" />
           Result Viewer
         </a>
       </li>

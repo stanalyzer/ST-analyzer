@@ -1,0 +1,14 @@
+### execution file: density_vector.py ###
+	- input file: /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/201305201606074315490Jf5hn/para
+SELECT id FROM gui_outputs WHERE job_id = 342 and name = "density_vector0_density_water_dipole.dat" 
+AXIS = Z, <type 'unicode'>
+MIN = -41.0, <type 'float'>
+MAX = 41.0, <type 'float'>
+BIN = 1.0, <type 'float'>
+QUERY = segid TIP3, <type 'unicode'>
+Total # atoms = 13524, <type 'int'>
+Reading PSF: /home2/jcjeong/project/charmm/dol_dopc_1/step5_assembly.xplor_ext.psf
+Reading DCD: /home2/jcjeong/project/charmm/dol_dopc_1/step7_0.dcd
+0 is done!
+[0.0ps]selecting atoms...
+DONE!
