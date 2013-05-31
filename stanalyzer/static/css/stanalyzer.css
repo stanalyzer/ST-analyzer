@@ -169,6 +169,11 @@ a.underline2:hover, a.underline2:active
     font-size: 10px;
 }
 
+.module_txtbox_output3 {
+    width: 340px;
+    font-size: 10px;
+}
+
 .module_txtbox_query1 {
     width: 230px;
     font-size: 10px;

@@ -3044,7 +3044,7 @@ def stanalyzer_sendJob(request):
 		    fid_i = open(tmp, 'w');
 		    fid_i.write(pbs);
 		    
-		    job_name = "#PBS -N {0}{1}\n".format(ifunc, cnt_frm);
+		    job_name = "#PBS -N {0}{1}\n".format(ifunc[0:5], cnt_frm);
 		    fid_i.write(job_name);
 		    
 		    err_file = "#PBS -e {0}/{1}{2}.err\n".format(PBS_HOME, ifunc, cnt_frm);
@@ -3193,9 +3193,7 @@ def stanalyzer_sendJob(request):
 		    for cnt_frm in range(len(Paras[func_idx][1])):
 			# Run Script
 			fpbs = "{0}/{1}{2}.pbs".format(PBS_HOME, ifunc, cnt_frm);
-			#cmd = "qsub {0}/{1}{2}.pbs".format(PBS_HOME, ifunc, cnt_frm);
-			#print cmd;
-			#os.system(cmd);
+			print fpbs
 			#print "Okay I am sending job to Queue!";
 			q_id = sub.check_output(["qsub", fpbs]);
 			#print q_id

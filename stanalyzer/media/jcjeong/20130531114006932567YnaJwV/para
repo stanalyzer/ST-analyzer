@@ -1,0 +1,489 @@
+(dp0
+S'output_home'
+p1
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130531114006932567YnaJwV/'
+p2
+sS'num_atoms'
+p3
+V28935
+p4
+sS'media_home'
+p5
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/media'
+p6
+sS'funcName'
+p7
+(lp8
+Vdensity
+p9
+aVdensity
+p10
+aVdensity
+p11
+aVdensity
+p12
+aVdensity_vector
+p13
+aVvector_selection
+p14
+asS'Paras'
+p15
+(lp16
+(lp17
+(lp18
+I8
+aa(lp19
+V1
+p20
+aa(lp21
+Vdensity_all.dat
+p22
+aa(lp23
+VZ
+p24
+aa(lp25
+V-42
+p26
+aa(lp27
+V42
+p28
+aa(lp29
+g20
+aa(lp30
+Vall
+p31
+aa(lp32
+V28935
+p33
+aaa(lp34
+(lp35
+I8
+aa(lp36
+g20
+aa(lp37
+Vdensity_lipid_head.dat
+p38
+aa(lp39
+g24
+aa(lp40
+V-42
+p41
+aa(lp42
+V42
+p43
+aa(lp44
+g20
+aa(lp45
+Vsegid MEMB and ( name P or name N or (name C1* and not name C1) or name O1* )
+p46
+aa(lp47
+V28935
+p48
+aaa(lp49
+(lp50
+I8
+aa(lp51
+g20
+aa(lp52
+Vdensity_lipid_tail.dat
+p53
+aa(lp54
+g24
+aa(lp55
+V-42
+p56
+aa(lp57
+V42
+p58
+aa(lp59
+g20
+aa(lp60
+Vsegid MEMB and ( name C2* or name C3* ) and not ( name C21 or  name C31 )
+p61
+aa(lp62
+V28935
+p63
+aaa(lp64
+(lp65
+I8
+aa(lp66
+g20
+aa(lp67
+Vdensity_water.dat
+p68
+aa(lp69
+g24
+aa(lp70
+V-42
+p71
+aa(lp72
+V42
+p73
+aa(lp74
+g20
+aa(lp75
+Vsegid TIP3 and name OH2
+p76
+aa(lp77
+V28935
+p78
+aaa(lp79
+(lp80
+I8
+aa(lp81
+g20
+aa(lp82
+Vdensity_water_dipole.dat
+p83
+aa(lp84
+g24
+aa(lp85
+V-42
+p86
+aa(lp87
+V42
+p88
+aa(lp89
+g20
+aa(lp90
+Vsegid TIP3
+p91
+aa(lp92
+V28935
+p93
+aaa(lp94
+(lp95
+I8
+aa(lp96
+g20
+aa(lp97
+Vdensity_vector.dat
+p98
+aa(lp99
+g24
+aa(lp100
+V-42
+p101
+aa(lp102
+V42
+p103
+aa(lp104
+g20
+aa(lp105
+Vsegid MEMB and name P
+p106
+aa(lp107
+V28935
+p108
+aaasS'para_pkeys'
+p109
+(lp110
+(lp111
+I6555
+aI6556
+aI6557
+aI6558
+aI6559
+aI6560
+aI6561
+aI6562
+aI6563
+aa(lp112
+I6555
+aI6556
+aI6557
+aI6558
+aI6559
+aI6560
+aI6561
+aI6562
+aI6563
+aI6564
+aI6565
+aI6566
+aI6567
+aI6568
+aI6569
+aI6570
+aI6571
+aI6572
+aa(lp113
+I6555
+aI6556
+aI6557
+aI6558
+aI6559
+aI6560
+aI6561
+aI6562
+aI6563
+aI6564
+aI6565
+aI6566
+aI6567
+aI6568
+aI6569
+aI6570
+aI6571
+aI6572
+aI6573
+aI6574
+aI6575
+aI6576
+aI6577
+aI6578
+aI6579
+aI6580
+aI6581
+aa(lp114
+I6555
+aI6556
+aI6557
+aI6558
+aI6559
+aI6560
+aI6561
+aI6562
+aI6563
+aI6564
+aI6565
+aI6566
+aI6567
+aI6568
+aI6569
+aI6570
+aI6571
+aI6572
+aI6573
+aI6574
+aI6575
+aI6576
+aI6577
+aI6578
+aI6579
+aI6580
+aI6581
+aI6582
+aI6583
+aI6584
+aI6585
+aI6586
+aI6587
+aI6588
+aI6589
+aI6590
+aa(lp115
+I6591
+aI6592
+aI6593
+aI6594
+aI6595
+aI6596
+aI6597
+aI6598
+aI6599
+aa(lp116
+I6600
+aI6601
+aI6602
+aI6603
+aI6604
+aI6605
+aI6606
+aI6607
+aI6608
+aasS'session_home'
+p117
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130531114006932567YnaJwV'
+p118
+sS'num_frame'
+p119
+V40
+p120
+sS'trajectory'
+p121
+(lp122
+Vstep7_0.dcd
+p123
+asS'paraInfo'
+p124
+(lp125
+(lp126
+VNumber of Parameters
+p127
+aVFrame interval
+p128
+aVOutput name
+p129
+aVAxis
+p130
+aVMinimum value in the given axis
+p131
+aVMaximum value in the given axis
+p132
+aVBin size
+p133
+aVQuery
+p134
+aVTotal number of atoms
+p135
+aa(lp136
+VNumber of Parameters
+p137
+aVFrame interval
+p138
+aVOutput name
+p139
+aVAxis
+p140
+aVMinimum value in the given axis
+p141
+aVMaximum value in the given axis
+p142
+aVBin size
+p143
+aVQuery
+p144
+aVTotal number of atoms
+p145
+aa(lp146
+VNumber of Parameters
+p147
+aVFrame interval
+p148
+aVOutput name
+p149
+aVAxis
+p150
+aVMinimum value in the given axis
+p151
+aVMaximum value in the given axis
+p152
+aVBin size
+p153
+aVQuery
+p154
+aVTotal number of atoms
+p155
+aa(lp156
+VNumber of Parameters
+p157
+aVFrame interval
+p158
+aVOutput name
+p159
+aVAxis
+p160
+aVMinimum value in the given axis
+p161
+aVMaximum value in the given axis
+p162
+aVBin size
+p163
+aVQuery
+p164
+aVTotal number of atoms
+p165
+aa(lp166
+VNumber of Parameters
+p167
+aVFrame interval
+p168
+aVOutput name
+p169
+aVAxis
+p170
+aVMinimum value in the given axis
+p171
+aVMaximum value in the given axis
+p172
+aVBin size
+p173
+aVQuery
+p174
+aVTotal number of atoms
+p175
+aa(lp176
+VNumber of Parameters
+p177
+aVFrame interval
+p178
+aVOutput name
+p179
+aVAxis
+p180
+aVMinimum value in the given axis
+p181
+aVMaximum value in the given axis
+p182
+aVBin size
+p183
+aVQuery
+p184
+aVTotal number of atoms
+p185
+aasS'job_pkey'
+p186
+(I383
+tp187
+sS'path_output'
+p188
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/'
+p189
+sS'path_python'
+p190
+Vpython
+p191
+sS'job_title'
+p192
+Vanalyzing trajectory
+p193
+sS'pkey'
+p194
+V1
+p195
+sS'num_ps'
+p196
+V5.0
+p197
+sS'pdb_file'
+p198
+V#hist_1.plo#
+p199
+sS'pbs_home'
+p200
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130531114006932567YnaJwV/pbs'
+p201
+sS'base_path'
+p202
+S'/home2/jcjeong/project/charmm/dol_dopc_1/'
+p203
+sS'date'
+p204
+S'20130531114006932567'
+p205
+sS'pbs'
+p206
+V#!/bin/bash\u000a#PBS -l nodes=1:ppn=1\u000a#PBS -l mem=500mb\u000a#PBS -l walltime=72:00:00\u000a#PBS -l cput=72:00:00\u000a#PBS -q charmm_nmr\u000a
+p207
+sS'analyzer_home'
+p208
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/static/analyzers'
+p209
+sS'num_files'
+p210
+V1
+p211
+sS'ptitle'
+p212
+Vcalculating helix
+p213
+sS'structure_file'
+p214
+V#hist_1.plo#
+p215
+sS'dbName'
+p216
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/stanalyzer.db'
+p217
+s.

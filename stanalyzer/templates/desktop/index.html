@@ -337,16 +337,21 @@ function eval_step2() {
     var chk_vector  = $j('#membrane #density_form #chk_density_vector').prop('checked');
     var chk_custom  = $j('#membrane #density_form #chk_density_custom').prop('checked');
     var chk_ordpara_charmm = $j('#membrane #ordpara #ordpara_charmm #ordpara_title_charmm').prop('checked');
+    frmInt = [];
+    outFile = [];
+    
+    /*----- Thickness ------*/
+    
     
     /*----- Order parameter ------*/
     if (chk_ordpara_charmm == true) {
-	var frmInt = [];
-	var outFile = [];
-	var axis = [];
-	var numAtoms = [];
-	var segID = [];
-	var resName = [];
-	var charmmQry = [];
+	frmInt = [];
+	outFile = [];
+	axis = [];
+	numAtoms = [];
+	segID = [];
+	resName = [];
+	charmmQry = [];
 	
 	/* frame interval */
 	$j("#membrane #ordpara #ordpara_charmm_form input[name='ordpara_charmm_frmInt']").each(function() {
@@ -393,8 +398,8 @@ function eval_step2() {
     
     // for #density_frm_all lpH, lpT, water, waterdp, vector, custom
     if (chk_all == true) {
-	var frmInt = [];
-	var outFile = [];
+	frmInt = [];
+	outFile = [];
 	axis = [];
 	dnstMin = [];
 	dnstMax = [];
@@ -437,18 +442,18 @@ function eval_step2() {
 	    numAtoms.push($(this).val());
 	});
 	
-	JOBs.push('density');
+	JOBs.push('density_all');
 	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
 	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
 	PARs.push(para);
 	PARinfo.push(para_info);
-	//alert("numAtoms:" + numAtoms);
+	//alert("-ALL-outFile:" + outFile);
     }
     
     // for #density_frm_lpH
     if (chk_lpH == true) {
-	var frmInt = [];
-	var outFile = [];
+	frmInt = [];
+	outFile = [];
 	axis = [];
 	dnstMin = [];
 	dnstMax = [];
@@ -491,18 +496,18 @@ function eval_step2() {
 	    numAtoms.push($(this).val());
 	});
 	
-	JOBs.push('density');
+	JOBs.push('density_lpH');
 	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
 	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
 	PARs.push(para);
 	PARinfo.push(para_info);
-	//alert("numAtoms:" + numAtoms);
+	//alert("-chk_LpH-outFile:" + outFile);
     }
 
     // for #density_frm_lpT
     if (chk_lpT == true) {
-	var frmInt = [];
-	var outFile = [];
+	frmInt = [];
+	outFile = [];
 	axis = [];
 	dnstMin = [];
 	dnstMax = [];
@@ -545,18 +550,18 @@ function eval_step2() {
 	    numAtoms.push($(this).val());
 	});
 	
-	JOBs.push('density');
+	JOBs.push('density_lpT');
 	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
 	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
 	PARs.push(para);
 	PARinfo.push(para_info);
-	//alert("numAtoms:" + numAtoms);
+	//alert("-chk_lpT-outFile:" + outFile);
     }
 
     // for #density_frm_water
     if (chk_water == true) {
-	var frmInt = [];
-	var outFile = [];
+	frmInt = [];
+	outFile = [];
 	axis = [];
 	dnstMin = [];
 	dnstMax = [];
@@ -599,18 +604,18 @@ function eval_step2() {
 	    numAtoms.push($(this).val());
 	});
 	
-	JOBs.push('density');
+	JOBs.push('density_water');
 	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
 	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
 	PARs.push(para);
 	PARinfo.push(para_info);
-	//alert("numAtoms:" + numAtoms);
+	//alert("-chk_water-outFile:" + outFile);
     }
 
     // for #density_frm_waterdp
     if (chk_waterdp == true) {
-	var frmInt = [];
-	var outFile = [];
+	frmInt = [];
+	outFile = [];
 	axis = [];
 	dnstMin = [];
 	dnstMax = [];
@@ -657,12 +662,13 @@ function eval_step2() {
 	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
 	PARs.push(para);
 	PARinfo.push(para_info);
+	//alert("-chk_waterdp-outFile:" + outFile);
     }
 
     // for #density_frm_vector
     if (chk_vector == true) {
-	var frmInt = [];
-	var outFile = [];
+	frmInt = [];
+	outFile = [];
 	axis = [];
 	dnstMin = [];
 	dnstMax = [];
@@ -711,13 +717,13 @@ function eval_step2() {
 	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
 	PARs.push(para);
 	PARinfo.push(para_info);
-	//alert("numAtoms:" + numAtoms);
+	//alert("-chk_vector-outFile:" + outFile);
     }
 
     // for #density_frm_custom
     if (chk_custom == true) {
-	var frmInt = [];
-	var outFile = [];
+	frmInt = [];
+	outFile = [];
 	axis = [];
 	dnstMin = [];
 	dnstMax = [];
@@ -760,7 +766,7 @@ function eval_step2() {
 	    numAtoms.push($(this).val());
 	});
 	
-	JOBs.push('density');
+	JOBs.push('density_custom');
 	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
 	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
 	PARs.push(para);
@@ -2455,7 +2461,6 @@ $j(document).ready(function(){
 	    }
 	});
     });
-
 });
     
 </script>
