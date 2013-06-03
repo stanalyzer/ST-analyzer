@@ -320,6 +320,86 @@ function eval_step2() {
 	//alert("PARAS:" + PARs[1]['num_para']);
     }
 
+    
+    /*** calculating RMSD ***/
+    var chk = $j('#protein #rmsd_title').prop('checked');
+    if (chk == true) {
+	// check out return values
+	
+	/* frame interval */
+	var frmInt = [];
+	$j("#protein #rmsd_form input[name='rmsd_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	var outFile = [];
+	$j("#protein #rmsd_form input[name='rmsd_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
+
+	var alig_selection = [];
+	$j("#protein #rmsd_form  textarea[name='rmsd_query_alig']").each(function() {
+		alig_selection.push($(this).val());
+	});
+	
+	var calc_selection = [];
+	$j("#protein #rmsd_form  textarea[name='rmsd_query_calc']").each(function() {
+		calc_selection.push($(this).val());
+	});
+	
+	JOBs.push('rmsd');
+	
+	para = [4, frmInt, outFile, alig_selection, calc_selection];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Align Selection', 'RMSD Selection'];
+	PARs.push(para);
+	PARinfo.push(para_info);
+    }
+
+    /*** calculating RMSF ***/
+    var chk = $j('#protein #rmsf_title').prop('checked');
+    if (chk == true) {
+	// check out return values
+	
+	/* frame interval */
+	var frmInt = [];
+	$j("#protein #rmsf_form input[name='rmsf_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	var outFile = [];
+	$j("#protein #rmsf_form input[name='rmsf_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
+
+	var alig_selection = [];
+	$j("#protein #rmsf_form  textarea[name='rmsf_query_alig']").each(function() {
+		alig_selection.push($(this).val());
+	});
+	
+	var calc_selection = [];
+	$j("#protein #rmsf_form  textarea[name='rmsf_query_calc']").each(function() {
+		calc_selection.push($(this).val());
+	});
+
+	var chk1 = $j('#protein #rmsf_form #rmsf_res_based').prop('checked');
+    
+	if (chk1 == true)
+	{
+	    var res_ave = ["True"];
+	}
+	else
+	{
+	    var res_ave = ["False"];
+	}	
+	JOBs.push('rmsf');
+	para = [5, frmInt, outFile, alig_selection, calc_selection, res_ave];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Align Selection', 'RMSD Selection',"Calculate average on residue"];
+	PARs.push(para);
+	PARinfo.push(para_info);
+    }
+ 
     /*
      *################################################
      * MEMBRANE
@@ -337,11 +417,125 @@ function eval_step2() {
     var chk_vector  = $j('#membrane #density_form #chk_density_vector').prop('checked');
     var chk_custom  = $j('#membrane #density_form #chk_density_custom').prop('checked');
     var chk_ordpara_charmm = $j('#membrane #ordpara #ordpara_charmm #ordpara_title_charmm').prop('checked');
+    var chk_thickness_pho  = $j('#membrane #thickness #thickness_p #thickness_p_title').prop('checked');
+    var chk_thickness_cbn  = $j('#membrane #thickness #thickness_c #thickness_c_title').prop('checked');
+    var chk_thickness_cstm = $j('#membrane #thickness #thickness_head #thickness_head_title').prop('checked');
+    
+    
     frmInt = [];
     outFile = [];
     
     /*----- Thickness ------*/
+    if (chk_thickness_pho == true) {
+	thickQry  = [];
+	frmInt 	  = [];
+	outFile   = [];
+	numAtoms  = [];
+
+	// query
+	$j("#membrane #thickness #thickness_p #thickness_p_form input[name='thickness_query']").each(function() {
+	    thickQry.push($(this).val());
+	});
+	
+	/* frame interval */
+	$j("#membrane #thickness #thickness_p #thickness_p_form input[name='thickness_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	$j("#membrane #thickness #thickness_p #thickness_p_form input[name='thickness_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
+
+	/* total number of atoms - the value is initialized at getStructureInfo(query, async_flg) in membrane.html */
+	$j("#membrane #thickness #thickness_p #thickness_p_form input[name='thickness_hist_tatoms']").each(function() {
+	    numAtoms.push($(this).val());
+	});
+
+	JOBs.push('thickness_phosphate');
+	para = [4, frmInt, outFile, numAtoms, thickQry];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Total number of atoms', 'thickness query'];
+	PARs.push(para);
+	PARinfo.push(para_info);
+    }
     
+    if (chk_thickness_cbn == true) {
+	thickQry  = [];
+	frmInt 	  = [];
+	outFile   = [];
+	numAtoms  = [];
+
+	// query
+	$j("#membrane #thickness #thickness_c #thickness_c_form input[name='thickness_query']").each(function() {
+	    thickQry.push($(this).val());
+	});
+	
+	/* frame interval */
+	$j("#membrane #thickness #thickness_c #thickness_c_form input[name='thickness_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	$j("#membrane #thickness #thickness_c #thickness_c_form input[name='thickness_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
+
+	/* total number of atoms - the value is initialized at getStructureInfo(query, async_flg) in membrane.html */
+	$j("#membrane #thickness #thickness_c #thickness_c_form input[name='thickness_hist_tatoms']").each(function() {
+	    numAtoms.push($(this).val());
+	});
+
+	JOBs.push('thickness_carbon');
+	para = [4, frmInt, outFile, numAtoms, thickQry];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Total number of atoms', 'thickness query'];
+	PARs.push(para);
+	PARinfo.push(para_info);
+    }
+    
+    if (chk_thickness_cstm == true) {
+	frmInt 	  = [];
+	outFile   = [];
+	numAtoms  = [];
+	segID = [];
+	resName = [];
+	thickQry  = [];
+
+	// query
+	$j("#membrane #thickness #thickness_form input[name='thickness_query']").each(function() {
+	    thickQry.push($(this).val());
+	});
+	
+	/* frame interval */
+	$j("#membrane #thickness #thickness_form input[name='thickness_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	$j("#membrane #thickness #thickness_form input[name='thickness_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
+
+	/* total number of atoms - the value is initialized at getStructureInfo(query, async_flg) in membrane.html */
+	$j("#membrane #thickness #thickness_form input[name='thickness_hist_tatoms']").each(function() {
+	    numAtoms.push($(this).val());
+	});
+
+	// segid 
+	$j("#membrane #thickness #thickness_form select[name='thickness_uq_segid'] option:selected").each(function() {
+	    segID.push($(this).val());
+	});
+	
+	// resname
+	$j("#membrane #thickness #thickness_form select[name='thickness_uq_resname'] option:selected").each(function() {
+	    resName.push($(this).val());
+	});
+	
+	JOBs.push('thickness_custom');
+	para = [4, frmInt, outFile, numAtoms, segID, resName, thickQry];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Total number of atoms', 'segment ID', 'residue ID', 'thickness query'];
+	PARs.push(para);
+	PARinfo.push(para_info);
+    }
     
     /*----- Order parameter ------*/
     if (chk_ordpara_charmm == true) {

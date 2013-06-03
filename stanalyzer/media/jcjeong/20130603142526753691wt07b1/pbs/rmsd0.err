@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "rmsd.py", line 265, in <module>
+    b = alignto(u, ref, select=alig_sele, subselection=calc_sele)
+  File "/home/sunhwan/local/python/lib/python2.7/site-packages/MDAnalysis-0.7.6-py2.7-linux-x86_64.egg/MDAnalysis/analysis/align.py", line 342, in alignto
+    ref_atoms = reference.selectAtoms(*select['reference'])
+  File "/home/sunhwan/local/python/lib/python2.7/site-packages/MDAnalysis-0.7.6-py2.7-linux-x86_64.egg/MDAnalysis/core/AtomGroup.py", line 1971, in selectAtoms
+    atomgrp = Selection.Parser.parse(sel).apply(self)
+  File "/home/sunhwan/local/python/lib/python2.7/site-packages/MDAnalysis-0.7.6-py2.7-linux-x86_64.egg/MDAnalysis/core/Selection.py", line 68, in apply
+    if not hasattr(group, "coord"): Selection.coord = group.universe.coord
+  File "/home/sunhwan/local/python/lib/python2.7/site-packages/MDAnalysis-0.7.6-py2.7-linux-x86_64.egg/MDAnalysis/core/AtomGroup.py", line 2009, in coord
+    return self.trajectory.ts
+  File "/home/sunhwan/local/python/lib/python2.7/site-packages/MDAnalysis-0.7.6-py2.7-linux-x86_64.egg/MDAnalysis/core/AtomGroup.py", line 2015, in fget
+    else: raise AttributeError("No trajectory loaded into Universe")
+AttributeError: No trajectory loaded into Universe

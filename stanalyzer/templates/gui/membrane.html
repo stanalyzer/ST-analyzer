@@ -181,6 +181,9 @@ function getStructureInfo(query, async_flg) {
 	$j("#membrane #density #density_form #density_hist_tatoms").empty().val(obj.num_atoms);
 	$j("#membrane #ordpara #ordpara_form #ordpara_hist_tatoms").empty().val(obj.num_atoms);
 	$j("#membrane #ordpara #ordpara_charmm_form #ordpara_hist_tatoms").empty().val(obj.num_atoms);
+	$j("#membrane #thickness #thickness_p #thickness_p_form #thickness_hist_tatoms").empty().val(obj.num_atoms);
+	$j("#membrane #thickness #thickness_c #thickness_c_form #thickness_hist_tatoms").empty().val(obj.num_atoms);
+	$j("#membrane #thickness #thickness_form #thickness_hist_tatoms").empty().val(obj.num_atoms);
 	
     });
       
@@ -1621,12 +1624,15 @@ $j(document).ready(function(){
     //--- toggle check box
     $j("#membrane #thickness #thickness_p").hide();
     $j("#membrane #thickness #thickness_p #thickness_p_form").hide();
+    $j("#membrane #thickness #thickness_c").hide();
+    $j("#membrane #thickness #thickness_c #thickness_c_form").hide();
     $j("#membrane #thickness #thickness_head").hide();
     $j("#membrane #thickness #thickness_form").hide();
     
     $j("#membrane #thickness #thickness_title").click(function () {
 	$j("#vfy_msg").empty();
 	$j("#membrane #thickness #thickness_p").toggle(this.checked);
+	$j("#membrane #thickness #thickness_c").toggle(this.checked);
 	$j("#membrane #thickness #thickness_head").toggle(this.checked);
 	
 	$j("#membrane #thickness #thickness_head_title").click(function () {
@@ -1647,6 +1653,20 @@ $j(document).ready(function(){
 	    }
 	}
 	$j("#membrane #thickness #thickness_p #thickness_p_form").toggle(this.checked);
+	$j("#membrane #cnt_membrane").empty().append(cnt_membrane);
+    });
+
+    $j("#membrane #thickness #thickness_c_title").live("click", function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    cnt_membrane++;
+	} else {
+	    cnt_membrane--;
+	    if (cnt_membrane < 0) {
+		cnt_membrane = 0;
+	    }
+	}
+	$j("#membrane #thickness #thickness_c #thickness_c_form").toggle(this.checked);
 	$j("#membrane #cnt_membrane").empty().append(cnt_membrane);
     });
     
@@ -1675,9 +1695,15 @@ $j(document).ready(function(){
    // set initial values
     $j('#membrane #thickness #thickness_p #thickness_frmInt_0').val('1').css("color", "gray");
     $j('#membrane #thickness #thickness_p #thickness_outFile_0').val('thickness_phosphate.dat').css("color", "gray");
+    $j('#membrane #thickness #thickness_p #thickness_query_0').val('name P').css("color", "gray");
 
+    $j('#membrane #thickness #thickness_c #thickness_frmInt_0').val('1').css("color", "gray");
+    $j('#membrane #thickness #thickness_c #thickness_outFile_0').val('thickness_carbon.dat').css("color", "gray");
+    $j('#membrane #thickness #thickness_c #thickness_query_0').val('name C22 or name C32').css("color", "gray");
+
+    
     $j('#membrane #thickness #thickness_form #thickness_frmInt_0').val('1').css("color", "gray");
-    $j('#membrane #thickness #thickness_form #thickness_outFile_0').val('thickness_headgroup_0.dat').css("color", "gray");
+    $j('#membrane #thickness #thickness_form #thickness_outFile_0').val('thickness_custom_0.dat').css("color", "gray");
     $j('#membrane #thickness #thickness_form #thickness_query_0').val('name C2* and not (name C2 or name C21)').css("color", "gray");
 
     // change segid
@@ -2584,6 +2610,15 @@ $j(document).ready(function(){
 					<table id="thickness_p_form">
 					    <tr>
 						<td class="w_module"></td>
+						<td class="middle"><span class="module_font">Query</span></td>	
+						<td class="bottom w15"></td>
+						<td class="bottom" colspan="7"><input id="thickness_query_0" mygui="0" class="module_txtbox_output3" type="text" name="thickness_query"></td>
+						<td class="bottom w15"></td>
+						<td class="bottom"> </td>
+						<td class="bottom w15"></td>
+					    </tr>
+					    <tr>
+						<td class="w_module"></td>
 						<td class="bottom"><span class="module_font">Frame Interval</span></td>
 						<td class="bottom w15"></td>
 						<td class="bottom" colspan="7"><span class="module_font">Output File Name</span></td>
@@ -2591,15 +2626,61 @@ $j(document).ready(function(){
 						<td class="center"></td>
 						<td></td>
 					    </tr>
+
 					    <tr>
 						<td class="w_module"></td>
 						<td class="bottom"><input id="thickness_frmInt_0" mygui="0" class="module_txtbox_output" type="text" name="thickness_frmInt"></td>	
 						<td class="bottom w15"></td>
 						<td class="bottom" colspan="7"><input id="thickness_outFile_0" mygui="0" class="module_txtbox_output3" type="text" name="thickness_outFile"></td>
 						<td class="bottom w15"></td>
-						<td class="bottom">    </td>
+						<td class="bottom"> </td>
 						<td class="bottom w15"></td>
 					    </tr>
+					    
+					    <tr><td class="bottom" colspan="12"><input id="thickness_hist_tatoms" type="hidden" name="thickness_hist_tatoms"></td></tr>
+					    <tr><td id="vfy_msg0" mygui="0" class="center message_warn" colspan="12"></td></tr>					    
+					</table>
+				    </td>
+				</tr>
+			    </table>
+			    <table id="thickness_c">
+				<tr>
+				    <td class="w_module"></td>
+				    <td colspan=2><input type="checkbox" id="thickness_c_title">Using Carbon</td>
+				</tr>
+				<tr>
+				    <td class="w_module"></td>
+				    <td colspan=2>
+					<table id="thickness_c_form">
+					    <tr>
+						<td class="w_module"></td>
+						<td class="middle"><span class="module_font">Query</span></td>	
+						<td class="bottom w15"></td>
+						<td class="bottom" colspan="7"><input id="thickness_query_0" mygui="0" class="module_txtbox_output3" type="text" name="thickness_query"></td>
+						<td class="bottom w15"></td>
+						<td class="bottom"> </td>
+						<td class="bottom w15"></td>
+					    </tr>
+					    <tr>
+						<td class="w_module"></td>
+						<td class="bottom"><span class="module_font">Frame Interval</span></td>
+						<td class="bottom w15"></td>
+						<td class="bottom" colspan="7"><span class="module_font">Output File Name</span></td>
+						<td class="bottom w15"></td>
+						<td class="center"></td>
+						<td></td>
+					    </tr>
+
+					    <tr>
+						<td class="w_module"></td>
+						<td class="bottom"><input id="thickness_frmInt_0" mygui="0" class="module_txtbox_output" type="text" name="thickness_frmInt"></td>	
+						<td class="bottom w15"></td>
+						<td class="bottom" colspan="7"><input id="thickness_outFile_0" mygui="0" class="module_txtbox_output3" type="text" name="thickness_outFile"></td>
+						<td class="bottom w15"></td>
+						<td class="bottom"> </td>
+						<td class="bottom w15"></td>
+					    </tr>
+					    
 					    <tr><td class="bottom" colspan="12"><input id="thickness_hist_tatoms" type="hidden" name="thickness_hist_tatoms"></td></tr>
 					    <tr><td id="vfy_msg0" mygui="0" class="center message_warn" colspan="12"></td></tr>					    
 					</table>
@@ -2609,7 +2690,7 @@ $j(document).ready(function(){
 			    <table id="thickness_head">
 				<tr>
 				    <td class="w_module"></td>
-				    <td colspan=2><input type="checkbox" id="thickness_head_title">Using head group</td>
+				    <td colspan=2><input type="checkbox" id="thickness_head_title">Using custom group</td>
 				</tr>
 			    </table>
 			    <table id="thickness_form">

@@ -6,6 +6,20 @@ var cnt_file_index = 0;
 var arr_h_tilt = [];			// array for adding new forms for calculating helix_tilt
 
 $j(document).ready(function(){
+    /* -------------------------------------------------------
+     * Hiding protein module
+     * -------------------------------------------------------*/
+    $j("#protein #M_protein").hide();
+    $j("#protein #chk_protein").click(function () {
+	$j("#protein #M_protein").toggle(this.checked);
+    });
+
+    
+    
+    /* -------------------------------------------------------
+     * Helix tilt
+     * -------------------------------------------------------*/
+    // helix tilt - counting selected module
     $j("#protein #M_protein #helix_tilt #helix_tilt_title").click(function() {
 	var chk = $j(this).prop('checked');
 	if (chk == true) {
@@ -18,11 +32,18 @@ $j(document).ready(function(){
 	}
 	$j("#protein #cnt_protein").empty().append(cnt_protein);
     });
-
     
-    $j("#protein #helix_tilt #helix_tilt_form input[id^='helix_tilt']").css("color", "gray");
+    //*** Helix tilt - hiding forms 
+    $j("#protein #helix_tilt_form").hide();
+    $j("#protein #helix_tilt_title").click(function () {
+	$j("#protein #helix_tilt_form").toggle(this.checked);
+	//alert($j(this).is(":checked"));
+    });
 
-    /* Adding forms for calculating helix tilt */
+    //*** helix tilt - defining initial value and properties
+    $j("#protein #helix_tilt #helix_tilt_form input[id^='helix_tilt']").css("color", "gray");
+    
+    //*** Helix tilt - Adding forms
     $j("#protein #helix_tilt_form_add").click(function() {
 	cnt_helix_tilt_form++;
 	cnt_file_index++;
@@ -53,11 +74,10 @@ $j(document).ready(function(){
 	$j("#protein #new_helix_tilt_frm").filter('.chzn-select').chosen(); // apply to top level elems
         $j("#protein #new_helix_tilt_frm").find('.chzn-select').chosen();   // apply to nested elems
 	$j("#protein #helix_tilt #helix_tilt_form input[id^='helix_tilt']").css("color", "gray");
-	//alert(h_tilt);
     });
     
-    
-    /* deleting forms for calculating helix tilt */
+
+    //*** Helix tilt -  deleting forms
     $j("#protein #new_helix_tilt_frm button[id^='helix_tilt_form_del']").live("click", function() {
 	idx = $(this).attr('num_idx');
 	var del_form = "#protein #helix_tilt_form_add_" + idx;
@@ -80,60 +100,7 @@ $j(document).ready(function(){
 
     });
     
-    $j("#protein #M_protein").hide();
-    $j("#protein #chk_protein").click(function () {
-	$j("#protein #M_protein").toggle(this.checked);
-    });
-    
-    $j("#protein #helix_tilt_form").hide();
-    $j("#protein #helix_tilt_title").click(function () {
-	$j("#protein #helix_tilt_form").toggle(this.checked);
-	//alert($j(this).is(":checked"));
-    });
-
-    /* test submit */
-    $j("#protein #test_submit").click(function(){
-	// check out return values
-	var outFile = [];
-	    $j("#protein #helix_tilt_form input[name='helix_tilt_outFile']").each(function() {
-		outFile.push($(this).val());
-	    });
-	alert(outFile);
-	
-	var segIDs = [];
-	$j("#protein #helix_tilt_form select[name='segID'] option:selected").each(function() {
-		segIDs.push($(this).val());
-	    });
-	alert(segIDs);
-	
-	alert(segIDs);
-	    var sndData = {
-		'cmd'		: 'array_test',
-		'segID[]'	: segIDs,
-		'outFile[]'	: outFile,
-	    }
-	    
-	    var request = $j.ajax({
-	    type: "POST",
-	    url: '/gui/test/',
-	    cache: false,
-	    data: sndData,
-	    //async: false,
-	    });
-    
-	    request.done(function(Jdata) {
-		var obj = $j.parseJSON(Jdata);
-		alert("OKay BAcK!" + obj.outFile);
-	    });
-	  
-	    request.error(function(jqXHR, textStatus, errorThrown) {
-		
-	    });
-	    //-----
-	    
-	});
-    
-    /* Live update for selecting segment */
+    //*** Helix tilt - Live update for selecting segment
     $j("#protein #helix_tilt_form select[name='segID']").live("change", function(){
 	//alert("This click is from..: " + $(this).attr('id'));
 	var id_num = $(this).attr("id").match(/[\d]+$/);
@@ -189,6 +156,322 @@ $j(document).ready(function(){
 	});
 	return false;
     });
+    
+
+    
+    /* -------------------------------------------------------
+     * RMSD
+     * -------------------------------------------------------*/
+    //*** RMSD - count module
+    $j("#protein #M_protein #rmsd #rmsd_title").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    cnt_protein++;
+	} else {
+	    cnt_protein--;
+	    if (cnt_protein < 0) {
+		cnt_protein = 0;
+	    }
+	}
+	$j("#protein #cnt_protein").empty().append(cnt_protein);
+    });
+
+    //*** RMSD - hiding form and toggling
+    $j("#protein #rmsd_form").hide();
+    $j("#protein #rmsd_title").click(function () {
+	$j("#protein #rmsd_form").toggle(this.checked);
+    });
+
+    //*** RMSD - initializing values
+    $j("#protein #rmsd #rmsd_form #rmsd_outFile").empty().val("rmsd_ouput.dat");
+    $j("#protein #rmsd #rmsd_form #rmsd_query_alig").empty().val("name CA");
+    $j("#protein #rmsd #rmsd_form #rmsd_query_calc").empty().val("name CA");
+    $j("#protein #rmsd #rmsd_form input[id^='rmsd']").css("color", "gray");
+    $j("#protein #rmsd #rmsd_form textarea[id^='rmsd']").css("color", "gray");
+
+    
+    //*** RMSD - verifying atom selection for alignment
+    $j("#protein #rmsd #rmsd_vfy_alig").click(function(){
+	var query = $j("#protein #rmsd #rmsd_form #rmsd_query_alig").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#protein #rmsd #vfy_msg_alig_rmsd").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#protein #rmsd #vfy_msg_alig_rmsd").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#protein #rmsd #vfy_msg_alig_rmsd").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#protein #rmsd #vfy_msg_alig_rmsd").empty().append(errorThrown);
+        });
+    });
+
+    //*** RMSD - varifying atom selection for RMSD calculation
+    $j("#protein #rmsd #rmsd_vfy_calc").click(function(){
+	var query = $j("#protein #rmsd #rmsd_form #rmsd_query_calc").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#protein #rmsd #vfy_msg_calc_rmsd").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#protein #rmsd #vfy_msg_calc_rmsd").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#protein #rmsd #vfy_msg_calc_rmsd").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#protein #rmsd #vfy_msg_calc_rmsd").empty().append(errorThrown);
+        });
+    });
+    
+    
+    
+    
+    /* -------------------------------------------------------
+     * RMSF
+     * -------------------------------------------------------*/
+    //*** RMSF- count module
+    $j("#protein #M_protein #rmsf #rmsf_title").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    cnt_protein++;
+	} else {
+	    cnt_protein--;
+	    if (cnt_protein < 0) {
+		cnt_protein = 0;
+	    }
+	}
+	$j("#protein #cnt_protein").empty().append(cnt_protein);
+    });
+    
+    //*** RMSF - hiding form and toggling
+    $j("#protein #rmsf_form").hide();
+    $j("#protein #rmsf_title").click(function () {
+	$j("#protein #rmsf_form").toggle(this.checked);
+    });
+
+    //*** RMSF - initializing values
+    $j("#protein #rmsf #rmsf_form #rmsf_outFile").empty().val("rmsf_ouput.dat");
+    $j("#protein #rmsf #rmsf_form input[id^='rmsf']").css("color", "gray");
+    $j("#protein #rmsf #rmsf_form #rmsf_query_alig").empty().val("name CA");
+    $j("#protein #rmsf #rmsf_form #rmsf_query_calc").empty().val("segid PROA");
+    $j("#protein #rmsf #rmsf_form textarea[id^='rmsf']").css("color", "gray");
+
+
+
+    /* -------------------------------------------------------
+     * Test form before submitting
+     * -------------------------------------------------------*/
+    $j("#protein #test_submit").click(function(){
+	// check out return values
+	var outFile = [];
+	    $j("#protein #helix_tilt_form input[name='helix_tilt_outFile']").each(function() {
+		outFile.push($(this).val());
+	    });
+	alert(outFile);
+	
+	var segIDs = [];
+	$j("#protein #helix_tilt_form select[name='segID'] option:selected").each(function() {
+		segIDs.push($(this).val());
+	    });
+	alert(segIDs);
+	
+	alert(segIDs);
+	    var sndData = {
+		'cmd'		: 'array_test',
+		'segID[]'	: segIDs,
+		'outFile[]'	: outFile,
+	    }
+	    
+	    var request = $j.ajax({
+	    type: "POST",
+	    url: '/gui/test/',
+	    cache: false,
+	    data: sndData,
+	    //async: false,
+	    });
+    
+	    request.done(function(Jdata) {
+		var obj = $j.parseJSON(Jdata);
+		alert("OKay BAcK!" + obj.outFile);
+	    });
+	  
+	    request.error(function(jqXHR, textStatus, errorThrown) {
+		
+	    });
+    });
+    
+
+    //*** RMSF - verifying atom selection for alignment
+    $j("#protein #rmsf #rmsf_vfy_alig").click(function(){
+	var query = $j("#protein #rmsf #rmsf_form #rmsf_query_alig").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#protein #rmsf #vfy_msg_alig_rmsf").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#protein #rmsf #vfy_msg_alig_rmsf").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#protein #rmsf #vfy_msg_alig_rmsf").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#protein #rmsf #vfy_msg_alig_rmsf").empty().append(errorThrown);
+        });
+    });
+    
+    //*** RMSF - verifying atom selection for RMSF calculation
+    $j("#protein #rmsf #rmsf_vfy_calc").click(function(){
+	var query = $j("#protein #rmsf #rmsf_form #rmsf_query_calc").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#protein #rmsf #vfy_msg_calc_rmsf").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#protein #rmsf #vfy_msg_calc_rmsf").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#protein #rmsf #vfy_msg_calc_rmsf").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#protein #rmsf #vfy_msg_calc_rmsf").empty().append(errorThrown);
+        });
+    });
+    
 });
 </script>
 
@@ -199,7 +482,7 @@ $j(document).ready(function(){
 	</tr>
 	<tr><td colspan="2">
 	    <table id="M_protein">
-		<!--- calculating helix_tilt -->
+		<!--- helix_tilt start-->
 		<tr>
 		    <td class="w_module"> </td>
 		    <td>
@@ -254,6 +537,150 @@ $j(document).ready(function(){
 			</div>
 		    </td>
 		</tr>
+		<!--- helix tilt end --->
+		
+		<!--- RMSD start --->
+		<tr>
+		    <td class="w_module"> </td>
+		    <td>
+			<div id="rmsd">
+			    <table>
+				<tr>
+				    <td colspan="2" class="st_color7 left"><input type="checkbox" id="rmsd_title">RMSD</td>
+				</tr>
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<div id="rmsd_form">
+					    <table>
+						<tr>
+						    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+						    <td class="bottom w15"></td>
+						    <td class="bottom left"><span class="module_font">Output File Name</span></td>
+						    <td class="bottom w15"></td>
+						    <td></td><td></td><td></td><td></td>
+						</tr>
+						<tr>
+						    <td class="bottom"><input id="rmsd_frmInt" class="module_txtbox_frm" type="text" name="rmsd_frmInt" value="1" ></td>
+						    <td class="bottom w15"></td>
+						    <td class="bottom left" colspan="5"><input id="rmsd_outFile" class="module_txtbox_output4" type="text" name="rmsd_outFile"></td>
+						    <td></td>
+						</tr>
+						<tr>
+						    <td class="bottom" colspan="8"><span class="module_font">Atom selection for alignment:</span></td>
+						</tr>
+						<tr>
+						    <td class="left bottom" colspan="7"><textarea class="bottom" id="rmsd_query_alig" name="rmsd_query_alig" rows="2" cols="64"></textarea></td>
+						    <td class="bottom">
+						    <table>
+							    <tr>
+								    <td><button id="rmsd_vfy_alig"><span class="module_font">Verify</span></button></td>
+							    </tr>
+						    </table>
+						    </td>
+						</tr>
+						<tr>
+						    <td id="vfy_msg_alig_rmsd" class="center message_warn" colspan="8"></td>
+						</tr>
+					    
+						<tr>
+						    <td class="bottom" colspan="8"><span class="module_font">Atom selection for RMSD calculation:</span></td>
+						</tr>
+						<tr>
+						    <td class="left bottom" colspan="7"><textarea class="bottom" id="rmsd_query_calc" name="rmsd_query_calc" rows="2" cols="64"></textarea></td>
+						    <td class="bottom">
+						    <table>
+							    <tr>
+								    <td><button id="rmsd_vfy_calc"><span class="module_font">Verify</span></button></td>
+							    </tr>
+						    </table>
+						    </td>
+						</tr>
+						<tr>
+						    <td id="vfy_msg_calc_rmsd" class="center message_warn" colspan="8"></td>
+						</tr>
+					    </table>
+					</div>
+				    </td>
+				</tr>
+			    </table>
+			</div>
+		    </td>
+		</tr>
+		<!--- RMSD end --->
+		
+		<!-- RMSF start --->
+		<tr>
+		    <td class="w_module"> </td>
+		    <td>
+			<div id="rmsf">
+			    <table>
+				<tr>
+				    <td colspan="2" class="st_color7 left"><input type="checkbox" id="rmsf_title">RMSF</td>
+				</tr>
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<div id="rmsf_form">
+					    <table>
+						<tr>
+						    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+						    <td class="bottom w15"></td>
+						    <td class="bottom"><span class="module_font">Output File Name</span></td>
+						    <td class="bottom w15"></td>
+						    <td></td><td></td><td></td><td></td>
+						</tr>
+						<tr>
+						    <td class="bottom"><input id="rmsf_frmInt" class="module_txtbox_frm" type="text" name="rmsf_frmInt" value="1" ></td>
+						    <td class="bottom w15"></td>
+						    <td class="bottom" colspan="5"><input id="rmsf_outFile" class="module_txtbox_output4" type="text" name="rmsf_outFile"></td>
+						    <td></td>
+						</tr>
+						<tr>
+						    <td colspan="8" class="module_font left"><input type="checkbox" id="rmsf_res_based">Calculate averages based each residue (* default: based on each atom)</td>
+						</tr>
+						<tr>
+						    <td class="bottom" colspan="8"><span class="module_font">Atom selection for alignment:</span></td>
+						</tr>
+						<tr>
+						    <td class="left bottom" colspan="7"><textarea class="bottom" id="rmsf_query_alig" name="rmsf_query_alig" rows="2" cols="64"></textarea></td>
+						    <td class="bottom">
+							<table>
+							    <tr>
+								<td><button id="rmsf_vfy_alig"><span class="module_font">Verify</span></button></td>
+							    </tr>
+							</table>
+						    </td>
+						</tr>
+						<tr>
+						    <td id="vfy_msg_alig_rmsf" class="center message_warn" colspan="8"></td>
+						</tr>
+					    
+						<tr>
+						    <td class="bottom" colspan="8"><span class="module_font">Atom selection for RMSF calculation:</span></td>
+						</tr>
+						<tr>
+						    <td class="left bottom" colspan="7"><textarea class="bottom" id="rmsf_query_calc" name="rmsf_query_calc" rows="2" cols="64"></textarea></td>
+						    <td class="bottom">
+						    <table>
+							<tr>
+							    <td><button id="rmsf_vfy_calc"><span class="module_font">Verify</span></button></td>
+							</tr>
+						    </table>
+						</tr>
+						<tr>
+						    <td id="vfy_msg_calc_rmsf" class="center message_warn" colspan="8"></td>
+						</tr>
+					    </table>
+					</div>
+				    </td>
+				</tr>
+			    </table>
+			</div>
+		    </td>
+		</tr>
+		<!--- RMSD end --->
+		
 	    </table>
 	</td></tr>
     </table>
