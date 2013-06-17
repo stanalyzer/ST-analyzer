@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "vector_selection.py", line 10, in <module>
-    from MDAnalysis import *
-ImportError: No module named MDAnalysis

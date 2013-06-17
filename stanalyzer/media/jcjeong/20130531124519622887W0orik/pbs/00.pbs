@@ -1,6 +1,0 @@
-#!/bin/bash
-#PBS -l nodes=1:ppn=1
-#PBS -l mem=500mb
-#PBS -l walltime=72:00:00
-#PBS -l cput=72:00:00
-#PBS -q charmm_nmr

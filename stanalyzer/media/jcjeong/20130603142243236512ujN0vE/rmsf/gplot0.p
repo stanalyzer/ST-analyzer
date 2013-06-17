@@ -1,5 +1,0 @@
-set terminal png
-set xlabel 'Residue Index'
-set ylabel 'RMSF (Angstrom)'
-set output '/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130603142243236512ujN0vE/rmsf/rmsf0.png'
-plot "/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130603142243236512ujN0vE/rmsf/rmsf_ouput.dat" using 1:2 title "RMSF" with lines lw 3

@@ -1,9 +1,0 @@
-### execution file: thickness_custom.py ###
-	- input file: /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/201306031027286829704rBAIG/para
-SELECT id FROM gui_outputs WHERE job_id = 395 and name = "thickness_custom0_thickness_custom_0.dat" 
-[[4], [u'1'], [u'thickness_custom_0.dat'], [u'16170'], [u'MEMB'], [u'DXPE'], [u'name C22']]
-Okay I am in thickness_custom.py!!!!!
-Total # atoms = 16170, <type 'int'>
-Reading PSF: /home2/jcjeong/project/charmm/emilia/step5_assembly.xplor_ext.psf
-Reading DCD: /home2/jcjeong/project/charmm/emilia/step7_10.dcd
-okay!

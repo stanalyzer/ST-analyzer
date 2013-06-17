@@ -1,9 +1,0 @@
-### execution file: rmsf.py ###
-	- input file: /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/201306031428366870479CRpoZ/para
-SELECT id FROM gui_outputs WHERE job_id = 404 and name = "rmsf0_rmsf_ouput.dat" 
-Okay I am in rmsd.py!!!!!
-Reading PSF: /home2/qiyifei/work/paceCG/read_martini/solution/charmm-gui/namd/step3_pbcsetup.psf
-Reading DCD: /home2/qiyifei/work/paceCG/read_martini/solution/charmm-gui/namd/step6.3_prod.dcd
-rmsd done
-Gnuplot output
-okay!
