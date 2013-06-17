@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "density.py", line 129, in <module>
-    pk_output = row[0];     # primary key for gui_outputs
-TypeError: 'NoneType' object is not subscriptable

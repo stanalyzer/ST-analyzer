@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "density.py", line 236, in <module>
-    dummy = raw_input("Pause: ");
-EOFError: EOF when reading a line

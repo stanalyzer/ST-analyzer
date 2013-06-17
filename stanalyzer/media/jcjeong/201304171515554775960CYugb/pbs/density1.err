@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "density.py", line 227, in <module>
-    num_atoms = int(num_atoms);
-ValueError: invalid literal for int() with base 10: ''

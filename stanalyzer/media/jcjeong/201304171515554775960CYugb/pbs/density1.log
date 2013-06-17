@@ -1,3 +1,0 @@
-### execution file: density.py ###
-	- input file: /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/201304171515554775960CYugb/para
-SELECT id FROM gui_outputs WHERE job_id = 160 and name = "density1_seg_PROA.dat" 
