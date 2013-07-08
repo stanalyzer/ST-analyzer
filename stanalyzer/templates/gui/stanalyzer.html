@@ -262,6 +262,18 @@ $j(document).ready(function(){
 				    </td>
 				</tr>
 				<tr>
+				    <td class="prj_caption">Application path</td>
+				    <td class="prj_iform"><input type="text" id="app_path" name=app_path" size="50" ><button id="chk_app_path"><span class='module_font'>Confirm</span></button></td>
+				</tr>
+				<tr>
+				    <td class="prj_caption"></td>
+				    <td class="prj_iform">
+					<select id="app_paths" multiple="multiple" name="app_paths[]" title="Undo">
+					</select>
+				    </td>
+				</tr>
+
+				<tr>
 				    <td class="prj_caption">PBS</td>
 				    <td class="prj_iform"><textarea id="pbs" name="pbs" rows="10" cols="50"></textarea></td>
 				</tr>
@@ -318,6 +330,20 @@ $j(document).ready(function(){
 				    <td class="prj_iform">
 					<select id="python_paths" multiple="multiple" name="python_paths[]" title="Undo">
 					    {% for path in path_pythons_path%}
+						<option>{{ path }}</option>
+					    {% endfor %}
+					</select>
+				    </td>
+				</tr>
+				<tr>
+				    <td class="prj_caption">Application path</td>
+				    <td class="prj_iform"><input type="text" id="app_path" name="app_path" size="50" ><button id="chk_app_path"><span class='module_font'>Confirm</span></button></td>
+				</tr>
+				<tr>
+				    <td class="prj_caption"></td>
+				    <td class="prj_iform">
+					<select id="app_paths" multiple="multiple" name="app_paths[]" title="Undo">
+					    {% for path in path_apps_path%}
 						<option>{{ path }}</option>
 					    {% endfor %}
 					</select>

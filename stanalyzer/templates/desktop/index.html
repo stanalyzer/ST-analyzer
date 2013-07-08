@@ -407,7 +407,9 @@ function eval_step2() {
     */
     
     
-    /* calculating density profile */
+    /* identify checked modules */
+    
+    // density
     var chk = $j('#membrane #density_title').prop('checked');
     var chk_all = $j('#membrane #density_form #chk_density_all').prop('checked');
     var chk_lpH = $j('#membrane #density_form #chk_density_lipidH').prop('checked');
@@ -416,14 +418,127 @@ function eval_step2() {
     var chk_waterdp = $j('#membrane #density_form #chk_density_waterdp').prop('checked');
     var chk_vector  = $j('#membrane #density_form #chk_density_vector').prop('checked');
     var chk_custom  = $j('#membrane #density_form #chk_density_custom').prop('checked');
+    
+    // order parameter
     var chk_ordpara_charmm = $j('#membrane #ordpara #ordpara_charmm #ordpara_title_charmm').prop('checked');
+    
+    // thickness
     var chk_thickness_pho  = $j('#membrane #thickness #thickness_p #thickness_p_title').prop('checked');
     var chk_thickness_cbn  = $j('#membrane #thickness #thickness_c #thickness_c_title').prop('checked');
     var chk_thickness_cstm = $j('#membrane #thickness #thickness_head #thickness_head_title').prop('checked');
     
+    // area per lipid
+    var chk_aplipid_voro  = $j('#membrane #liparea #liparea_voro #liparea_voro_title').prop('checked');
+    var chk_aplipid_dela  = $j('#membrane #liparea #liparea_deltri #liparea_deltri_title').prop('checked');
+
     
     frmInt = [];
     outFile = [];
+    
+    /*----- lipid per area with voronoi diagram ------*/
+    if (chk_aplipid_voro == true) {
+	voroLipidQry  = [];
+	frmInt 	  = [];
+	outFile   = [];
+	numAtoms  = [];
+	sysX   	  = [];
+	sysY   	  = [];
+	qhull	  = [];
+	
+	// qhull path
+	$j("#membrane #liparea #liparea_voro #liparea_qhull_form select[name='liparea_qhull'] option:selected").each(function() {
+	    qhull.push($(this).val());
+	});
+
+	// sysX
+	$j("#membrane #liparea #liparea_voro #liparea_qhull_form input[name='sysX']").each(function() {
+	    sysX.push($(this).val());
+	});
+
+	// sysY
+	$j("#membrane #liparea #liparea_voro #liparea_qhull_form input[name='sysY']").each(function() {
+	    sysY.push($(this).val());
+	});
+
+	// query
+	$j("#membrane #liparea #liparea_voro #liparea_voro_form input[name='liparea_query']").each(function() {
+	    voroLipidQry.push($(this).val());
+	});
+	
+	/* frame interval */
+	$j("#membrane #liparea #liparea_voro #liparea_voro_form input[name='liparea_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	$j("#membrane #liparea #liparea_voro #liparea_voro_form input[name='liparea_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
+
+	/* total number of atoms - the value is initialized at getStructureInfo(query, async_flg) in membrane.html */
+	$j("#membrane #liparea #liparea_voro #liparea_voro_form input[name='liparea_hist_tatoms']").each(function() {
+	    numAtoms.push($(this).val());
+	});
+
+	JOBs.push('lipid_per_area_voro');
+	para = [7, frmInt, outFile, numAtoms, voroLipidQry, sysX, sysY, qhull];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Total number of atoms', 'lipid query', 'max X coordinate', 'max Y coordinate', 'qhull path'];
+	PARs.push(para);
+	PARinfo.push(para_info);
+    }
+
+    /*----- lipid per area with Delaunay triangulation ------*/
+    if (chk_aplipid_dela == true) {
+	delaLipidQry  = [];
+	frmInt 	  = [];
+	outFile   = [];
+	numAtoms  = [];
+	sysX	  = [];
+	sysY	  = [];
+	qhull	  = [];
+
+	//qhull path
+	$j("#membrane #liparea #liparea_voro #liparea_qhull_form select[name='liparea_qhull'] option:selected").each(function() {
+	    qhull.push($(this).val());
+	});
+	
+	
+	// sysX
+	$j("#membrane #liparea #liparea_voro #liparea_qhull_form input[name='sysX']").each(function() {
+	    sysX.push($(this).val());
+	});
+
+	// sysY
+	$j("#membrane #liparea #liparea_voro #liparea_qhull_form input[name='sysY']").each(function() {
+	    sysY.push($(this).val());
+	});
+	
+	// query
+	$j("#membrane #liparea #liparea_deltri #liparea_deltri_form input[name='liparea_query']").each(function() {
+	    delaLipidQry.push($(this).val());
+	});
+	
+	/* frame interval */
+	$j("#membrane #liparea #liparea_deltri #liparea_deltri_form input[name='liparea_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	$j("#membrane #liparea #liparea_deltri #liparea_deltri_form input[name='liparea_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
+
+	/* total number of atoms - the value is initialized at getStructureInfo(query, async_flg) in membrane.html */
+	$j("#membrane #liparea #liparea_deltri #liparea_deltri_form input[name='liparea_hist_tatoms']").each(function() {
+	    numAtoms.push($(this).val());
+	});
+
+	JOBs.push('lipid_per_area_dela');
+	para = [7, frmInt, outFile, numAtoms, voroLipidQry, sysX, sysY, qhull];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Total number of atoms', 'lipid query', 'max X coordinate', 'max Y coordinate', 'qhull path'];
+	PARs.push(para);
+	PARinfo.push(para_info);
+    }
     
     /*----- Thickness ------*/
     if (chk_thickness_pho == true) {
@@ -1173,7 +1288,7 @@ $j(document).ready(function(){
     /* Filtering trajectory files */
     $j('#job_title').val('analyzing trajectory').css("color", "gray");
     $j('#job_title').focus(function() {
-	       this.value = "";
+	       //this.value = "";
 	       $j(this).css("color","black");
 	});
     $j("#job_title").focusout(function () {
@@ -1224,6 +1339,7 @@ $j(document).ready(function(){
 	    var tag_proot   = "";
 	    var tag_poutput = "";
 	    var tag_ppython = "";
+	    var tag_papp    = "";
 	    
 	    // pkey
 	    for (var i=0; i < obj.pkey.length; i++) {
@@ -1252,6 +1368,13 @@ $j(document).ready(function(){
 		if (obj.path_pythons_path[i] != null) {
 		    tag_prjInfo = tag_prjInfo + "<input type='hidden' name='path_pythons_path' value='" + obj.path_pythons_path[i] + "' /><br />";
 		    tag_ppython = tag_ppython + "<option value='" + obj.path_pythons_path[i] + "'>" + obj.path_pythons_path[i] + "</option>";
+		}
+	    }
+	    // application path
+	    for (var i=0; i < obj.path_apps_path.length; i++) {
+		if (obj.path_apps_path[i] != null) {
+		    tag_prjInfo = tag_prjInfo + "<input type='hidden' name='path_apps_path' value='" + obj.path_apps_path[i] + "' /><br />";
+		    tag_papp = tag_papp + "<option value='" + obj.path_apps_path[i] + "'>" + obj.path_apps_path[i] + "</option>";
 		}
 	    }
 	    // pbs
@@ -1286,6 +1409,9 @@ $j(document).ready(function(){
             $j("#frm_editPrj #out_paths option").attr("selected", "selected").change();
             $j("#frm_editPrj #python_paths").empty().append(tag_ppython).change();
             $j("#frm_editPrj #python_paths option").attr("selected", "selected").change();
+            $j("#frm_editPrj #app_paths").empty().append(tag_papp).change();
+            $j("#frm_editPrj #app_paths option").attr("selected", "selected").change();
+
             getPBS();
 	});
     
@@ -1315,6 +1441,7 @@ $j(document).ready(function(){
 	    $j("#frm_newPrj #title").focus();
 	    $j("#frm_newPrj #out_path").focusout().change();
 	    $j("#frm_newPrj #python_path").focusout().change();
+	    $j("#frm_newPrj #app_path").focusout().change();
 	    flg_newPrj = 1;
 	} else {
 	    $j("#frm_newPrj").slideUp("slow");
@@ -1327,7 +1454,7 @@ $j(document).ready(function(){
 
  
     /* Sub-form for adding project */
-    $j("#frm_newPrj #rpaths, #frm_newPrj #out_paths, #frm_newPrj #python_paths").asmSelect({
+    $j("#frm_newPrj #rpaths, #frm_newPrj #out_paths, #frm_newPrj #python_paths, #frm_newPrj #app_paths").asmSelect({
 	animate: true,
 	highlight: true,
 	sortable: true
@@ -1370,7 +1497,7 @@ $j(document).ready(function(){
     //$j("#out_paths").append($str_out_path_option).change();
     
     $j('#frm_newPrj #out_path').focus(function() {
-	$j(this).val('');
+	//$j(this).val('');
 	$j(this).css("color","black");
     });
 
@@ -1521,6 +1648,35 @@ $j(document).ready(function(){
 
     });
 
+    $j("#frm_newPrj #chk_app_path").click(function() {
+	var app_path = $j("#frm_newPrj #app_path").val().trim();
+	if (app_path.length < 1) {
+	    alert("Path should be given!");
+	    $j("#frm_newPrj #app_path").val("").focus();
+	    return false;
+	} else {fstatus = path_validation(app_path);}
+	//alert("FSTATUS: " + fstatus);
+	if (fstatus != 'false') {
+	    var $option = $j("<option></option>").text(app_path).attr("selected", true);
+	    $j("#frm_newPrj #app_paths").append($option).change();
+	    $j("#frm_newPrj #app_path").val('');
+	} else {
+		var msg = "The path does not exist! Please verify the path!"
+		$j("#dlg_confirm #dlg_msg").empty().append(msg);
+		$j( "#dlg_confirm" ).dialog({
+		    resizable: true,
+		    height:250,
+		    modal: true,
+		    buttons: {
+			Okay: function() {
+			    $j("#frm_newPrj #app_path").focus();
+			    $j( this ).dialog( "close" );
+			}
+		    }
+		});
+	}
+	return false; 
+    });
     
     $j('#frm_newPrj #python_path').attr("value", org_python).change();
     //str_out_path = $j("#python_path").val();
@@ -1528,9 +1684,10 @@ $j(document).ready(function(){
     //$j("#pythons_paths").append($str_python_path_option).change();
     
     $j('#frm_newPrj #python_path').focus(function() {
-	$j(this).val('');
+	//$j(this).val('');
 	$j(this).css("color","black");
     });
+
     
     $j("#frm_newPrj #python_path").focusout(function () {
 	$j(this).css("color","gray");;
@@ -1544,6 +1701,16 @@ $j(document).ready(function(){
 	    $j(this).val(org_python);
 	}
 	return false;
+    });
+
+
+    $j('#frm_newPrj #app_path').focus(function() {
+	//$j(this).val('');
+	$j(this).css("color","black");
+    });
+
+    $j("#frm_newPrj #app_path").focusout(function () {
+	$j(this).css("color","gray");;
     });
 
     // Default PBS message 
@@ -1582,7 +1749,7 @@ $j(document).ready(function(){
 	    str_python_option = $j("<option></option>").text(org_python).attr("selected", true);
 	    $j("#frm_newPrj #python_paths").append(str_python_option).change();
 	}
-	
+
 	if (pbs.length < 1) {
 	    alert('PBS should be given!');
 	    $j('#frm_newPrj #pbs').focus();
@@ -1591,8 +1758,9 @@ $j(document).ready(function(){
 
 	out_paths = $j("#frm_newPrj #out_paths").val();
 	pythons   = $j("#frm_newPrj #python_paths").val();
-        
-        msg = "rpaths=" + rpaths + ", out_paths=" + out_paths + ", pythons=" + pythons;
+        app_paths = $j("#frm_newPrj #app_paths").val();
+	
+        msg = "rpaths=" + rpaths + ", out_paths=" + out_paths + ", pythons=" + pythons  + ", Applications=" + app_paths ;
         //alert(msg);
         
         var sndData = {
@@ -1601,6 +1769,7 @@ $j(document).ready(function(){
 	    'rpaths[]'  	: rpaths,
 	    'out_paths[]'	: out_paths,
 	    'ex_pythons[]'	: pythons,
+	    'app_paths[]'	: app_paths,
             'pbs'       	: pbs,
         }
         var request = $j.ajax({
@@ -1718,6 +1887,7 @@ $j(document).ready(function(){
             $j("#frm_editPrj #rpaths option").attr("selected", "selected").change();
             $j("#frm_editPrj #out_paths option").attr("selected", "selected").change();
             $j("#frm_editPrj #python_paths option").attr("selected", "selected").change();
+            $j("#frm_editPrj #app_paths option").attr("selected", "selected").change();
 
 	} else {
 	    $j("#frm_editPrj").slideUp("slow");
@@ -1730,7 +1900,7 @@ $j(document).ready(function(){
 
  
     /* Sub-form for adding project */
-    $j("#frm_editPrj #rpaths, #frm_editPrj #out_paths, #frm_editPrj #python_paths").asmSelect({
+    $j("#frm_editPrj #rpaths, #frm_editPrj #out_paths, #frm_editPrj #python_paths, #frm_editPrj #app_paths").asmSelect({
 	animate: true,
 	highlight: true,
 	sortable: true
@@ -1931,6 +2101,35 @@ $j(document).ready(function(){
 
     });
 
+    $j("#frm_editPrj #chk_app_path").click(function() {
+	var app_path = $j("#frm_editPrj #app_path").val().trim();
+	if (app_path.length < 1) {
+	    alert("Path should be given!");
+	    $j("#frm_editPrj #app_path").val("").focus();
+	    return false;
+	} else {fstatus = path_validation(app_path);}
+	//alert("FSTATUS: " + fstatus);
+	if (fstatus != 'false') {
+	    var $option = $j("<option></option>").text(app_path).attr("selected", true);
+	    $j("#frm_editPrj #app_paths").append($option).change();
+	    $j("#frm_editPrj #app_path").val('');
+	} else {
+		var msg = "The path does not exist! Please verify the path!"
+		$j("#dlg_confirm #dlg_msg").empty().append(msg);
+		$j( "#dlg_confirm" ).dialog({
+		    resizable: true,
+		    height:250,
+		    modal: true,
+		    buttons: {
+			Okay: function() {
+			    $j("#frm_editPrj #app_path").focus();
+			    $j( this ).dialog( "close" );
+			}
+		    }
+		});
+	}
+	return false; 
+    });
     
     $j('#frm_editPrj #python_path').attr("value", org_python).change();
     //str_out_path = $j("#python_path").val();
@@ -2002,6 +2201,7 @@ $j(document).ready(function(){
 
 	out_paths = $j("#frm_editPrj #out_paths").val();
 	pythons   = $j("#frm_editPrj #python_paths").val();
+	app_paths = $j("#frm_editPrj #app_paths").val();
 
         var sndData = {
             'cmd'               : 'reload',
@@ -2010,6 +2210,7 @@ $j(document).ready(function(){
 	    'rpaths[]'  	: rpaths,
 	    'out_paths[]'	: out_paths,
 	    'ex_pythons[]'	: pythons,
+	    'app_paths[]'	: app_paths,
             'pbs'       	: pbs,
         }
         var request = $j.ajax({

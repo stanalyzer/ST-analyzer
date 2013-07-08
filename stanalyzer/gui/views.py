@@ -1494,7 +1494,8 @@ def prjView_new(request):
         #print out_paths
         ex_pythons = request.POST.getlist('ex_pythons[]');
         #print ex_pythons
-            
+        app_paths  = request.POST.getlist('app_paths[]');
+	
         #pbs.replace("\r", r"\r").replace("\n", r"\n");
         #print pbs
         
@@ -1555,36 +1556,51 @@ def prjView_new(request):
             c.execute(query);
             conn.commit();
 
+        for i in range(len(app_paths)):
+            query = """INSERT INTO gui_path_app (proj_id, path) \
+                       VALUES ({0}, "{1}")""".format(prj_id[0], app_paths[i]);
+            #print query
+            c.execute(query);
+            conn.commit();
+
         # Display tables;
-        
+        """
         query = "SELECT id, user_id, name, date, pbs FROM gui_project";
         c.execute(query);
         row = c.fetchall();
-        #print query
-        #for item in row:
-        #    print item;
+        print query
+        for item in row:
+            print item;
             
         query = "SELECT id, proj_id, path FROM gui_path_input";
         c.execute(query);
         row = c.fetchall();
-        #print query
-        #for item in row:
-        #    print item;
+        print query
+        for item in row:
+            print item;
 
         query = "SELECT id, proj_id, path FROM gui_path_output";
         c.execute(query);
         row = c.fetchall();
-        #print query
-        #for item in row:
-        #    print item;
+        print query
+        for item in row:
+            print item;
 
         query = "SELECT id, proj_id, path FROM gui_path_python";
         c.execute(query);
         row = c.fetchall();
-        #print query
-        #for item in row:
-        #    print item;
-        
+        print query
+        for item in row:
+            print item;
+	    
+        query = "SELECT id, proj_id, path FROM gui_path_app";
+        c.execute(query);
+        row = c.fetchall();
+        print query
+        for item in row:
+            print item;
+
+        """
         conn.close();
         
     else:
@@ -1593,6 +1609,7 @@ def prjView_new(request):
         rpaths      = "";
         out_paths   = "";
         ex_pythons  = "";
+	app_paths   = "";
             
         
     outDic = {
@@ -1601,6 +1618,7 @@ def prjView_new(request):
             'rpaths'	    : rpaths,
             'out_paths'     : out_paths,
             'ex_pythons'    : ex_pythons,
+	    'app_paths'	    : app_paths,
         }
         
     if request.is_ajax() and (request.method == 'POST'):
@@ -1628,7 +1646,8 @@ def prjView_update(request):
         rpaths   = request.POST.getlist('rpaths[]');
         out_paths  = request.POST.getlist('out_paths[]');
         ex_pythons = request.POST.getlist('ex_pythons[]');
-        
+        app_paths  = request.POST.getlist('app_paths[]');
+	
         user = request.session.get('user_id');
         cdate = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
 
@@ -1683,6 +1702,20 @@ def prjView_update(request):
                 #print query
                 c.execute(query);
                 conn.commit();
+
+        # Deleting associated tables - this makes easier to update it
+            query = "DELETE FROM gui_path_app WHERE proj_id={0}".format(pkey);
+            #print query
+            c.execute(query);
+            conn.commit();
+    
+            for i in range(len(app_paths)):
+                query = """INSERT INTO gui_path_app (proj_id, path) \
+                           VALUES ({0}, "{1}")""".format(pkey, app_paths[i]);
+                #print query
+                c.execute(query);
+                conn.commit();
+    
     else:
         pkey        = "";
         title       = "";
@@ -1690,6 +1723,7 @@ def prjView_update(request):
         rpaths      = "";
         out_paths   = "";
         ex_pythons  = "";
+        app_paths   = "";
             
         
     outDic = {
@@ -1699,6 +1733,7 @@ def prjView_update(request):
             'rpaths'	    : rpaths,
             'out_paths'     : out_paths,
             'ex_pythons'    : ex_pythons,
+	    'app_paths'     : app_paths,
         }
         
     if request.is_ajax() and (request.method == 'POST'):
@@ -1754,6 +1789,11 @@ def prjView_delete(request):
             conn.commit();
 
             query = "DELETE FROM gui_path_python WHERE proj_id={0}".format(pkey);
+            #print query
+            c.execute(query);
+            conn.commit();
+	    
+            query = "DELETE FROM gui_path_app WHERE proj_id={0}".format(pkey);
             #print query
             c.execute(query);
             conn.commit();
@@ -2555,7 +2595,11 @@ def stanalyzer(request):
             query = "select id, proj_id, path from gui_path_python where proj_id = {0}".format(pkey);
             c.execute(query);
             path_py = c.fetchall();
-            
+
+            query = "select id, proj_id, path from gui_path_app where proj_id = {0}".format(pkey);
+            c.execute(query);
+            path_app = c.fetchall();
+	    
         elif (cmd =='reload'):
 	    print "\tCMD: reload";
             #print "This is  AJAX with relaod!!!!!!"
@@ -2577,6 +2621,11 @@ def stanalyzer(request):
             query = "select id, proj_id, path from gui_path_python where proj_id = {0}".format(pkey);
             c.execute(query);
             path_py = c.fetchall();
+	    
+            query = "select id, proj_id, path from gui_path_app where proj_id = {0}".format(pkey);
+            c.execute(query);
+            path_app = c.fetchall();
+	    
         elif (cmd == 'prjDelete'):
             #print "CMD: prjDelte"
             query = "select id, user_id, name, date, pbs from gui_project where user_id = '{0}' order by date desc".format(user_id);
@@ -2601,6 +2650,10 @@ def stanalyzer(request):
                 query = "select id, proj_id, path from gui_path_python where proj_id = {0}".format(pkey);
                 c.execute(query);
                 path_py = c.fetchall();
+
+                query = "select id, proj_id, path from gui_path_app where proj_id = {0}".format(pkey);
+                c.execute(query);
+                path_app = c.fetchall();
             
     else:
         #print "This is NOT AJAX!!!!!!"
@@ -2629,6 +2682,10 @@ def stanalyzer(request):
             c.execute(query);
             path_py = c.fetchall();
 
+            query = "select id, proj_id, path from gui_path_app where proj_id = {0}".format(pkey);
+            c.execute(query);
+            path_app = c.fetchall();
+
     #print "length ROW: {}".format(len(row));
     #for item in row:
     #    print "id:{0}\nuser_id:{1}\nTitle:{2}\npath1:{3}\npath2:{4}\npath3:{5}\npath4:{6}\npath5:{7}\ndate:{8}\npbs:{9}\n".format(item[0], item[1], item[2], item[3], item[4], item[5], item[6], item[7], item[8], item[9]);
@@ -2651,6 +2708,10 @@ def stanalyzer(request):
     path_pythons_proj_id = [];
     path_pythons_path = [];
     
+    path_apps_id = [];
+    path_apps_proj_id = [];
+    path_apps_path = [];
+    
     pbs    = [];
     date   = [];
     numRec = [];
@@ -2663,12 +2724,19 @@ def stanalyzer(request):
         path_inputs_id.append("");
         path_inputs_proj_id.append("");
         path_inputs_path.append("");
+	
         path_outputs_id.append("");
         path_outputs_proj_id.append("");
         path_outputs_path.append("");
+	
         path_pythons_id.append("");
         path_pythons_proj_id.append("");
         path_pythons_path.append("");
+	
+        path_apps_id.append("");
+        path_apps_proj_id.append("");
+        path_apps_path.append("");
+	
         pbs.append("");
         date.append("");
         numRec.append("");           # index starts from 0
@@ -2697,6 +2765,11 @@ def stanalyzer(request):
             path_pythons_id.append(item[0]);
             path_pythons_proj_id.append(item[1]);
             path_pythons_path.append(item[2]);
+
+        for item in path_app:
+            path_apps_id.append(item[0]);
+            path_apps_proj_id.append(item[1]);
+            path_apps_path.append(item[2]);
 
         #print "Number of Items in DB = {}".format(len(row));
         for i in range(len(prj)):
@@ -2734,6 +2807,9 @@ def stanalyzer(request):
             'path_pythons_id'       : path_pythons_id,
             'path_pythons_proj_id'  : path_pythons_proj_id,
             'path_pythons_path'     : path_pythons_path,
+	    'path_apps_id'          : path_apps_id,
+            'path_apps_proj_id'     : path_apps_proj_id,
+            'path_apps_path'        : path_apps_path,
             'pbs'                   : pbs,
             'date'	            : date,
             'numRec'                : numRec,

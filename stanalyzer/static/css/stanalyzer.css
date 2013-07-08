@@ -107,11 +107,27 @@ td.w15 {
     width: 15px;
 }
 
+td.w65 {
+    width: 65px;
+}
+
+td.w30 {
+    width: 30px;
+}
+
 td.w_module {
     width: 40px;
 }
 
-td.h15 {
+td.h5 {
+    height: 5px;
+}
+
+td.h10 {
+    height: 10px;
+}
+
+td.h20 {
     height: 20px;
 }
 
@@ -156,6 +172,11 @@ a.underline2:hover, a.underline2:active
 
 .module_txtbox_frm {
     width: 72px;
+    font-size: 10px;
+}
+
+.module_txtbox_axis {
+    width: 142px;
     font-size: 10px;
 }
 

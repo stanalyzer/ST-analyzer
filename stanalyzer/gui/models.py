@@ -29,8 +29,13 @@ class path_output (models.Model):
     # Using primary_key with auto increment
     proj = models.ForeignKey(Project, on_delete=models.CASCADE);
     path = models.CharField(max_length=300);
-    
+     
 class path_python (models.Model):
+    # Using primary_key with auto increment
+    proj = models.ForeignKey(Project, on_delete=models.CASCADE);
+    path = models.CharField(max_length=300);
+
+class path_app (models.Model):
     # Using primary_key with auto increment
     proj = models.ForeignKey(Project, on_delete=models.CASCADE);
     path = models.CharField(max_length=300);
