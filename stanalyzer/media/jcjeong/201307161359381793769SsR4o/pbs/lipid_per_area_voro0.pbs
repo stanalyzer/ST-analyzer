@@ -1,0 +1,14 @@
+#!/bin/bash
+#PBS -l nodes=1:ppn=1
+#PBS -l mem=500mb
+#PBS -l walltime=72:00:00
+#PBS -l cput=72:00:00
+#PBS -q default
+
+export LD_LIBRARY_PATH=/export/apps/compilers/gcc48/lib64
+
+#PBS -N lipid0
+#PBS -e /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/201307161359381793769SsR4o/pbs/lipid_per_area_voro0.err
+#PBS -o /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/201307161359381793769SsR4o/pbs/lipid_per_area_voro0.log
+cd /home2/jcjeong/project/stanalyzer0/stanalyzer/static/analyzers
+/export/apps/bin/python2.7 lipid_per_area_voro.py /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/201307161359381793769SsR4o/para 0

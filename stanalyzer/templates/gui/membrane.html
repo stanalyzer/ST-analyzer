@@ -63,8 +63,7 @@ function chkSyntex(query) {
 	if (arrQuery[i].length > 0) {
 	    
 	    qWord = arrQuery[i];
-	    qWord = qWord.replace('(', '');
-	    qWord = qWord.replace(')', '');
+	    qWord = qWord.replace(/\(|\)/g, "");
 	    
 	    //alert("isNumber [ " + qWord + " ]?" + isNumber(qWord));
 
@@ -105,16 +104,17 @@ function chkSyntex(query) {
 		    return vfy;
 		}
 	    } else {
-		qWord = qWord.replace('(', '');
-		qWord = qWord.replace(')', '');
-		var flg_match = $j.inArray(qWord, mySystem["all"]);
-		//var msg = flg_match + " : '" + qWord + "' is unknown";
-		var msg = qWord + "' is unknown";
-		if (flg_match < 0) {
-		    vfy = { 'flag': true,
-			    'err' : msg,
+		qWord = qWord.replace(/\(|\)/g, "");
+		if (qWord != "") {
+		    var flg_match = $j.inArray(qWord, mySystem["all"]);
+		    //var msg = flg_match + " : '" + qWord + "' is unknown";
+		    var msg = qWord + "' is unknown";
+		    if (flg_match < 0) {
+			vfy = { 'flag': true,
+				'err' : msg,
+			}
+			return vfy;
 		    }
-		    return vfy;
 		}
 	    } 
 	}
@@ -128,6 +128,9 @@ function getStructureInfo(query, async_flg) {
     var bpath = $j("#proot option:selected").text();
     var stfile = $j("#stfile option:selected").text();
     var pdbfile = $j("#pdbfile option:selected").text();
+    $j("#select_trj2 option").attr("selected", "selected");
+    var trjFile = $j("#select_trj2").val();
+    
     var stInfo = [];
     var systemInfo = {
 	'all' 		: stInfo,
@@ -138,6 +141,7 @@ function getStructureInfo(query, async_flg) {
 	'bpath'	    : bpath,
 	'stfile'    : stfile,
 	'pdbfile'   : pdbfile,
+	'trjFile[]' : trjFile,
     }
 
     var request = $j.ajax({
@@ -165,6 +169,9 @@ function getStructureInfo(query, async_flg) {
 	systemInfo['crd_min'] = obj.crd_min;
 	systemInfo['crd_max'] = obj.crd_max;
 	systemInfo['num_atoms'] = obj.num_atoms;
+	systemInfo['size_x'] = obj.size_x;
+	systemInfo['size_y'] = obj.size_y;
+	systemInfo['size_z'] = obj.size_y;
 	
 	/* fill out the information about density min and max */
 	var smin = 0;
@@ -176,8 +183,12 @@ function getStructureInfo(query, async_flg) {
 	    smin = -1 * obj.crd_max;
 	    smax = obj.crd_max;
 	}
-	$j("#membrane #liparea #liparea_voro #liparea_qhull_form #sysX_0").val(smax).css("color", "gray");
-	$j("#membrane #liparea #liparea_voro #liparea_qhull_form #sysY_0").val(smax).css("color", "gray");
+	var size_x = obj.size_x;
+	var size_y = obj.size_y;
+	var size_z = obj.size_z;
+	
+	$j("#membrane #liparea #liparea_voro #liparea_qhull_form #sysX_0").val(size_x).css("color", "gray");
+	$j("#membrane #liparea #liparea_voro #liparea_qhull_form #sysY_0").val(size_y).css("color", "gray");
 	$j("#membrane #liparea #liparea_voro #liparea_voro_form #liparea_hist_tatoms").empty().val(obj.num_atoms);
 	$j("#membrane #liparea #liparea_deltri #liparea_deltri_form #liparea_hist_tatoms").empty().val(obj.num_atoms);
 	   
@@ -1908,8 +1919,8 @@ $j(document).ready(function(){
 	$j("#vfy_msg").empty();
 	$j("#membrane #liparea #liparea_qhull_form").toggle(this.checked);
 	$j("#membrane #liparea #liparea_voro").toggle(this.checked);
-	$j("#membrane #liparea #liparea_deltri").toggle(this.checked);
-	
+	//$j("#membrane #liparea #liparea_deltri").toggle(this.checked);
+	/*
 	if (this.checked) {
 	    var options = $j("#prj option");
 	    var idx = $j("#prj option:selected").attr("pkey");
@@ -1945,6 +1956,7 @@ $j(document).ready(function(){
 		$j("#err_root").append(textStatus); 
 	    });
 	}
+	*/
     });
 
     //---> controlling count
@@ -1980,8 +1992,7 @@ $j(document).ready(function(){
    //--> initial inputs
    $j("#membrane #liparea #liparea_voro #liparea_voro_form #liparea_frmInt_0").val("1").css("color", "gray");
    $j("#membrane #liparea #liparea_voro #liparea_voro_form #liparea_outFile_0").val("voronoi_lipid_per_area.dat").css("color", "gray");
-   $j("#membrane #liparea #liparea_voro #liparea_voro_form #liparea_query_0").val("(name C2 or name C21 or name C31)").css("color", "gray");
-   
+   $j("#membrane #liparea #liparea_voro #liparea_voro_form #liparea_query_0").val("segid MEMB and ((resname CHL1 and name O3) or (resname DOPC and (name C2 or name C21 or name C31)) or (resname POPC and (name C2 or name C21 or name C31)) or (resname POPI and (name C2 or name C21 or name C31)) or (resname POPI13 and (name C2 or name C21 or name C31)))").css("color", "gray");
    $j("#membrane #liparea #liparea_deltri #liparea_deltri_form #liparea_frmInt_0").val("1").css("color", "gray");
    $j("#membrane #liparea #liparea_deltri #liparea_deltri_form #liparea_outFile_0").val("delaunay_lipid_per_area.dat").css("color", "gray");
    $j("#membrane #liparea #liparea_deltri #liparea_deltri_form #liparea_query_0").val("(name C2 or name C21 or name C31)").css("color", "gray");
@@ -2983,6 +2994,7 @@ $j(document).ready(function(){
 				    <td class="w_module"></td>
 				    <td colspan=2>
 					<table id="liparea_qhull_form">
+					    <!--
 					    <tr>
 						<td class="w_module"></td>
 						<td class="middle"><span class="module_font"><b>Qhull path</b></span></td>	
@@ -2994,10 +3006,11 @@ $j(document).ready(function(){
 						<td class="bottom"> </td>
 						<td colspan="3"></td>
 					    </tr>
+				    -->
 					    <tr><td colspan="15" class="h5"></td></tr>
 					    <tr>
 						<td class="w_module"></td>
-						<td class="middle"><span class="module_font"><b>Max CRDs</b></span></td>	
+						<td class="middle"><span class="module_font"><b>System Size</b></span></td>	
 						<td class="bottom w65"></td>
 						<td class="bottom" colspan="4">x=</td>
 						<td><input id="sysX_0" mygui="0" type="text" class="module_txtbox_axis" name="sysX"></td>
@@ -3023,7 +3036,10 @@ $j(document).ready(function(){
 						<td class="w_module"></td>
 						<td class="middle"><span class="module_font">Query</span></td>	
 						<td class="bottom w15"></td>
-						<td class="bottom" colspan="7"><input id="liparea_query_0" mygui="0" class="module_txtbox_output3" type="text" name="liparea_query"></td>
+						<td class="bottom" colspan="7">
+						    <!-- <input id="liparea_query_0" mygui="0" class="module_txtbox_output3" type="text" name="liparea_query"> -->
+						    <textarea id="liparea_query_0" mygui="0" class="module_txtbox_output3" name="liparea_query"></textarea>
+						</td>
 						<td class="bottom w15"></td>
 						<td class="bottom"> </td>
 						<td><button id="voroLipid_btn_vfy0" mygui="0"><span class="module_font">Verify</span></button></td>
@@ -3056,6 +3072,7 @@ $j(document).ready(function(){
 				    </td>
 				</tr>
 			    </table>
+			    <!--
 			    <table id="liparea_deltri">
 				<tr>
 				    <td class="w_module"></td>
@@ -3102,6 +3119,7 @@ $j(document).ready(function(){
 				    </td>
 				</tr>
 			    </table>
+			    -->
 			</div>
 		    </td>
 		<!-- Lipid per area end   -->

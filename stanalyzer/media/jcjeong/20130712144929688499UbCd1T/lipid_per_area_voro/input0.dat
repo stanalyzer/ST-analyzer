@@ -1,0 +1,30 @@
+Name of Function: lipid_per_area_voro.py
+System information 
+	- First trajectory contains 40 frames (5.0 ps/frame)
+	- There are 1 trajectory file(s) and 18019 atoms
+Total 10 parameters 
+	- Base path: /imscratch/emiliawu/yeast_ecoli/yeast_pc_popi13_1/
+	- Structure file: step5_assembly.xplor_ext.psf
+	- Trajectory files: 
+		step7_0.dcd
+	- Job specific parameters: 
+		Number of Parameters:7
+		Frame interval:1
+		Output name:voronoi_lipid_per_area.dat
+		Total number of atoms:18019
+		lipid query:
+		max X coordinate:35
+		max Y coordinate:35
+		qhull path:/home2/jcjeong/project/qhull/qhull-2012.1/bin
+
+PBS: 
+#!/bin/bash
+#PBS -l nodes=1:ppn=1
+#PBS -l mem=500mb
+#PBS -l walltime=72:00:00
+#PBS -l cput=72:00:00
+#PBS -q default
+
+export LD_LIBRARY_PATH=/export/apps/compilers/gcc48/lib64
+
+

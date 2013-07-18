@@ -3806,9 +3806,9 @@ def verifyQuery(request):
         template = 'gui/login.html';
         return render_to_response(template, outDic, context_instance = RequestContext(request))
     
-    # Using periodic boundary condition
-    core.flags['use_periodic_selections'] = True
-    core.flags['use_KDTree_routines'] = False
+	# turning on periodic boundary conditions
+	MDAnalysis.core.flags['use_periodic_selections'] = True;
+	MDAnalysis.core.flags['use_KDTree_routines'] = False;
 
     if cmd == 'getStructure':
 	print "getStructure!!!"
@@ -3817,25 +3817,40 @@ def verifyQuery(request):
 	bpath       = request.POST.get('bpath');
 	stfile      = request.POST.get('stfile');
 	pdbfile     = request.POST.get('pdbfile');
-	#trjFile    = request.POST.getlist('trjFile[]');
+	trjFile    = request.POST.getlist('trjFile[]');
 	
 	bpath = bpath.strip(' \t\n\r');
 	stfile = stfile.strip(' \t\n\r');
 	pdbfile = pdbfile.strip(' \t\n\r');
-
+	trjfile = trjFile[0].strip(' \t\n\r');
+	
 	stfile = "{0}/{1}".format(bpath, stfile);
 	pdbfile = "{0}/{1}".format(bpath, pdbfile);
+	trjfile = "{0}/{1}".format(bpath, trjfile);
 	
 	#print query
-	#print stfile
-	#print pdbfile
-	#print trjFile
+	print stfile
+	print pdbfile
+	print trjfile
 	
 	# verifying query
 	#print "reading pdb file..."
-	u = Universe(stfile, pdbfile);
+	u = MDAnalysis.Universe(stfile, trjfile);
 	#print "Structure is loaded"
 	
+	# centering atoms
+	MEMB = u.selectAtoms(query);
+	u.atoms.translate(-MEMB.centerOfMass());
+	
+	ucell = u.trajectory[0];
+	size_x = "{}".format(ucell.dimensions[0]);
+	size_y = "{}".format(ucell.dimensions[1]);
+	size_z = "{}".format(ucell.dimensions[2]);
+	print "#### size_x, size_y, size_z ####"
+	print size_x
+	print size_y
+	print size_z
+
 	#print "selecting atoms..."
 	selAtoms = u.selectAtoms(query);
 	#print "DONE!" 
@@ -3882,6 +3897,9 @@ def verifyQuery(request):
 		'crd_min'	: crd_min,
 		'crd_max'	: crd_max,
 		'num_atoms'	: num_atoms,
+		'size_x'	: size_x,
+		'size_y'	: size_y,
+		'size_z'	: size_z,
 	    }
 	#print outDic
 	return HttpResponse(json.dumps(outDic));

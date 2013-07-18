@@ -1,0 +1,38 @@
+Name of Function: sterol_tilt_tail.py
+System information 
+	- First trajectory contains 40 frames (5.0 ps/frame)
+	- There are 11 trajectory file(s) and 18019 atoms
+Total 8 parameters 
+	- Base path: /imscratch/emiliawu/yeast_ecoli/yeast_pc_popi13_1/
+	- Structure file: step5_assembly.xplor_ext.psf
+	- Trajectory files: 
+		step7_0.dcd
+		step7_1.dcd
+		step7_2.dcd
+		step7_3.dcd
+		step7_4.dcd
+		step7_5.dcd
+		step7_6.dcd
+		step7_7.dcd
+		step7_8.dcd
+		step7_9.dcd
+		step7_10.dcd
+	- Job specific parameters: 
+		Number of Parameters:5
+		Frame interval:1
+		Output name:sterol_tail_tilt.dat
+		Segment ID:MEMB
+		Residue Name:CHL1
+		Selection Query:name C17 or name C25
+
+PBS: 
+#!/bin/bash
+#PBS -l nodes=1:ppn=1
+#PBS -l mem=500mb
+#PBS -l walltime=72:00:00
+#PBS -l cput=72:00:00
+#PBS -q default
+
+export LD_LIBRARY_PATH=/export/apps/compilers/gcc48/lib64
+
+

@@ -288,6 +288,8 @@ if run:
             #tclock = cnt;
             cnt = cnt + 1;
 	    if (cnt % frmInt) == 0:
+		MEMB = u.selectAtoms(selQry);
+		u.atoms.translate(-MEMB.centerOfMass());
 		tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		STMP.append(tmp_time);
 		print "[{0}ps]selecting atoms...".format(tmp_time);

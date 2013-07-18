@@ -328,6 +328,203 @@ $j(document).ready(function(){
 
 
     /* -------------------------------------------------------
+     * Sterol Tilt
+     * -------------------------------------------------------*/
+    // Sterol tilt - counting selected module
+    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #chk_ring_tilt, #protein #M_protein #sterol_tilt #sterol_tilt_form #chk_tail_tilt").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    cnt_protein++;
+	} else {
+	    cnt_protein--;
+	    if (cnt_protein < 0) {
+		cnt_protein = 0;
+	    }
+	}
+	$j("#protein #cnt_protein").empty().append(cnt_protein);
+    });
+    
+    //*** Helix tilt - hiding forms 
+    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form").hide();
+    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_ring").hide();
+    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_tail").hide();
+    
+    $j("#protein #M_protein #sterol_tilt #sterol_tilt_title").click(function () {
+	$j("#protein #M_protein #sterol_tilt #sterol_tilt_form").toggle(this.checked);
+    });
+
+    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #chk_ring_tilt").click(function () {
+	$j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_ring").toggle(this.checked);
+	if (this.checked) {
+	    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_ring_segID").empty().append("<option>segid</option>");
+	    var uq_segid = mySystem["segid"];
+	    for (var i = 0; i < uq_segid.length; i++) {
+		options = "<option>" + uq_segid[i] + "</option>";
+		$j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_ring_segID").append(options);
+	    }
+	    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_ring_segID").trigger("liszt:updated");
+	}
+    });
+
+    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #chk_tail_tilt").click(function () {
+	$j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_tail").toggle(this.checked);
+	if (this.checked) {
+	    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tail_segID").empty().append("<option>segid</option>");
+	    var uq_segid = mySystem["segid"];
+	    for (var i = 0; i < uq_segid.length; i++) {
+		options = "<option>" + uq_segid[i] + "</option>";
+		$j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tail_segID").append(options);
+	    }
+	    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tail_segID").trigger("liszt:updated");
+	}
+    });
+    
+    // change segid at Ring
+    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_ring_segID").live("change", function(){
+	var target_segid = $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_ring_segID option:selected").text();
+	if (target_segid != 'segid') {
+	    query = "segid " + target_segid;
+	    tmpSystem = getStructureInfo(query, false);
+	    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_ring_Res").empty().append("<option>resname</option>");
+	    uq_resname = tmpSystem["resname"];
+	    for (var i = 0; i < uq_resname.length; i++) {
+		options = "<option>" + uq_resname[i] + "</option>";
+		$j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_ring_Res").append(options);
+	    }
+	    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_ring_Res").trigger("liszt:updated");
+	}
+    });
+
+    // change segid at Tail
+    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tail_segID").live("change", function(){
+	var target_segid = $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tail_segID option:selected").text();
+	if (target_segid != 'segid') {
+	    query = "segid " + target_segid;
+	    tmpSystem = getStructureInfo(query, false);
+	    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tail_Res").empty().append("<option>resname</option>");
+	    uq_resname = tmpSystem["resname"];
+	    for (var i = 0; i < uq_resname.length; i++) {
+		options = "<option>" + uq_resname[i] + "</option>";
+		$j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tail_Res").append(options);
+	    }
+	    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tail_Res").trigger("liszt:updated");
+	}
+    });
+
+    //Defining initial value and properties
+    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form textarea[id^='sterol_ring_query']").val("name C3 or name C17").css("color", "gray");
+    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form textarea[id^='sterol_tail_query']").val("name C17 or name C25").css("color", "gray");
+
+    // Varifying queries
+    // --> for Ring sterol
+    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_ring #sterol_ring_vfy").click(function(){
+	var segid   = $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_ring #sterol_ring_segID option:selected").text();
+	var resname = $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_ring #sterol_ring_Res option:selected").text();
+	var query = $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_ring #sterol_ring_query").val().trim();
+	query = "segid " + segid + " and resname " + resname + " and (" + query + ")";
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_ring #vfy_msg").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_ring #vfy_msg").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_ring #vfy_msg").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_ring #vfy_msg").empty().append(errorThrown);
+        });
+    });
+
+    // --> for Tail sterol
+    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_tail #sterol_tail_vfy").click(function(){
+	var segid   = $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_tail #sterol_tail_segID option:selected").text();
+	var resname = $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_tail #sterol_tail_Res option:selected").text();
+	var query = $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_tail #sterol_tail_query").val().trim();
+	query = "segid " + segid + " and resname " + resname + " and (" + query + ")";
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_tail #vfy_msg").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_tail #vfy_msg").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_tail #vfy_msg").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_tail #vfy_msg").empty().append(errorThrown);
+        });
+    });
+
+    /* -------------------------------------------------------
      * Test form before submitting
      * -------------------------------------------------------*/
     $j("#protein #test_submit").click(function(){
@@ -336,15 +533,14 @@ $j(document).ready(function(){
 	    $j("#protein #helix_tilt_form input[name='helix_tilt_outFile']").each(function() {
 		outFile.push($(this).val());
 	    });
-	alert(outFile);
+	//alert(outFile);
 	
 	var segIDs = [];
 	$j("#protein #helix_tilt_form select[name='segID'] option:selected").each(function() {
 		segIDs.push($(this).val());
 	    });
-	alert(segIDs);
+	//alert(segIDs);
 	
-	alert(segIDs);
 	    var sndData = {
 		'cmd'		: 'array_test',
 		'segID[]'	: segIDs,
@@ -531,6 +727,121 @@ $j(document).ready(function(){
 						</td></tr>
 					    </table>
 					</div>
+				    </td>
+				</tr>
+			    </table>
+			</div>
+		    </td>
+		</tr>
+		<!--- helix tilt end --->
+		
+		<!--- Sterol tilt start-->
+		<tr>
+		    <td class="w_module"> </td>
+		    <td>
+			<div id="sterol_tilt">
+			    <table>
+				<tr>
+				    <td colspan="2" class="st_color7 left"><input type="checkbox" id="sterol_tilt_title">Sterol tilt</td>
+				</tr>
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<table id="sterol_tilt_form">
+					    <tr>
+						<td>
+						    <!--- START: Sterol Ring Tilt --->
+						    <table>
+							<tr>
+							    <td colspan=2><input type="checkbox" id="chk_ring_tilt">Ring tilt</td>
+							</tr>
+							<tr id="sterol_tilt_form_ring">
+							    <td class="w_module"></td>
+							    <td>
+								<table>
+								    <tr>
+									<td class="bottom"><span class="module_font">Frame Interval</span></td>
+									<td class="bottom w15"></td>
+									<td class="bottom"><span class="module_font">Output File Name</span></td>
+									<td class="bottom w15"></td>
+									<td class="center module_font">Segments</td>
+									<td class="center module_font">Residue</td>
+									<td class="bottom w15"></td>
+									<td class="center module_font"></td>
+								    </tr>
+								    <tr>
+									<td class="bottom"><input id="sterol_tilt_ring_frmInt" class="module_txtbox_frm" type="text" name="sterol_tilt_ring_frmInt" value="1" ></td>
+									<td class="bottom w15"></td>
+									<td class="bottom"><input id="sterol_tilt_ring_outFile" class="module_txtbox_output" type="text" name="sterol_tilt_ring_outFile" value="sterol_ring_tilt.dat"></td>
+									<td class="bottom w15"></td>
+									<td class="bottom"><select data-placeholder="Choose a segment" class="chzn-select" style="width:100px;" id="sterol_ring_segID" name="sterol_ring_segID"></select></td>
+									<td class="bottom"><select data-placeholder="Choose start residue" class="chzn-select" style="width:100px;" id="sterol_ring_Res" name="sterol_ring_Res"></select></td>
+									<td class="bottom w15"></td>
+									<td></td>
+								    </tr>
+								    <tr>
+									<td colspan=8 class="module_font">Selection Query</td>
+								    </tr>
+								    <tr>
+									<td colspan=6 class="bottom"><textarea class="bottom" id="sterol_ring_query" name="sterol_ring_query" rows="1" cols="56"></textarea></td>
+									<td class="bottom w15"></td>
+									<td><button id="sterol_ring_vfy"><span class="module_font">Verify</span></button></td>
+								    </tr>
+								    <tr><td colspan=8 id="vfy_msg" class="center message_warn" ></td></tr>
+								</table>
+							    </td>
+							</tr>
+						    </table>
+						</td>
+					    </tr>
+					    <tr>
+						<td>
+						    <!--- START: Sterol tail tilt --->
+						    <table>
+							<tr>
+							    <td colspan=2><input type="checkbox" id="chk_tail_tilt">Tail tilt</td>
+							</tr>
+							<tr id="sterol_tilt_form_tail">
+							    <td class="w_module"></td>
+							    <td>
+								<table>
+								    <tr>
+									<td class="bottom"><span class="module_font">Frame Interval</span></td>
+									<td class="bottom w15"></td>
+									<td class="bottom"><span class="module_font">Output File Name</span></td>
+									<td class="bottom w15"></td>
+									<td class="center module_font">Segments</td>
+									<td class="center module_font">Residue</td>
+									<td class="bottom w15"></td>
+									<td class="center module_font"></td>
+								    </tr>
+								    <tr>
+									<td class="bottom"><input id="sterol_tilt_tail_frmInt" class="module_txtbox_frm" type="text" name="sterol_tilt_tail_frmInt" value="1" ></td>
+									<td class="bottom w15"></td>
+									<td class="bottom"><input id="sterol_tilt_tail_outFile" class="module_txtbox_output" type="text" name="sterol_tilt_tail_outFile" value="sterol_tail_tilt.dat"></td>
+									<td class="bottom w15"></td>
+									<td class="bottom"><select data-placeholder="Choose a segment" class="chzn-select" style="width:100px;" id="sterol_tail_segID" name="sterol_tail_segID"></select></td>
+									<td class="bottom"><select data-placeholder="Choose start residue" class="chzn-select" style="width:100px;" id="sterol_tail_Res" name="sterol_tail_Res"></select></td>
+									<td class="bottom w15"></td>
+									<td></td>
+								    </tr>
+								    <tr>
+									<td colspan=8 class="module_font">Selection Query</td>
+								    </tr>
+								    <tr>
+									<td colspan=6 class="bottom"><textarea class="bottom" id="sterol_tail_query" name="sterol_tail_query" rows="1" cols="56"></textarea></td>
+									<td class="bottom w15"></td>
+									<td><button id="sterol_tail_vfy"><span class="module_font">Verify</span></button></td>
+								    </tr>
+								    <tr><td colspan=8 id="vfy_msg" class="center message_warn" ></td></tr>
+								</table>
+							    </td>
+							</tr>
+						    </table>
+						</td>
+					    </tr>
+
+					</table>
 				    </td>
 				</tr>
 			    </table>

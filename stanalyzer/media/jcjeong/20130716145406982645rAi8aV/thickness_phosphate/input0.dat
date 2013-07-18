@@ -1,0 +1,37 @@
+Name of Function: thickness_phosphate.py
+System information 
+	- First trajectory contains 40 frames (5.0 ps/frame)
+	- There are 11 trajectory file(s) and 18019 atoms
+Total 7 parameters 
+	- Base path: /imscratch/emiliawu/yeast_ecoli/yeast_pc_popi13_1/
+	- Structure file: step5_assembly.xplor_ext.psf
+	- Trajectory files: 
+		step7_1400.dcd
+		step7_1401.dcd
+		step7_1402.dcd
+		step7_1403.dcd
+		step7_1404.dcd
+		step7_1405.dcd
+		step7_1406.dcd
+		step7_1407.dcd
+		step7_1408.dcd
+		step7_1409.dcd
+		step7_1410.dcd
+	- Job specific parameters: 
+		Number of Parameters:4
+		Frame interval:1
+		Output name:thickness_phosphate.dat
+		Total number of atoms:18019
+		thickness query:name P
+
+PBS: 
+#!/bin/bash
+#PBS -l nodes=1:ppn=1
+#PBS -l mem=500mb
+#PBS -l walltime=72:00:00
+#PBS -l cput=72:00:00
+#PBS -q default
+
+export LD_LIBRARY_PATH=/export/apps/compilers/gcc48/lib64
+
+

@@ -1,0 +1,39 @@
+Name of Function: ordpara_charmm.py
+System information 
+	- First trajectory contains 40 frames (5.0 ps/frame)
+	- There are 10 trajectory file(s) and 18019 atoms
+Total 10 parameters 
+	- Base path: /imscratch/emiliawu/yeast_ecoli/yeast_pc_popi13_1/
+	- Structure file: step5_assembly.xplor_ext.psf
+	- Trajectory files: 
+		step7_330.dcd
+		step7_331.dcd
+		step7_332.dcd
+		step7_333.dcd
+		step7_334.dcd
+		step7_335.dcd
+		step7_336.dcd
+		step7_337.dcd
+		step7_338.dcd
+		step7_339.dcd
+	- Job specific parameters: 
+		Number of Parameters:7
+		Frame interval:1
+		Output name:ordpara_popc_0.dat
+		Axis:Z
+		Total number of atoms:11146
+		segment ID:MEMB
+		residue name:POPC
+		charmm query:name C2* and not (name C2 or name C21)
+
+PBS: 
+#!/bin/bash
+#PBS -l nodes=1:ppn=1
+#PBS -l mem=500mb
+#PBS -l walltime=72:00:00
+#PBS -l cput=72:00:00
+#PBS -q default
+
+export LD_LIBRARY_PATH=/export/apps/compilers/gcc48/lib64
+
+

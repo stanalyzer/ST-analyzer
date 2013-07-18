@@ -400,7 +400,7 @@ if run:
     gScript = gScript + "set xlabel 'Carbon Index'\n";
     gScript = gScript + "set ylabel 'S_CD'\n";
     gScript = gScript + "set output '{0}'\n".format(imgPath);
-    gScript = gScript + """plot "{0}/{1}" using 1:2 title "DOPC" with lines lw 3\n""".format(out_dir, outFile);
+    gScript = gScript + """plot "{0}/{1}" using 1:2 title "{2}" with lines lw 3\n""".format(out_dir, outFile, resName);
     fid_out.write(gScript);
     fid_out.close()
     

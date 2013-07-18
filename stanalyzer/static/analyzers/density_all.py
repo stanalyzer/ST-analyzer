@@ -287,6 +287,8 @@ if run:
             #tclock = cnt;
             cnt = cnt + 1;
 	    if (cnt % frmInt) == 0:
+		MEMB = u.selectAtoms(selQry);
+		u.atoms.translate(-MEMB.centerOfMass());
 		tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		STMP.append(tmp_time);
 		print "[{0}ps]selecting atoms...".format(tmp_time);
@@ -352,6 +354,7 @@ if run:
     imgPath = "{0}/{1}".format(out_dir, outImg);
     fid_out = open(outScr, 'w');
     gScript = "set terminal png\n";
+    gScript = gScript + "set encoding iso_8859_1\n";
     gScript = gScript + "set xlabel 'range'\n";
     gScript = gScript + "set ylabel 'density'\n";
     gScript = gScript + "set output '{0}'\n".format(imgPath);

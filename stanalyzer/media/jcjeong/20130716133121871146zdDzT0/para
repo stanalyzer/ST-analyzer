@@ -1,0 +1,233 @@
+(dp0
+S'output_home'
+p1
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130716133121871146zdDzT0/'
+p2
+sS'num_atoms'
+p3
+V18019
+p4
+sS'media_home'
+p5
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/media'
+p6
+sS'funcName'
+p7
+(lp8
+Vlipid_per_area_voro
+p9
+aVthickness_phosphate
+p10
+aVthickness_carbon
+p11
+asS'Paras'
+p12
+(lp13
+(lp14
+(lp15
+I7
+aa(lp16
+V1
+p17
+aa(lp18
+Vvoronoi_lipid_per_area1401_1403.dat
+p19
+aa(lp20
+V18019
+p21
+aa(lp22
+Vsegid MEMB and ((resname CHL1 and name O3) or (resname DOPC and (name C2 or name C21 or name C31 )) or (resname POPC and (name C2 or name C21 or name C31)) or (resname POPI and (name C2 or name C21 or name C31 )) or (resname POPI13 and (name C2 or name C21 or name C31 )))
+p23
+aa(lp24
+V47.2308807373
+p25
+aa(lp26
+V47.2308807373
+p27
+aa(lp28
+V/home2/jcjeong/project/qhull/qhull-2012.1/bin
+p29
+aaa(lp30
+(lp31
+I4
+aa(lp32
+g17
+aa(lp33
+Vthickness_phosphate.dat
+p34
+aa(lp35
+V18019
+p36
+aa(lp37
+Vname P
+p38
+aaa(lp39
+(lp40
+I4
+aa(lp41
+g17
+aa(lp42
+Vthickness_carbon.dat
+p43
+aa(lp44
+V18019
+p45
+aa(lp46
+Vname C21 or name C22
+p47
+aaasS'para_pkeys'
+p48
+(lp49
+(lp50
+I1402
+aI1403
+aI1404
+aI1405
+aI1406
+aI1407
+aI1408
+aI1409
+aa(lp51
+I1410
+aI1411
+aI1412
+aI1413
+aI1414
+aa(lp52
+I1415
+aI1416
+aI1417
+aI1418
+aI1419
+aasS'session_home'
+p53
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130716133121871146zdDzT0'
+p54
+sS'num_frame'
+p55
+V40
+p56
+sS'trajectory'
+p57
+(lp58
+Vstep7_1064.dcd
+p59
+aVstep7_1065.dcd
+p60
+aVstep7_1066.dcd
+p61
+aVstep7_1067.dcd
+p62
+aVstep7_1068.dcd
+p63
+aVstep7_1069.dcd
+p64
+aVstep7_1070.dcd
+p65
+asS'paraInfo'
+p66
+(lp67
+(lp68
+VNumber of Parameters
+p69
+aVFrame interval
+p70
+aVOutput name
+p71
+aVTotal number of atoms
+p72
+aVlipid query
+p73
+aVmax X coordinate
+p74
+aVmax Y coordinate
+p75
+aVqhull path
+p76
+aa(lp77
+VNumber of Parameters
+p78
+aVFrame interval
+p79
+aVOutput name
+p80
+aVTotal number of atoms
+p81
+aVthickness query
+p82
+aa(lp83
+VNumber of Parameters
+p84
+aVFrame interval
+p85
+aVOutput name
+p86
+aVTotal number of atoms
+p87
+aVthickness query
+p88
+aasS'job_pkey'
+p89
+(I173
+tp90
+sS'path_output'
+p91
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/'
+p92
+sS'path_python'
+p93
+V/export/apps/bin/python2.7
+p94
+sS'job_title'
+p95
+Vanalyzing trajectory
+p96
+sS'pkey'
+p97
+V1
+p98
+sS'num_ps'
+p99
+V5.0
+p100
+sS'pdb_file'
+p101
+Vstep5_assembly.pdb
+p102
+sS'pbs_home'
+p103
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130716133121871146zdDzT0/pbs'
+p104
+sS'base_path'
+p105
+S'/imscratch/emiliawu/yeast_ecoli/yeast_pc_popi13_1/'
+p106
+sS'date'
+p107
+S'20130716133121871146'
+p108
+sS'pbs'
+p109
+V#!/bin/bash\u000a#PBS -l nodes=1:ppn=1\u000a#PBS -l mem=500mb\u000a#PBS -l walltime=72:00:00\u000a#PBS -l cput=72:00:00\u000a#PBS -q default\u000a\u000aexport LD_LIBRARY_PATH=/export/apps/compilers/gcc48/lib64\u000a\u000a
+p110
+sS'analyzer_home'
+p111
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/static/analyzers'
+p112
+sS'num_files'
+p113
+V7
+p114
+sS'ptitle'
+p115
+VST-analyzer test1
+p116
+sS'structure_file'
+p117
+Vstep5_assembly.xplor_ext.psf
+p118
+sS'dbName'
+p119
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/stanalyzer.db'
+p120
+s.

@@ -299,6 +299,7 @@ try:
     imgPath = "{0}/{1}".format(out_dir, outImg);
     fid_out = open(outScr, 'w');
     gScript = "set terminal png\n";
+    gScript = gScript + "set encoding iso_8859_1\n";
     gScript = gScript + "set xlabel 'ps/frame'\n";
     gScript = gScript + "set ylabel 'System size'\n";
     gScript = gScript + "set output '{0}'\n".format(imgPath);

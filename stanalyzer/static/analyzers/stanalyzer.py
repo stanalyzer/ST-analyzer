@@ -86,6 +86,12 @@ def rand_N_digits(n):
 def rand_N_letters(n, chars=string.ascii_uppercase + string.digits + string.ascii_lowercase):
     return ''.join(random.choice(chars) for x in range(n))
 
+#********************************************
+# find matched item from the given list
+#********************************************
+def findIndex(myList, strItem):
+    Idx = [i for i, x in enumerate(myList) if x == strItem];
+    return Idx
 
 #********************************************
 # Serverside jobs including
@@ -251,6 +257,28 @@ def frange (b, e, i):
 	yield cfloat
 	cfloat += i
 
+#***************************************
+# Get atoms belonging to residue IDs
+#***************************************
+def getCRDsWithResid(AtomGroup):
+    CRDs = [];
+    ATOMs = [];
+    resIDs = AtomGroup.resids();
+    resNames = AtomGroup.resnames();
+    topCRDs = AtomGroup.coordinates();
+    for myid in resIDs:
+	myAtoms = [];
+	myCRDs = [];
+	mycnt = 0;
+	for idx in range(len(AtomGroup)):
+	    if (AtomGroup[idx].resid == myid):
+		myCRDs.append(topCRDs[mycnt]);
+		myAtoms.append(AtomGroup[idx].name);
+	    mycnt = mycnt + 1;
+	ATOMs.append(myAtoms);
+	CRDs.append(myCRDs);
+    resInfo = [resIDs, ATOMs, CRDs, resNames];	
+    return resInfo
 
 #***************************************
 # Calculating Items in bin

@@ -270,6 +270,9 @@ function eval_step2() {
     
     /* calculating the tilt of helix */
     var chk = $j('#protein #helix_tilt_title').prop('checked');
+    var chk_ring_tilt = $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #chk_ring_tilt").prop('checked');
+    var chk_tail_tilt = $j("#protein #M_protein #sterol_tilt #sterol_tilt_form #chk_tail_tilt").prop('checked');
+    
     if (chk == true) {
 	// check out return values
 	
@@ -320,6 +323,79 @@ function eval_step2() {
 	//alert("PARAS:" + PARs[1]['num_para']);
     }
 
+    if (chk_ring_tilt == true) {
+	/* frame interval */
+	var frmInt = [];
+	$j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_ring input[name='sterol_tilt_ring_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	var outFile = [];
+	$j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_ring input[name='sterol_tilt_ring_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
+
+
+	// Check out the associated forms
+	var segID = [];
+	$j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_ring select[name='sterol_ring_segID'] option:selected").each(function() {
+	    segID.push($(this).val());
+	});
+	
+	var Res = [];
+	$j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_ring select[name='sterol_ring_Res'] option:selected").each(function() {
+	    Res.push($(this).val());
+	});
+
+	var selQry = [];
+	$j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_ring textarea[name='sterol_ring_query']").each(function() {
+	    selQry.push($(this).val());
+	});
+	
+	JOBs.push('sterol_tilt_ring');
+	para = [5, frmInt, outFile, segID, Res, selQry];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Segment ID', 'Residue Name', 'Query'];
+	PARs.push(para);
+	PARinfo.push(para_info);
+    }
+    
+    if (chk_tail_tilt == true) {
+	/* frame interval */
+	var frmInt = [];
+	$j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_tail input[name='sterol_tilt_tail_frmInt']").each(function() {
+	    frmInt.push($(this).val());
+	});
+	
+	/* name of output files */
+	var outFile = [];
+	$j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_tail input[name='sterol_tilt_tail_outFile']").each(function() {
+	    outFile.push($(this).val());
+	});
+
+
+	// Check out the associated forms
+	var segID = [];
+	$j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_tail select[name='sterol_tail_segID'] option:selected").each(function() {
+	    segID.push($(this).val());
+	});
+	
+	var Res = [];
+	$j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_tail select[name='sterol_tail_Res'] option:selected").each(function() {
+	    Res.push($(this).val());
+	});
+
+	var selQry = [];
+	$j("#protein #M_protein #sterol_tilt #sterol_tilt_form #sterol_tilt_form_tail textarea[name='sterol_tail_query']").each(function() {
+	    selQry.push($(this).val());
+	});
+	
+	JOBs.push('sterol_tilt_tail');
+	para = [5, frmInt, outFile, segID, Res, selQry];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Segment ID', 'Residue Name', 'Selection Query'];
+	PARs.push(para);
+	PARinfo.push(para_info);
+    }
     
     /*** calculating RMSD ***/
     var chk = $j('#protein #rmsd_title').prop('checked');
@@ -461,7 +537,7 @@ function eval_step2() {
 	});
 
 	// query
-	$j("#membrane #liparea #liparea_voro #liparea_voro_form input[name='liparea_query']").each(function() {
+	$j("#membrane #liparea #liparea_voro #liparea_voro_form textarea[name='liparea_query']").each(function() {
 	    voroLipidQry.push($(this).val());
 	});
 	
