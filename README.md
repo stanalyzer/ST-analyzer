@@ -69,22 +69,21 @@ At the inside installed (unzipped) directory, you can see files and directories:
 
 ### Run Django to launch ST-analyzer
 > * user@stanalyzer> cd /home/your_account/ST-analyzer/stanalyzer 
-> * user@stanalyzer> python manage.py runserver 8000
+> * user@stanalyzer> python manage.py runserver 8000    
 >     the number ‘8000’ are used as a port number communicating with ST-analyzer. Thus the port number can be changed
 
 
 ### Forwarding port
 > Use ssh configuration to forward port
 > * user@stanalyzer> cd ~/.ssh 
-> * user@stanalyzer> vi config 
->     Edit 'config' file as following: 
->     --------------------------------
->     Host any_name 
->     HostName your.server.com 
->     LocalForward 8000 127.0.0.1:8000
+> * user@stanalyzer> vi config     
+>     Edit 'config' file as following:     
+>     Host any_name      
+>     HostName your.server.com     
+>     LocalForward 8000 127.0.0.1:8000     
 
 
 ### Connecting to ST-analyzer through your web-browser 
-> * Connect ST-analyzer through http://127.0.0.1:8000
-> * You will see the ST-analyzer login. 
-> * Initial account and password are 'admin' and '12345'
+> * Connect ST-analyzer through http://127.0.0.1:8000    
+> * You will see the ST-analyzer login.     
+> * Initial account and password are 'admin' and '12345'   
