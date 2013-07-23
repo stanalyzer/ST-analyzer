@@ -48,3 +48,43 @@ Required modules & programs
 >     * Manual download: https://github.com/stanalyzer/ST-analyzer    
       * Git clone (using commandline): git clone git@github.com:stanalyzer/ST-analyzer.git
 
+Configuration
+=============
+Let's assume ST-analyzer is stored into /home/your_account/ST-analyzer/stanalyzer    
+At the inside installed (unzipped) directory, you can see files and directories: 'manage.py' 'stanalyzer.db' and directories including 'gui', 'stanalyzer', 'templates', and 'trajectory'.     
+* manage.py: required to run Django server 
+* stanalyzer.db: database file used for ST-analyzer. ID: admin, Password: 12345 
+* gui: diretory containing 'models' and 'views' 
+* media: default directory storing the results 
+* static: directory storing APIs and background modules
+* stanalyzer: directory containing system setup files 
+* templates: containing template files for ST-analyzer GUI
+* trajectory: containing sample trajectory files
+
+### Checking DB consistency
+> At your system command line prompt, use followings:
+> * user@stanalyzer> cd /home/your_account/ST-analyzer/stanalyzer 
+> * user@stanalyzer> python manage.py syncdb
+
+
+### Run Django to launch ST-analyzer
+> * user@stanalyzer> cd /home/your_account/ST-analyzer/stanalyzer 
+> * user@stanalyzer> python manage.py runserver 8000
+>     the number ‘8000’ are used as a port number communicating with ST-analyzer. Thus the port number can be changed
+
+
+### Forwarding port
+> Use ssh configuration to forward port
+> * user@stanalyzer> cd ~/.ssh 
+> * user@stanalyzer> vi config 
+>     Edit 'config' file as following: 
+>     --------------------------------
+>     Host any_name 
+>     HostName your.server.com 
+>     LocalForward 8000 127.0.0.1:8000
+
+
+### Connecting to ST-analyzer through your web-browser 
+> * Connect ST-analyzer through http://127.0.0.1:8000
+> * You will see the ST-analyzer login. 
+> * Initial account and password are 'admin' and '12345'
