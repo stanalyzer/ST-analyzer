@@ -43,3 +43,8 @@ Required modules & programs
 > Details of instruction for installing Pyhull can be found at http://pythonhosted.org/pyhull/
 
 
+### ST-analyzer (*required)
+> * Download ST-analyzer from Git-hub: choose one of methods shown below    
+>     * Manual download: https://github.com/stanalyzer/ST-analyzer    
+      * Git clone (using commandline): git clone git@github.com:stanalyzer/ST-analyzer.git
+
