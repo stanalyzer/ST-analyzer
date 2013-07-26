@@ -84,6 +84,7 @@ At the inside installed (unzipped) directory, you can see files and directories:
 
 
 ### Connecting to ST-analyzer through your web-browser 
+> * Open your terminal and connect server where ST-analyzer is installed by using ‘Forwarding port’ described above
 > * Connect ST-analyzer through http://127.0.0.1:8000    
 > * You will see the ST-analyzer login.     
 > * Initial account and password are 'admin' and '12345'   
