@@ -249,7 +249,7 @@ if run:
     BTM_AREA_AVE = [];	    # average area based on residue name at bottom layer
     trj_cnt = 0;
     for idx in range(len(trajectoryFile)):
-	print "[{0}/{1}] trajectory is processing...".format(idx+1, len(trajectoryFile));
+	#print "[{0}/{1}] trajectory is processing...".format(idx+1, len(trajectoryFile));
 	cnt = 0;
 	# turning on periodic boundary conditions
 	MDAnalysis.core.flags['use_periodic_selections'] = True
@@ -257,8 +257,8 @@ if run:
 	
 	# reading trajectory
 	trj = '{0}{1}'.format(base_path, trajectoryFile[idx]);
-	print 'Reading PSF: ' + psf
-	print 'Reading DCD: ' + trj
+	#print 'Reading PSF: ' + psf
+	#print 'Reading DCD: ' + trj
 	u = Universe(psf, trj);
 	
 	# read based on frame
@@ -269,7 +269,7 @@ if run:
 	    L = MDAnalysis.analysis.leaflet.LeafletFinder(u, selQry, cutoff=15.0, pbc=True);
             cnt = cnt + 1;
 	    trj_cnt = trj_cnt + 1;
-	    print "[{0}/{1}] processing...".format(cnt, len(u.trajectory));
+	    #print "[{0}/{1}] processing...".format(cnt, len(u.trajectory));
 	    if (cnt % frmInt) == 0: #and cnt == 25:
 		tmp_time = float(trj_cnt) * float(num_ps) - float(num_ps);
 		STMP.append(tmp_time);
@@ -401,17 +401,20 @@ if run:
     if (flg_top + flg_btm) > 1:
 	# Writing Gnuplot script
 	outScr = '{0}/gplot{1}.gpl'.format(out_dir, para_idx);
+	#outImg  = '{0}{1}.eps'.format(exe_file[:len(exe_file)-3], para_idx);
 	outImg  = '{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
 	imgPath = "{0}/{1}".format(out_dir, outImg);
 	fid_out = open(outScr, 'w');
-	gScript = """set term png enhanced solid color "Helvetica" 20\n""";
+	#gScript = """set terminal postscript eps enhanced color font 'Helvetica' \n""";
+	gScript = """set terminal png enhanced \n""";
 	gScript = gScript + "set encoding iso_8859_1\n";
 	gScript = gScript + "set output '{0}'\n".format(imgPath);
 	gScript = gScript + "set multiplot layout 2, 1 title 'Area per lipid'\n";
 	gScript = gScript + "set tmargin 2\n";
 	gScript = gScript + "set title 'Top Membrane'\n";
 	gScript = gScript + """set xlabel 'Time (ps)'\n""";
-	gScript = gScript + """set ylabel "Area per Lipid [{\305}^2]"\n""";
+	#gScript = gScript + """set ylabel 'Area per Lipid [{\305}^2 ]'\n""";
+	gScript = gScript + """set ylabel 'Area per Lipid [A^2 ]'\n""";
 	gScript = gScript + """plot "{0}" using 1:2 title "{1}" with lines lw 3""".format(top_ave_file, top_uq_resNames[0]);
 	rcnt = 2;
 	for ridx in range(len(top_uq_resNames)-1):
@@ -421,7 +424,7 @@ if run:
 	
 	gScript = gScript + "set title 'Bottom Membrane'\n";
 	gScript = gScript + "set xlabel 'Time (ps)'\n";
-	gScript = gScript + "set ylabel 'Area per Lipid [{^305}^2]'\n";
+	gScript = gScript + "set ylabel 'Area per Lipid [A]'\n";
 	#gScript = gScript + "set output '{0}'\n".format(imgPath);
 	gScript = gScript + """plot "{0}" using 1:2 title "{1}" with lines lw 3""".format(btm_ave_file, btm_uq_resNames[0]);
 	rcnt = 2;
@@ -437,13 +440,16 @@ if run:
     else:
 	if flg_top > 0:
 	    outScr = '{0}/gplot{1}.p'.format(out_dir, para_idx);
+	    #outImg  = '{0}{1}.eps'.format(exe_file[:len(exe_file)-3], para_idx);
 	    outImg  = '{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
 	    imgPath = "{0}/{1}".format(out_dir, outImg);
 	    fid_out = open(outScr, 'w');
-	    gScript = "set terminal png\n";
+	    #gScript = "set terminal postscript eps enhanced color font 'Helvetica'\n";
+	    gScript = """set terminal png enhanced \n""";
 	    gScript = gScript + "set encoding iso_8859_1\n";
 	    gScript = gScript + "set xlabel 'Time (ps)'\n";
-	    gScript = gScript + "set ylabel 'Area per Lipid [{\305}^2]'\n";
+	    #gScript = gScript + "set ylabel 'Area per Lipid [{\305}^2]'\n";
+	    gScript = gScript + "set ylabel 'Area per Lipid [A^2]'\n";
 	    gScript = gScript + "set title 'Top Membrane'\n";
 	    gScript = gScript + "set output '{0}'\n".format(imgPath);
 	    gScript = gScript + """plot "{0}" using 1:2 title "{1}" with lines lw 3""".format(top_ave_file, top_uq_resNames[0]);
@@ -456,13 +462,16 @@ if run:
 	    fid_out.close()	
 	if flg_btm > 0:
 	    outScr = '{0}/gplot{1}.p'.format(out_dir, para_idx);
+	    #outImg  = '{0}{1}.eps'.format(exe_file[:len(exe_file)-3], para_idx);
 	    outImg  = '{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
 	    imgPath = "{0}/{1}".format(out_dir, outImg);
 	    fid_out = open(outScr, 'w');
-	    gScript = "set terminal png\n";
+	    #gScript = "set terminal postscript eps enhanced color font 'Helvetica'\n";
+	    gScript = "set terminal png enhanced\n";
 	    gScript = gScript + "set encoding iso_8859_1\n";
 	    gScript = gScript + "set xlabel 'Time (ps)'\n";
-	    gScript = gScript + "set ylabel 'Area per Lipid [{\305}^2]'\n";
+	    #gScript = gScript + "set ylabel 'Area per Lipid [{\305}^2]'\n";
+	    gScript = gScript + "set ylabel 'Area per Lipid [A^2]'\n";
 	    gScript = gScript + "set title 'Bottom Membrane'\n";
 	    gScript = gScript + "set output '{0}'\n".format(imgPath);
 	    gScript = gScript + """plot "{0}" using 1:2 title "{1}" with lines lw 3""".format(btm_ave_file, btm_uq_resNames[0]);

@@ -214,7 +214,7 @@ def voroArea(Atoms, qry, size_x, size_y):
         areaLipids[res_cnt] = myarea;
         res_cnt = res_cnt + 1;
     areaLipids[len(areaLipids)-1] = sum(areaLipids) / res_cnt;
-    print "len(areaLipids): {}, len(orgCRDs): {}".format(len(areaLipids), len(orgCRDs));
+    #print "len(areaLipids): {}, len(orgCRDs): {}".format(len(areaLipids), len(orgCRDs));
     return areaLipids
 
 def stateLipidArea(topAtoms, topArea):
