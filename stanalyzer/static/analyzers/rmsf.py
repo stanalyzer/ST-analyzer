@@ -221,7 +221,7 @@ calc_sele    = str(paras[4][para_idx]);
 #"False":calc rmsf for each atom
 res_ave      = str(paras[5][para_idx]);
 
-print "Okay I am in rmsd.py!!!!!";
+print "Okay I am in rmsf.py!!!!!";
 
 #///////////////////////////////////////////////////////////////////////////
 # Running actual job

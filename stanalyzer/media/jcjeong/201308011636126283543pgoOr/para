@@ -1,0 +1,215 @@
+(dp0
+S'output_home'
+p1
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/201308011636126283543pgoOr/'
+p2
+sS'num_atoms'
+p3
+V36855
+p4
+sS'media_home'
+p5
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/media'
+p6
+sS'funcName'
+p7
+(lp8
+Vthickness_phosphate
+p9
+aVthickness_carbon
+p10
+aVthickness_custom
+p11
+asS'Paras'
+p12
+(lp13
+(lp14
+(lp15
+I4
+aa(lp16
+V1
+p17
+aa(lp18
+Vthickness_phosphate.dat
+p19
+aa(lp20
+V16476
+p21
+aa(lp22
+Vname P
+p23
+aaa(lp24
+(lp25
+I4
+aa(lp26
+g17
+aa(lp27
+Vthickness_carbon.dat
+p28
+aa(lp29
+V16476
+p30
+aa(lp31
+Vname C22 or name C32
+p32
+aaa(lp33
+(lp34
+I4
+aa(lp35
+g17
+aa(lp36
+Vthickness_custom_0.dat
+p37
+aa(lp38
+V16476
+p39
+aa(lp40
+VMEMB
+p41
+aa(lp42
+VDOPG
+p43
+aa(lp44
+Vname C2* and not (name C2 or name C21)
+p45
+aaasS'para_pkeys'
+p46
+(lp47
+(lp48
+I2040
+aI2041
+aI2042
+aI2043
+aI2044
+aa(lp49
+I2045
+aI2046
+aI2047
+aI2048
+aI2049
+aa(lp50
+I2050
+aI2051
+aI2052
+aI2053
+aI2054
+aI2055
+aI2056
+aasS'session_home'
+p51
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/201308011636126283543pgoOr'
+p52
+sS'num_frame'
+p53
+V20
+p54
+sS'trajectory'
+p55
+(lp56
+Vmysystem_00.dcd
+p57
+asS'paraInfo'
+p58
+(lp59
+(lp60
+VNumber of Parameters
+p61
+aVFrame interval
+p62
+aVOutput name
+p63
+aVTotal number of atoms
+p64
+aVthickness query
+p65
+aa(lp66
+VNumber of Parameters
+p67
+aVFrame interval
+p68
+aVOutput name
+p69
+aVTotal number of atoms
+p70
+aVthickness query
+p71
+aa(lp72
+VNumber of Parameters
+p73
+aVFrame interval
+p74
+aVOutput name
+p75
+aVTotal number of atoms
+p76
+aVsegment ID
+p77
+aVresidue ID
+p78
+aVthickness query
+p79
+aasS'job_pkey'
+p80
+(I238
+tp81
+sS'path_output'
+p82
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/'
+p83
+sS'path_python'
+p84
+V/export/apps/bin/python2.7
+p85
+sS'job_title'
+p86
+Vanalyzing trajectory
+p87
+sS'pkey'
+p88
+V2
+p89
+sS'num_ps'
+p90
+V2.0
+p91
+sS'pdb_file'
+p92
+Vmysystem.pdb
+p93
+sS'pbs_home'
+p94
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/201308011636126283543pgoOr/pbs'
+p95
+sS'base_path'
+p96
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/trajectory/protein/'
+p97
+sS'date'
+p98
+S'20130801163612628354'
+p99
+sS'pbs'
+p100
+V#!/bin/bash\u000a#PBS -l nodes=1:ppn=1\u000a#PBS -l mem=500mb\u000a#PBS -l walltime=72:00:00\u000a#PBS -l cput=72:00:00\u000a#PBS -q default\u000a\u000aexport LD_LIBRARY_PATH=/export/apps/compilers/gcc48/lib64\u000a\u000a
+p101
+sS'analyzer_home'
+p102
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/static/analyzers'
+p103
+sS'num_files'
+p104
+V1
+p105
+sS'ptitle'
+p106
+VMy system: alpha helix
+p107
+sS'structure_file'
+p108
+Vmysystem.psf
+p109
+sS'dbName'
+p110
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/stanalyzer.db'
+p111
+s.

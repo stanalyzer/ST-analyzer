@@ -3828,6 +3828,12 @@ def verifyQuery(request):
 	pdbfile = "{0}/{1}".format(bpath, pdbfile);
 	trjfile = "{0}/{1}".format(bpath, trjfile);
 	
+	print "PDB name = '{}'".format(pdbfile);
+	
+	if (pdbfile[len(pdbfile)-3:] != "pdb"):
+	    print "PDB is missing, so now using {}".format(trjfile);
+	    pdbfile = trjfile
+
 	#print query
 	print stfile
 	print pdbfile
@@ -3911,15 +3917,23 @@ def verifyQuery(request):
 	bpath       = request.POST.get('bpath');
 	stfile      = request.POST.get('stfile');
 	pdbfile     = request.POST.get('pdbfile');
-	#trjFile    = request.POST.getlist('trjFile[]');
+	trjFile    = request.POST.getlist('trjFile[]');
 	
 	query = query.strip(' \t\n\r');
 	bpath = bpath.strip(' \t\n\r');
 	stfile = stfile.strip(' \t\n\r');
 	pdbfile = pdbfile.strip(' \t\n\r');
-
+	trjfile = trjFile[0].strip(' \t\n\r');
+	
 	stfile = "{0}/{1}".format(bpath, stfile);
 	pdbfile = "{0}/{1}".format(bpath, pdbfile);
+	trjfile = "{0}/{1}".format(bpath, trjfile);
+
+	print "PDB name = '{}'".format(pdbfile);
+	
+	if (pdbfile[len(pdbfile)-3:] != "pdb"):
+	    print "PDB is missing, so now using {}".format(trjfile);
+	    pdbfile = trjfile
 	
 	#print query
 	#print stfile

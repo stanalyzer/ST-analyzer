@@ -183,13 +183,15 @@ def toDegree(fromRad):
     return deg;
 
 #psf = "/home2/jcjeong/project/charmm/dol_dopc_1/step5_assembly.xplor_ext.psf";
-psf = "/home2/jcjeong/project/charmm/emilia2/yeast_pc_popi13_1/step5_assembly.psf";
+psf = "/imscratch/yfqi/forJC/step1_pdbreader.psf";
+#psf = "/home2/jcjeong/project/charmm/emilia2/yeast_pc_popi13_1/step5_assembly.psf";
 
 #pdb = "/home2/jcjeong/project/charmm/dol_dopc_1/step5_assembly.pdb";
 pdb = "/home2/jcjeong/project/charmm/emilia2/yeast_pc_popi13_1/step5_assembly.pdb";
 
 #dcd = "/home2/jcjeong/project/charmm/dol_dopc_1/step7_100.dcd";
 dcd = "/home2/jcjeong/project/charmm/emilia2/yeast_pc_popi13_1/step7_101.dcd"
+dcd = "/imscratch/yfqi/forJC/step5_production.now.dcd";
 
 MDAnalysis.core.flags['use_periodic_selections'] = True
 MDAnalysis.core.flags['use_KDTree_routines'] = False

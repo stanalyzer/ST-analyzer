@@ -845,10 +845,12 @@ $j(document).ready(function(){
      * *****************************************/
     //---> For all 
     $j("#density_frm_all #density_btn_vfy").click(function(){
-	var query = $j("#membrane #density #density_frm_all #density_query").val().trim();
-	var bpath = $j("#proot option:selected").text().trim();
-	var stfile = $j("#stfile option:selected").text().trim();
+	var query   = $j("#membrane #density #density_frm_all #density_query").val().trim();
+	var bpath   = $j("#proot option:selected").text().trim();
+	var stfile  = $j("#stfile option:selected").text().trim();
 	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
 	
 	var vfy = chkSyntex(query);
 	if (vfy["flag"]) {
@@ -866,6 +868,7 @@ $j(document).ready(function(){
 		'bpath'	    : bpath,
 		'stfile'    : stfile,
 		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
 	    }
 
         var request = $j.ajax({
@@ -900,6 +903,8 @@ $j(document).ready(function(){
 	var bpath = $j("#proot option:selected").text().trim();
 	var stfile = $j("#stfile option:selected").text().trim();
 	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
 	
 	var vfy = chkSyntex(query);
 	if (vfy["flag"]) {
@@ -917,6 +922,7 @@ $j(document).ready(function(){
 		'bpath'	    : bpath,
 		'stfile'    : stfile,
 		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
 	    }
 
         var request = $j.ajax({
@@ -951,6 +957,8 @@ $j(document).ready(function(){
 	var bpath = $j("#proot option:selected").text().trim();
 	var stfile = $j("#stfile option:selected").text().trim();
 	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
 	
 	var vfy = chkSyntex(query);
 	if (vfy["flag"]) {
@@ -968,6 +976,7 @@ $j(document).ready(function(){
 		'bpath'	    : bpath,
 		'stfile'    : stfile,
 		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
 	    }
 
         var request = $j.ajax({
@@ -1002,6 +1011,8 @@ $j(document).ready(function(){
 	var bpath = $j("#proot option:selected").text().trim();
 	var stfile = $j("#stfile option:selected").text().trim();
 	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
 	
 	var vfy = chkSyntex(query);
 	if (vfy["flag"]) {
@@ -1019,6 +1030,7 @@ $j(document).ready(function(){
 		'bpath'	    : bpath,
 		'stfile'    : stfile,
 		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
 	    }
 
         var request = $j.ajax({
@@ -1053,6 +1065,8 @@ $j(document).ready(function(){
 	var bpath = $j("#proot option:selected").text().trim();
 	var stfile = $j("#stfile option:selected").text().trim();
 	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
 	
 	var vfy = chkSyntex(query);
 	if (vfy["flag"]) {
@@ -1070,6 +1084,7 @@ $j(document).ready(function(){
 		'bpath'	    : bpath,
 		'stfile'    : stfile,
 		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
 	    }
 
         var request = $j.ajax({
@@ -1104,6 +1119,8 @@ $j(document).ready(function(){
 	var bpath = $j("#proot option:selected").text().trim();
 	var stfile = $j("#stfile option:selected").text().trim();
 	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
 	
 	var vfy = chkSyntex(query);
 	if (vfy["flag"]) {
@@ -1121,6 +1138,7 @@ $j(document).ready(function(){
 		'bpath'	    : bpath,
 		'stfile'    : stfile,
 		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
 	    }
 
         var request = $j.ajax({
@@ -1163,6 +1181,9 @@ $j(document).ready(function(){
 	var bpath = $j("#proot option:selected").text().trim();
 	var stfile = $j("#stfile option:selected").text().trim();
 	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
+	
 	var vfy_id = "#membrane #density #density_frm_custom #vfy_msg" + myfrm;
 	
 	var vfy = chkSyntex(query);
@@ -1181,6 +1202,7 @@ $j(document).ready(function(){
 		'bpath'	    : bpath,
 		'stfile'    : stfile,
 		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
 	    }
 
         var request = $j.ajax({
@@ -1471,7 +1493,9 @@ $j(document).ready(function(){
 	var bpath = $j("#proot option:selected").text().trim();
 	var stfile = $j("#stfile option:selected").text().trim();
 	var pdbfile = $j("#pdbfile option:selected").text().trim();
-	
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
+
 	var myfrm = $j(this).attr('mygui');	
 	var target_query = "#membrane #ordpara #ordpara_charmm_form #charmm_query_" + myfrm;
 	var target_segid = "#membrane #ordpara #ordpara_charmm_form #charmm_uq_segid" + myfrm + " option:selected";
@@ -1500,6 +1524,7 @@ $j(document).ready(function(){
 		'bpath'	    : bpath,
 		'stfile'    : stfile,
 		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
 	    }
 
         var request = $j.ajax({
@@ -1747,7 +1772,9 @@ $j(document).ready(function(){
 	var bpath = $j("#proot option:selected").text().trim();
 	var stfile = $j("#stfile option:selected").text().trim();
 	var pdbfile = $j("#pdbfile option:selected").text().trim();
-	
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
+
 	var myfrm = $j(this).attr('mygui');	
 	var target_query = "#membrane #thickness #thickness_form #thickness_query_" + myfrm;
 	var target_segid = "#membrane #thickness #thickness_form #thickness_uq_segid" + myfrm + " option:selected";
@@ -1776,6 +1803,7 @@ $j(document).ready(function(){
 		'bpath'	    : bpath,
 		'stfile'    : stfile,
 		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
 	    }
 
         var request = $j.ajax({
@@ -2003,7 +2031,9 @@ $j(document).ready(function(){
 	var bpath = $j("#proot option:selected").text().trim();
 	var stfile = $j("#stfile option:selected").text().trim();
 	var pdbfile = $j("#pdbfile option:selected").text().trim();
-	
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
+
 	var myfrm = $j(this).attr('mygui');	
 	var target_query = "#membrane #liparea #liparea_voro #liparea_voro_form #liparea_query_" + myfrm;
 	var query = $j(target_query).val().trim();
@@ -2025,6 +2055,7 @@ $j(document).ready(function(){
 		'bpath'	    : bpath,
 		'stfile'    : stfile,
 		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
 	    }
 
         var request = $j.ajax({
@@ -2059,7 +2090,9 @@ $j(document).ready(function(){
 	var bpath = $j("#proot option:selected").text().trim();
 	var stfile = $j("#stfile option:selected").text().trim();
 	var pdbfile = $j("#pdbfile option:selected").text().trim();
-	
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
+
 	var myfrm = $j(this).attr('mygui');	
 	var target_query = "#membrane #liparea #liparea_deltri #liparea_deltri_form #liparea_query_" + myfrm;
 	var query = $j(target_query).val().trim();
@@ -2081,6 +2114,7 @@ $j(document).ready(function(){
 		'bpath'	    : bpath,
 		'stfile'    : stfile,
 		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
 	    }
 
         var request = $j.ajax({
@@ -2984,7 +3018,7 @@ $j(document).ready(function(){
 			    <table>
 				<tr>
 				    <td colspan="2" class="st_color7 left">
-					<input type="checkbox" id="liparea_title">Average iipid per area
+					<input type="checkbox" id="liparea_title">Average area per lipid
 				    </td>
 				</tr>
 			    </table>

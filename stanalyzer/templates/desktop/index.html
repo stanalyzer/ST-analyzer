@@ -1042,7 +1042,7 @@ function eval_step2() {
 	$j("#membrane #density_form #density_frm_waterdp input[name='density_hist_tatoms']").each(function() {
 	    numAtoms.push($(this).val());
 	});
-	JOBs.push('density_vector');
+	JOBs.push('density_waterdp');
 	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
 	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
 	PARs.push(para);
