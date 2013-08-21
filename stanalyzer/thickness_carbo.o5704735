@@ -1,0 +1,9 @@
+### execution file: thickness_carbon.py ###
+	- input file: /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130821110540708466OSd3hG/para
+SELECT id FROM gui_outputs WHERE job_id = 273 and name = "thickness_carbon0_thickness_carbon.dat" 
+[[4], [u'1'], [u'thickness_carbon.dat'], [u'11146'], [u'name C22 or name C32']]
+Okay I am in thickness_carbon.py!!!!!
+Total # atoms = 11146, <type 'int'>
+Reading PSF: /home2/jcjeong/project/stanalyzer0/stanalyzer/trajectory/lipids/lipids.psf
+Reading DCD: /home2/jcjeong/project/stanalyzer0/stanalyzer/trajectory/lipids/lipids_00.dcd
+okay!

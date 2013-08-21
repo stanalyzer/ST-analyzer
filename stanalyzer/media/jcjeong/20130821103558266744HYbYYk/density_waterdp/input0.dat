@@ -1,0 +1,31 @@
+Name of Function: density_waterdp.py
+System information 
+	- First trajectory contains 20 frames (2.0 ps/frame)
+	- There are 1 trajectory file(s) and 36855 atoms
+Total 11 parameters 
+	- Base path: /home2/jcjeong/project/stanalyzer0/stanalyzer/trajectory/protein/
+	- Structure file: mysystem.psf
+	- Trajectory files: 
+		mysystem_01.dcd
+	- Job specific parameters: 
+		Number of Parameters:8
+		Frame interval:1
+		Output name:density_water_dipole.dat
+		Axis:Z
+		Minimum value in the given axis:-71
+		Maximum value in the given axis:71
+		Bin size:1
+		Query:segid TIP3
+		Total number of atoms:36855
+
+PBS: 
+#!/bin/bash
+#PBS -l nodes=1:ppn=1
+#PBS -l mem=500mb
+#PBS -l walltime=72:00:00
+#PBS -l cput=72:00:00
+#PBS -q default
+
+export LD_LIBRARY_PATH=/export/apps/compilers/gcc48/lib64
+
+

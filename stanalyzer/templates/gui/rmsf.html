@@ -1,0 +1,227 @@
+<script type="text/javascript">
+var cnt_rmsf = 0;
+
+$j(document).ready(function(){
+    
+    /* -------------------------------------------------------
+     * RMSF
+     * -------------------------------------------------------*/
+    //*** RMSF- count module
+    $j("#C_rmsf #M_rmsf #rmsf #rmsf_title").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    $cnt_modules++;
+	    cnt_rmsf++;
+	} else {
+	    $cnt_modules--;
+	    cnt_rmsf--;
+	    if ($cnt_modules < 0) {
+		$cnt_modules = 0;
+	    }
+	}
+	$j("#cnt_modules").empty().append($cnt_modules);
+	$j("#C_rmsf #M_rmsf #rmsf #cnt_rmsf").empty().append(cnt_rmsf);
+    });
+    
+    //*** RMSF - hiding form and toggling
+    $j("#C_rmsf #M_rmsf #rmsf_form").hide();
+    $j("#C_rmsf #M_rmsf #rmsf_title").click(function () {
+	$j("#C_rmsf #M_rmsf #rmsf_form").toggle(this.checked);
+    });
+
+    //*** RMSF - initializing values
+    $j("#C_rmsf #M_rmsf #rmsf #rmsf_form #rmsf_outFile").empty().val("rmsf_ouput.dat");
+    $j("#C_rmsf #M_rmsf #rmsf #rmsf_form input[id^='rmsf']").css("color", "gray");
+    $j("#C_rmsf #M_rmsf #rmsf #rmsf_form #rmsf_query_alig").empty().val("segid PROA and name CA");
+    $j("#C_rmsf #M_rmsf #rmsf #rmsf_form #rmsf_query_calc").empty().val("segid PROA");
+    $j("#C_rmsf #M_rmsf #rmsf #rmsf_form textarea[id^='rmsf']").css("color", "gray");
+
+    //*** RMSF - verifying atom selection for alignment
+    $j("#C_rmsf #M_rmsf #rmsf #rmsf_vfy_alig").click(function(){
+	var query = $j("#C_rmsf #M_rmsf #rmsf #rmsf_form #rmsf_query_alig").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
+
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#C_rmsf #M_rmsf #rmsf #vfy_msg_alig_rmsf").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#C_rmsf #M_rmsf #rmsf #vfy_msg_alig_rmsf").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#C_rmsf #M_rmsf #rmsf #vfy_msg_alig_rmsf").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#C_rmsf #M_rmsf #rmsf #vfy_msg_alig_rmsf").empty().append(errorThrown);
+        });
+    });
+    
+    //*** RMSF - verifying atom selection for RMSF calculation
+    $j("#C_rmsf #M_rmsf #rmsf #rmsf_vfy_calc").click(function(){
+	var query = $j("#C_rmsf #M_rmsf #rmsf #rmsf_form #rmsf_query_calc").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
+
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#C_rmsf #M_rmsf #rmsf #vfy_msg_calc_rmsf").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#C_rmsf #M_rmsf #rmsf #vfy_msg_calc_rmsf").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#C_rmsf #M_rmsf #rmsf #vfy_msg_calc_rmsf").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#C_rmsf #M_rmsf #rmsf #vfy_msg_calc_rmsf").empty().append(errorThrown);
+        });
+    });
+    
+});
+</script>
+
+<div id="C_rmsf">
+    <table>
+	<tr><td colspan="2">
+	    <table id="M_rmsf">
+		<!-- RMSF start --->
+		<tr>
+		    <td>
+			<div id="rmsf">
+			    <table>
+				<tr>
+				    <td colspan="2" class="st_color7 left"><input type="checkbox" id="rmsf_title">RMSF (<span id="cnt_rmsf" class="st_font1 st_size3 st_color5">0</span>)</td>
+				</tr>
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<div id="rmsf_form">
+					    <table>
+						<tr>
+						    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+						    <td class="bottom w15"></td>
+						    <td class="bottom"><span class="module_font">Output File Name</span></td>
+						    <td class="bottom w15"></td>
+						    <td></td><td></td><td></td><td></td>
+						</tr>
+						<tr>
+						    <td class="bottom"><input id="rmsf_frmInt" class="module_txtbox_frm" type="text" name="rmsf_frmInt" value="1" ></td>
+						    <td class="bottom w15"></td>
+						    <td class="bottom" colspan="5"><input id="rmsf_outFile" class="module_txtbox_output4" type="text" name="rmsf_outFile"></td>
+						    <td></td>
+						</tr>
+						<tr>
+						    <td colspan="8" class="module_font left"><input type="checkbox" id="rmsf_res_based">Calculate averages based each residue (* default: based on each atom)</td>
+						</tr>
+						<tr>
+						    <td class="bottom" colspan="8"><span class="module_font">Atom selection for alignment:</span></td>
+						</tr>
+						<tr>
+						    <td class="left bottom" colspan="7"><textarea class="bottom" id="rmsf_query_alig" name="rmsf_query_alig" rows="2" cols="64"></textarea></td>
+						    <td class="bottom">
+							<table>
+							    <tr>
+								<td><button id="rmsf_vfy_alig"><span class="module_font">Verify</span></button></td>
+							    </tr>
+							</table>
+						    </td>
+						</tr>
+						<tr>
+						    <td id="vfy_msg_alig_rmsf" class="center message_warn" colspan="8"></td>
+						</tr>
+					    
+						<tr>
+						    <td class="bottom" colspan="8"><span class="module_font">Atom selection for RMSF calculation:</span></td>
+						</tr>
+						<tr>
+						    <td class="left bottom" colspan="7"><textarea class="bottom" id="rmsf_query_calc" name="rmsf_query_calc" rows="2" cols="64"></textarea></td>
+						    <td class="bottom">
+						    <table>
+							<tr>
+							    <td><button id="rmsf_vfy_calc"><span class="module_font">Verify</span></button></td>
+							</tr>
+						    </table>
+						</tr>
+						<tr>
+						    <td id="vfy_msg_calc_rmsf" class="center message_warn" colspan="8"></td>
+						</tr>
+					    </table>
+					</div>
+				    </td>
+				</tr>
+			    </table>
+			</div>
+		    </td>
+		</tr>
+	    </table>
+	</td></tr>
+    </table>
+</div>
+<div id="test"></div>

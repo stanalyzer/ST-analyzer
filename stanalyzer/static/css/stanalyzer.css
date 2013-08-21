@@ -322,6 +322,10 @@ a.underline2:hover, a.underline2:active
 }
 
 /* margin */
+.mspace0{
+  height: 0px;
+}
+
 .mspace10{
   height: 5px;
 }
