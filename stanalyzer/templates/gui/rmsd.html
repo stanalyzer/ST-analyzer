@@ -1,0 +1,230 @@
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+var cnt_rmsd = 0;
+
+$j(document).ready(function(){
+    
+    /* -------------------------------------------------------
+     * RMSD
+     * -------------------------------------------------------*/
+    //*** RMSD - count module
+    $j("#C_rmsd #M_rmsd #rmsd #rmsd_title").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    $cnt_modules++;
+	    cnt_rmsd++;
+	} else {
+	    $cnt_modules--;
+	    cnt_rmsd--;
+	    if ($cnt_modules < 0) {
+		$cnt_modules = 0;
+	    }
+	}
+	$j("#cnt_modules").empty().append($cnt_modules);
+	$j("#C_rmsd #M_rmsd #rmsd #cnt_rmsd").empty().append(cnt_rmsd);
+    });
+
+    //*** RMSD - hiding form and toggling
+    $j("#C_rmsd #M_rmsd #rmsd_form").hide();
+    $j("#C_rmsd #M_rmsd #rmsd_title").click(function () {
+	$j("#C_rmsd #M_rmsd #rmsd_form").toggle(this.checked);
+    });
+
+    //*** RMSD - initializing values
+    $j("#C_rmsd #M_rmsd #rmsd #rmsd_form #rmsd_outFile").empty().val("rmsd_ouput.dat");
+    $j("#C_rmsd #M_rmsd #rmsd #rmsd_form #rmsd_query_alig").empty().val("segid PROA and name CA");
+    $j("#C_rmsd #M_rmsd #rmsd #rmsd_form #rmsd_query_calc").empty().val("segid PROA and name CB");
+    $j("#C_rmsd #M_rmsd #rmsd #rmsd_form input[id^='rmsd']").css("color", "gray");
+    $j("#C_rmsd #M_rmsd #rmsd #rmsd_form textarea[id^='rmsd']").css("color", "gray");
+
+    
+    //*** RMSD - verifying atom selection for alignment
+    $j("#C_rmsd #M_rmsd #rmsd #rmsd_vfy_alig").click(function(){
+	var query = $j("#C_rmsd #M_rmsd #rmsd #rmsd_form #rmsd_query_alig").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
+
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#C_rmsd #M_rmsd #rmsd #vfy_msg_alig_rmsd").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#C_rmsd #M_rmsd #rmsd #vfy_msg_alig_rmsd").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+		'trjFile[]'	: trjFile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#C_rmsd #M_rmsd #rmsd #vfy_msg_alig_rmsd").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#C_rmsd #M_rmsd #rmsd #vfy_msg_alig_rmsd").empty().append(errorThrown);
+        });
+    });
+
+    //*** RMSD - varifying atom selection for RMSD calculation
+    $j("#C_rmsd #M_rmsd #rmsd #rmsd_vfy_calc").click(function(){
+	var query = $j("#C_rmsd #M_rmsd #rmsd #rmsd_form #rmsd_query_calc").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
+
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#C_rmsd #M_rmsd #rmsd #vfy_msg_calc_rmsd").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#C_rmsd #M_rmsd #rmsd #vfy_msg_calc_rmsd").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+		'trjFile[]'	: trjFile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#C_rmsd #M_rmsd #rmsd #vfy_msg_calc_rmsd").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#C_rmsd #M_rmsd #rmsd #vfy_msg_calc_rmsd").empty().append(errorThrown);
+        });
+    });
+    
+    
+    
+});
+</script>
+
+<div id="C_rmsd">
+    <table>
+	<tr><td colspan="2">
+	    <table id="M_rmsd">
+		<!--- RMSD start --->
+		<tr>
+		    <td>
+			<div id="rmsd">
+			    <table>
+				<tr>
+				    <td colspan="2" class="st_color7 left"><input type="checkbox" id="rmsd_title">RMSD (<span id="cnt_rmsd" class="st_font1 st_size3 st_color5">0</span>)</td>
+				</tr>
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<div id="rmsd_form">
+					    <table>
+						<tr>
+						    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+						    <td class="bottom w15"></td>
+						    <td class="bottom left"><span class="module_font">Output File Name</span></td>
+						    <td class="bottom w15"></td>
+						    <td></td><td></td><td></td><td></td>
+						</tr>
+						<tr>
+						    <td class="bottom"><input id="rmsd_frmInt" class="module_txtbox_frm" type="text" name="rmsd_frmInt" value="1" ></td>
+						    <td class="bottom w15"></td>
+						    <td class="bottom left" colspan="5"><input id="rmsd_outFile" class="module_txtbox_output4" type="text" name="rmsd_outFile"></td>
+						    <td></td>
+						</tr>
+						<tr>
+						    <td class="bottom" colspan="8"><span class="module_font">Atom selection for alignment:</span></td>
+						</tr>
+						<tr>
+						    <td class="left bottom" colspan="7"><textarea class="bottom" id="rmsd_query_alig" name="rmsd_query_alig" rows="2" cols="64"></textarea></td>
+						    <td class="bottom">
+						    <table>
+							    <tr>
+								    <td><button id="rmsd_vfy_alig"><span class="module_font">Verify</span></button></td>
+							    </tr>
+						    </table>
+						    </td>
+						</tr>
+						<tr>
+						    <td id="vfy_msg_alig_rmsd" class="center message_warn" colspan="8"></td>
+						</tr>
+					    
+						<tr>
+						    <td class="bottom" colspan="8"><span class="module_font">Atom selection for RMSD calculation:</span></td>
+						</tr>
+						<tr>
+						    <td class="left bottom" colspan="7"><textarea class="bottom" id="rmsd_query_calc" name="rmsd_query_calc" rows="2" cols="64"></textarea></td>
+						    <td class="bottom">
+						    <table>
+							    <tr>
+								    <td><button id="rmsd_vfy_calc"><span class="module_font">Verify</span></button></td>
+							    </tr>
+						    </table>
+						    </td>
+						</tr>
+						<tr>
+						    <td id="vfy_msg_calc_rmsd" class="center message_warn" colspan="8"></td>
+						</tr>
+					    </table>
+					</div>
+				    </td>
+				</tr>
+			    </table>
+			</div>
+		    </td>
+		</tr>
+		<!--- RMSD end --->
+	    </table>
+	</td></tr>
+    </table>
+</div>
+<div id="test"></div>

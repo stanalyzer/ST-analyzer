@@ -1,4 +1,76 @@
 <script type="text/javascript">
+/* read structure file (PDB) and return unqiue contents */
+function getStructureInfo(query, async_flg) {
+    var bpath = $j("#proot option:selected").text();
+    var stfile = $j("#stfile option:selected").text();
+    var pdbfile = $j("#pdbfile option:selected").text();
+    $j("#select_trj2 option").attr("selected", "selected");
+    var trjFile = $j("#select_trj2").val();
+    
+    var stInfo = [];
+    var systemInfo = {
+	'all' 		: stInfo,
+    }
+    var sndData = {
+	'cmd'       : 'getStructure',
+	'query'	    : query,
+	'bpath'	    : bpath,
+	'stfile'    : stfile,
+	'pdbfile'   : pdbfile,
+	'trjFile[]' : trjFile,
+    }
+
+    var request = $j.ajax({
+    type: "POST",
+    url: '/gui/getStructureInfo/',
+    cache: false,
+    data: sndData,
+    async: async_flg,
+    });
+		
+    request.done(function(Jdata) {
+	var obj = $j.parseJSON(Jdata);
+	var key_words_tmp = $.merge([], key_words);		// duplicate first array to prevent changing original array
+	stInfo = $j.merge(key_words_tmp, obj.uq_resname); 	// unqiue residue name
+	stInfo = $j.merge(stInfo, obj.uq_resid);		// unique residue IDs
+	stInfo = $j.merge(stInfo, obj.uq_name);		// unique atom names
+	stInfo = $j.merge(stInfo, obj.uq_segid);	// unique segment IDs
+	stInfo = $j.merge(stInfo, obj.uq_type);		// unique types
+	systemInfo['all']     = stInfo;
+	systemInfo['resname'] = obj.uq_resname;
+	systemInfo['resid']   = obj.uq_resid;
+	systemInfo['name']    = obj.uq_name;
+	systemInfo['segid']   = obj.uq_segid;
+	systemInfo['type']    = obj.uq_type;
+	systemInfo['crd_min'] = obj.crd_min;
+	systemInfo['crd_max'] = obj.crd_max;
+	systemInfo['num_atoms'] = obj.num_atoms;
+	systemInfo['size_x'] = obj.size_x;
+	systemInfo['size_y'] = obj.size_y;
+	systemInfo['size_z'] = obj.size_y;
+	
+	/* fill out the information about density min and max */
+	var smin = 0;
+	var smax = 0;
+	if (Math.abs(obj.crd_min) > Math.abs(obj.crd_max)) {
+	    smin = obj.crd_min;
+	    smax = Math.abs(obj.crd_min);
+	} else {
+	    smin = -1 * obj.crd_max;
+	    smax = obj.crd_max;
+	}
+	var size_x = obj.size_x;
+	var size_y = obj.size_y;
+	var size_z = obj.size_z;
+    });
+      
+    request.error(function(jqXHR, textStatus, errorThrown) {
+	$j("#vfy_msg").empty().append("Error: PDB file cannot be read!");
+    });
+
+    return systemInfo;
+}
+
 var $j = jQuery.noConflict();
 
 $j(document).ready(function(){
@@ -517,6 +589,11 @@ $j(document).ready(function(){
 		    --->
 		</td>
 	    </tr>
+	    <tr>
+		<td class="mspace2 left">
+		    <span class="st_font1 st_size3 st_color6"><b>Total (<span id="cnt_modules" class="st_font1 st_size3 st_color5">0</span>) module(s) have been selected</b></span>
+		</td>
+	    </tr>
 	    <!---
 		*******************************************************************************
 		* Add the form of new Job or functions below: once new functions is added
@@ -524,31 +601,24 @@ $j(document).ready(function(){
 		*******************************************************************************
 	    --->
 	    <!--- Category in System Information --->
-	    <tr><td class="mspace1">{% include "gui/systemInfo.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/protein.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/DnaRna.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/carbohydrate.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/membrane.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/solvent.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/protein_DnaRna.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/protein_carbohydrate.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/protein_membrane.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/protein_solvent.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/DnaRna_solvent.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/carbohydrate_membrane.html" %}</td></tr>
-	    <tr><td class="mspace1"></td></tr>
-	    <tr><td class="mspace1">{% include "gui/carbohydrate_solvent.html" %}</td></tr>
+	    <tr><td class="mspace0">{% include "gui/aveperlipid.html" %}</td></tr>
+	    <tr><td class="mspace0"></td></tr>
+	    <tr><td class="mspace0">{% include "gui/densityprofile.html" %}</td></tr>
+	    <tr><td class="mspace0"></td></tr>
+	    <tr><td class="mspace0">{% include "gui/helixtilt.html" %}</td></tr>
+	    <tr><td class="mspace0"></td></tr>
+	    <tr><td class="mspace0">{% include "gui/orderparameters.html" %}</td></tr>
+	    <tr><td class="mspace0"></td></tr>
+	    <tr><td class="mspace0">{% include "gui/rmsd.html" %}</td></tr>	    
+	    <tr><td class="mspace0"></td></tr>
+	    <tr><td class="mspace0">{% include "gui/rmsf.html" %}</td></tr>
+	    <tr><td class="mspace0"></td></tr>
+	    <tr><td class="mspace0">{% include "gui/steroltilt.html" %}</td></tr>
+	    <tr><td class="mspace0"></td></tr>
+	    <tr><td class="mspace0">{% include "gui/systemsize.html" %}</td></tr>
+	    <tr><td class="mspace0"></td></tr>
+	    <tr><td class="mspace0">{% include "gui/thickness.html" %}</td></tr>
+	    <tr><td class="mspace0"></td></tr>
 	    
 	<!-- systemInfo end --->
 	<tr><td class="mspace1"></td></tr>

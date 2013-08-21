@@ -1,0 +1,15 @@
+set terminal png enhanced 
+set encoding iso_8859_1
+set output '/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130821104815791585e4TfnF/lipid_per_area_voro/lipid_per_area_voro0.png'
+set multiplot layout 2, 1 title 'Area per lipid'
+set tmargin 2
+set title 'Top Membrane'
+set xlabel 'Time (ps)'
+set ylabel 'Area per Lipid [A^2 ]'
+plot "/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130821104815791585e4TfnF/lipid_per_area_voro/top_ave_voronoi_lipid_per_area.dat" using 1:2 title "DOPC" with lines lw 3
+set title 'Bottom Membrane'
+set xlabel 'Time (ps)'
+set ylabel 'Area per Lipid [A]'
+plot "/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130821104815791585e4TfnF/lipid_per_area_voro/btm_ave_voronoi_lipid_per_area.dat" using 1:2 title "DOPC" with lines lw 3
+unset multiplot
+set output
