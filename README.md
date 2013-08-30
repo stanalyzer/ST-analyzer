@@ -10,7 +10,7 @@ ST-analyzer is a standalone GUI toolset to perform various analyses of molecular
 Installation
 ============
 Although ST-analyzer is developed in Python codes, to cover the wide range of analysis demands and to maintain the cross-platform characteristics, some external python modules and programs are required. For the users who only need to run particular modules, this documentation clearly distinct ‘required modules’ and ‘optional modules’ by notice them as ‘required’ and ‘optional’ in the rest of context. 
-
+> For more about ST-analzyer, please refer ST-analyzer tutorial through http://im.bioinformatics.ku.edu/st-analyzer/tutorials.html
 Required modules & programs
 ----------------------------
 
