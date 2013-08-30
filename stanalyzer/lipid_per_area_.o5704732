@@ -1,9 +1,0 @@
-### execution file: lipid_per_area_voro.py ###
-	- input file: /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130821110540708466OSd3hG/para
-SELECT id FROM gui_outputs WHERE job_id = 273 and name = "lipid_per_area_voro0_voronoi_lipid_per_area.dat" 
-[[7], [u'1'], [u'voronoi_lipid_per_area.dat'], [u'18019'], [u'segid MEMB and ((resname CHL1 and name O3) or (resname DOPC and (name C2 or name C21 or name C31)) or (resname POPC and (name C2 or name C21 or name C31)) or (resname POPI and (name C2 or name C21 or name C31)) or (resname POPI13 and (name C2 or name C21 or name C31)))'], [u'48.1993026733'], [u'48.1993026733'], [u'']]
-48.1993026733
-48.1993026733
-Okay I am in lipid_per_area_voro.py!!!!!
-Total # atoms = 18019, <type 'int'>
-okay!

@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "thickness_phosphate.py", line 117, in <module>
-    c.execute(query);
-sqlite3.OperationalError: database is locked
