@@ -238,6 +238,7 @@ print "Total # atoms = {}, {}".format(num_atoms, type(num_atoms));
 #///////////////////////////////////////////////////////////////////////////
 # Running actual job
 #///////////////////////////////////////////////////////////////////////////
+<<<<<<< HEAD
 try:
     run = 1;
     if run:
@@ -423,6 +424,193 @@ try:
     conn.close();
 
 
+=======
+run = 1;
+if run:
+    out_file = '{0}/{1}'.format(out_dir, outFile);
+    fid_out = open(out_file, 'w')
+    cmt = "# Min={0}, Max={1}, Bin size = {2}\n".format(dnst_min, dnst_max, dnst_bin);
+    fid_out.write(cmt)
+    
+    # describing BIN
+    cmt = "# Bin ranges\n#"
+    fid_out.write(cmt);
+    
+    # calculating BIN range
+    BIN = [];
+    for ibin in frange(dnst_min, dnst_max, dnst_bin):
+	BIN.append(ibin);
+	cmt = "\t{}".format(ibin);
+	fid_out.write(cmt);
+    fid_out.write("\n");
+    
+    fid_out.write("# Range\tDensity\n");
+    psf = '{0}{1}'.format(base_path, structure_file);
+
+    cnt = 0;
+    timeStamp = [];         # time stamp for trajectory
+    
+    # data based on trajectory
+    DNST = [];
+    STMP = [];
+    for ibin in frange(dnst_min, dnst_max, dnst_bin):
+	DNST.append(0.0);
+    
+    for idx in range(len(trajectoryFile)):
+	
+	# turning on periodic boundary conditions
+	MDAnalysis.core.flags['use_periodic_selections'] = True
+	MDAnalysis.core.flags['use_KDTree_routines'] = False
+	
+	# reading trajectory
+	trj = '{0}{1}'.format(base_path, trajectoryFile[idx]);
+	print 'Reading PSF: ' + psf
+	print 'Reading DCD: ' + trj
+	u = Universe(psf, trj);
+	print '{0} is done!'.format(idx);
+	
+	# read based on frame
+	for ts in u.trajectory:
+            #tclock = cnt;
+            cnt = cnt + 1;
+	    if (cnt % frmInt) == 0:
+		MEMB = u.selectAtoms(selQry);
+		u.atoms.translate(-MEMB.centerOfMass());
+		tmp_time = float(cnt) * float(num_ps) - float(num_ps);
+		STMP.append(tmp_time);
+		print "[{0}ps]selecting atoms...".format(tmp_time);
+		selAtoms = u.selectAtoms(selQry);
+		print "DONE!"
+		if len(selAtoms) > 1:
+		    # get coordinates
+		    CRDs = selAtoms.coordinates();
+		    
+		    # get coordinate X, Y, Z
+		    crdX = []; crdY = []; crdZ =[];
+		    for iatom in range(len(CRDs)):
+			crdX.append(CRDs[iatom][0]);
+			crdY.append(CRDs[iatom][1]);
+			crdZ.append(CRDs[iatom][2]);
+		    
+		    sizeX = max(crdX) - min(crdX);
+		    sizeY = max(crdY) - min(crdY);
+		    sizeZ = max(crdZ) - min(crdZ);
+		    
+		    if taxis == 'X':
+			tcrd = crdX;
+			bin_vol = sizeY * sizeZ * dnst_bin;
+			print 'crdX is selected!';
+		    elif taxis == 'Y':
+			tcrd = crdY;
+			bin_vol = sizeX * sizeZ * dnst_bin;
+			print 'crdY is selected!';
+		    else:
+			tcrd = crdZ;
+			bin_vol = sizeX * sizeY * dnst_bin;
+			print 'crdZ is selected!';
+			
+		    # counting items based on BIN interval
+		    tmpDNST = count_intervals(tcrd, BIN);
+		    
+		    # sort key based on numbering*
+		    intKEY = [];
+		    for key in sorted(tmpDNST.iterkeys()):
+			intKEY.append(float(key));
+		    intKEY.sort();
+		    
+		    # reordering dictionary based on sorted key
+		    for key in intKEY:
+			idx_bin = BIN.index(key);
+			DNST[idx_bin] += float(tmpDNST[key]) / float(bin_vol); # normalizing based on volume
+    # Write down results
+    finalDNST = [];
+    for i in DNST:
+	tmp = i/len(STMP);
+	finalDNST.append(tmp);
+    
+    # Writing final output
+    for i in range(len(finalDNST)):
+	outStr = "{0}\t{1}\n".format(BIN[i], finalDNST[i]);
+	fid_out.write(outStr);
+    fid_out.close()
+
+    # -------- Drawing graphs
+    # Writing Gnuplot script
+    outScr = '{0}/gplot{1}.p'.format(out_dir, para_idx);
+    outImg  = '{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
+    imgPath = "{0}/{1}".format(out_dir, outImg);
+    fid_out = open(outScr, 'w');
+    gScript = "set terminal png\n";
+    gScript = gScript + "set encoding iso_8859_1\n";
+    gScript = gScript + "set xlabel 'range'\n";
+    gScript = gScript + "set ylabel 'density'\n";
+    gScript = gScript + "set output '{0}'\n".format(imgPath);
+    gScript = gScript + """plot "{0}/{1}" using 1:2 title "Density" with lines lw 3\n""".format(out_dir, outFile);
+    fid_out.write(gScript);
+    fid_out.close()
+    
+    # Drawing graph with gnuplot
+    subprocess.call(["gnuplot", outScr]);
+    
+    # gzip all reaults
+    outZip = "{0}project_{1}_{2}{3}.tar.gz".format(OUTPUT_HOME, prj_pkey, fName[1], para_idx);
+    subprocess.call(["tar", "czf", outZip, out_dir]);
+
+    # Update values into gui_outputs
+    conn = sqlite3.connect(DB_FILE);
+    c    = conn.cursor();
+    query = """UPDATE gui_outputs SET status = "Complete", img="{0}", txt="{1}", gzip="{2}" WHERE id = {3}""".format(imgPath, out_file, outZip, pk_output);
+    c.execute(query);
+    conn.commit();
+    conn.close();
+    #print query
+
+
+
+
+######################################## PLEASE DO NOT MODIFY BELOW THIST LINE!!!! ############################################
+# update gui_parameter & gui_job table when job completed
+etime = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
+conn = sqlite3.connect(DB_FILE);
+c    = conn.cursor();
+for i in range(len(para_pkey)):
+    query = """UPDATE gui_parameter SET status = "COMPLETE" WHERE id = {0}""".format(para_pkey[i]);
+    #print query
+    c.execute(query);
+    conn.commit();
+
+# update gui_job if every status in gui_parameter are COMPLETE
+query = """SELECT DISTINCT(status) FROM gui_parameter WHERE job_id = {0}""".format(job_pkey[0]);
+c.execute(query);
+ST = c.fetchall();
+
+#print query;
+#print "number status = {}".format(len(ST));
+#for item in ST:
+#    print "{0}".format(item[0]);
+
+
+if (len(ST) == 1) and (ST[0][0] == "COMPLETE"):
+    etime = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
+    query = """UPDATE gui_job SET status = "COMPLETE", etime = "{0}" WHERE id = {1}""".format(etime, job_pkey[0]);
+    c.execute(query);
+    conn.commit();
+
+    # making tar file
+    outZip = "{0}project_{1}.tar.gz".format(OUTPUT_HOME, prj_pkey[0]);
+    subprocess.call(["tar", "czf", outZip, OUTPUT_HOME]);
+
+    # Inserting compressed tar file for all submitted jobs
+    #final_title = "[** All JOBs **] {0}".format(job_title);
+    #query = """INSERT INTO gui_outputs (job_id, name, img, txt, gzip) VALUES ({0}, "{1}", "{2}", "{3}", "{4}")""".format(job_pkey[0], final_title, '', '', outZip);
+    #c.execute(query);
+    #conn.commit();
+    
+conn.close();
+
+try:
+    print "okay!";
+>>>>>>> aa05be30ce412a3a250b73cced1ef91bb83eed20
 #///////////////////////////////////////////////////////////////////////////
 # Finalizing  job
 # -- Use following codes to make your own function

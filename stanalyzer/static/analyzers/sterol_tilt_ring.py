@@ -223,6 +223,7 @@ print "selQry = {}".format(selQry);
 #///////////////////////////////////////////////////////////////////////////
 # Running actual job
 #///////////////////////////////////////////////////////////////////////////
+<<<<<<< HEAD
 try:
     run = 1;
     if run:
@@ -397,6 +398,183 @@ try:
 	
     conn.close();
 
+=======
+run = 1;
+if run:
+    #fid_out.write("# Time(ps)\tAverage lipid per area\n");
+    psf = '{0}{1}'.format(base_path, structure_file);
+
+    flg_top = 0;	    # check bi/mono layer
+    flg_btm = 0;	    # check bi/mono layer
+
+    timeStamp = [];         # time stamp for trajectory
+
+    # data based on trajectory
+    STMP  = [];
+    #creating BIN 0~90 degree
+    BIN = [];
+    DIST = [];
+    topDIST = [];
+    btmDIST = [];
+    for ibin in stanalyzer.frange(0, 90, 0.1):
+	BIN.append(ibin);
+	DIST.append(0.0);
+	topDIST.append(0.0);
+	btmDIST.append(0.0);
+
+    trj_cnt = 0;
+    for idx in range(len(trajectoryFile)):
+	print "[{0}/{1}] trajectory is processing...".format(idx+1, len(trajectoryFile));
+	cnt = 0;
+	# turning on periodic boundary conditions
+	MDAnalysis.core.flags['use_periodic_selections'] = True
+	MDAnalysis.core.flags['use_KDTree_routines'] = False
+	
+	# reading trajectory
+	trj = '{0}{1}'.format(base_path, trajectoryFile[idx]);
+	print 'Reading PSF: ' + psf
+	print 'Reading DCD: ' + trj
+	u = Universe(psf, trj);
+	
+	# read based on frame
+	for ts in u.trajectory:
+	    # turning on periodic boundary conditions
+	    MEMB = u.selectAtoms(selQry);
+	    u.atoms.translate(-MEMB.centerOfMass());
+            cnt = cnt + 1;
+	    trj_cnt = trj_cnt + 1;
+	    #print "[{0}/{1}] processing...".format(cnt, len(u.trajectory));
+	    if (cnt % frmInt) == 0:
+		tmp_time = float(trj_cnt) * float(num_ps) - float(num_ps);
+		STMP.append(tmp_time);
+		CRDs = MEMB.coordinates();
+		# for bilayer
+		if len(CRDs) > 0:
+		    AtRes = getCRDsWithResid(MEMB);
+		    ResIDs  = AtRes[0]; # residue IDs [resid1, resid2, ..., residN]
+		    AtmName = AtRes[1]; # [[name11, name12], [name21, name22],....,[nameN1, nameN2]] - assume each residue has 2 atoms
+		    AtmCrds = AtRes[2] # [[[x11,y11,z11][x12,y12,z12]],[[x21,y21,z21][x22,y22,z22]] ...[[xN1,yN1,zN1][xN2,yN2,zN2]]] 
+		    for ridx in range(len(ResIDs)):
+			vtx1 = AtmCrds[ridx][0];	# atom C3
+			vtx2 = AtmCrds[ridx][1];	# atom C17
+			#v0 = [0, 0, 1];		# bilayer normal
+			v1 = [];
+			for axi in range(len(vtx1)):
+			    tmp = vtx1[axi] - vtx2[axi];
+			    v1.append(tmp);
+			    
+			if v1[2] < 0:
+			    v0 = [0, 0, -1];		# bilayer normal
+			else:
+			    v0 = [0, 0, 1];
+
+			T = toDegree(math.acos(getCosT(v0, v1)));	# degree
+			pos = bisect_left(BIN, T);
+			DIST[pos] = DIST[pos] + 1;
+			    
+		#print "+----------------------------------------------------------+";
+	
+    
+    # Writing final output
+    all_dist_file = '{0}/all_dist_{1}'.format(out_dir, outFile);
+    fid_all_dist = open(all_dist_file, 'w');
+    
+    # pick one of output file names for DB usage
+    out_file = fid_all_dist;
+    
+    # for all Distribution
+    # normalizing DIST
+    tmp = [];
+    sum_dist = sum(DIST);
+    for val in DIST:
+	tmp.append(val/sum_dist);
+    DIST = tmp;
+    
+    cmt_Str = "# Degree\tNumber_of_Sterols\n";
+    fid_all_dist.write(cmt_Str);
+    for ibin in range(len(BIN)):
+	allStr= "{0}\t{1}\n".format(BIN[ibin], DIST[ibin]);
+	fid_all_dist.write(allStr);
+    fid_all_dist.close();
+    
+    # -------- Drawing graphs
+    # Writing Gnuplot script
+    outScr = '{0}/gplot{1}.p'.format(out_dir, para_idx);
+    outImg  = '{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
+    imgPath = "{0}/{1}".format(out_dir, outImg);
+    fid_out = open(outScr, 'w');
+    gScript = "set terminal png\n";
+    gScript = gScript + "set encoding iso_8859_1\n";
+    gScript = gScript + "set xlabel 'Degree'\n";
+    gScript = gScript + "set ylabel 'Probability'\n";
+    gScript = gScript + "set title 'Sterol Tilt'\n";
+    gScript = gScript + "set output '{0}'\n".format(imgPath);
+    gScript = gScript + """plot "{0}" using 1:2 title "Sterol Ring Tilt" with lines lw 3\n""".format(all_dist_file);
+    fid_out.write(gScript);
+    fid_out.close();
+    
+    # Drawing graph with gnuplot
+    subprocess.call(["gnuplot", outScr]);
+    
+    # gzip all reaults
+    outZip = "{0}project_{1}_{2}{3}.tar.gz".format(OUTPUT_HOME, prj_pkey, fName[1], para_idx);
+    subprocess.call(["tar", "czf", outZip, out_dir]);
+
+    # Update values into gui_outputs
+    conn = sqlite3.connect(DB_FILE);
+    c    = conn.cursor();
+    query = """UPDATE gui_outputs SET status = "Complete", img="{0}", txt="{1}", gzip="{2}" WHERE id = {3}""".format(imgPath, out_file, outZip, pk_output);
+    c.execute(query);
+    conn.commit();
+    conn.close();
+    #print query
+
+
+
+
+######################################## PLEASE DO NOT MODIFY BELOW THIST LINE!!!! ############################################
+# update gui_parameter & gui_job table when job completed
+etime = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
+conn = sqlite3.connect(DB_FILE);
+c    = conn.cursor();
+for i in range(len(para_pkey)):
+    query = """UPDATE gui_parameter SET status = "COMPLETE" WHERE id = {0}""".format(para_pkey[i]);
+    #print query
+    c.execute(query);
+    conn.commit();
+
+# update gui_job if every status in gui_parameter are COMPLETE
+query = """SELECT DISTINCT(status) FROM gui_parameter WHERE job_id = {0}""".format(job_pkey[0]);
+c.execute(query);
+ST = c.fetchall();
+
+#print query;
+#print "number status = {}".format(len(ST));
+#for item in ST:
+#    print "{0}".format(item[0]);
+
+
+if (len(ST) == 1) and (ST[0][0] == "COMPLETE"):
+    etime = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
+    query = """UPDATE gui_job SET status = "COMPLETE", etime = "{0}" WHERE id = {1}""".format(etime, job_pkey[0]);
+    c.execute(query);
+    conn.commit();
+
+    # making tar file
+    outZip = "{0}project_{1}.tar.gz".format(OUTPUT_HOME, prj_pkey[0]);
+    subprocess.call(["tar", "czf", outZip, OUTPUT_HOME]);
+
+    # Inserting compressed tar file for all submitted jobs
+    #final_title = "[** All JOBs **] {0}".format(job_title);
+    #query = """INSERT INTO gui_outputs (job_id, name, img, txt, gzip) VALUES ({0}, "{1}", "{2}", "{3}", "{4}")""".format(job_pkey[0], final_title, '', '', outZip);
+    #c.execute(query);
+    #conn.commit();
+    
+conn.close();
+
+try:
+    print "okay!";
+>>>>>>> aa05be30ce412a3a250b73cced1ef91bb83eed20
 #///////////////////////////////////////////////////////////////////////////
 # Finalizing  job
 # -- Use following codes to make your own function

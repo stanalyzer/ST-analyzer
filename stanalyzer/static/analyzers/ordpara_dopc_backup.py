@@ -234,6 +234,7 @@ print "Total # atoms = {}, {}".format(num_atoms, type(num_atoms));
 #///////////////////////////////////////////////////////////////////////////
 # Running actual job
 #///////////////////////////////////////////////////////////////////////////
+<<<<<<< HEAD
 try:
     run = 1;
     if run:
@@ -597,6 +598,372 @@ try:
 	
     conn.close();
 
+=======
+run = 1;
+if run:
+    out_file = '{0}/{1}'.format(out_dir, outFile);
+    fid_out = open(out_file, 'w')
+
+    # describing BIN
+    cmt = "# Bin ranges\n#"
+    fid_out.write(cmt);
+    
+    # calculating BIN range
+    BIN = [];
+    for ibin in frange(dnst_min, dnst_max, dnst_bin):
+	BIN.append(ibin);
+	cmt = "\t{}".format(ibin);
+	fid_out.write(cmt);
+    fid_out.write("\n");
+    
+    fid_out.write("# Range\tDensity\n");
+    psf = '{0}{1}'.format(base_path, structure_file);
+
+    cnt = 0;
+    timeStamp = [];         # time stamp for trajectory
+    
+    # data based on trajectory
+    DNST = [];
+    STMP = [];
+    for ibin in frange(dnst_min, dnst_max, dnst_bin):
+	DNST.append(0.0);
+
+    for idx in range(len(trajectoryFile)):
+	# turning on periodic boundary conditions
+	MDAnalysis.core.flags['use_periodic_selections'] = True
+	MDAnalysis.core.flags['use_KDTree_routines'] = False
+	
+	# reading trajectory
+	trj = '{0}{1}'.format(base_path, trajectoryFile[idx]);
+	print 'Reading PSF: ' + psf
+	print 'Reading DCD: ' + trj
+	u = Universe(psf, trj);
+	print '{0} is done!'.format(idx);
+	
+	# read based on frame
+	for ts in u.trajectory:
+	    DegT = [];
+            #tclock = cnt;
+            cnt = cnt + 1;
+	    if (cnt % frmInt) == 0:
+		tmp_time = float(cnt) * float(num_ps) - float(num_ps);
+		STMP.append(tmp_time);
+		print "[{0}ps]selecting atoms...".format(tmp_time);
+		selAtoms = u.selectAtoms(selQryC3);
+		print "DONE!"
+		if len(selAtoms) > 1:
+		    # get coordinates
+		    CAs = selAtoms.names();
+		    ca0 = CAs[0:1];			# Ca index
+		    print "Ca0: {0}".format(ca0);
+		    
+		    c_ini = CAs[1];
+		    c_ini = int(c_ini[2:]);		# initial C index of tail
+		    
+		    c_end = CAs[len(selAtoms)-1];
+		    c_end = int(c_end[2:]);		# last C index of tail
+
+		    print "-- Order parameter: start:{0}, end:{1}".format(c_ini, c_end);
+		    newAtoms = u.selectAtoms(newQryC3);
+		    CRDs = newAtoms.coordinates();
+
+		    # get list of all atom names
+		    ANames = newAtoms.names();			
+		    
+		    for b_cnt in BIN:
+			Scd = 0.0;
+			num_Hs = 0.0;				# count number of Hyderogen at each carbon
+			c_cnt = int(b_cnt);
+			catom_idx = -1;
+			
+			# defining current atoms 
+			Cxx = "{0}{1}".format(ca0[0], c_cnt);
+			HxR = "H{0}X".format(c_cnt);
+			HxS = "H{0}Y".format(c_cnt);
+			HxT = "H{0}Z".format(c_cnt);
+			print "c_cnt={0}, b_cnt={1}, Cxx={2}, HxR={3}, HxS={4}, HxT={5}".format(c_cnt, b_cnt, Cxx, HxR, HxS, HxT)
+			
+			# CA atom
+			if (Cxx in ANames):
+			    catom_idx = ANames.index(Cxx);
+			    CAx = CRDs[catom_idx][0];
+			    CAy = CRDs[catom_idx][1];
+			    CAz = CRDs[catom_idx][2];
+			    print "CAx={}, CAy={}, CAz={}".format(CAx, CAy, CAz);
+			# H-R atom
+			if (catom_idx >= 0) and (HxR in ANames):
+			    hratom_idx = ANames.index(HxR);
+			    HRx = CRDs[hratom_idx][0];
+			    HRy = CRDs[hratom_idx][1];
+			    HRz = CRDs[hratom_idx][2];
+			    print "HRx={}, HRy={}, HRz={}".format(HRx, HRy, HRz);
+			    
+			    x = HRx - CAx;
+			    y = HRy - CAy;
+			    z = HRz - CAz;
+			    
+			    r = x*x + y*y + z*z;
+			    r  = math.sqrt(r);
+			    
+			    cosx = x/r;
+			    cosy = y/r;
+			    cosz = z/r;
+			    print "cal x={}, y={}, z={}".format(x, y, z);
+
+			    # defining unit vector
+			    if taxis == 'X':
+				tx = 1.0;
+				ty = 0;
+				tz = 0;
+				r = tx*tx + ty*ty + tz*tz;
+				r = math.sqrt(r);
+				tcosx = tx/r;
+				tcosy = ty/r;
+				tcosz = tz/r;
+			    elif taxis == 'Y':
+				tx = 0;
+				ty = 1.0;
+				tz = 0;
+				r = tx*tx + ty*ty + tz*tz;
+				r = math.sqrt(r);
+				tcosx = tx/r;
+				tcosy = ty/r;
+				tcosz = tz/r;
+			    elif taxis == 'Z':
+				tx = 0;
+				ty = 0;
+				tz = 1.0;
+				r = tx*tx + ty*ty + tz*tz;
+				r = math.sqrt(r);
+				tcosx = tx/r;
+				tcosy = ty/r;
+				tcosz = tz/r;
+			    
+			    cosT = cosx*tcosx + cosy*tcosy + cosz*tcosz;
+			    print "x={}, y={}, z={}".format(x, y, z);
+			    print "cosx={}, cosy={}, cosz={}".format(cosx, cosy, cosz);
+			    print "tx={}, ty={}, tz={}".format(tcosx, tcosy, tcosz);
+			    print "cosT={}".format(cosT);
+		    
+			    Scd  = Scd + (3.0 * cosT * cosT - 1.0);
+			    print "SCD={}".format(Scd);
+			    num_Hs += 1.0;
+			    print "num_Hs={}".format(num_Hs);
+			
+			# H-S atom
+			if (catom_idx > 0) and (HxS in ANames):
+			    hsatom_idx = ANames.index(HxS);
+			    HSx = CRDs[hsatom_idx][0];
+			    HSy = CRDs[hsatom_idx][1];
+			    HSz = CRDs[hsatom_idx][2];
+			    print "HSx={}, HSy={}, HSz={}".format(HSx, HSy, HSz);
+			    
+			    x = HSx - CAx;
+			    y = HSy - CAy;
+			    z = HSz - CAz;
+			    
+			    r = x*x + y*y + z*z;
+			    r  = math.sqrt(r);
+			    
+			    cosx = x/r;
+			    cosy = y/r;
+			    cosz = z/r;
+			    print "cal x={}, y={}, z={}".format(x, y, z);
+			    # defining unit vector
+			    if taxis == 'X':
+				tx = 1.0;
+				ty = 0;
+				tz = 0;
+				r = tx*tx + ty*ty + tz*tz;
+				r = math.sqrt(r);
+				tcosx = tx/r;
+				tcosy = ty/r;
+				tcosz = tz/r;
+			    elif taxis == 'Y':
+				tx = 0;
+				ty = 1.0;
+				tz = 0;
+				r = tx*tx + ty*ty + tz*tz;
+				r = math.sqrt(r);
+				tcosx = tx/r;
+				tcosy = ty/r;
+				tcosz = tz/r;
+			    elif taxis == 'Z':
+				tx = 0;
+				ty = 0;
+				tz = 1.0;
+				r = tx*tx + ty*ty + tz*tz;
+				r = math.sqrt(r);
+				tcosx = tx/r;
+				tcosy = ty/r;
+				tcosz = tz/r;
+			    
+			    cosT = cosx*tcosx + cosy*tcosy + cosz*tcosz;
+			    print "x={}, y={}, z={}".format(x, y, z);
+			    print "tx={}, ty={}, tz={}".format(tcosx, tcosy, tcosz);
+			    print "cosx={}, cosy={}, cosz={}".format(cosx, cosy, cosz);
+			    print "cosT={}".format(cosT);
+			    Scd  = Scd + (3.0 * cosT * cosT - 1.0);
+			    print "SCD={}".format(Scd);
+			    num_Hs += 1.0;
+			    print "num_Hs={}".format(num_Hs);
+
+			# H-T atom
+			if  (catom_idx > 0) and (HxT in ANames):
+			    htatom_idx = ANames.index(HxT);
+			    HTx = CRDs[htatom_idx][0];
+			    HTy = CRDs[htatom_idx][1];
+			    HTz = CRDs[htatom_idx][2];
+			    print "HTx={}, HTy={}, HTz={}".format(HTx, HTy, HTz);
+			    
+			    x = HTx - CAx;
+			    y = HTy - CAy;
+			    z = HTz - CAz;
+			    r = x*x + y*y + z*z;
+			    r  = math.sqrt(r);
+			    cosx = x/r;
+			    cosy = y/r;
+			    cosz = z/r;
+			    print "cal x={}, y={}, z={}".format(x, y, z);
+			    # defining unit vector
+			    if taxis == 'X':
+				tx = 1.0;
+				ty = 0;
+				tz = 0;
+				r = tx*tx + ty*ty + tz*tz;
+				r = math.sqrt(r);
+				tcosx = tx/r;
+				tcosy = ty/r;
+				tcosz = tz/r;
+			    elif taxis == 'Y':
+				tx = 0;
+				ty = 1.0;
+				tz = 0;
+				r = tx*tx + ty*ty + tz*tz;
+				r = math.sqrt(r);
+				tcosx = tx/r;
+				tcosy = ty/r;
+				tcosz = tz/r;
+			    elif taxis == 'Z':
+				tx = 0;
+				ty = 0;
+				tz = 1.0;
+				r = tx*tx + ty*ty + tz*tz;
+				r = math.sqrt(r);
+				tcosx = tx/r;
+				tcosy = ty/r;
+				tcosz = tz/r;
+			    cosT = cosx*tcosx + cosy*tcosy + cosz*tcosz;
+			    print "x={}, y={}, z={}".format(x, y, z);
+			    print "tx={}, ty={}, tz={}".format(tcosx, tcosy, tcosz);
+			    print "cosx={}, cosy={}, cosz={}".format(cosx, cosy, cosz);
+			    print "cosT={}".format(cosT);
+			    Scd  = Scd + (3.0 * cosT * cosT - 1.0);
+			    print "SCD={}".format(Scd);
+			    num_Hs += 1.0;
+			    print "num_Hs={}".format(num_Hs);
+			    
+			# average Scd
+			Scd   = 0.5 * (Scd / num_Hs);
+			pos = bisect_left(BIN, b_cnt);
+			print "POSITION={}".format(pos);
+			print "Final SCD ={0}, |SCD|={1}".format(Scd, abs(Scd));
+			print "* before: DNST[{0}]={1}".format(pos, DNST[pos]);
+			DNST[pos] += abs(Scd);
+			print "* after: DNST[{0}]={1}".format(pos, DNST[pos]);
+			print "BIN={0}".format(BIN);
+			print "+----------------------------------------------------------+";
+
+
+
+    # Write down results
+    finalDNST = [];
+    for i in DNST:
+	tmp = i/len(STMP);	# average through trajectory
+	finalDNST.append(tmp);
+    
+    # Writing final output
+    for i in range(len(finalDNST)):
+	outStr = "{0}\t{1}\n".format(BIN[i], finalDNST[i]);
+	fid_out.write(outStr);
+    fid_out.close()
+
+    # -------- Drawing graphs
+    # Writing Gnuplot script
+    outScr = '{0}/gplot{1}.p'.format(out_dir, para_idx);
+    outImg  = '{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
+    imgPath = "{0}/{1}".format(out_dir, outImg);
+    fid_out = open(outScr, 'w');
+    gScript = "set terminal png\n";
+    gScript = gScript + "set xlabel 'Carbon Index'\n";
+    gScript = gScript + "set ylabel 'S_CD'\n";
+    gScript = gScript + "set output '{0}'\n".format(imgPath);
+    gScript = gScript + """plot "{0}/{1}" using 1:2 title "DOPC" with lines lw 3\n""".format(out_dir, outFile);
+    fid_out.write(gScript);
+    fid_out.close()
+    
+    # Drawing graph with gnuplot
+    subprocess.call(["gnuplot", outScr]);
+    
+    # gzip all reaults
+    outZip = "{0}project_{1}_{2}{3}.tar.gz".format(OUTPUT_HOME, prj_pkey, fName[1], para_idx);
+    subprocess.call(["tar", "czf", outZip, out_dir]);
+
+    # Update values into gui_outputs
+    conn = sqlite3.connect(DB_FILE);
+    c    = conn.cursor();
+    query = """UPDATE gui_outputs SET status = "Complete", img="{0}", txt="{1}", gzip="{2}" WHERE id = {3}""".format(imgPath, out_file, outZip, pk_output);
+    c.execute(query);
+    conn.commit();
+    conn.close();
+    #print query
+
+
+
+
+######################################## PLEASE DO NOT MODIFY BELOW THIST LINE!!!! ############################################
+# update gui_parameter & gui_job table when job completed
+etime = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
+conn = sqlite3.connect(DB_FILE);
+c    = conn.cursor();
+for i in range(len(para_pkey)):
+    query = """UPDATE gui_parameter SET status = "COMPLETE" WHERE id = {0}""".format(para_pkey[i]);
+    #print query
+    c.execute(query);
+    conn.commit();
+
+# update gui_job if every status in gui_parameter are COMPLETE
+query = """SELECT DISTINCT(status) FROM gui_parameter WHERE job_id = {0}""".format(job_pkey[0]);
+c.execute(query);
+ST = c.fetchall();
+
+#print query;
+#print "number status = {}".format(len(ST));
+#for item in ST:
+#    print "{0}".format(item[0]);
+
+
+if (len(ST) == 1) and (ST[0][0] == "COMPLETE"):
+    etime = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
+    query = """UPDATE gui_job SET status = "COMPLETE", etime = "{0}" WHERE id = {1}""".format(etime, job_pkey[0]);
+    c.execute(query);
+    conn.commit();
+
+    # making tar file
+    outZip = "{0}project_{1}.tar.gz".format(OUTPUT_HOME, prj_pkey[0]);
+    subprocess.call(["tar", "czf", outZip, OUTPUT_HOME]);
+
+    # Inserting compressed tar file for all submitted jobs
+    #final_title = "[** All JOBs **] {0}".format(job_title);
+    #query = """INSERT INTO gui_outputs (job_id, name, img, txt, gzip) VALUES ({0}, "{1}", "{2}", "{3}", "{4}")""".format(job_pkey[0], final_title, '', '', outZip);
+    #c.execute(query);
+    #conn.commit();
+    
+conn.close();
+
+try:
+    print "okay!";
+>>>>>>> aa05be30ce412a3a250b73cced1ef91bb83eed20
 #///////////////////////////////////////////////////////////////////////////
 # Finalizing  job
 # -- Use following codes to make your own function

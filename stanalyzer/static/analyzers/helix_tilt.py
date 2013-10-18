@@ -215,6 +215,7 @@ ed_res	  = paras[6][para_idx];			# pInfo[6] : end residue (list)
 #///////////////////////////////////////////////////////////////////////////
 # Running actual job
 #///////////////////////////////////////////////////////////////////////////
+<<<<<<< HEAD
 try:
     run = 1;
     if run:
@@ -339,6 +340,133 @@ try:
 	
     conn.close();
 
+=======
+run = 1;
+if run:
+    out_file = '{0}/{1}'.format(out_dir, outFile);
+    fid_out = open(out_file, 'w')
+    fid_out.write("# ps/frame\tTilt angle\n")
+    # print '--- Calculating Helix tilt'
+    psf = '{0}{1}'.format(base_path, structure_file);
+    # print psf;
+    cnt = 0;
+    
+    # default frame unit
+    geo = geomatric();
+
+    # select helix
+    selQry = 'segid {0} and resid {1}:{2} and name CA'.format(seg_name, st_res, ed_res);
+    
+    # calculating tilt using PCA
+    timeStamp = [];         # time stamp for trajectory 
+    for idx in range(len(trajectoryFile)):
+	# reading trajectory
+	trj = '{0}{1}'.format(base_path, trajectoryFile[idx]);
+	#print 'Reading PSF: ' + psf
+	#print 'Reading DCD: ' + trj
+	u = Universe(psf, trj);
+	#print '{0} is done!'.format(idx);
+	# read based on frame
+	for ts in u.trajectory:
+            #tclock = cnt;
+            cnt = cnt + 1;
+	    if (cnt % frmInt) == 0:
+		tmp_time = float(cnt) * float(num_ps) - float(num_ps);
+		# selecting atoms beloning to the helix
+		selAtoms = u.selectAtoms(selQry);
+		#print 'pass: selAtoms'
+		if len(selAtoms) > 1:
+		    # get principal axis
+		    p1, pe1, pe2 = selAtoms.principalAxes();
+		    p2 = np.zeros(3);
+		    p3 = np.array([0, 0, 1]);
+		    theta = geo.angle(p1,p2,p3);		# calculating tilt
+		    inum_ps = int(float(num_ps));
+		    outStr = '{0}\t{1}\n'.format(tmp_time,theta);	# print time and degree
+		    timeStamp.append(tmp_time);
+		else:
+		    outStr = '[{0}/{1}] does not have CA atoms'.format(ts.frame, len(u.trajectory))
+		fid_out.write(outStr)
+		#print outStr;
+		
+    fid_out.close()
+
+    # -------- Drawing graphs
+    # Writing Gnuplot script
+    outScr = '{0}/gplot{1}.p'.format(out_dir, para_idx);
+    outImg  = '{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
+    imgPath = "{0}/{1}".format(out_dir, outImg);
+    fid_out = open(outScr, 'w');
+    gScript = "set terminal png\n";
+    gScript = gScript + "set xlabel 'ps/frame'\n";
+    gScript = gScript + "set ylabel 'Tilt Angle'\n";
+    gScript = gScript + "set output '{0}'\n".format(imgPath);
+    gScript = gScript + """plot "{0}/{1}" using 1:2 title "Helix Tilt" with lines lw 3\n""".format(out_dir, outFile);
+    fid_out.write(gScript);
+    fid_out.close()
+    
+    # Drawing graph with gnuplot
+    subprocess.call(["gnuplot", outScr]);
+    
+    # gzip all reaults
+    outZip = "{0}project_{1}_{2}{3}.tar.gz".format(OUTPUT_HOME, prj_pkey, fName[1], para_idx);
+    subprocess.call(["tar", "czf", outZip, out_dir]);
+
+    # Update values into gui_outputs
+    conn = sqlite3.connect(DB_FILE);
+    c    = conn.cursor();
+    query = """UPDATE gui_outputs SET status = "Complete", img="{0}", txt="{1}", gzip="{2}" WHERE id = {3}""".format(imgPath, out_file, outZip, pk_output);
+    c.execute(query);
+    conn.commit();
+    conn.close();
+    #print query
+
+
+
+
+######################################## PLEASE DO NOT MODIFY BELOW THIST LINE!!!! ############################################
+# update gui_parameter & gui_job table when job completed
+etime = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
+conn = sqlite3.connect(DB_FILE);
+c    = conn.cursor();
+for i in range(len(para_pkey)):
+    query = """UPDATE gui_parameter SET status = "COMPLETE" WHERE id = {0}""".format(para_pkey[i]);
+    #print query
+    c.execute(query);
+    conn.commit();
+
+# update gui_job if every status in gui_parameter are COMPLETE
+query = """SELECT DISTINCT(status) FROM gui_parameter WHERE job_id = {0}""".format(job_pkey[0]);
+c.execute(query);
+ST = c.fetchall();
+
+#print query;
+#print "number status = {}".format(len(ST));
+#for item in ST:
+#    print "{0}".format(item[0]);
+
+
+if (len(ST) == 1) and (ST[0][0] == "COMPLETE"):
+    etime = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
+    query = """UPDATE gui_job SET status = "COMPLETE", etime = "{0}" WHERE id = {1}""".format(etime, job_pkey[0]);
+    c.execute(query);
+    conn.commit();
+
+    # making tar file
+    outZip = "{0}project_{1}.tar.gz".format(OUTPUT_HOME, prj_pkey[0]);
+    subprocess.call(["tar", "czf", outZip, OUTPUT_HOME]);
+
+    # Inserting compressed tar file for all submitted jobs
+    #final_title = "[** All JOBs **] {0}".format(job_title);
+    #query = """INSERT INTO gui_outputs (job_id, name, img, txt, gzip) VALUES ({0}, "{1}", "{2}", "{3}", "{4}")""".format(job_pkey[0], final_title, '', '', outZip);
+    #c.execute(query);
+    #conn.commit();
+    
+conn.close();
+
+try:
+    print "okay!";
+>>>>>>> aa05be30ce412a3a250b73cced1ef91bb83eed20
 #///////////////////////////////////////////////////////////////////////////
 # Finalizing  job
 # -- Use following codes to make your own function
