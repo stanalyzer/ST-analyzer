@@ -1,0 +1,38 @@
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+var cnt_solvent = 0;
+
+$j(document).ready(function(){
+    $j("#M_solvent").hide();
+    $j("#chk_solvent").click(function () {
+	$j("#M_solvent").toggle(this.checked);
+    });
+});
+</script>
+
+<div id="solvent">
+    <table>
+	<tr>
+	    <td colspan="2"><input type="checkbox" id="chk_solvent"><span class="st_font1 st_size3 st_color6"><b>Solvent</b></span></td>
+	</tr>
+	<tr><td colspan="2">
+	    <table id="M_solvent">
+		<tr>
+		    <td class="w_module"> </td>
+		    <td>
+			<!--- calculating box size --->
+			<div id="cal_solvent">
+			    <table>
+				<tr>
+				    <td class="left">
+					<input type="checkbox" id="solvent_title">Module 1 <br/><hr/>
+				    </td>
+				</tr>
+			    </table>
+			</div>
+		    </td>
+		</tr>
+	    </table>
+	</td></tr>
+    </table>
+</div>

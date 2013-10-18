@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge, chrome=1" />
+<meta name="description" content="JavaScript desktop environment built with jQuery." />
+<title>ST-analyzer</title>
+<link rel="stylesheet" href="/static/css/stanalyzer.css" >
+<link rel="stylesheet" href="/static/help/help.css" >
+<link rel="stylesheet" href="/static/css/start/jquery-ui-1.9.2.custom.css" >
+    
+<script type="text/javascript" src="/static/js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.min.js"></script>
+</head>
+<body>
+<h1>Objective</h1>
+    <p>
+	ST-analyzer is a standalone GUI toolset to perform various analyses of membrane simulation trajectories and
+	provides a variety of analysis routines especially foucused on membrane systems (e.g., lipid chain order parameter, lipid area, etc).
+	Since trajectory files are generally too large to upload to a remote server, ST-analyzer has been developed in cross-platform
+	and distributed freely through Github (<a class="underline2" href="https://github.com/stanalyzer/ST-analyzer" target="_blank">https://github.com/stanalyzer/ST-analyzer</a>),
+	so that users can install and use it on their local machines with various operating systems.
+	This toolset would be crucial for non-expert users to easily analyze their simulation results.
+	This project is supported by NSF ABI.
+    </p>
+<hr/>
+<h1>Snapshot</h1>
+    <img src="/static/help/systemflow.png" width="50%"><br/>
+    <img src="/static/help/userInterface.png" width="50%"><br/>
+<hr/>
+<h1>Prospective Modules</h1>
+    <ul>
+	<li class="help_font2"> System size (done) </li>
+	<li class="help_font2"> Density profile (done) </li>
+	<li class="help_font2"> Lipid deuterium order parameters (progressing) </li>
+	<li class="help_font2"> Root-mean-squared (progressing) </li>
+	<li class="help_font2"> Root-mean-squared fluctuation (progressing) </li>
+	<li class="help_font2"> Lipid surface area </li>
+	<li class="help_font2"> Lipid hydrophobic thickness </li>
+	<li class="help_font2"> Crystallographic B-factors </li>
+	<li class="help_font2"> Residue-residue contacts </li>
+	<li class="help_font2"> Secondary structure </li>
+	<li class="help_font2"> Dihedral angles </li>
+	<li class="help_font2"> Distance between two atoms </li>
+	<li class="help_font2"> H-bond / salt-bridge profile </li>
+	<li class="help_font2"> Helix (&#223;-hairpin) tilt, rotation,crossing angles, and distance </li>
+	<li class="help_font2"> Solid-state NMR properties (chemical shift, dipolar/quadropolar coupling constant) </li>
+	<li class="help_font2"> Channel pore size </li>
+	<li class="help_font2"> Membrane potential  </li>
+	<li class="help_font2"> Water/ion movement </li>
+	<li class="help_font2"> Lipid lateral diffusion constant </li>
+	<li class="help_font2"> Lipid chain relaxation time </li>
+	<li class="help_font2"> Lipid rotation/wobble motions </li>
+	<li class="help_font2"> Sterol tilt angle </li>
+	<li class="help_font2"> Lateral ion density inside channel </li>
+	<li class="help_font2"> Residue-water/lipid contact information </li>
+	<li class="help_font2"> Solvent accessible surface area </li>
+	<li class="help_font2"> Lipid adaptation (through selection of "local" and "bulk" lipids) </li>
+	<li class="help_font2"> Substrate binding </li>
+	<li class="help_font2"> Pore hydration </li>
+    </ul>
+<hr/>
+<h1>Requirement</h1>
+    <ul>
+	<li class="help_font2 help_size1"><a class="underline2" href="http://www.python.org/" target="_blank">Python</a></li>
+	<p class="indent1"><b><i>Useful links</i></b></p>
+	    <ul>
+		<li><a class="underline2" href="http://stackoverflow.com/questions/5506110/it-is-possible-to-install-another-version-of-python-to-virtualenv" target="_blank">It is possible to install another version of Python to Virtualenv?</a></li>
+		<li><a class="underline2" href="http://peak.telecommunity.com/DevCenter/EasyInstall#custom-installation-locations" target="_blank">Custom Installation Locations</a></li>
+		<li><a class="underline2" href="http://jessenoller.com/2009/03/16/so-you-want-to-use-python-on-the-mac/" target="_blank">So you want to use python on the Mac?</a></li>
+	    </ul>
+
+	<li class="help_font2 help_size1"><a class="underline2" href="https://www.djangoproject.com/" target="_blank">Django</a></li>
+	    <p class="indent1"><b><i>Useful links</i></b></p>
+	    <ul>
+		<li><a class="underline2" href="http://djangotricks.blogspot.com/2008/09/note-on-python-paths.html" target="_blank">Django Tricks</a></li>
+	    </ul>
+	
+	<li class="help_font2 help_size1"><a class="underline2" href="http://code.google.com/p/mdanalysis/" target="_blank">MDanalysis</a></li>
+	    <p class="indent1"><b><i>Useful links</i></b></p>
+	    <ul>
+		<li><a class="underline2" href="http://www.enthought.com/" target="_blank">Enthought Python Distribution (EPD)</a></li>
+	    </ul>
+    </ul>
+<hr/>
+<h1>Install</h1>
+    <ol>
+	<li class="help_font2 help_size1">Download ST-analyzer from Git-hub</li>
+	    <ul>
+		<li>Manual download: <a class="underline2" href="https://github.com/stanalyzer/ST-analyzer.git" target="_blank">https://github.com/stanalyzer/ST-analyzer.git</a></li>
+		<li>Git clone (using commandline): <a class="underline2" href="#">git clone git@github.com:stanalyzer/ST-analyzer.git</a></li>
+	    </ul>
+
+	<li class="help_font2 help_size1">Configuration</li>
+	    <ol type="i">
+		<p class="indent0"><b><i>Let's assume ST-analyzer is stored into /home/your_account/ST-analyzer/stanalyzer</i></b></p>
+		<li>You now can see files including 'manage.py' 'stanalyzer.db' and directories including 'gui', 'stanalyzer', 'templates', and 'trajectory'
+		<br/> - <b><i>manage.py</i></b>: executable python file to run Django server
+		<br/> - <b><i>stanalyzer.db</i></b>: Database file to store information (e.g. account, project, jobs and etc). Initital account and password are 'admin' and '12345' respectively.
+		<br/> - <b><i>gui</i></b>: most important part of ST-analyzer including 'models' and 'views'
+		<br/> - <b><i>media</i></b>: default directory to store the output of Jobs
+		<br/> - <b><i>static</i></b>: directory storing APIs and functions used in ST-analyzer
+		<br/> - <b><i>stanalyzer</i></b>: directory containing system setup files
+		<br/> - <b><i>templates</i></b>: containing template files
+		<br/> - <b><i>trajectory</i></b>: containing sample trajectory files - "It is okay to remove this directory!"
+		</li><br/>
+		<!--
+		<li>Modify Django system setup file in /home/your_account/Membrane-Analyzer/stanalyzer/stanalyzer/setttings.py
+		<br/> 1). At line 15: change the DB path corresponding to the location of 'stanalyzer.db' in your system e.g) 'NAME': '/home/your_account/Membrane-Analyzer/stanalyzer/stanalyzer.db'
+		<br/> 2). At line 45: change 'media' path corresponding to the location of 'media' in your system e.g) MEDIA_ROOT = '/home/your_account/Membrane-Analyzer/stanalyzer/media/'
+		<br/> 3). At line 70: change 'static' path corresponding to the location of 'static' in your system e.g) STATICFILES_DIRS = ('/home/your_account/Membrane-Analyzer/stanalyzer/static',)
+		<br/> 4). At line 106: change 'template' path corresponding to the location of 'templates' in your system e.g) TEMPLATE_DIRS = ('/Users/jcjeong/project/stanalyzer1/stanalyzer/templates')
+		</li><br/>
+		-->
+		<li>Check out DB consistency
+		<br/> 1) you@system> cd /home/your_account/ST-analyzer/stanalyzer
+		<br/> 2) you@system> python manage.py syncdb
+		</li><br/>
+		<li>Run Django to launch ST-analyzer
+		<br/> 1) you@system> cd /home/your_account/ST-analyzer/stanalyzer
+		<br/> 2) you@system> python manage.py runserver [8000]   # the number corresponding to the port that you want to communicate with ST-analyzer
+		</li><br/>
+		<li>Open your browser and connect to ST-analyzer through http://127.0.0.1:8000/
+		<br/> - You will see the ST-analyzer login.
+		<br/> - Initial account and password are 'admin' and '12345' 
+		</li>
+	    </ol>
+    </ol>
+<hr/>
+<h1>Adding your own modules</h1>
+    <ul>
+	<li class="help_font2">To add your own codes to the official version, the codes should be screened and approved by the committee of ST-analyzer version control. Other than that you can add your own modules to ST-analyzer for personal purpose as following:</li>
+	<ul>
+	    <li> We have not released official documents for ST-analyzer yet,
+		 but you can start or involve our open source project for ST-analyzer through our <a class="underline2" href="/static/help/tutorial.txt"> scratch tutorial </a>
+	    </li>
+	</ul>
+    </ul>
+<hr/>
+<h1>Known Issues</h1>
+    <ul>
+	<li class="help_font2 help_size1">Firewall</li>
+	<ul>
+	    <li>Due to firewall, certain system environment may not allow to communicate between client and server through Django. To go around this problem, you can use ssh trick by forwarding the port to local port
+	    <br/> you@system> cd ~/.ssh
+	    <br/> you@ysstem> vi config
+	    <br/> <span class="indent1">Edit 'config' file as following: </span>
+	    <br/> <span class="indent1">Host any_name</span>
+	    <br/> <span class="indent1">HostName your.server.com</span>
+	    <br/> <span class="indent1">LocalForward 8000 127.0.0.1:8000</span>
+	    </li>
+	    <li>If you need more information about ssh tricks please visit <a class="underline2" href="http://nerderati.com/2011/03/simplify-your-life-with-an-ssh-config-file/" target="_blank">here</a></li>
+	</ul>
+	<li class="help_font2 help_size1">Running Django in background: this will not work behind firewall due to the requirement of forwarding local port</li>
+	    <ul>
+		<li>you@system> cd  /your_home/stanalyzer</li>
+		<li> you@system> python manage.py runserver &			# run django background </li>
+		<li> you@system> jobs						# checkout job number in same console </li>
+		<li> you@system> disown -h job_number				# you now are safe with logout </li>
+		<li> you@system> kill -9 pid					# shutdown Django </li>
+	    </ul>
+    </ul>
+<hr/>
+<h1>Coworkers</h1>
+    <ul>
+	<li class="help_font2"> Wonpil Im (University of Kansas)</li>
+	<li class="help_font2"> Jong Cheol Jeong (University of Kansas)</li>
+	<li class="help_font2"> Sunhwan Jo (University of Kansas)</li>
+	<li class="help_font2"> Jeffery B. Klauda (University of Maryland)</li>
+	<li class="help_font2"> Lev Gorenstein (Purdue University)</li>
+	<li class="help_font2"> Min Sun Yeom (Korea Institute of Science and Technology Information)</li>
+    </ul>
+<hr/>
+<h1>Sponsors</h1>
+    <ul>
+	<li class="help_font2"> This work is supported by NSF ABI</li>
+    </ul>
+    <img src="/static/help/nsf_logo.png">
+<hr/>
+<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+</body>
+</html>

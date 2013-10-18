@@ -1,0 +1,39 @@
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+var cnt_ccarbohydrate_solvent = 0;
+
+
+$j(document).ready(function(){
+    $j("#M_carbohydrate_solvent").hide();
+    $j("#chk_ccarbohydrate_solvent").click(function () {
+	$j("#M_carbohydrate_solvent").toggle(this.checked);
+    });
+});
+</script>
+
+<div id="carbohydrate_solvent">
+    <table>
+	<tr>
+	    <td colspan="2"><input type="checkbox" id="chk_carbohydrate_solvent"><span class="st_font1 st_size3 st_color6"><b>Carbohydrate-Solvent</b></span></td>
+	</tr>
+	<tr><td colspan="2">
+	    <table id="M_carbohydrate_solvent">
+		<tr>
+		    <td class="w_module"> </td>
+		    <td>
+			<!--- calculating box size --->
+			<div id="cal_carbohydrate_solvent">
+			    <table>
+				<tr>
+				    <td class="left">
+					<input type="checkbox" id="carbohydrate_solvent_title">Module 1 <br/><hr/>
+				    </td>
+				</tr>
+			    </table>
+			</div>
+		    </td>
+		</tr>
+	    </table>
+	</td></tr>
+    </table>
+</div>

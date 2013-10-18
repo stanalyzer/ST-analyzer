@@ -1,0 +1,2017 @@
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+var cnt_density_custom_form  = 0;		// count number of adding new form for calculating helix_tilt
+var cnt_density_custom_index = 0;
+	
+/* check numbers */
+function isNumber(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+key_words = [	'all',
+		'protein', 'backbone', 'nucleic', 'nucleicbackbone', 'segid', 'resid',
+		'resnum', 'resname', 'name', 'type', 'atom',
+		'not', 'and', 'or',
+		'around', 'point', 'prop',
+		'<', '>', '<=', '>=', '==', '!=',
+		'x', 'y', 'z'
+	       ];
+
+/* Checking syntex error for  */
+function chkSyntex(query) {
+    // this will have syntex check algorithm
+    vfy = [];
+    
+    // check parenthesis pair
+    var lpt = query.match(/\(/g);
+    var rpt = query.match(/\)/g);
+    if (lpt == null) {
+	num_lpt = 0;
+    } else {
+	num_lpt = lpt.length;
+    }
+    
+    if (rpt == null) {
+	num_rpt = 0;
+    } else {
+	num_rpt = rpt.length;
+    }
+    
+    if (num_lpt != num_rpt) {
+	vfy = { 'flag': true,
+		'err' : 'parenthesis is not paired',
+	}
+	return vfy;
+    }
+    
+    
+    // check out keywords
+    /*
+     * mySystem contains 'all' information about the system including
+     * 'resname', 'resid', 'name', 'segid', 'type'
+     * 
+     */
+    // alert(mySystem["all"]);
+    arrQuery = query.split(' ');
+    for (var i=0; i < arrQuery.length; i++) {
+	// Ignoring multiple spaces
+	if (arrQuery[i].length > 0) {
+	    
+	    qWord = arrQuery[i];
+	    qWord = qWord.replace(/\(|\)/g, "");
+	    
+	    //alert("isNumber [ " + qWord + " ]?" + isNumber(qWord));
+
+	    if ((isNumber(qWord)) || (qWord == '')){
+		continue;
+	    }
+	    
+	    
+	    useWc1 = qWord.match(/\*/g); // wild card search
+	    //useWc2 = qWord.match(/\+/g); // wild card search
+	    
+	    //if ((useWc1 != null) || (useWc2 != null)) {
+	    if (useWc1 != null) {
+		pattn = qWord;
+		pattns = new RegExp(pattn);
+		flg_Wc = 0;
+		for (var j=0; j < mySystem["all"].length; j++) {
+		    rStr = mySystem["all"][j];
+		    if (rStr.length > 0) {
+			match_Wc = rStr.match(pattns);
+			//alert('match_Wc=' + match_Wc)
+			if (match_Wc != null) {
+			    if (match_Wc[0].length > 0) {
+				//alert(rStr + " : " + match_Wc[0] + ": J=" + j);
+				flg_Wc = 1;
+				break;
+			    }
+			}
+		    }
+		}
+		//alert("flg_Wc: " + flg_Wc);
+		if (flg_Wc == 0) {
+		    //var msg = flg_match + " : '" + qWord + "' is unknown";
+		    var msg = qWord + "' is unknown";
+		    vfy = { 'flag': true,
+			'err' : msg,
+		    }
+		    return vfy;
+		}
+	    } else {
+		qWord = qWord.replace(/\(|\)/g, "");
+		if (qWord != "") {
+		    var flg_match = $j.inArray(qWord, mySystem["all"]);
+		    //var msg = flg_match + " : '" + qWord + "' is unknown";
+		    var msg = qWord + "' is unknown";
+		    if (flg_match < 0) {
+			vfy = { 'flag': true,
+				'err' : msg,
+			}
+			return vfy;
+		    }
+		}
+	    } 
+	}
+    }
+    
+    return false;
+};
+
+/* read structure file (PDB) and return unqiue contents */
+function density_getStructureInfo(query, async_flg) {
+    var bpath = $j("#proot option:selected").text();
+    var stfile = $j("#stfile option:selected").text();
+    var pdbfile = $j("#pdbfile option:selected").text();
+    $j("#select_trj2 option").attr("selected", "selected");
+    var trjFile = $j("#select_trj2").val();
+    
+    var stInfo = [];
+    var systemInfo = {
+	'all' 		: stInfo,
+    }
+    var sndData = {
+	'cmd'       : 'getStructure',
+	'query'	    : query,
+	'bpath'	    : bpath,
+	'stfile'    : stfile,
+	'pdbfile'   : pdbfile,
+	'trjFile[]' : trjFile,
+    }
+
+    var request = $j.ajax({
+    type: "POST",
+    url: '/gui/getStructureInfo/',
+    cache: false,
+    data: sndData,
+    async: async_flg,
+    });
+		
+    request.done(function(Jdata) {
+	var obj = $j.parseJSON(Jdata);
+	var key_words_tmp = $.merge([], key_words);		// duplicate first array to prevent changing original array
+	stInfo = $j.merge(key_words_tmp, obj.uq_resname); 	// unqiue residue name
+	stInfo = $j.merge(stInfo, obj.uq_resid);		// unique residue IDs
+	stInfo = $j.merge(stInfo, obj.uq_name);		// unique atom names
+	stInfo = $j.merge(stInfo, obj.uq_segid);	// unique segment IDs
+	stInfo = $j.merge(stInfo, obj.uq_type);		// unique types
+	systemInfo['all']     = stInfo;
+	systemInfo['resname'] = obj.uq_resname;
+	systemInfo['resid']   = obj.uq_resid;
+	systemInfo['name']    = obj.uq_name;
+	systemInfo['segid']   = obj.uq_segid;
+	systemInfo['type']    = obj.uq_type;
+	systemInfo['crd_min'] = obj.crd_min;
+	systemInfo['crd_max'] = obj.crd_max;
+	systemInfo['num_atoms'] = obj.num_atoms;
+	systemInfo['size_x'] = obj.size_x;
+	systemInfo['size_y'] = obj.size_y;
+	systemInfo['size_z'] = obj.size_y;
+	
+	/* fill out the information about density min and max */
+	var smin = 0;
+	var smax = 0;
+	if (Math.abs(obj.crd_min) > Math.abs(obj.crd_max)) {
+	    smin = obj.crd_min;
+	    smax = Math.abs(obj.crd_min);
+	} else {
+	    smin = -1 * obj.crd_max;
+	    smax = obj.crd_max;
+	}
+	var size_x = obj.size_x;
+	var size_y = obj.size_y;
+	var size_z = obj.size_z;
+	
+	$j("#C_density #M_density #density #density_form #density_hist_min").empty().val(smin);
+	$j("#C_density #M_density #density #density_form #density_hist_max").empty().val(smax);
+	$j("#C_density #M_density #density #density_form #density_hist_tatoms").empty().val(obj.num_atoms);
+    });
+      
+    request.error(function(jqXHR, textStatus, errorThrown) {
+	$j("#vfy_msg").empty().append("Error: PDB file cannot be read!");
+    });
+
+    return systemInfo;
+}
+
+var mySystem;		// this gloabl value is defined in 'index.html' when $j('.next-tab').click() is trigged!
+
+/* ##########################################
+ * Main function starts
+ * ########################################## */
+var cnt_density = 0;
+
+$j(document).ready(function(){
+
+    // show/hide gui query
+    $j('tr[id^="density_gui_input"]').hide();
+    
+    $j('input[id^="density_gquery"]').live("click", function() {
+	myfrm = $j(this).attr('mygui');
+	target_gui = "#density_gui_input" + myfrm;
+	$j(target_gui).toggle(this.checked);
+    });
+    
+    
+    $j("#C_density #M_density #density #chk_density_all").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    $cnt_modules++;
+	    cnt_density++;
+	} else {
+	    $cnt_modules--;
+	    cnt_density--;
+	    if ($cnt_modules < 0) {
+		$cnt_modules = 0;
+	    }
+	}
+	$j("#cnt_modules").empty().append($cnt_modules);
+	$j("#C_density #M_density #density #cnt_density").empty().append(cnt_density);
+    });
+
+    $j("#C_density #M_density #density #chk_density_lipidH").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    $cnt_modules++;
+	    cnt_density++;
+	} else {
+	    $cnt_modules--;
+	    cnt_density--;
+	    if ($cnt_modules < 0) {
+		$cnt_modules = 0;
+	    }
+	}
+	$j("#cnt_modules").empty().append($cnt_modules);
+	$j("#C_density #M_density #density #cnt_density").empty().append(cnt_density);
+    });
+  
+    $j("#C_density #M_density #density #chk_density_lipidT").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    $cnt_modules++;
+	    cnt_density++;
+	} else {
+	    $cnt_modules--;
+	    cnt_density--;
+	    if ($cnt_modules < 0) {
+		$cnt_modules = 0;
+	    }
+	}
+	$j("#cnt_modules").empty().append($cnt_modules);
+	$j("#C_density #M_density #density #cnt_density").empty().append(cnt_density);
+    });
+      
+      $j("#C_density #M_density #density #chk_density_water").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    $cnt_modules++;
+	    cnt_density++;
+	} else {
+	    $cnt_modules--;
+	    cnt_density--;
+	    if ($cnt_modules < 0) {
+		$cnt_modules = 0;
+	    }
+	}
+	$j("#cnt_modules").empty().append($cnt_modules);
+	$j("#C_density #M_density #density #cnt_density").empty().append(cnt_density);
+    });
+      
+      $j("#C_density #M_density #density #chk_density_waterdp").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    $cnt_modules++;
+	    cnt_density++;
+	} else {
+	    $cnt_modules--;
+	    cnt_density--;
+	    if ($cnt_modules < 0) {
+		$cnt_modules = 0;
+	    }
+	}
+	$j("#cnt_modules").empty().append($cnt_modules);
+	$j("#C_density #M_density #density #cnt_density").empty().append(cnt_density);
+    });
+
+    $j("#C_density #M_density #density #chk_density_vector").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    $cnt_modules++;
+	    cnt_density++;
+	} else {
+	    $cnt_modules--;
+	    cnt_density--;
+	    if ($cnt_modules < 0) {
+		$cnt_modules = 0;
+	    }
+	}
+	$j("#cnt_modules").empty().append($cnt_modules);
+	$j("#C_density #M_density #density #cnt_density").empty().append(cnt_density);
+    });
+
+    $j("#C_density #M_density #density #chk_density_custom").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    $cnt_modules++;
+	    cnt_density++;
+	} else {
+	    $cnt_modules--;
+	    cnt_density--;
+	    if ($cnt_modules < 0) {
+		$cnt_modules = 0;
+	    }
+	}
+	$j("#cnt_modules").empty().append($cnt_modules);
+	$j("#C_density #M_density #density #cnt_density").empty().append(cnt_density);
+    });
+
+
+    $j('#C_density #M_density #density #density_frmInt').val('1').css("color", "gray");
+    $j('#C_density #M_density #density #density_frm_all #density_outFile').val('density_all.dat').css("color", "gray");
+    $j('#C_density #M_density #density #density_frm_lipidH #density_outFile').val('density_lipid_head.dat').css("color", "gray");
+    $j('#C_density #M_density #density #density_frm_lipidT #density_outFile').val('density_lipid_tail.dat').css("color", "gray");
+    $j('#C_density #M_density #density #density_frm_water #density_outFile').val('density_water.dat').css("color", "gray");
+    $j('#C_density #M_density #density #density_frm_waterdp #density_outFile').val('density_water_dipole.dat').css("color", "gray");
+    $j('#C_density #M_density #density #density_frm_vector #density_outFile').val('density_vector.dat').css("color", "gray");
+    $j('#C_density #M_density #density #density_frm_custom #density_outFile').val('density_custom0.dat').css("color", "gray");
+
+    $j("#C_density #M_density #density #density_form").hide();
+    $j("#C_density #M_density #density #density_title").click(function () {
+	$j("#vfy_msg").empty();
+	if (this.checked) {
+	    // reading PDB file and extract information
+	    // msg = "<img src='/static/images/circle2.gif' height='20' width='20' > Reading structure information... "
+	    // $j("#systemInfo #density #density_read_pdb").append(msg);
+	    density_getStructureInfo('all', true);
+	}
+
+	$j("#C_density #M_density #density #density_form").toggle(this.checked);
+	//alert($j(this).is(":checked"));
+    });
+
+
+    
+    /* ##########################################
+     * Density
+     * ########################################## */
+    $j("#C_density #M_density #density #density_frm_all").hide();
+    $j("#C_density #M_density #density #chk_density_all").click(function () {
+	$j("#C_density #M_density #density #density_frm_all").toggle(this.checked);
+    });
+
+    $j("#C_density #M_density #density #density_frm_lipidH").hide();
+    $j("#C_density #M_density #density #chk_density_lipidH").click(function () {
+	$j("#C_density #M_density #density #density_frm_lipidH").toggle(this.checked);
+    });
+
+    $j("#C_density #M_density #density #density_frm_lipidT").hide();
+    $j("#C_density #M_density #density #chk_density_lipidT").click(function () {
+	$j("#C_density #M_density #density #density_frm_lipidT").toggle(this.checked);
+    });
+
+    $j("#C_density #M_density #density #density_frm_water").hide();
+    $j("#C_density #M_density #density #chk_density_water").click(function () {
+	$j("#C_density #M_density #density #density_frm_water").toggle(this.checked);
+    });
+
+    $j("#C_density #M_density #density #density_frm_waterdp").hide();
+    $j("#C_density #M_density #density #chk_density_waterdp").click(function () {
+	$j("#C_density #M_density #density #density_frm_waterdp").toggle(this.checked);
+    });
+
+    $j("#C_density #M_density #density #density_frm_vector").hide();
+    $j("#C_density #M_density #density #chk_density_vector").click(function () {
+	$j("#C_density #M_density #density #density_frm_vector").toggle(this.checked);
+    });
+
+    $j("#C_density #M_density #density #density_frm_custom").hide();
+    $j("#C_density #M_density #density #chk_density_custom").click(function () {
+	$j("#C_density #M_density #density #density_frm_custom").toggle(this.checked);
+    });
+
+    // Loading initial values
+    $j("#C_density #M_density #density #density_form #density_hist_min").empty().val('Loading...').css("color", "gray");
+    $j("#C_density #M_density #density #density_form #density_hist_max").empty().val('Loading...').css("color", "gray");
+    $j("#C_density #M_density #density #density_form #density_hist_bin").empty().val('1');
+    $j("#C_density #M_density #density #density_form #density_frm_all #density_query").empty().val('all');
+    $j("#C_density #M_density #density #density_form #density_frm_lipidH #density_query").empty().val('segid MEMB and ( name P or name N or (name C1* and not name C1) or name O1* )');
+    $j("#C_density #M_density #density #density_form #density_frm_lipidT #density_query").empty().val('segid MEMB and ( name C2* or name C3* ) and not ( name C21 or  name C31 )');
+    $j("#C_density #M_density #density #density_form #density_frm_water #density_query").empty().val('segid TIP3 and name OH2');
+    $j("#C_density #M_density #density #density_form #density_frm_waterdp #density_query").empty().val('segid TIP3');
+    //$j("#C_density #M_density #density #density_form #density_frm_waterdp #density_cos_min").empty().val('0');
+    //$j("#C_density #M_density #density #density_form #density_frm_waterdp #density_cos_max").empty().val('180');
+    $j("#C_density #M_density #density #density_form #density_frm_vector #density_query").empty().val('segid MEMB and name P');
+    $j("#C_density #M_density #density #density_form #density_frm_custom #density_query0").empty().val('');
+    
+    // Buttons -density
+    $j("#btn_selall0").button();
+    $j("#btn_lt0").button();
+    $j("#btn_gt0").button();
+    $j("#btn_eq0").button();
+    $j("#btn_ne0").button();
+    $j("#btn_ge0").button();
+    $j("#btn_le0").button();
+    $j("#btn_and0").button();
+    $j("#btn_or0").button();
+    $j("#btn_not0").button();
+    $j("#btn_around0").button();
+    $j("#btn_query_segid0").button();
+    $j("#btn_query_resname0").button();
+    $j("#btn_query_resid0").button();
+    $j("#btn_query_name0").button();
+    $j("#btn_query_type0").button();
+    $j("#btn_query_prop0").button();
+
+    // click btn_lt button
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_selall']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + "all ";
+	$j(target_id).val('').val(new_query);
+    });
+
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_lt']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + "< ";
+	$j(target_id).val('').val(new_query);
+    });
+
+    // click btn_gt button
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_gt']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + "> ";
+	$j(target_id).val('').val(new_query);
+    });
+
+    
+    // click btn_eq button
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_eq']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + "== ";
+	$j(target_id).val('').val(new_query);
+    });
+
+    
+    // click btn_ne button 
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_ne']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + "!= ";
+	$j(target_id).val('').val(new_query);
+    });
+    
+    // click btn_ge button
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_ge']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + ">= ";
+	$j(target_id).val('').val(new_query);
+    });
+
+    
+    // click btn_le button
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_le']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + "<= ";
+	$j(target_id).val('').val(new_query);
+    });
+
+    
+    // click btn_and button
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_and']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + "and ";
+	$j(target_id).val('').val(new_query);
+    });
+    
+    // click btn_or button
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_or']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + "or ";
+	$j(target_id).val('').val(new_query);
+    });
+
+    // click btn_not button
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_not']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + "not ";
+	$j(target_id).val('').val(new_query);
+    });
+
+
+    // click btn_around button
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_around']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + "around ";
+	$j(target_id).val('').val(new_query);
+    });
+
+
+    // click btn_query_segid button
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_query_segid']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + "segid ";
+	$j(target_id).val('').val(new_query);
+    });
+
+    // click btn_query_resname button
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_query_resname']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + "resname ";
+	$j(target_id).val('').val(new_query);
+    });
+
+    // click btn_query_resid button
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_query_resid']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + "resid ";
+	$j(target_id).val('').val(new_query);
+    });
+
+
+    // click btn_query_name button
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_query_name']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + "name ";
+	$j(target_id).val('').val(new_query);
+    });
+
+
+    // click btn_query_type button
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_query_type']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + "type ";
+	$j(target_id).val('').val(new_query);
+    });
+
+    // click btn_query_prop button
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_query_prop']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	new_query = query + "prop ";
+	$j(target_id).val('').val(new_query);
+    });
+    
+    $j("#C_density #M_density #density #density_frm_custom #density_gui_input0").hide();
+    $j("#C_density #M_density #density #density_frm_custom #density_gquery0").click(function () {
+	if (this.checked){
+	    // make list of input forms
+	    // keywords
+	    $j("#C_density #M_density #density #density_frm_custom #density_gui_input0 #keywords0").empty().append("<option>Key Words</option>");
+	    for (var i = 0; i < key_words.length; i++) {
+		options = "<option>" + key_words[i] + "</option>";
+		$j("#C_density #M_density #density #density_frm_custom #density_gui_input0 #keywords0").append(options);
+	    }
+	    $j("#C_density #M_density #density #density_frm_custom #density_gui_input0 #keywords0").trigger("liszt:updated");
+	    
+	    // segid
+	    $j("#C_density #M_density #density #density_frm_custom #density_gui_input0 #uq_segid0").empty().append("<option>segid</option>");
+	    uq_segid = mySystem["segid"];
+	    for (var i = 0; i < uq_segid.length; i++) {
+		options = "<option>" + uq_segid[i] + "</option>";
+		$j("#C_density #M_density #density #density_frm_custom #density_gui_input0 #uq_segid0").append(options);
+	    }
+	    $j("#C_density #M_density #density #density_frm_custom #density_gui_input0 #uq_segid0").trigger("liszt:updated");
+	    
+	}
+	$j("#C_density #M_density #density #density_frm_custom #density_gui_input0").toggle(this.checked);
+    });
+    
+    //keywards
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_add_keywords']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	
+	var target_selid = "#C_density #M_density #density #density_frm_custom #density_gui_input" + myfrm + " #keywords" + myfrm + " option:selected";
+	tmp = $j(target_selid).text();
+	new_query = query + tmp + " ";
+	 $j(target_id).val('').val(new_query);
+    });
+    
+    // click segid button
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_add_segid']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+
+	var target_selid = "#C_density #M_density #density #density_frm_custom #density_gui_input" + myfrm + " #uq_segid" + myfrm + " option:selected";
+	tmp = $j(target_selid).text();
+	new_query = query + tmp + " ";
+	$j(target_id).val('').val(new_query);
+	
+	if (tmp != 'segid') {
+	    //$j("#C_density #M_density #density #st_load").empty().append("<img src='/static/images/circle2.gif' height='20' width='20' >");
+	    var query = "segid " + tmp; // choose one of segid 
+	    tmpSystem = getStructureInfo(query, false);
+	    //$j("#C_density #M_density #density #st_load").empty();
+	    
+	    // resname
+	    tmp_myid = "#C_density #M_density #density #density_frm_custom #density_gui_input" + myfrm + " #uq_resname" + myfrm;
+	    $j(tmp_myid).empty().append("<option>resname</option>");
+	    uq_resname = tmpSystem["resname"];
+	    for (var i = 0; i < uq_resname.length; i++) {
+		options = "<option>" + uq_resname[i] + "</option>";
+		$j(tmp_myid).append(options);
+	    }
+	    $j(tmp_myid).trigger("liszt:updated");
+
+	    // resid
+	    tmp_myid = "#C_density #M_density #density #density_frm_custom #density_gui_input" + myfrm + " #uq_resid" + myfrm;
+	    $j(tmp_myid).empty().append("<option>resid</option>");
+	    uq_resid = tmpSystem["resid"];
+	    for (var i = 0; i < uq_resid.length; i++) {
+		options = "<option>" + uq_resid[i] + "</option>";
+		$j(tmp_myid).append(options);
+	    }
+	    $j(tmp_myid).trigger("liszt:updated");
+
+	    // name
+	    tmp_myid = "#C_density #M_density #density #density_frm_custom #density_gui_input" + myfrm + " #uq_name" + myfrm;
+	    $j(tmp_myid).empty().append("<option>name</option>");
+	    uq_name = tmpSystem["name"];
+	    for (var i = 0; i < uq_name.length; i++) {
+		options = "<option>" + uq_name[i] + "</option>";
+		$j(tmp_myid).append(options);
+	    }
+	    $j(tmp_myid).trigger("liszt:updated");
+
+	    // type
+	    tmp_myid = "#C_density #M_density #density #density_frm_custom #density_gui_input" + myfrm + " #uq_type" + myfrm;
+	    $j(tmp_myid).empty().append("<option>type</option>");
+	    uq_type = tmpSystem["type"];
+	    for (var i = 0; i < uq_type.length; i++) {
+		options = "<option>" + uq_type[i] + "</option>";
+		$j(tmp_myid).append(options);
+	    }
+	    $j(tmp_myid).trigger("liszt:updated");
+	}
+    });
+    
+    // click resname button
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_add_resname']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	
+	var target_selid = "#C_density #M_density #density #density_frm_custom #density_gui_input" + myfrm + " #uq_resname" + myfrm + " option:selected";
+	tmp = $j(target_selid).text();
+	new_query = query + tmp + " ";
+	 $j(target_id).val('').val(new_query);
+    });
+
+
+    // click resid button
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_add_resid']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	
+	var target_selid = "#C_density #M_density #density #density_frm_custom #density_gui_input" + myfrm + " #uq_resid" + myfrm + " option:selected";
+	tmp = $j(target_selid).text();
+	new_query = query + tmp + " ";
+	 $j(target_id).val('').val(new_query);
+    });
+
+    // click name button
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_add_name']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	
+	var target_selid = "#C_density #M_density #density #density_frm_custom #density_gui_input" + myfrm + " #uq_name" + myfrm + " option:selected";
+	tmp = $j(target_selid).text();
+	new_query = query + tmp + " ";
+	 $j(target_id).val('').val(new_query);
+    });
+    
+    // click type button
+    $j("#C_density #M_density #density #density_frm_custom button[id^='btn_add_type']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	$j(target_id).empty();
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val();
+	
+	var target_selid = "#C_density #M_density #density #density_frm_custom #density_gui_input" + myfrm + " #uq_type" + myfrm + " option:selected";
+	tmp = $j(target_selid).text();
+	new_query = query + tmp + " ";
+	 $j(target_id).val('').val(new_query);
+    });
+
+
+    /* Show quick menu when list box is changed */
+    $j("#C_density #M_density #density #density_frm_custom select[id^='keywords']").live("change", function(){
+	myfrm = $j(this).attr('mygui');
+	var target_id = "#C_density #M_density #density #density_frm_custom #keywords" + myfrm + " option:selected";
+	tmp_kwds = $j(target_id).text();
+	switch (tmp_kwds)
+	{
+	    case "protein":
+		str_help = "<b>" + tmp_kwds + "</b>: selects all atoms that belong to a standard set of residues; a protein is identfied by a hard-coded set of residue names so it may not work for esoteric residues.";
+	    case "backbone":
+		str_help = "<b>" + tmp_kwds + "</b>: selects all atoms that belong to a standard set of residues<br/>"
+		break;
+	    case "nucleic":
+		str_help = "<b>" + tmp_kwds + "</b>: selects all atoms that belong to a standard set of residues<br/>"
+		break;
+	    case "nucleicbackbone":
+		str_help = "<b>" + tmp_kwds + "</b>: selects all atoms that belong to a standard set of residues<br/>"
+		break;
+	    case "segid":
+		str_help = "<b>" + tmp_kwds + "</b> <i>segment-name</i>: select by segment name. (e.g. segid 4AKE)"
+		break;
+	    case "resid":
+		str_help = "<b>" + tmp_kwds + "</b> <i>residue-number(range)</i>: select by residue number or range (e.g. resid 5, resid 1:5)<br/>"
+		break;
+	    case "resnum":
+		str_help = "<b>" + tmp_kwds + "</b> <i>residue-number(range)</i>: select by residue number in original PDB (e.g. resnum 5, resnum 1:5)<br/>"
+		break;
+	    case "resname":
+		str_help = "<b>" + tmp_kwds + "</b> <i>residue-name</i>: select by residue name (e.g. resname LYS)<br/>"
+		break;
+	    case "name":
+		str_help = "<b>" + tmp_kwds + "</b> <i>atom-name</i>: select by atom name as given in the topology. (e.g. <b>name CA</b>: C-alpha atom, <b>name OW</b>: SPC water oxygen)<br/>"
+		break;
+	    case "type":
+		str_help = "<b>" + tmp_kwds + "</b> <i>atom-type</i>: select by atom type in topology file (i.e. PSF file in CHARMM) that is either a string or a number and depends on the force field<br/>"
+		break;
+	    case "atom":
+		str_help = "<b>" + tmp_kwds + "</b> <i>segment-name residue-number atom-name</i>: a selector for a single atom consisting of segid resid atomname. (e.g. <b>DMPC 1 C2</b> : C2 carbon of the first residue of the DMPC segment<br/>"
+		break;
+	    case "around":
+		str_help = "<b>" + tmp_kwds + "</b> <i>distance selection</i>: selects all atoms a certain cutoff away from another selection (e.g.<b>around 3.5 protein</b> all atoms not belonging to protein that are within 3.5 Angstroms from the protein<br/>"
+		break;
+	    case "point":
+		str_help = "<b>" + tmp_kwds + "</b> <i>x y z distance</i>: selects all atoms within a cutoff of a point in space. (e.g. <b>point 5.0 5.0 5.0 3.5</b>: selects all atoms within 3.5 Angstroms of the coordinate x=5.0, y=5.0, z=5.0)<br/>"
+		break;
+	    case "prop":
+		str_help = "<b>" + tmp_kwds + "</b> <i> [abs] property operator value</i>: selects atoms based on position, using <u>property x, y, or z</u> coordinate and <u>perators: <, >, <=, >=, ==, !=</u> (e.g. <b>prop z >= 5.0 </b>: all atoms with z coordinate >= 5.0, <b>prop abs z <= 5.0</b>: all atoms within -5.0 <= z <= 5.0)<br/>"
+		break;
+	}
+	
+	qhelp_id = "#C_density #M_density #density #density_frm_custom #quick_help" + myfrm;
+	$j(qhelp_id).empty().append(str_help);
+    });
+    
+    /*******************************************
+     * Verification for query
+     * *****************************************/
+    //---> For all 
+    $j("#density_frm_all #density_btn_vfy").click(function(){
+	var query   = $j("#C_density #M_density #density #density_frm_all #density_query").val().trim();
+	var bpath   = $j("#proot option:selected").text().trim();
+	var stfile  = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#density_frm_all #vfy_msg").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#density_frm_all #vfy_msg").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#density_frm_all #vfy_msg").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#density_frm_all #vfy_msg").empty().append(errorThrown);
+        });
+    });
+    
+    //---> For lipid head 
+    $j("#density_frm_lipidH #density_btn_vfy").click(function(){
+	var query = $j("#C_density #M_density #density #density_frm_lipidH #density_query").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#density_frm_lipidH #vfy_msg").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#density_frm_lipidH #vfy_msg").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#density_frm_lipidH #vfy_msg").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#density_frm_lipidH #vfy_msg").empty().append(errorThrown);
+        });
+    });
+    
+    //---> For lipid tail 
+    $j("#density_frm_lipidT #density_btn_vfy").click(function(){
+	var query = $j("#C_density #M_density #density #density_frm_lipidT #density_query").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#density_frm_lipidT #vfy_msg").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#density_frm_lipidT #vfy_msg").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#density_frm_lipidT #vfy_msg").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#density_frm_lipidT #vfy_msg").empty().append(errorThrown);
+        });
+    });
+
+    //---> For water 
+    $j("#density_frm_water #density_btn_vfy").click(function(){
+	var query = $j("#C_density #M_density #density #density_frm_water #density_query").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#density_frm_water #vfy_msg").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#density_frm_water #vfy_msg").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#density_frm_water #vfy_msg").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#density_frm_water #vfy_msg").empty().append(errorThrown);
+        });
+    });
+
+    //---> For water dipole 
+    $j("#density_frm_waterdp #density_btn_vfy").click(function(){
+	var query = $j("#C_density #M_density #density #density_frm_waterdp #density_query").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#density_frm_waterdp #vfy_msg").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#density_frm_waterdp #vfy_msg").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#density_frm_waterdp #vfy_msg").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#density_frm_waterdp #vfy_msg").empty().append(errorThrown);
+        });
+    });
+    
+    //---> For vector selection 
+    $j("#density_frm_vector #density_btn_vfy").click(function(){
+	var query = $j("#C_density #M_density #density #density_frm_vector #density_query").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#density_frm_vector #vfy_msg").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#density_frm_vector #vfy_msg").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#density_frm_vector #vfy_msg").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#density_frm_vector #vfy_msg").empty().append(errorThrown);
+        });
+    });
+    
+    //---> For custom selection
+    $j("#C_density #M_density #density #density_frm_custom button[id^='density_btn_vfy']").live("click", function(){
+	myfrm = $j(this).attr('mygui');
+	target_id = "#C_density #M_density #density #density_frm_custom #density_query" + myfrm;
+	query = $j(target_id).val().trim();
+	if (query.length < 1) {
+	    alert("Query should be given!");
+	    $j(target_id).focus();
+	    return false;
+	}
+	
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
+	
+	var vfy_id = "#C_density #M_density #density #density_frm_custom #vfy_msg" + myfrm;
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j(vfy_id).empty().append(vfy["err"]);
+	    return false;
+	}
+	
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	$j(vfy_id).empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j(vfy_id).empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j(vfy_id).empty().append(errorThrown);
+        });
+    });
+    
+    //--> Adding custom forms
+    $j("#C_density #M_density #density #density_frm_custom #add_density_form").live("click", function() {
+	var frm_int = $j("#C_density #M_density #density #density_frm_custom #density_frmInt").val();
+	var b_min = $j("#C_density #M_density #density #density_frm_custom #density_hist_min").val();
+	var b_max = $j("#C_density #M_density #density #density_frm_custom #density_hist_max").val();
+	var b_size = $j("#C_density #M_density #density #density_frm_custom #density_hist_bin").val();
+	
+	cnt_density_custom_form++;
+	cnt_density_custom_index++;
+
+	
+	//var html_jscript = '<script type="text/javascript">'
+	var html_jscript = 'var $j = jQuery.noConflict();'
+			// click check box
+			+ 'curr_chkbox = "#C_density #M_density #density #density_frm_custom #density_gquery' + cnt_density_custom_form + '";'
+			+ 'curr_querybox = "#C_density #M_density #density #density_frm_custom #density_gui_input' + cnt_density_custom_form + '";'
+			+ '$j(curr_querybox).hide();'
+			+ '$j(curr_chkbox).click(function () {'
+			+ '$j(curr_querybox).toggle(this.checked);'
+			+ '});'
+	//		+ '<\/script>';
+	
+	//var html_density_form = html_jscript
+	var html_density_form = '<tr id="density_custom_form_add_' + cnt_density_custom_form
+	+ '"><td class="bottom h15"></td></tr>'
+	+ '<tr id="density_custom_form_add_' + cnt_density_custom_form
+	+ '"><td><table>'
+	+ '<tr><td class="bottom"><span class="module_font">Frame Interval</span></td>'
+	+ '<td class="bottom w15"></td>'
+	+ '<td class="bottom"><span class="module_font">Output File Name</span></td>'
+	+ '<td class="bottom w15"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>'
+	+ '<tr><td class="bottom"><input id="density_frmInt' + cnt_density_custom_form
+	+ '" class="module_txtbox_output" type="text" name="density_frmInt" value="' + frm_int
+	+ '" ></td><td class="bottom w15"></td>'
+	+ '<td class="bottom" colspan=7><input id="density_outFile' + cnt_density_custom_form
+	+ '" class="module_txtbox_output2" type="text" name="density_outFile" value="density_custom' + cnt_density_custom_index
+	+ '.dat" ></td><td class="bottom"></td></tr>'
+	+ '<tr><td class="center"><span class="module_font">Axis</span></td>'
+	+ '<td class="bottom w15"></td>'
+	+ '<td class="center"><span class="module_font">Min</span></td>'
+	+ '<td class="bottom w15"></td>'
+	+ '<td class="center"><span class="module_font">Max</span></td> '
+	+ '<td class="bottom w15"></td>'
+	+ '<td class="center"><span class="module_font">Bin size</span></td>'
+	+ '<td class="bottom w15"></td>'
+	+ '<td class="bottom"></td><td class="bottom"></td></tr>'
+	+ '<tr><td class="bottom">'
+	+ '<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="density_Axis_custom' + cnt_density_custom_form + '" name="density_Axis_custom"><option>Z</option><option>Y</option><option>X</option></select></td><td class="bottom w15"></td><td class="bottom">'
+	+ '<input id="density_hist_min' + cnt_density_custom_form + '" class="module_txtbox_digit" type="text" name="density_hist_min" value="' + b_min + '"></td><td class="bottom w15"></td><td class="bottom">'
+	+ '<input id="density_hist_max' + cnt_density_custom_form + '" class="module_txtbox_digit" type="text" name="density_hist_max" value="' + b_max + '"></td><td class="bottom w15"></td><td class="bottom">'
+	+ '<input id="density_hist_bin' + cnt_density_custom_form + '" class="module_txtbox_digit" type="text" name="density_hist_bin" value="' + b_size + '"></td><td class="bottom w15"></td><td class="bottom">'
+	+ '<input id="density_hist_tatoms' + cnt_density_custom_form + '" type="hidden" name="density_hist_tatoms"></td><td class="bottom"></td></tr>'
+	+ '<tr><td class="left bottom" colspan=8>'
+	+ '<textarea class="bottom" id="density_query' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  name="density_query" rows="2" cols="64"></textarea></td><td class="bottom"><table><tr><td>'
+	+ '<button id="density_btn_vfy' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"><span class="module_font">Verify</span></button></td></tr>'
+	+ '<tr><td><input type="checkbox" id="density_gquery' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '">use GUI</td></tr></table></td><td>'
+	+ '<button id="delete_density_form_' + cnt_density_custom_form + '" num_idx="' + cnt_density_custom_form + '">delete</button></td></tr>'
+	+ '<tr id="density_gui_input' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"><td colspan=9><table><tr><td>'
+	+ '<table><tr><td><button id="btn_selall' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '" class="button_2letter">ALL</button></td>'
+	+ '<td><button id="btn_lt' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '" class="button_2letter"><</button></td>'
+	+ '<td><button id="btn_gt' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">></button></td>'
+	+ '<td><button id="btn_eq' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">==</button></td>'
+	+ '<td><button id="btn_ne' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">!=</button></td>'
+	+ '<td><button id="btn_ge' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">>=</button></td>'
+	+ '<td><button id="btn_le' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter"><=</button></td>'
+	+ '<td><button id="btn_and' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">AND</button></td>'
+	+ '<td><button id="btn_or' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">OR</button></td>'
+	+ '<td><button id="btn_not' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">NOT</button></td>'
+	+ '<td><button id="btn_around' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">AROUND</button></td>'
+	+ '<td><button id="btn_query_segid' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">SEGID</button></td></tr></table></td></tr>'
+	+ '<tr><td><table><tr>'
+	+ '<td><button id="btn_query_resname' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">RESNAME</button></td>'
+	+ '<td><button id="btn_query_resid' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">RESID</button></td>'
+	+ '<td><button id="btn_query_name' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">NAME</button></td>'
+	+ '<td><button id="btn_query_type' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">TYPE</button></td>'
+	+ '<td><button id="btn_query_prop' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="button_2letter">PROP</button></td><td></td></tr></table></td></tr>'
+	+ '<tr><td><table><tr><td>'
+	+ '<select data-placeholder="key words" class="chzn-select" style="width:100px;" id="keywords' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  name="keywords"></select>'
+	+ '<button id="btn_add_keywords' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '">Add</button></td><td>'
+	+ '<select data-placeholder="segid" class="chzn-select" style="width:100px;" id="uq_segid' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  name="uq_segid"></select>'
+	+ '<button id="btn_add_segid' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '">Add</button></td><td class="w15"></td><td rowspan=3><div id="quick_help' + cnt_density_custom_form + '" class="quick_help"></div></td></tr>'
+	+ '<tr><td><select data-placeholder="resname" class="chzn-select" style="width:100px;" id="uq_resname' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  name="uq_resname"></select>'
+	+ '<button id="btn_add_resname' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '">Add</button></td><td>'
+	+ '<select data-placeholder="resid" class="chzn-select" style="width:100px;" id="uq_resid' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  name="uq_resid"></select>'
+	+ '<button id="btn_add_resid' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '">Add</button><span id="st_load"></span></td><td class="w15"></td></tr>'
+	+ '<tr><td><select data-placeholder="name" class="chzn-select" style="width:100px;" id="uq_name' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  name="uq_name"></select>'
+	+ '<button id="btn_add_name' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '">Add</button></td>'
+	+ '<td><select data-placeholder="type" class="chzn-select" style="width:100px;" id="uq_type' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  name="uq_type"></select>'
+	+ '<button id="btn_add_type' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '">Add</button></td>'
+	+ '<td class="w15"></td></tr></table></td></tr></table></td></tr>'
+	+ '<tr><td id="vfy_msg' + cnt_density_custom_form + '" mygui="' + cnt_density_custom_form + '"  class="center message_warn" colspan=5></td></tr>'
+	+ '</table></td></tr>';
+
+	
+	//console.log(html_density_form);
+	
+	$j("#C_density #M_density #density #density_frm_custom #density_new_form").append(html_density_form);
+	mygui = "#density_gui_input" + cnt_density_custom_form;
+	$j(mygui).hide();
+	
+	/* copy option values from density_Axis_custom to density_Axis_custom# */
+	var new_density_Axis = "#C_density #M_density #density #density_frm_custom #density_Axis_custom" + cnt_density_custom_form;
+	$j('#C_density #M_density #density #density_frm_custom #density_Axis_custom option').clone().appendTo(new_density_Axis);
+	
+	/* copy option values from keywords to keywords# */
+	var new_keywords = "#C_density #M_density #density #density_frm_custom #keywords" + cnt_density_custom_form;
+	$j('#C_density #M_density #density #density_frm_custom #keywords0 option').clone().appendTo(new_keywords);
+	
+	/* copy option values from uq_segid to uq_segid */
+	var new_uq_segid = "#C_density #M_density #density #density_frm_custom #uq_segid" + cnt_density_custom_form;
+	$j('#C_density #M_density #density #density_frm_custom #uq_segid0 option').clone().appendTo(new_uq_segid);
+
+	/* copy option values from uq_resname to uq_resname */
+	var new_uq_resname = "#C_density #M_density #density #density_frm_custom #uq_resname" + cnt_density_custom_form;
+	$j('#C_density #M_density #density #density_frm_custom #uq_resname0 option').clone().appendTo(new_uq_resname);
+
+	/* copy option values from uq_resid to uq_resid */
+	var new_uq_resid = "#C_density #M_density #density #density_frm_custom #uq_resid" + cnt_density_custom_form;
+	$j('#C_density #M_density #density #density_frm_custom #uq_resid0 option').clone().appendTo(new_uq_resid);
+
+	/* copy option values from uq_segid to uq_name */
+	var new_uq_name = "#C_density #M_density #density #density_frm_custom #uq_name" + cnt_density_custom_form;
+	$j('#C_density #M_density #density #density_frm_custom #uq_name0 option').clone().appendTo(new_uq_name);
+
+	/* copy option values from uq_type to uq_type */
+	var new_uq_type = "#C_density #M_density #density #density_frm_custom #uq_type" + cnt_density_custom_form;
+	$j('#C_density #M_density #density #density_frm_custom #uq_type0 option').clone().appendTo(new_uq_type);
+	
+	/* copy hidden atom number */
+	var new_density_hist_tatoms = "#C_density #M_density #density #density_frm_custom #density_hist_tatoms" + cnt_density_custom_form;
+	var tatoms = $j("#C_density #M_density #density #density_frm_custom #density_hist_tatoms").val();
+	$j(new_density_hist_tatoms).empty().val(tatoms);
+	
+	//var curr_form = "#C_density #M_density #density #density_frm_custom #density_custom_form_add_" + cnt_density_custom_form;
+	//console.log(curr_form);
+	//$j(curr_form).filter('.chzn-select').chosen(); // apply to top level elems
+	
+	// add buttons 
+	
+    
+	$j("#C_density #M_density #density #density_new_form").filter('.chzn-select').chosen(); // apply to top level elems
+        $j("#C_density #M_density #density #density_new_form").find('.chzn-select').chosen();   // apply to nested elems
+	
+	//$j("#C_density #M_density #density #density_frm_custom #density_new_form").append(html_jscript);
+	//$j("#head_js_script").append(html_jscript);
+	$j("#C_density #M_density #density #density_new_form").find('.button_2letter').button();
+	//console.log(html_jscript)
+    });
+    
+    
+    /* deleting forms */
+    $j("#C_density #M_density #density #density_frm_custom button[id^='delete_density_form']").live("click", function() {
+	idx = $j(this).attr('num_idx');
+	var del_form = "#C_density #M_density #density #density_frm_custom #density_custom_form_add_" + idx;
+	//alert("num_idx=" + idx + "del_form=" + del_form);
+	$j(del_form).remove();
+	
+	// Initializing file name
+	var outFile = [];
+	var cnt = 0;
+	$j("#C_density #M_density #density #density_frm_custom input[name='density_outFile']").each(function() {
+	    cnt++;
+	    var new_file = "density_custom" + cnt + ".dat";
+	    $j(this).val('');
+	    $j(this).val(new_file);
+	    cnt_density_custom_index = cnt;
+	    if (cnt_density_custom_index < 0) {
+		cnt_density_custom_index = 0;
+	    }
+	});
+
+    });
+    
+});
+</script>
+
+<div id="C_density">
+    <table>
+	<tr><td id="head_js_script"></td></tr>
+    </table>
+    <table>
+	<!--- Density Profiles--->
+	<tr>
+	    <td colspan="2">
+	    <table id="M_density">
+		<tr>
+		    <td>
+			<div id="density">
+			    <table>
+				<tr>
+				    <td colspan="2" class="st_color7 left">
+					<input type="checkbox" id="density_title">Density Profiles (<span id="cnt_density" class="st_font1 st_size3 st_color5">0</span>)
+					<span id="density_read_pdb" class="message_warn"></span><br/><hr/>
+				    </td>
+				</tr>
+			    </table>
+			    <table id="density_form">
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<!--- START: density_all --->
+					<table>
+					    <tr>
+						<td colspan=2><input type="checkbox" id="chk_density_all">all</td>
+					    </tr>
+					    <tr id="density_frm_all">
+						<td class="w_module"></td>
+						<td>
+						    <table>
+							<tr>
+							    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><span class="module_font">Output File Name</span></td>
+							    <td class="bottom w15"></td>
+							    <td></td><td></td><td></td><td></td><td></td>
+							</tr>
+							<tr>
+							    <td class="bottom"><input id="density_frmInt" class="module_txtbox_output" type="text" name="density_frmInt"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom" colspan=7><input id="density_outFile" class="module_txtbox_output2" type="text" name="density_outFile"></td>
+							</tr>
+							<tr>
+							    <td class="center"><span class="module_font">Axis</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Min</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Max</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Bin size</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"></td>
+							</tr>
+							<tr>
+							    <td class="bottom">
+								<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="density_Axis_all" name="density_Axis_all">
+								<option>Z</option>
+								<option>Y</option>
+								<option>X</option>
+								</select>
+							    </td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_min" class="module_txtbox_digit" type="text" name="density_hist_min"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_max" class="module_txtbox_digit" type="text" name="density_hist_max"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_bin" class="module_txtbox_digit" type="text" name="density_hist_bin"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_tatoms" type="hidden" name="density_hist_tatoms"></td>
+							</tr>
+							<tr>
+							    <td class="left bottom" colspan=8><textarea class="bottom" id="density_query" name="density_query" rows="2" cols="64"></textarea></td>
+							    <td class="bottom">
+								<table>
+								    <tr><td><button id="density_btn_vfy"><span class="module_font">Verify</span></button></td></tr>
+								</table>
+							    </td>
+							</tr>
+							<tr><td id="vfy_msg" class="center message_warn" colspan=5></td></tr>
+						    </table>
+						</td>
+					    </tr>
+					</table>
+				    </td>
+				</tr>
+				<!--- END: density_all ----->
+				
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<!--- START: lipid head --->
+					<table>
+					    <tr>
+						<td colspan=2><input type="checkbox" id="chk_density_lipidH">lipid head (atom selection for CHARMM phosphatidylcholine head group)</td>
+					    </tr>
+					    <tr id="density_frm_lipidH">
+						<td class="w_module"></td>
+						<td>
+						    <table>
+							<tr>
+							    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><span class="module_font">Output File Name</span></td>
+							    <td class="bottom w15"></td>
+							    <td></td><td></td><td></td><td></td><td></td>
+							</tr>
+							<tr>
+							    <td class="bottom"><input id="density_frmInt" class="module_txtbox_output" type="text" name="density_frmInt"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom" colspan=7><input id="density_outFile" class="module_txtbox_output2" type="text" name="density_outFile"></td>
+							</tr>
+							<tr>
+							    <td class="center"><span class="module_font">Axis</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Min</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Max</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Bin size</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"></td>
+							</tr>
+							<tr>
+							    <td class="bottom">
+								<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="density_Axis_lipidH" name="density_Axis_lipidH">
+								<option>Z</option>
+								<option>Y</option>
+								<option>X</option>
+								</select>
+							    </td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_min" class="module_txtbox_digit" type="text" name="density_hist_min"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_max" class="module_txtbox_digit" type="text" name="density_hist_max"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_bin" class="module_txtbox_digit" type="text" name="density_hist_bin"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_tatoms" type="hidden" name="density_hist_tatoms"></td>
+							</tr>
+							<tr>
+							    <td class="left bottom" colspan=8><textarea class="bottom" id="density_query" name="density_query" rows="2" cols="64"></textarea></td>
+							    <td class="bottom">
+								<table>
+								    <tr><td><button id="density_btn_vfy"><span class="module_font">Verify</span></button></td></tr>
+								</table>
+							    </td>
+							</tr>
+							<tr><td id="vfy_msg" class="center message_warn" colspan=5></td></tr>
+						    </table>
+						</td>
+					    </tr>
+					</table>
+				    </td>
+				</tr>
+				<!--- END: lipid head ----->
+				
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<!--- START: lipid tail --->
+					<table>
+					    <tr>
+						<td colspan=2><input type="checkbox" id="chk_density_lipidT">lipid tail (atom selection for CHARMM lipid tails)</td>
+					    </tr>
+					    <tr id="density_frm_lipidT">
+						<td class="w_module"></td>
+						<td>
+						    <table>
+							<tr>
+							    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><span class="module_font">Output File Name</span></td>
+							    <td class="bottom w15"></td>
+							    <td></td><td></td><td></td><td></td><td></td>
+							</tr>
+							<tr>
+							    <td class="bottom"><input id="density_frmInt" class="module_txtbox_output" type="text" name="density_frmInt"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom" colspan=7><input id="density_outFile" class="module_txtbox_output2" type="text" name="density_outFile"></td>
+							</tr>
+							<tr>
+							    <td class="center"><span class="module_font">Axis</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Min</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Max</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Bin size</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"></td>
+							</tr>
+							<tr>
+							    <td class="bottom">
+								<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="density_Axis_lipidT" name="density_Axis_lipidT">
+								<option>Z</option>
+								<option>Y</option>
+								<option>X</option>
+								</select>
+							    </td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_min" class="module_txtbox_digit" type="text" name="density_hist_min"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_max" class="module_txtbox_digit" type="text" name="density_hist_max"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_bin" class="module_txtbox_digit" type="text" name="density_hist_bin"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_tatoms" type="hidden" name="density_hist_tatoms"></td>
+							</tr>
+							<tr>
+							    <td class="left bottom" colspan=8><textarea class="bottom" id="density_query" name="density_query" rows="2" cols="64"></textarea></td>
+							    <td class="bottom">
+								<table>
+								    <tr><td><button id="density_btn_vfy"><span class="module_font">Verify</span></button></td></tr>
+								</table>
+							    </td>
+							</tr>
+							<tr><td id="vfy_msg" class="center message_warn" colspan=5></td></tr>
+						    </table>
+						</td>
+					    </tr>
+					</table>
+				    </td>
+				</tr>
+				<!--- END: lipid tail ----->
+				
+				
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<!--- START: water --->
+					<table>
+					    <tr>
+						<td colspan=2><input type="checkbox" id="chk_density_water">water</td>
+					    </tr>
+					    <tr id="density_frm_water">
+						<td class="w_module"></td>
+						<td>
+						    <table>
+							<tr>
+							    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><span class="module_font">Output File Name</span></td>
+							    <td class="bottom w15"></td>
+							    <td></td><td></td><td></td><td></td><td></td>
+							</tr>
+							<tr>
+							    <td class="bottom"><input id="density_frmInt" class="module_txtbox_output" type="text" name="density_frmInt"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom" colspan=7><input id="density_outFile" class="module_txtbox_output2" type="text" name="density_outFile"></td>
+							</tr>
+							<tr>
+							    <td class="center"><span class="module_font">Axis</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Min</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Max</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Bin size</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"></td>
+							</tr>
+							<tr>
+							    <td class="bottom">
+								<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="density_Axis_water" name="density_Axis_water">
+								<option>Z</option>
+								<option>Y</option>
+								<option>X</option>
+								</select>
+							    </td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_min" class="module_txtbox_digit" type="text" name="density_hist_min"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_max" class="module_txtbox_digit" type="text" name="density_hist_max"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_bin" class="module_txtbox_digit" type="text" name="density_hist_bin"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_tatoms" type="hidden" name="density_hist_tatoms"></td>
+							</tr>
+							<tr>
+							    <td class="left bottom" colspan=8><textarea class="bottom" id="density_query" name="density_query" rows="2" cols="64"></textarea></td>
+							    <td class="bottom">
+								<table>
+								    <tr><td><button id="density_btn_vfy"><span class="module_font">Verify</span></button></td></tr>
+								</table>
+							    </td>
+							</tr>
+							<tr><td id="vfy_msg" class="center message_warn" colspan=5></td></tr>
+						    </table>
+						</td>
+					    </tr>
+					</table>
+				    </td>
+				</tr>
+				<!--- END: water ----->
+
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<!--- START: water dipole--->
+					<table>
+					    <tr>
+						<td colspan=2><input type="checkbox" id="chk_density_waterdp">water dipole</td>
+					    </tr>
+					    <tr id="density_frm_waterdp">
+						<td class="w_module"></td>
+						<td>
+						    <table>
+							<tr>
+							    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><span class="module_font">Output File Name</span></td>
+							    <td class="bottom w15"></td>
+							    <td></td><td></td><td></td><td></td><td></td>
+							</tr>
+							<tr>
+							    <td class="bottom"><input id="density_frmInt" class="module_txtbox_output" type="text" name="density_frmInt"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom" colspan=7><input id="density_outFile" class="module_txtbox_output2" type="text" name="density_outFile"></td>
+							</tr>
+							<tr>
+							    <td class="center"><span class="module_font">Axis</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Min</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Max</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Bin size</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"></td>
+							</tr>
+							<tr>
+							    <td class="bottom">
+								<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="density_Axis_waterdp" name="density_Axis_waterdp">
+								<option>Z</option>
+								<option>Y</option>
+								<option>X</option>
+								</select>
+							    </td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_min" class="module_txtbox_digit" type="text" name="density_hist_min"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_max" class="module_txtbox_digit" type="text" name="density_hist_max"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_bin" class="module_txtbox_digit" type="text" name="density_hist_bin"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_tatoms" type="hidden" name="density_hist_tatoms"></td>
+							</tr>
+							<tr>
+							    <td class="left bottom" colspan=8><textarea class="bottom" id="density_query" name="density_query" rows="2" cols="64"></textarea></td>
+							    <td class="bottom">
+								<table>
+								    <tr><td><button id="density_btn_vfy"><span class="module_font">Verify</span></button></td></tr>
+								</table>
+							    </td>
+							</tr>
+							<tr><td id="vfy_msg" class="center message_warn" colspan=5></td></tr>
+						    </table>
+						</td>
+					    </tr>
+					</table>
+				    </td>
+				</tr>
+				<!--- END: water dipole----->
+				
+				
+
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<!--- START: vector selection--->
+					<table>
+					    <tr>
+						<td colspan=2><input type="checkbox" id="chk_density_vector">vector selection</td>
+					    </tr>
+					    <tr id="density_frm_vector">
+						<td class="w_module"></td>
+						<td>
+						    <table>
+							<tr>
+							    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><span class="module_font">Output File Name</span></td>
+							    <td class="bottom w15"></td>
+							    <td></td><td></td><td></td><td></td><td></td>
+							</tr>
+							<tr>
+							    <td class="bottom"><input id="density_frmInt" class="module_txtbox_output" type="text" name="density_frmInt"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom" colspan=7><input id="density_outFile" class="module_txtbox_output2" type="text" name="density_outFile"></td>
+							</tr>
+							<tr>
+							    <td class="center"><span class="module_font">Axis</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Min</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Max</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Bin size</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"></td>
+							</tr>
+							<tr>
+							    <td class="bottom">
+								<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="density_Axis_vector" name="density_Axis_vector">
+								<option>Z</option>
+								<option>Y</option>
+								<option>X</option>
+								</select>
+							    </td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_min" class="module_txtbox_digit" type="text" name="density_hist_min"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_max" class="module_txtbox_digit" type="text" name="density_hist_max"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_bin" class="module_txtbox_digit" type="text" name="density_hist_bin"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_tatoms" type="hidden" name="density_hist_tatoms"></td>
+							</tr>
+							<tr>
+							    <td class="left bottom" colspan=8><textarea class="bottom" id="density_query" name="density_query" rows="2" cols="64"></textarea></td>
+							    <td class="bottom">
+								<table>
+								    <tr><td><button id="density_btn_vfy"><span class="module_font">Verify</span></button></td></tr>
+								</table>
+							    </td>
+							</tr>
+							<tr><td id="vfy_msg" class="center message_warn" colspan=5></td></tr>
+						    </table>
+						</td>
+					    </tr>
+					</table>
+				    </td>
+				</tr>
+				<!--- END: vector selection----->
+
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<!--- START: custom selection--->
+					<table>
+					    <tr>
+						<td colspan=2><input type="checkbox" id="chk_density_custom">custom selection</td>
+					    </tr>
+					    <tr id="density_frm_custom">
+						<td class="w_module"></td>
+						<td>
+						    <table>
+							<tr>
+							    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><span class="module_font">Output File Name</span></td>
+							    <td class="bottom w15"></td>
+							    <td></td><td></td><td></td><td></td><td></td><td></td>
+							</tr>
+							<tr>
+							    <td class="bottom"><input id="density_frmInt" class="module_txtbox_output" type="text" name="density_frmInt"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom" colspan=7><input id="density_outFile" class="module_txtbox_output2" type="text" name="density_outFile"></td>
+							    <td class="bottom"></td>
+							</tr>
+							<tr>
+							    <td class="center"><span class="module_font">Axis</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Min</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Max</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="center"><span class="module_font">Bin size</span></td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"></td>
+							    <td class="bottom"></td>
+							</tr>
+							<tr>
+							    <td class="bottom">
+								<select data-placeholder="Choose an axis" class="chzn-select" style="width:106px;" id="density_Axis_custom" name="density_Axis_custom">
+								<option>Z</option>
+								<option>Y</option>
+								<option>X</option>
+								</select>
+							    </td>
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_min" class="module_txtbox_digit" type="text" name="density_hist_min"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_max" class="module_txtbox_digit" type="text" name="density_hist_max"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_bin" class="module_txtbox_digit" type="text" name="density_hist_bin"></td>	
+							    <td class="bottom w15"></td>
+							    <td class="bottom"><input id="density_hist_tatoms" type="hidden" name="density_hist_tatoms"></td>
+							    <td class="bottom"></td>
+							</tr>
+							<tr>
+							    <td class="left bottom" colspan=8><textarea class="bottom" id="density_query0" mygui="0" name="density_query" rows="2" cols="64"></textarea></td>
+							    <td class="bottom">
+								<table>
+								    <tr><td><button id="density_btn_vfy0" mygui="0"><span class="module_font">Verify</span></button></td></tr>
+								    <tr><td><input type="checkbox" id="density_gquery0" mygui="0">use GUI</td></tr>
+								</table>
+							    </td>
+							    <td><button id="add_density_form">add</button></td>
+							</tr>
+							<!--- GUI query builder --->
+							<tr id="density_gui_input0">
+							    <td colspan=10>
+							    <table>
+								<tr>
+								    <td>
+									<table>
+									    <tr>
+										<td><button id="btn_selall0" mygui="0" class="button_2letter">ALL</button></td>
+										<td><button id="btn_lt0" mygui="0" class="button_2letter"><</button></td>
+										<td><button id="btn_gt0" mygui="0" class="button_2letter">></button></td>
+										<td><button id="btn_eq0" mygui="0" class="button_2letter">==</button></td>
+										<td><button id="btn_ne0" mygui="0" class="button_2letter">!=</button></td>
+										<td><button id="btn_ge0" mygui="0" class="button_2letter">>=</button></td>
+										<td><button id="btn_le0" mygui="0" class="button_2letter"><=</button></td>
+										<td><button id="btn_and0" mygui="0" class="button_2letter">AND</button></td>
+										<td><button id="btn_or0" mygui="0" class="button_2letter">OR</button></td>
+										<td><button id="btn_not0" mygui="0" class="button_2letter">NOT</button></td>
+										<td><button id="btn_around0" mygui="0" class="button_2letter">AROUND</button></td>
+										<td><button id="btn_query_segid0" mygui="0" class="button_2letter">SEGID</button></td>
+									    </tr>
+									</table>
+								    </td>
+								</tr>
+								<tr>
+								    <td>
+									<table>
+									    <tr>
+										<td><button id="btn_query_resname0" mygui="0" class="button_2letter">RESNAME</button></td>
+										<td><button id="btn_query_resid0" mygui="0" class="button_2letter">RESID</button></td>
+										<td><button id="btn_query_name0" mygui="0" class="button_2letter">NAME</button></td>
+										<td><button id="btn_query_type0" mygui="0" class="button_2letter">TYPE</button></td>
+										<td><button id="btn_query_prop0" mygui="0" class="button_2letter">PROP</button></td>
+										<!-- <td><button id="btn_query_all" class="button_2letter">ALL</button></td> -->
+										<td></td>
+									    </tr>
+									</table>
+								    </td>
+								</tr>
+								<tr>
+								    <td>
+									<table>
+									    <tr>
+										<td>
+										    <select data-placeholder="key words" class="chzn-select" style="width:100px;" id="keywords0" mygui="0" name="keywords"></select>
+										    <button id="btn_add_keywords0" mygui="0">Add</button>
+										</td>
+										<td>
+										    <select data-placeholder="segid" class="chzn-select" style="width:100px;" id="uq_segid0" mygui="0" name="uq_segid"></select>
+										    <button id="btn_add_segid0" mygui="0">Add</button>
+										</td>
+										<td class="w15"></td>
+										<td rowspan=3><div id="quick_help0" class="quick_help"></div></td>
+									    </tr>
+									    <tr>
+										<td>
+										    <select data-placeholder="resname" class="chzn-select" style="width:100px;" id="uq_resname0" mygui="0" name="uq_resname"></select>
+										    <button id="btn_add_resname0" mygui="0">Add</button>
+										</td>
+										<td>
+										    <select data-placeholder="resid" class="chzn-select" style="width:100px;" id="uq_resid0" mygui="0" name="uq_resid"></select>
+										    <button id="btn_add_resid0" mygui="0">Add</button><span id="st_load"></span>
+										</td>
+										<td class="w15"></td>
+										<td></td>
+									    </tr>
+									    <tr>
+										<td>
+										    <select data-placeholder="name" class="chzn-select" style="width:100px;" id="uq_name0" mygui="0" name="uq_name"></select>
+										    <button id="btn_add_name0" mygui="0">Add</button>
+										</td>
+										<td>
+										    <select data-placeholder="type" class="chzn-select" style="width:100px;" id="uq_type0" mygui="0" name="uq_type"></select>
+										    <button id="btn_add_type0" mygui="0">Add</button>
+										</td>
+										<td class="w15"></td>
+										<td></td>
+									    </tr>
+									</table>
+								    </td>
+								</tr>
+							    </table>
+							    </td>
+							</tr>
+							<tr><td id="vfy_msg0" class="center message_warn" colspan=5></td></tr>
+							<tr>
+							    <td colspan=10>
+								<table id="density_new_form">
+								    
+								</table>
+							    </td>
+							</tr>
+						    </table>
+						</td>
+					    </tr>
+					</table>
+				    </td>
+				</tr>
+				<!--- END: custom selection----->
+
+			    </table>
+			</div>
+		    </td>
+		</tr>
+		<!--- Density profile end --->
+	    </table>
+	</td></tr>
+	<!--- Density end--->
+    </table>
+    <table>
+	<tr>
+	    <td id=""bottom_js_script"></td>
+	</tr>
+    </table>
+</div>
+
+

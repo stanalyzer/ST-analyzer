@@ -1,0 +1,38 @@
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+var cnt_dnarna = 0;
+
+$j(document).ready(function(){
+    $j("#M_DnaRna").hide();
+    $j("#chk_DnaRna").click(function () {
+	$j("#M_DnaRna").toggle(this.checked);
+    });
+});
+</script>
+
+<div id="DnaRna">
+    <table>
+	<tr>
+	    <td colspan="2"><input type="checkbox" id="chk_DnaRna"><span class="st_font1 st_size3 st_color6"><b>Dna/Rna</b></span></td>
+	</tr>
+	<tr><td colspan="2">
+	    <table id="M_DnaRna">
+		<tr>
+		    <td class="w_module"> </td>
+		    <td>
+			<!--- calculating box size --->
+			<div id="cal_DnaRna">
+			    <table>
+				<tr>
+				    <td class="left">
+					<input type="checkbox" id="DnaRna_title">Module 1 <br/><hr/>
+				    </td>
+				</tr>
+			    </table>
+			</div>
+		    </td>
+		</tr>
+	    </table>
+	</td></tr>
+    </table>
+</div>

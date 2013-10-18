@@ -1,0 +1,87 @@
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+var cnt_systemsize = 0;
+
+
+$j(document).ready(function(){
+    $j("#C_systemsize #M_systemsize #box #box_title").click(function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    $cnt_modules++;
+	    cnt_systemsize++;
+	} else {
+	    $cnt_modules--;
+	    cnt_systemsize--;
+	    if ($cnt_modules < 0) {
+		$cnt_modules = 0;
+	    }
+	}
+	$j("#cnt_modules").empty().append($cnt_modules);
+	$j("#C_systemsize #M_systemsize #box #cnt_systemsize").empty().append(cnt_systemsize);
+    });
+    
+    /* Initializing values */
+    $j('#C_systemsize #M_systemsize #box #box_frmInt').val('1').css("color", "gray");
+    $j('#C_systemsize #M_systemsize #box #box_outFile').val('box_size.dat').css("color", "gray");
+    
+    $j("#C_systemsize #M_systemsize #box #box_form").hide();
+    $j("#C_systemsize #M_systemsize #box #box_title").click(function () {
+	$j("#C_systemsize #M_systemsize #box #box_form").toggle(this.checked);
+    });
+    
+});
+</script>
+
+<div id="C_systemsize">
+    <table>
+	<!--
+	<tr>
+	    <td colspan="2"><input type="checkbox" id="chk_systemInfo"><span class="st_font1 st_size3 st_color6"><b>System Information (<span id="cnt_sysinfo" class="st_font1 st_size3 st_color5">0</span>)</b></span></td>
+	</tr>
+	-->
+	<tr><td colspan="2">
+	    <table id="M_systemsize">
+		<!--- calculating box size --->
+		<tr>
+		    <!--<td class="w_module"> </td> -->
+		    <td>
+			<div id="box">
+			    <table>
+				<tr>
+				    <td colspan="2" class="st_color7 left">
+					<input type="checkbox" id="box_title">System size (<span id="cnt_systemsize" class="st_font1 st_size3 st_color5">0</span>)
+				    </td>
+				</tr>
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<div id="box_form">
+					    <table>
+						<tr>
+						    <td class="bottom"><span class="module_font">Frame Interval</span></td>
+						    <td class="bottom w15"></td>
+						    <td class="bottom"><span class="module_font">Output File Name</span></td>
+						</tr>
+						<tr>
+						    <td class="bottom"><input id="box_frmInt" class="module_txtbox_frm" type="text" name="box_frmInt"></td>
+						    <td class="bottom w15"></td>
+						    <td class="bottom"><input id="box_outFile" class="module_txtbox_output" type="text" name="box_outFile"></td>
+						</tr>
+					    </table>
+					</div>
+				    </td>
+				</tr>
+			    </table>
+			</div>
+		    </td>
+		</tr>
+		<!-- Box size end --->
+	    </table>
+	</td></tr>
+    </table> <!-- systemInfo end --->
+</div>
+
+<!--- dialog --->
+<div id="dlg_selInfo" title="Selected Atoms">
+    <pre id="dlg_msg"></pre>
+</div>

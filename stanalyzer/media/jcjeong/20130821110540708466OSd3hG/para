@@ -1,0 +1,317 @@
+(dp0
+S'output_home'
+p1
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130821110540708466OSd3hG/'
+p2
+sS'num_atoms'
+p3
+V18019
+p4
+sS'media_home'
+p5
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/media'
+p6
+sS'funcName'
+p7
+(lp8
+Vlipid_per_area_voro
+p9
+aVordpara_charmm
+p10
+aVthickness_phosphate
+p11
+aVthickness_carbon
+p12
+aVthickness_custom
+p13
+asS'Paras'
+p14
+(lp15
+(lp16
+(lp17
+I7
+aa(lp18
+V1
+p19
+aa(lp20
+Vvoronoi_lipid_per_area.dat
+p21
+aa(lp22
+V18019
+p23
+aa(lp24
+Vsegid MEMB and ((resname CHL1 and name O3) or (resname DOPC and (name C2 or name C21 or name C31)) or (resname POPC and (name C2 or name C21 or name C31)) or (resname POPI and (name C2 or name C21 or name C31)) or (resname POPI13 and (name C2 or name C21 or name C31)))
+p25
+aa(lp26
+V48.1993026733
+p27
+aa(lp28
+V48.1993026733
+p29
+aa(lp30
+V
+p31
+aaa(lp32
+(lp33
+I7
+aa(lp34
+g19
+aa(lp35
+Vordpara_charmm_0.dat
+p36
+aa(lp37
+VZ
+p38
+aa(lp39
+V11146
+p40
+aa(lp41
+VMEMB
+p42
+aa(lp43
+VDOPC
+p44
+aa(lp45
+Vname C2* and not (name C2 or name C21)
+p46
+aaa(lp47
+(lp48
+I4
+aa(lp49
+g19
+aa(lp50
+Vthickness_phosphate.dat
+p51
+aa(lp52
+V11146
+p53
+aa(lp54
+Vname P
+p55
+aaa(lp56
+(lp57
+I4
+aa(lp58
+g19
+aa(lp59
+Vthickness_carbon.dat
+p60
+aa(lp61
+V11146
+p62
+aa(lp63
+Vname C22 or name C32
+p64
+aaa(lp65
+(lp66
+I4
+aa(lp67
+g19
+aa(lp68
+Vthickness_custom_0.dat
+p69
+aa(lp70
+V11146
+p71
+aa(lp72
+VMEMB
+p73
+aa(lp74
+VPOPI
+p75
+aa(lp76
+Vname C2* and not (name C2 or name C21)
+p77
+aaasS'para_pkeys'
+p78
+(lp79
+(lp80
+I2326
+aI2327
+aI2334
+aI2336
+aI2337
+aI2339
+aI2343
+aI2345
+aa(lp81
+I2347
+aI2348
+aI2352
+aI2353
+aI2354
+aI2355
+aI2356
+aI2357
+aa(lp82
+I2359
+aI2360
+aI2361
+aI2362
+aI2363
+aa(lp83
+I2365
+aI2370
+aI2372
+aI2373
+aI2374
+aa(lp84
+I2376
+aI2377
+aI2378
+aI2379
+aI2380
+aI2381
+aI2382
+aasS'session_home'
+p85
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130821110540708466OSd3hG'
+p86
+sS'num_frame'
+p87
+V40
+p88
+sS'trajectory'
+p89
+(lp90
+Vlipids_00.dcd
+p91
+asS'paraInfo'
+p92
+(lp93
+(lp94
+VNumber of Parameters
+p95
+aVFrame interval
+p96
+aVOutput name
+p97
+aVTotal number of atoms
+p98
+aVlipid query
+p99
+aVmax X coordinate
+p100
+aVmax Y coordinate
+p101
+aVqhull path
+p102
+aa(lp103
+VNumber of Parameters
+p104
+aVFrame interval
+p105
+aVOutput name
+p106
+aVAxis
+p107
+aVTotal number of atoms
+p108
+aVsegment ID
+p109
+aVresidue name
+p110
+aVcharmm query
+p111
+aa(lp112
+VNumber of Parameters
+p113
+aVFrame interval
+p114
+aVOutput name
+p115
+aVTotal number of atoms
+p116
+aVthickness query
+p117
+aa(lp118
+VNumber of Parameters
+p119
+aVFrame interval
+p120
+aVOutput name
+p121
+aVTotal number of atoms
+p122
+aVthickness query
+p123
+aa(lp124
+VNumber of Parameters
+p125
+aVFrame interval
+p126
+aVOutput name
+p127
+aVTotal number of atoms
+p128
+aVsegment ID
+p129
+aVresidue ID
+p130
+aVthickness query
+p131
+aasS'job_pkey'
+p132
+(I273
+tp133
+sS'path_output'
+p134
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/'
+p135
+sS'path_python'
+p136
+V/export/apps/bin/python2.7
+p137
+sS'job_title'
+p138
+Vanalyzing trajectory
+p139
+sS'pkey'
+p140
+V2
+p141
+sS'num_ps'
+p142
+V5.0
+p143
+sS'pdb_file'
+p144
+Vlipids.pdb
+p145
+sS'pbs_home'
+p146
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/20130821110540708466OSd3hG/pbs'
+p147
+sS'base_path'
+p148
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/trajectory/lipids/'
+p149
+sS'date'
+p150
+S'20130821110540708466'
+p151
+sS'pbs'
+p152
+V#!/bin/bash\u000a#PBS -l nodes=1:ppn=1\u000a#PBS -l mem=500mb\u000a#PBS -l walltime=72:00:00\u000a#PBS -l cput=72:00:00\u000a#PBS -q default\u000a\u000aexport LD_LIBRARY_PATH=/export/apps/compilers/gcc48/lib64\u000a\u000a
+p153
+sS'analyzer_home'
+p154
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/static/analyzers'
+p155
+sS'num_files'
+p156
+V1
+p157
+sS'ptitle'
+p158
+VAlpha helix
+p159
+sS'structure_file'
+p160
+Vlipids.psf
+p161
+sS'dbName'
+p162
+S'/home2/jcjeong/project/stanalyzer0/stanalyzer/stanalyzer.db'
+p163
+s.

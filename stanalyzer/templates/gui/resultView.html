@@ -1,0 +1,359 @@
+<!-- for Job Viewer -->
+<meta name="author" conent="Jong Cheol Jeong (people.eecs.ku.edu/~jjeong)" />
+<link rel="stylesheet" href="/static/jqGrid_master/themes/ui.multiselect.css" />
+<link rel="stylesheet" href="/static/jqGrid_master/themes/ui.jqgrid.css" />
+<link rel="stylesheet" href="/static/jwysiwyg/jquery.wysiwyg.css" />
+<link rel="stylesheet" href="/static/jwysiwyg/wysiwyg.custom.css" />
+<link rel="stylesheet" href="/static/jwysiwyg/plugins/fileManager/wysiwyg.fileManager.css" />
+
+<script src="/static/jqGrid_master/themes/js/jquery.layout.js" type="text/javascript"></script>
+<script src="/static/jqGrid_master/js/i18n/grid.locale-en.js" type="text/javascript"></script>
+<script src="/static/jqGrid_master/themes/js/ui.multiselect.js" type="text/javascript"></script>
+<script src="/static/jqGrid_master/themes/js/jquery.jqGrid.min.js" type="text/javascript"></script>
+<script src="/static/jwysiwyg/jquery.wysiwyg.js" type="text/javascript"></script>
+<script src="/static/jwysiwyg/controls/wysiwyg.colorpicker.js" type="text/javascript"></script>
+<script src="/static/jwysiwyg/controls/wysiwyg.cssWrap.js" type="text/javascript"></script>
+<script src="/static/jwysiwyg/controls/wysiwyg.image.js" type="text/javascript"></script>
+<script src="/static/jwysiwyg/controls/wysiwyg.link.js" type="text/javascript"></script>
+<script src="/static/jwysiwyg/controls/wysiwyg.table.js" type="text/javascript"></script>
+<script src="/static/jwysiwyg/plugins/wysiwyg.fileManager.js" type="text/javascript"></script>
+
+<!-- adding fancy box -->
+
+<!-- Add mousewheel plugin (this is optional) -->
+<script type="text/javascript" src="/static/fancyBox/lib/jquery.mousewheel-3.0.6.pack.js"></script>
+
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="/static/fancyBox/source/jquery.fancybox.css?v=2.1.4" type="text/css" media="screen" />
+<script type="text/javascript" src="/static/fancyBox/source/jquery.fancybox.pack.js?v=2.1.4"></script>
+
+<!-- Optionally add helpers - button, thumbnail and/or media -->
+<link rel="stylesheet" href="/static/fancyBox/source/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen" />
+<script type="text/javascript" src="/static/fancyBox/source/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="/static/fancyBox/source/helpers/jquery.fancybox-media.js?v=1.0.5"></script>
+
+<link rel="stylesheet" href="/static/fancyBox/source/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen" />
+<script type="text/javascript" src="/static/fancyBox/source/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+function isNumberKey(evt) {
+    var charCode = (evt.which) ? evt.which : event.keyCode
+    if ((charCode > 31 && charCode < 44) || (charCode > 45 && charCode < 48) || charCode > 57) {
+	msg = "<span class='message_warn'>IDs (<i>Using ',' for multiple IDs and '-' for continuous IDs</i>)</span>";
+	$j("#idInput").empty().append(msg);
+	$j("#selIDs").focus();
+	return false;
+       //return ["',', '-', and number only! "];
+    } else {
+	msg = "<b>IDs</b> (<i>Using ',' for multiple IDs and '-' for continuous IDs</i>)";
+	$j("#idInput").empty().append(msg);
+	$j("#selIDs").focus();
+    }
+    return true;
+}
+
+function eval_rstView_DBmgr() {
+    var txt = $j("#rstView #selIDs").val();
+    if (txt.trim().length < 1) {
+	return ['ID is required!'];
+    }
+    return false;
+}
+
+function popup(mylink, windowname) {
+    if (! window.focus)return true;
+    var href;
+    if (typeof(mylink) == 'string')
+       href=mylink;
+    else
+       href=mylink.href;
+       
+    myWindow = window.open('', windowname, 'menubar=0,resizable=0,width=550,height=400');
+    html = "<img src='" + href + "' alt='" + windowname + "' title='" + windowname + "' width=500/>";
+    myWindow.document.write(html);
+    return false;
+}
+
+function addThumbImage(cellvalue, options, rowObject) {
+    if (cellvalue == 'N/A') {
+	graphImg = "/static/images/circle2.gif"
+	html = "<img src='" + graphImg + "' alt='" + graphImg + "' title='" + graphImg + "' width=30 />";
+    } else {
+	/* Using 'fancybox' */
+	//html = "<a class='fancybox' rel='results' href='/gui/download_path/" + cellvalue + "'> <img src='/gui/download_path/" + cellvalue + "' alt='" + cellvalue + "' title='" + cellvalue + "' width=50/></a>";
+	
+	/* Using 'popup windows' */
+	html = "<a rel='results' href='/gui/download_path/" + cellvalue + "' onClick=\"return popup(this, '" + cellvalue + "')\"> <img src='/gui/download_path/" + cellvalue + "' alt='" + cellvalue + "' title='" + cellvalue + "' width=50/></a>";
+    }
+    //alert(html);
+    return html;
+}
+
+function addZip(cellvalue, options, rowObject) {
+    if (cellvalue == 'N/A') {
+	zipImg = "/static/images/circle2.gif"
+	html = "<img src='" + zipImg + "' alt='" + zipImg + "' title='" + zipImg + "' width=30 />";
+    } else {
+	zipImg = "/static/images/zipped_files.png"
+	html = "<a href='/gui/download_path/" + cellvalue + "'><img src='" + zipImg + "' alt='" + zipImg + "' title='" + zipImg + "' width=30 /></a>";
+    }
+    return html;
+
+/*    
+    zipImg = "/static/images/zipped_files.png"
+    return "<a href='/gui/download_path/" + cellvalue + "'><img src='" + zipImg + "' alt='" + zipImg + "' title='" + zipImg + "' width=30 /></a>";
+*/
+}
+    
+
+
+$j(document).ready(function(){
+
+    $j(".fancybox").fancybox({
+	openEffect	: 'elastic',
+    	closeEffect	: 'elastic'
+    });
+
+    $j("#rstView #sub_DBmgr").click(function(){
+	var err = eval_rstView_DBmgr();
+	if (err) {
+	    alert(err);
+	    $j("#rstView #selIDs").val('').focus();
+	    return false;
+	}
+	var table 	= $j("#rstView #DBmgr option:selected").val();
+	var table_title = $j("#rstView #DBmgr option:selected").text();
+	var IDs   	= $j("#rstView #selIDs").val();
+	var flag_del	= $j("#rstView #delDir").prop('checked');
+	var flag_que	= $j("#rstView #delQue").prop('checked');
+	
+	var sndData = {
+	    'cmd'     	: 'delete',
+	    'table'	: table,
+	    'IDs'	: $j.trim(IDs),
+	    'del'	: flag_del,
+	}
+	
+
+	if (table == "gui_queue") {
+	    var msg = "You are trying to delete &#34<b>" + table_title +
+		       "</b>&#34. Corresponding Queue IDs are &#34<b>" + IDs +
+		       "</b>&#34. This will result in followings: <br/><br/> Deleting Database: <b>no</b> <br/>Deleting associated directories: <b>" +
+		       "no" + "</b><br/><br/> Would you like to DELETE them all?<br/>";
+	} else if (flag_del == true) {
+	    var msg = "You attempt to delete <b> Diroctory </b> associated with &#34<b>" + table_title +
+		       "</b>&#34. <br/><br/> This could delete your other results as well if a job includes multiple sub queries (e.g. multiple hielix tilt). <br/><br/>Corresponding IDs are &#34<b>" + IDs +
+		       "</b>&#34. This will result in followings: <br/><br/> Deleting Database: <b>yes</b> <br/>Deleting associated directories: <b>" +
+		       flag_del + "</b><br/><br/> Would you like to DELETE them all?<br/>";
+	    
+	} else {
+	    var msg = "You are trying to delete &#34<b>" + table_title +
+		       "</b>&#34. Corresponding IDs are &#34<b>" + IDs +
+		       "</b>&#34. This will result in followings: <br/><br/> Deleting Database: <b>yes</b> <br/>Deleting associated directories: <b>" +
+		       flag_del + "</b><br/><br/> Would you like to DELETE them all?<br/>";
+	}
+	$j("#dlg_confirm #dlg_msg").empty().append(msg).change();
+	$j( "#dlg_confirm" ).dialog({
+	    resizable: true,
+	    height:250,
+	    modal: true,
+	    buttons: {
+		Okay: function() {
+		    $j( this ).dialog( "close" );
+		    var request = $j.ajax({
+		    type: "POST",
+		    url: '/gui/resultView_DBmanager/',
+		    cache: false,
+		    data: sndData,
+		    //async: false,
+		    });
+		    
+		    var msgWait = "Deleting " + table_title + "... <img src='/static/images/circle2.gif' height='20' width='20' >"
+		    $j("#rstView #rv_cmd_err").empty().append(msgWait);
+		    
+		    request.done(function(Jdata) {
+			var obj = $j.parseJSON(Jdata);
+	    /*-------Real time update of new project ------------*/
+			var sndData2 = {
+					'cmd'             : 'reload',
+				    }
+			var request2 = $j.ajax({
+			type: "POST",
+			url: '/gui/stanalyzer/',
+			cache: false,
+			data: sndData2,
+			async: false,
+			});
+			request2.done(function(J2data) {
+			    var obj2 = $j.parseJSON(J2data);
+			    //alert("OBJ is " + obj2);
+			    
+			    var prj_option = "";
+			    
+			    for (var prj_cnt = 0; prj_cnt < obj2.pkey.length; prj_cnt++) {
+			      prj_option = prj_option + "<option pkey='" + obj2.pkey[prj_cnt] + "'>" + obj2.title[prj_cnt]+ "</option>";
+			    }
+			    $j("#step1 #prj").empty().append(prj_option).change();
+			    //alert(prj_option);
+			});
+		      
+			request2.error(function(jqXHR, textStatus, errorThrown) {
+			    //$j("#msg").append(textStatus);
+			    alert(textStatus);
+			});
+	    /*----------------------------------------------------*/
+
+			$j("#resultTable").trigger('reloadGrid');
+			$j("#prjTable").trigger('reloadGrid');
+			alert("Your requests have been successfully completed!");
+			$j("#rstView #rv_cmd_err").empty();
+		     });
+		
+		    request.error(function(jqXHR, textStatus, errorThrown) {
+			alert("Error has been occured! Please check the permission of directories!");
+			var msgWait = "Failed!"
+			$j("#rstView #rv_cmd_err").empty().append(msgWait);
+		    });
+		},
+		Cancel: function() {
+		    $j( this ).dialog( "close" );
+		}
+	    }
+	});
+    });
+    
+ 
+    /* ******************************************************
+     * Defining top grid (i.e. gui_project)
+     * ******************************************************/ 
+    $j("#resultTable").jqGrid({
+	url		:'/gui/jobView_jqGrid_prj/',
+	datatype	: 'json',
+	mtype		: 'GET',
+	colNames	:['ID', 'user_id','Project', 'date', 'pbs'],
+	colModel:[
+		{name:'id',index:'id', width:20, key:true},
+		{name:'user_id',index:'user_id', hidden:true, width:50},
+		{name:'name',index:'name', width:200},
+		{name:'date',index:'date', hidden:true, width:200},
+		{name:'pbs',index:'pbs', hidden:true, width:200},
+		
+	    ],
+	rowNum		:7,
+	rowList		:[7,20,30],
+	pager		: "#result_pager",
+	sortname	: "id",
+	//viewrecords	: true,
+	sortorder	: "desc",
+	//gridview	: true,
+	caption		:"Project Retrieval",
+	width		: 895,
+	height		: 530,
+	//multiselect	: false,
+	/* ******************************************************
+	 * Defining second grid (i.e. gui_job)
+	 * ******************************************************/ 
+	subGrid		: true,
+	// define the icons in subgrid
+	subGridOptions: {
+		"plusicon"  : "ui-icon-triangle-1-e",
+		"minusicon" : "ui-icon-triangle-1-s",
+		"openicon"  : "ui-icon-arrowreturn-1-e"
+	},
+	subGridRowExpanded: function(subgrid_id, row_id) {
+		var subgrid_table_id, pager_id;
+		subgrid_table_id = subgrid_id+"_t";
+		pager_id = "p_"+subgrid_table_id;
+		$j("#"+subgrid_id).html("<table id='"+subgrid_table_id+"' class='scroll'></table><div id='"+pager_id+"' class='scroll'></div>");
+		$j("#"+subgrid_table_id).jqGrid({
+		    url:"/gui/resultView_jqGrid_results/?prj_id="+row_id,
+		    datatype	: 'json',
+		    mtype		: 'GET',
+		    colNames	:['ID','JOB ID', 'Module', 'Status', 'Queue', 'Image', 'Data', 'ZIP'],
+		    //colNames	:['JOB ID', 'JOB', 'Image', 'ZIP'],
+		    colModel:[
+			    {name:'id',index:'id', width:15, key:true},
+			    {name:'job_id',index:'job_id', hidden:true, width:15},
+			    {name:'name',index:'name', width:150},
+			    {name:'status',index:'status', width:30},
+			    {name:'qid',index:'qid', hidden:true, width:30},
+			    {name:'img',index:'img', width:30, align:'center', formatter: addThumbImage},
+			    //{name:'img',index:'img', width:50, formatter:'showlink', formatoptions:{baseLinkUrl:'/gui/download/', addParam: '&dformat=img'}},
+			    {name:'txt',index:'txt', hidden:true, width:30, formatter:'showlink', formatoptions:{baseLinkUrl:'/gui/download/', addParam: '&dformat=txt'}},
+			    //{name:'gzip',index:'gzip', width:50, formatter:'showlink', formatoptions:{baseLinkUrl:'/gui/download/', addParam: '&dformat=gzip'}}
+			    {name:'gzip',index:'gzip', width:30, align:'center', formatter:addZip}
+			    ],
+		    rowNum		:7,
+		    rowList		:[7,20,30],
+		    pager		: pager_id,
+		    sortname		: "id",
+		    sortorder		: "desc",
+		    caption		:"Outputs",
+		    width		: 850,
+		    height		: 350,
+		    gridComplete	: function() {
+					    $j(".fancybox").fancybox({
+						openEffect	: 'elastic',
+						closeEffect	: 'elastic'
+					    });
+		    },
+		});
+		$j("#"+subgrid_table_id).jqGrid('navGrid','#'+pager_id,{edit:false,add:false,del:false, search:false});
+		$j("#"+subgrid_table_id).jqGrid('filterToolbar', {stringResult: true, searchOnEnter: false});
+	},
+    });
+    $j("#resultTable").jqGrid('navGrid','#result_pager',{edit:false,add:false,del:false, search:false});
+    $j("#resultTable").jqGrid('filterToolbar', {stringResult: true, searchOnEnter: false});
+});
+    
+</script>
+<!--
+<table>
+    <tr>
+	<td><table id="resultTable"></table><div id="result_pager"></div></td>
+	<td></td>
+	<td><textarea id="wys_result" rows="32" cols=53></textarea><button id="testWys">SHOW</button></td>	
+    </tr>
+</table>
+--->
+<div id="result_buttons">
+    <table id="resultTable"></table>
+    <div id="result_pager"></div>
+    <div id="user_err_msg"></div>
+    <div id="usr_msg"></div>
+    <div id="rstView">
+	<center>
+	<table>
+	    <tr>
+		<td class="center"><b>Target</b></td>
+		<td class="center"><div id="idInput"><b>IDs</b> (<i>Using ',' for multiple IDs and '-' for continuous IDs</i>)</div></td>
+		<td class="center w70"><b>Directory</b></td>
+		<td></td>
+	    </tr>
+	    <tr>
+		<td>
+		    <select id="DBmgr">
+			<option value="gui_project">Project Retrieval</option>
+			<option value="gui_outputs" selected="selected">Outputs</option>
+			<option value="gui_queue">Queue</option>
+		    </select>
+		</td>
+		<td>
+		    <input type="text" onkeypress="return isNumberKey(event)" name="selIDs" size="70" id="selIDs">
+		</td>
+		<td class="center">
+		    <input type="checkbox" name="delDir" id="delDir">
+		</td>
+
+		<td>
+		    <button id="sub_DBmgr">DELETE</button>
+		</td>
+	    </tr>
+	    <tr>
+		<td class="center message_warn" colspan='4' id="rv_cmd_err"></td>
+	    </tr>
+	</table>
+	</center>
+    </div>
+</div>

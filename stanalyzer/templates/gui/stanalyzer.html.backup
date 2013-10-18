@@ -1,0 +1,300 @@
+<div id="tabs">
+    <ul>
+	<li><a href="#step1">STEP1</a></li>
+	<li><a href="#step2">STEP2</a></li>
+    </ul>
+    <div id="step1">
+	<hr/>
+	<!-- <form id="defRoot" method='post' onsubmit="return rootValidation();"> -->
+	    {% csrf_token %}
+	    <table>
+		<tr>
+		    <td width="100" class="left">Job title</td>
+		    <td>:</td>
+		    <td class="left"><input type="text" id="job_title" name="job_title" size=102></td>
+		</tr>
+		<tr>
+		    <td width="100" class="left">Project</td>
+		    <td>:</td>
+		    <td class="left"><select id='prj'> </select>
+			<button id="btn_newPrj">NEW</button>
+			<button id="btn_editPrj">EDIT</button>
+			<button id="btn_delPrj">DELETE</button>
+		    </td>
+		</tr>
+		<tr>
+		    <td></td><td></td>
+		    <td>
+			<!-- ////////////////////////////////////////////////////////////////////////// -->
+			<!--- Add New Project								-->
+			<!-- ////////////////////////////////////////////////////////////////////////// -->
+			<div id="frm_newPrj">
+			    <table class="sub_form_new" width="700">
+				<tr>
+				    <td class="prj_caption">Title</td>
+				    <td class="prj_iform"><input type="text" name="title" size="50" id="title"></td>
+				</tr>
+				<tr>
+				    <td class="prj_caption">Input path</td>
+				    <td class="prj_iform"><input type="text" name="rpath" size="50" id="rpath"><button id="add_path">ADD</button></td>
+				</tr>
+				<tr>
+				    <td class="prj_caption"></td>
+				    <td class="prj_iform">
+					<select id="rpaths" multiple="multiple" name="rpaths[]" title="UNDO">
+					</select>
+				    </td>
+				</tr>
+				<tr>
+				    <td class="prj_caption">Output path</td>
+				    <td class="prj_iform"><input type="text" id="out_path" name="out_path" size="50" ><button id="chk_out_path">CONFIRM</button></td>
+				</tr>
+				<tr>
+				    <td class="prj_caption"></td>
+				    <td class="prj_iform">
+					<select id="out_paths" multiple="multiple" name="out_paths[]" title="UNDO">
+					</select>
+				    </td>
+				</tr>
+				<tr>
+				    <td class="prj_caption">Python path</td>
+				    <td class="prj_iform"><input type="text" id="python_path" name="python_path" size="50" ><button id="chk_python_path">CONFIRM</button></td>
+				</tr>
+				<tr>
+				    <td class="prj_caption"></td>
+				    <td class="prj_iform">
+					<select id="python_paths" multiple="multiple" name="python_paths[]" title="UNDO">
+					</select>
+				    </td>
+				</tr>
+				<tr>
+				    <td class="prj_caption">PBS</td>
+				    <td class="prj_iform"><textarea id="pbs" name="pbs" rows="10" cols="50"></textarea></td>
+				</tr>
+				<tr>
+				    <td></td>
+				    <td><button id="btn_setPrj">CREATE</button></td>
+				</tr>
+			    </table>
+			</div>
+			
+			<!-- ////////////////////////////////////////////////////////////////////////// -->
+			<!--- Project Editor 								-->
+			<!-- ////////////////////////////////////////////////////////////////////////// -->
+			<div id="frm_editPrj">
+			    <table class="sub_form_edit" width="700">
+				<tr>
+				    <td class="prj_caption">Title</td>
+				    <td class="prj_iform"><input type="text" name="title" size="50" id="title"></td>
+				</tr>
+				<tr>
+				    <td class="prj_caption">Input path</td>
+				    <td class="prj_iform"><input type="text" name="rpath" size="50" id="rpath"><button id="add_path">ADD</button></td>
+				</tr>
+				<tr>
+				    <td class="prj_caption"></td>
+				    <td class="prj_iform">
+					<select id="rpaths" multiple="multiple" name="rpaths[]" title="UNDO">
+					    {% for path in path_inputs_path%}
+						<option>{{ path }}</option>
+					    {% endfor %}
+					</select>
+				    </td>
+				</tr>
+				<tr>
+				    <td class="prj_caption">Output path</td>
+				    <td class="prj_iform"><input type="text" id="out_path" name="out_path" size="50" ><button id="chk_out_path">CONFIRM</button></td>
+				</tr>
+				<tr>
+				    <td class="prj_caption"></td>
+				    <td class="prj_iform">
+					<select id="out_paths" multiple="multiple" name="out_paths[]" title="UNDO">
+					    {% for path in path_outputs_path%}
+						<option>{{ path }}</option>
+					    {% endfor %}
+					</select>
+				    </td>
+				</tr>
+				<tr>
+				    <td class="prj_caption">Python path</td>
+				    <td class="prj_iform"><input type="text" id="python_path" name="python_path" size="50" ><button id="chk_python_path">CONFIRM</button></td>
+				</tr>
+				<tr>
+				    <td class="prj_caption"></td>
+				    <td class="prj_iform">
+					<select id="python_paths" multiple="multiple" name="python_paths[]" title="UNDO">
+					    {% for path in path_pythons_path%}
+						<option>{{ path }}</option>
+					    {% endfor %}
+					</select>
+				    </td>
+				</tr>
+				<tr>
+				    <td class="prj_caption">PBS</td>
+				    <td class="prj_iform"><textarea id="pbs" name="pbs" rows="10" cols="50"></textarea></td>
+				</tr>
+				<tr>
+				    <td></td>
+				    <td><button id="btn_mdfPrj">UPDATE</button></td>
+				</tr>
+			    </table>
+			</div>
+		    </td>
+		</tr>
+		<tr>
+		    <td class="left">Input path</td><td>:</td>
+		    <td class="left">
+			<select id='proot' name="path_root">
+			    {% for path in path_inputs_path%}
+				<option>{{ path }}</option>
+			    {% endfor %}
+
+			</select>
+		    </td>
+		</tr>
+		<tr>
+		    <td class="left">Output path</td><td>:</td>
+		    <td class="left">
+			<select id='poutput' name="path_output">
+			    {% for path in path_outputs_path%}
+				<option>{{ path }}</option>
+			    {% endfor %}
+
+			</select>
+		    </td>
+		</tr>
+		<tr>
+		    <td class="left">Python path</td><td>:</td>
+		    <td class="left">
+			<select id='ppython' name="path_python">
+			    {% for path in path_pythons_path%}
+				<option>{{ path }}</option>
+			    {% endfor %}
+
+			</select>
+		    </td>
+		</tr>
+
+		<tr>
+		    <td class="left">Structure File</td><td>:</td>
+		    <td class="left">
+			<select data-placeholder="Choose structure file containing " id='stfile' name="stfile" class="chzn-select" style="width:300px;">
+			    {% if fList.0 %}
+				{% for fname in fList %}
+				    <option value="{{ fname }}"> {{ fname }}</option>
+				{% endfor %}
+			    {% endif %}
+			</select>
+		    </td>
+		</tr>
+		<tr>
+		    <td class="top left">Trajectories</td><td>:</td>
+		    <td>
+			<table>
+			    <tr><td colspan=3  class="left"><input type="text" id="trjFilter" name="trjFilter" size=40>
+			    <tr>
+				<td>
+				    <select id="select_trj1" class="file_lists" multiple='multiple' >
+				    {% for fname in fList %}
+				    <option value="{{ fname }}">{{ fname }}</option>
+				    {% endfor %}
+				   </select>
+				</td>
+				<td class="middle">
+				    <button id="btn_add">ADD</button></br>
+				    <button id="btn_remove">REMOVE</button></br>
+				    <button id="btn_sort">SORT</button><br/>
+				    <button id="btn_all">Select All</button></br>
+				    <button id="btn_init">Initialize</button></br>
+				</td>
+				<td>
+				    <select id="select_trj2" class="file_lists" multiple='multiple' name='trjFile[]'>
+				    </select>
+				</td>
+			    </tr>
+			</table>
+		    </td>
+		</tr>
+
+	    </table>
+	    <div id="prjInfo"></div>
+	    <div id='temp_output'></div>
+	    <div id='err_root'></div>
+	<!-- </form> -->
+	<hr/>
+    </div>
+
+    <div id="step2">
+	<!-- <form id="sendJob" method='post' onsubmit="return jobValidation();"> -->
+	{% csrf_token %}
+	
+	<!------
+	    ************************************************************
+	    START: script to setup jobs
+	    ************************************************************
+	-------->
+	
+	<table width=800>
+	    <tr>
+		<td class="left">
+		    <span>Target machine for running submitted jobs: </span>
+		    <input id="cluster" type="radio" name="machine" value="cluster">CLUSTER
+		    <input id="server" type="radio" name="machine" value="server">SERVER
+		</td>
+	    </tr>
+	    <tr><td><hr/></td></tr>
+	    <!---
+		*******************************************************************************
+		* Add the form of new Job or functions below: once new functions is added
+		* plase modify function eval_step2() in line 65
+		*******************************************************************************
+	    --->
+
+	    <!---
+		/// Calculating box size ////
+	    --->
+	    <div id="box">
+	    <tr>
+		<td class="left">
+		    <input type="checkbox" id="box_title">Box size <br/><hr/>
+		</td>
+	    </tr>
+	    </div>
+	    <!---
+		/// Calculating helix tilt ////
+	    --->
+	    <div id="helix_tilt">
+	    <tr>
+		<td class="left"><input type="checkbox" id="helix_tilt_title">Helix tilt</td>
+	    </tr>
+	    <tr>
+		<td calspan=2 class="left">
+		    <div id="helix_tilt_form">
+		    <table>
+			<tr><td>Segments</td><td>Start</td><td>End</td></tr>
+			<tr>
+			    <td><select data-placeholder="Choose a segment" class="chzn-select" style="width:100px;" id="segID" name="segID"></select></td>
+			    <td><select data-placeholder="Choose start residue" class="chzn-select" style="width:100px;" id="stRes" name="stRes"></select></td>
+			    <td><select data-placeholder="Choose final residue" class="chzn-select" style="width:100px;" id="edRes" name="edRes"></select></td>
+			</tr>
+		    </table>
+		    </div>
+		    <br/><hr/>
+		</td>
+	    </tr>
+	    </div>
+	</table>
+	<!------
+	    ************************************************************
+	    END: script to setup jobs
+	    ************************************************************
+	-------->
+	<!--- </form> --->
+	<div id="results"></div>
+	<div id="dlg_confirm" title="Warning!">
+	    <span id="dlg_msg"></span>
+	    <!-- <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span></p> -->
+	</div>
+    </div>
+
+</div>

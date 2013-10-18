@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "area_per_lipid.py", line 118, in <module>
+    c.execute(query);
+sqlite3.OperationalError: database is locked

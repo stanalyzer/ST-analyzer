@@ -1,0 +1,38 @@
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+var cnt_protein_carbohydrate = 0;
+
+$j(document).ready(function(){
+    $j("#M_protein_carbohydrate").hide();
+    $j("#chk_protein_carbohydrate").click(function () {
+	$j("#M_protein_carbohydrate").toggle(this.checked);
+    });
+});
+</script>
+
+<div id="protein_carbohydrate">
+    <table>
+	<tr>
+	    <td colspan="2"><input type="checkbox" id="chk_protein_carbohydrate"><span class="st_font1 st_size3 st_color6"><b>Protein-Carbohydrate</b></span></td>
+	</tr>
+	<tr><td colspan="2">
+	    <table id="M_protein_carbohydrate">
+		<tr>
+		    <td class="w_module"> </td>
+		    <td>
+			<!--- calculating box size --->
+			<div id="cal_protein_carbohydrate">
+			    <table>
+				<tr>
+				    <td class="left">
+					<input type="checkbox" id="protein_carbohydrate_title">Module 1 <br/><hr/>
+				    </td>
+				</tr>
+			    </table>
+			</div>
+		    </td>
+		</tr>
+	    </table>
+	</td></tr>
+    </table>
+</div>

@@ -1,0 +1,17 @@
+/export/apps/lib/python2.7/site-packages/MDAnalysis-0.7.7-py2.7-linux-x86_64.egg/MDAnalysis/topology/PSFParser.py:208: FileFormatWarning: Guessing that this is actually a NAMD-type PSF file... continuing with fingers crossed!
+  category=FileFormatWarning)
+Traceback (most recent call last):
+  File "ordpara_charmm.py", line 232, in <module>
+    selAtoms = u.selectAtoms(selQry);
+  File "/export/apps/lib/python2.7/site-packages/MDAnalysis-0.7.7-py2.7-linux-x86_64.egg/MDAnalysis/core/AtomGroup.py", line 2105, in selectAtoms
+    atomgrp = Selection.Parser.parse(sel).apply(self)
+  File "/export/apps/lib/python2.7/site-packages/MDAnalysis-0.7.7-py2.7-linux-x86_64.egg/MDAnalysis/core/Selection.py", line 602, in parse
+    parsetree = self.__parse_expression(0)
+  File "/export/apps/lib/python2.7/site-packages/MDAnalysis-0.7.7-py2.7-linux-x86_64.egg/MDAnalysis/core/Selection.py", line 607, in __parse_expression
+    exp1 = self.__parse_subexp()
+  File "/export/apps/lib/python2.7/site-packages/MDAnalysis-0.7.7-py2.7-linux-x86_64.egg/MDAnalysis/core/Selection.py", line 641, in __parse_subexp
+    self.__error("Identifier")
+  File "/export/apps/lib/python2.7/site-packages/MDAnalysis-0.7.7-py2.7-linux-x86_64.egg/MDAnalysis/core/Selection.py", line 591, in __error
+    raise ParseError("Parsing error- '"+self.selectstr+"'\n"+repr(token)+" expected")
+MDAnalysis.core.Selection.ParseError: Parsing error- 'segid segid and resname DXPE and name C2* and not (name C2 or name C21)'
+'Identifier' expected

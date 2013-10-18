@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge, chrome=1" />
+<meta name="description" content="JavaScript desktop environment built with jQuery." />
+<title>ST-Analyzer</title>
+<!--[if lt IE 7]>
+<script>
+window.top.location = 'http://desktop.sonspring.com/ie.html';
+</script>
+<![endif]-->
+<link rel="stylesheet" href="/static/desktop/css/reset.css" />
+<link rel="stylesheet" href="/static/desktop/css/desktop.css" />
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/static/desktop/css/ie.css" />
+<![endif]-->
+</head>
+<body>
+<img id="wallpaper" class="abs" src="/static/desktop/images/misc/wallpaper2.jpg" />  
+<div class="abs" id="wrapper">
+  <div class="abs" id="desktop">
+    <!-- Desktop display -->
+    <a class="abs icon" style="left:20px;top:20px;" href="#icon_dock_computer">
+      <img src="/static/desktop/images/icons/icon_32_computer.png" />
+      ST-Analyzer
+    </a>
+    
+    <!-- Individual windows -->
+    <div id="window_computer" class="abs window">
+      <div class="abs window_inner">
+        <!-- Window title bar-->
+        <div class="window_top">
+          <!-- Window title -->
+          <span class="float_left">
+            <img src="/static/desktop/images/icons/icon_16_computer.png" />
+            ST-Analyzer
+          </span>
+          <!-- Window icons -->
+          <span class="float_right">
+            <a href="#" class="window_min"></a>
+            <a href="#" class="window_resize"></a>
+            <a href="#icon_dock_computer" class="window_close"></a>
+          </span>
+        </div>
+        
+        <!-- Window Contents-->
+        <div class="abs window_content">
+          <!-- Left side of window-->
+          <div class="window_aside">
+            Hello. You look nice today!
+          </div>
+          <!-- main window contents-->
+          <div class="window_main">
+            <table>
+              <tr><td>Here will be contents of ST-Analyzer</td></tr>
+            </table>
+          </div>
+        </div>
+        
+        <!-- Window Bottom-->
+        <div class="abs window_bottom">
+          ST-Analyzer
+        </div>
+      </div>
+      
+      <span class="abs ui-resizable-handle ui-resizable-se"></span>
+    </div>
+  </div>
+  
+  <!--- Setup TOP bar ---->
+  <div class="abs" id="bar_top">
+    <span class="float_right" id="clock"></span>
+    <ul>
+      <li>
+        <!--- setup the menu bar --->
+        <a class="menu_trigger" href="#">ST-Analyzer</a>
+        <ul class="menu">
+          <li>
+            <a href="http://www.amazon.com/dp/0596159773?tag=sons-20">jQuery Cookbook</a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <a class="menu_trigger" href="#">About us</a>
+        <ul class="menu">
+          <li>
+            <a href="http://diveintohtml5.info/">Im LAB</a>
+          </li>
+        </ul>
+      </li>
+  </div>
+  
+  <!-- Setting bottom bar --->
+  <div class="abs" id="bar_bottom">
+    <!-- left minimizing icon -->
+    <a class="float_left" href="#" id="show_desktop" title="Show Desktop">
+      <img src="/static/desktop/images/icons/icon_22_desktop.png" />
+    </a>
+    <!-- setup dock --->
+    <ul id="dock">
+      <li id="icon_dock_computer">
+        <a href="#window_computer">
+          <img src="/static/desktop/images/icons/icon_22_computer.png" />
+          ST-Analyzer
+        </a>
+      </li>
+    </ul>
+    
+    <!-- Setup bottom right link -->
+    <a class="float_right" href="http://www.firehost.com/?ref=spon_nsmith_desktop-sonspring" title="Secure Hosting">
+      <img src="/static/desktop/images/misc/firehost.png" />
+    </a>
+  </div>
+</div>
+
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+<script>
+  !window.jQuery && document.write(unescape('%3Cscript src="/static/desktop/js/jquery.js"%3E%3C/script%3E'));
+  !window.jQuery.ui && document.write(unescape('%3Cscript src="/static/desktop/js/jquery.ui.js"%3E%3C/script%3E'));
+</script>
+<script src="/static/desktop/js/jquery.desktop.js"></script>
+<script>
+  var _gaq = [['_setAccount', 'UA-166674-8'], ['_trackPageview']];
+
+  (function(d, t) {
+    var g = d.createElement(t),
+    s = d.getElementsByTagName(t)[0];
+    g.async = true;
+    g.src = '//www.google-analytics.com/ga.js';
+    s.parentNode.insertBefore(g, s);
+  })(this.document, 'script');
+</script>
+</body>
+</html>

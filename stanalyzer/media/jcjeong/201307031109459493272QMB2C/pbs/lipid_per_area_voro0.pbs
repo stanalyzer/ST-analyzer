@@ -1,0 +1,11 @@
+#!/bin/csh
+#PBS -l nodes=1:ppn=1
+#PBS -l mem=500mb
+#PBS -l walltime=72:00:00
+#PBS -l cput=72:00:00
+#PBS -q default
+#PBS -N lipid0
+#PBS -e /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/201307031109459493272QMB2C/pbs/lipid_per_area_voro0.err
+#PBS -o /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/201307031109459493272QMB2C/pbs/lipid_per_area_voro0.log
+cd /home2/jcjeong/project/stanalyzer0/stanalyzer/static/analyzers
+/home/sunhwan/local/python/bin/python lipid_per_area_voro.py /home2/jcjeong/project/stanalyzer0/stanalyzer/media/jcjeong/201307031109459493272QMB2C/para 0
