@@ -231,7 +231,6 @@ print "Total # atoms = {}, {}".format(num_atoms, type(num_atoms));
 #///////////////////////////////////////////////////////////////////////////
 # Running actual job
 #///////////////////////////////////////////////////////////////////////////
-<<<<<<< HEAD
 try:
     run = 1;
     if run:
@@ -403,222 +402,10 @@ try:
 	if (flg_top + flg_btm) > 1:
 	    # Writing Gnuplot script
 	    outScr = '{0}/gplot{1}.gpl'.format(out_dir, para_idx);
-=======
-run = 1;
-if run:
-    #fid_out.write("# Time(ps)\tAverage lipid per area\n");
-    psf = '{0}{1}'.format(base_path, structure_file);
-
-    flg_top = 0;	    # check bi/mono layer
-    flg_btm = 0;	    # check bi/mono layer
-
-    timeStamp = [];         # time stamp for trajectory
-
-    # data based on trajectory
-    STMP  = [];
-    TOP_AREA = [];	    # area of individual lipids at top layer
-    BTM_AREA = [];	    # area of individual lipids at bottom layer
-    TOP_AREA_AVE = [];	    # average area based on residue name at top layer
-    BTM_AREA_AVE = [];	    # average area based on residue name at bottom layer
-    trj_cnt = 0;
-    for idx in range(len(trajectoryFile)):
-	#print "[{0}/{1}] trajectory is processing...".format(idx+1, len(trajectoryFile));
-	cnt = 0;
-	# turning on periodic boundary conditions
-	MDAnalysis.core.flags['use_periodic_selections'] = True
-	MDAnalysis.core.flags['use_KDTree_routines'] = False
-	
-	# reading trajectory
-	trj = '{0}{1}'.format(base_path, trajectoryFile[idx]);
-	#print 'Reading PSF: ' + psf
-	#print 'Reading DCD: ' + trj
-	u = Universe(psf, trj);
-	
-	# read based on frame
-	for ts in u.trajectory:
-	    # turning on periodic boundary conditions
-	    MEMB = u.selectAtoms(selQry);
-	    u.atoms.translate(-MEMB.centerOfMass());
-	    L = MDAnalysis.analysis.leaflet.LeafletFinder(u, selQry, cutoff=15.0, pbc=True);
-            cnt = cnt + 1;
-	    trj_cnt = trj_cnt + 1;
-	    #print "[{0}/{1}] processing...".format(cnt, len(u.trajectory));
-	    if (cnt % frmInt) == 0: #and cnt == 25:
-		tmp_time = float(trj_cnt) * float(num_ps) - float(num_ps);
-		STMP.append(tmp_time);
-		# for bilayer membrane
-		#print "Query: {0}".format(selQry);
-		#topQry = "{0} and (prop z > 0.0)".format(selQry);
-		#print topQry
-		#topAtoms = u.selectAtoms(topQry);
-		if len(L.groups()) > 1:
-		    topAtoms = L.group(0);
-		    if len(topAtoms) > 0:
-			flg_top = 1;
-			topArea 	= lipidArea.voroArea(topAtoms, selQry, sysX, sysY); 	# topArea = [resid1,...,residn];
-			top_resIDs  = topAtoms.resids();		               		# obtaining residue ids
-			top_resNames= topAtoms.resnames();
-			top_uq_resNames = lipidArea.stateLipidArea(topAtoms, topArea)[0];	# unique residue to get Average on each Residue [Res1, res2, ..., resN]
-			tmp_aveRes  = lipidArea.stateLipidArea(topAtoms, topArea)[1];	# Average area corresponding to uq_resNames [[ave, std, stderr]]
-			TOP_AREA.append(topArea);						# TOP_AREA = [topArea_1,...,topArea_n]
-			TOP_AREA_AVE.append(tmp_aveRes);					# TOP_AREA_AVE = [[ave1, std1, stderr1], [ave2, std2, stderr2], ...[aveN, stdN, stderrN]]	
-			
-		    #btmQry = "{0} and (prop z < 0.0)".format(selQry);
-		    #btmAtoms = u.selectAtoms(btmQry);
-		    btmAtoms = L.group(1);
-		    if len(btmAtoms) > 0:
-			flg_btm = 1;
-			btmArea 	= lipidArea.voroArea(btmAtoms, selQry, sysX, sysY);	# btmArea = [resid1,...,residn];
-			btm_resIDs  = btmAtoms.resids();               			# obtaining residue ids
-			btm_resNames= btmAtoms.resnames();
-			btm_uq_resNames = lipidArea.stateLipidArea(btmAtoms, btmArea)[0];	# unique residue to get Average on each Residue [Res1, res2, ..., resN]
-			tmp_aveRes  = lipidArea.stateLipidArea(btmAtoms, btmArea)[1];	# Average area corresponding to uq_resNames [[ave, std, stderr]]
-			BTM_AREA.append(btmArea);						# BTM_AREA = [btmArea_1,...,btmArea_n]
-			BTM_AREA_AVE.append(tmp_aveRes);					# BTM_AREA_AVE = [[ave1, std1, stderr1], [ave2, std2, stderr2], ...[aveN, stdN, stderrN]]
-		else:
-		    topAtoms = L.group(0);
-		    if len(topAtoms) > 0:
-			flg_top = 1;
-			topArea 	= lipidArea.voroArea(topAtoms, selQry, sysX, sysY); 	# topArea = [resid1,...,residn];
-			top_resIDs  = topAtoms.resids();		               		# obtaining residue ids
-			top_resNames= topAtoms.resnames();
-			top_uq_resNames = lipidArea.stateLipidArea(topAtoms, topArea)[0];	# unique residue to get Average on each Residue [Res1, res2, ..., resN]
-			tmp_aveRes  = lipidArea.stateLipidArea(topAtoms, topArea)[1];	# Average area corresponding to uq_resNames [[ave, std, stderr]]
-			TOP_AREA.append(topArea);						# TOP_AREA = [topArea_1,...,topArea_n]
-			TOP_AREA_AVE.append(tmp_aveRes);					# TOP_AREA_AVE = [[ave1, std1, stderr1], [ave2, std2, stderr2], ...[aveN, stdN, stderrN]]	
-		#print "+----------------------------------------------------------+";
-	
-    
-    # Writing final output
-    top_res_file = '{0}/top_res_{1}'.format(out_dir, outFile);
-    top_ave_file = '{0}/top_ave_{1}'.format(out_dir, outFile);
-    btm_res_file = '{0}/btm_res_{1}'.format(out_dir, outFile);
-    btm_ave_file = '{0}/btm_ave_{1}'.format(out_dir, outFile);
-    fid_top_res = open(top_res_file, 'w');
-    fid_top_ave = open(top_ave_file, 'w');
-    fid_btm_res = open(btm_res_file, 'w');
-    fid_btm_ave = open(btm_ave_file, 'w');
-    
-    # pick one of output file names for DB usage
-    out_file = top_ave_file;
-    
-    if flg_top > 0:
-	cmt_aveStr = "# Time(ps)";
-	for i in top_uq_resNames:
-	    cmt_aveStr ="{0}\t{1}".format(cmt_aveStr, i);
-	cmt_aveStr = "{0}\n".format(cmt_aveStr);
-
-	cmt_resStr = "# Time(ps)";
-	for i in top_resIDs:
-	    cmt_resStr ="{0}\t{1}".format(cmt_resStr, i);
-	cmt_resStr = "{0}\tAVERAGE\n".format(cmt_resStr);
-
-	fid_top_ave.write(cmt_aveStr);
-	fid_top_res.write(cmt_resStr);
-	
-	tstamp = 0;
-	for perRes in TOP_AREA_AVE:
-	    outStr = "{0}".format(STMP[tstamp]);
-	    tstamp = tstamp + 1;
-	    for istat in perRes:
-		outStr = "{0}\t{1}".format(outStr, istat[0]);
-	    outStr= "{0}\n".format(outStr);
-	    fid_top_ave.write(outStr);
-	fid_top_ave.close()
-
-	tstamp = 0;
-	for resIdx in TOP_AREA:
-	    outStr = "{0}".format(STMP[tstamp]);
-	    tstamp = tstamp + 1;
-	    for j in range(len(resIdx)):
-		outStr = "{0}\t{1}".format(outStr, resIdx[j]);
-	    outStr= "{0}\n".format(outStr);
-	    fid_top_res.write(outStr);
-	fid_top_res.close()
-    
-    if flg_btm > 0:
-	cmt_aveStr = "# Time(ps)";
-	for i in btm_uq_resNames:
-	    cmt_aveStr ="{0}\t{1}".format(cmt_aveStr, i);
-	cmt_aveStr = "{0}\n".format(cmt_aveStr);
-
-	cmt_resStr = "# Time(ps)";
-	for i in btm_resIDs:
-	    cmt_resStr ="{0}\t{1}".format(cmt_resStr, i);
-	cmt_resStr = "{0}\tAVERAGE\n".format(cmt_resStr);
-	
-	fid_btm_ave.write(cmt_aveStr);
-	fid_btm_res.write(cmt_resStr);
-	tstamp = 0;
-	for perRes in BTM_AREA_AVE:
-	    outStr = "{0}".format(STMP[tstamp]);
-	    tstamp = tstamp + 1;
-	    for istat in perRes:
-		outStr = "{0}\t{1}".format(outStr, istat[0]);
-	    outStr= "{0}\n".format(outStr);
-	    fid_btm_ave.write(outStr);
-	fid_btm_ave.close()
-	
-	tstamp = 0;
-	for resIdx in BTM_AREA:
-	    outStr = "{0}".format(STMP[tstamp]);
-	    tstamp = tstamp + 1;
-	    for j in range(len(resIdx)):
-		outStr = "{0}\t{1}".format(outStr, resIdx[j]);
-	    outStr= "{0}\n".format(outStr);
-	    fid_btm_res.write(outStr);
-	fid_btm_res.close()
-
-
-    # -------- Drawing graphs
-    if (flg_top + flg_btm) > 1:
-	# Writing Gnuplot script
-	outScr = '{0}/gplot{1}.gpl'.format(out_dir, para_idx);
-	#outImg  = '{0}{1}.eps'.format(exe_file[:len(exe_file)-3], para_idx);
-	outImg  = '{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
-	imgPath = "{0}/{1}".format(out_dir, outImg);
-	fid_out = open(outScr, 'w');
-	#gScript = """set terminal postscript eps enhanced color font 'Helvetica' \n""";
-	gScript = """set terminal png enhanced \n""";
-	gScript = gScript + "set encoding iso_8859_1\n";
-	gScript = gScript + "set output '{0}'\n".format(imgPath);
-	gScript = gScript + "set multiplot layout 2, 1 title 'Area per lipid'\n";
-	gScript = gScript + "set tmargin 2\n";
-	gScript = gScript + "set title 'Top Membrane'\n";
-	gScript = gScript + """set xlabel 'Time (ps)'\n""";
-	#gScript = gScript + """set ylabel 'Area per Lipid [{\305}^2 ]'\n""";
-	gScript = gScript + """set ylabel 'Area per Lipid [A^2 ]'\n""";
-	gScript = gScript + """plot "{0}" using 1:2 title "{1}" with lines lw 3""".format(top_ave_file, top_uq_resNames[0]);
-	rcnt = 2;
-	for ridx in range(len(top_uq_resNames)-1):
-	    rcnt = rcnt + 1;
-	    gScript = """{0}, "{1}" using 1:{2} title "{3}" with lines lw 3""".format(gScript, top_ave_file, rcnt, top_uq_resNames[ridx+1]);
-	gScript = """{0}\n""".format(gScript);
-	
-	gScript = gScript + "set title 'Bottom Membrane'\n";
-	gScript = gScript + "set xlabel 'Time (ps)'\n";
-	gScript = gScript + "set ylabel 'Area per Lipid [A]'\n";
-	#gScript = gScript + "set output '{0}'\n".format(imgPath);
-	gScript = gScript + """plot "{0}" using 1:2 title "{1}" with lines lw 3""".format(btm_ave_file, btm_uq_resNames[0]);
-	rcnt = 2;
-	for ridx in range(len(btm_uq_resNames)-1):
-	    rcnt = rcnt + 1;
-	    gScript = """{0}, "{1}" using 1:{2} title "{3}" with lines lw 3""".format(gScript, btm_ave_file, rcnt, btm_uq_resNames[ridx+1]);
-	gScript = """{0}\n""".format(gScript);
-	
-	gScript = gScript + "unset multiplot\n";
-	gScript = gScript + "set output\n";
-	fid_out.write(gScript);
-	fid_out.close()
-    else:
-	if flg_top > 0:
-	    outScr = '{0}/gplot{1}.p'.format(out_dir, para_idx);
->>>>>>> aa05be30ce412a3a250b73cced1ef91bb83eed20
 	    #outImg  = '{0}{1}.eps'.format(exe_file[:len(exe_file)-3], para_idx);
 	    outImg  = '{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
 	    imgPath = "{0}/{1}".format(out_dir, outImg);
 	    fid_out = open(outScr, 'w');
-<<<<<<< HEAD
 	    #gScript = """set terminal postscript eps enhanced color font 'Helvetica' \n""";
 	    gScript = """set terminal png enhanced \n""";
 	    gScript = gScript + "set encoding iso_8859_1\n";
@@ -629,53 +416,23 @@ if run:
 	    gScript = gScript + """set xlabel 'Time (ps)'\n""";
 	    #gScript = gScript + """set ylabel 'Area per Lipid [{\305}^2 ]'\n""";
 	    gScript = gScript + """set ylabel 'Area per Lipid [A^2 ]'\n""";
-=======
-	    #gScript = "set terminal postscript eps enhanced color font 'Helvetica'\n";
-	    gScript = """set terminal png enhanced \n""";
-	    gScript = gScript + "set encoding iso_8859_1\n";
-	    gScript = gScript + "set xlabel 'Time (ps)'\n";
-	    #gScript = gScript + "set ylabel 'Area per Lipid [{\305}^2]'\n";
-	    gScript = gScript + "set ylabel 'Area per Lipid [A^2]'\n";
-	    gScript = gScript + "set title 'Top Membrane'\n";
-	    gScript = gScript + "set output '{0}'\n".format(imgPath);
->>>>>>> aa05be30ce412a3a250b73cced1ef91bb83eed20
 	    gScript = gScript + """plot "{0}" using 1:2 title "{1}" with lines lw 3""".format(top_ave_file, top_uq_resNames[0]);
 	    rcnt = 2;
 	    for ridx in range(len(top_uq_resNames)-1):
 		rcnt = rcnt + 1;
 		gScript = """{0}, "{1}" using 1:{2} title "{3}" with lines lw 3""".format(gScript, top_ave_file, rcnt, top_uq_resNames[ridx+1]);
 	    gScript = """{0}\n""".format(gScript);
-<<<<<<< HEAD
 	    
 	    gScript = gScript + "set title 'Bottom Membrane'\n";
 	    gScript = gScript + "set xlabel 'Time (ps)'\n";
 	    gScript = gScript + "set ylabel 'Area per Lipid [A]'\n";
 	    #gScript = gScript + "set output '{0}'\n".format(imgPath);
-=======
-	    fid_out.write(gScript);
-	    fid_out.close()	
-	if flg_btm > 0:
-	    outScr = '{0}/gplot{1}.p'.format(out_dir, para_idx);
-	    #outImg  = '{0}{1}.eps'.format(exe_file[:len(exe_file)-3], para_idx);
-	    outImg  = '{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
-	    imgPath = "{0}/{1}".format(out_dir, outImg);
-	    fid_out = open(outScr, 'w');
-	    #gScript = "set terminal postscript eps enhanced color font 'Helvetica'\n";
-	    gScript = "set terminal png enhanced\n";
-	    gScript = gScript + "set encoding iso_8859_1\n";
-	    gScript = gScript + "set xlabel 'Time (ps)'\n";
-	    #gScript = gScript + "set ylabel 'Area per Lipid [{\305}^2]'\n";
-	    gScript = gScript + "set ylabel 'Area per Lipid [A^2]'\n";
-	    gScript = gScript + "set title 'Bottom Membrane'\n";
-	    gScript = gScript + "set output '{0}'\n".format(imgPath);
->>>>>>> aa05be30ce412a3a250b73cced1ef91bb83eed20
 	    gScript = gScript + """plot "{0}" using 1:2 title "{1}" with lines lw 3""".format(btm_ave_file, btm_uq_resNames[0]);
 	    rcnt = 2;
 	    for ridx in range(len(btm_uq_resNames)-1):
 		rcnt = rcnt + 1;
 		gScript = """{0}, "{1}" using 1:{2} title "{3}" with lines lw 3""".format(gScript, btm_ave_file, rcnt, btm_uq_resNames[ridx+1]);
 	    gScript = """{0}\n""".format(gScript);
-<<<<<<< HEAD
 	    
 	    gScript = gScript + "unset multiplot\n";
 	    gScript = gScript + "set output\n";
@@ -786,72 +543,6 @@ if run:
 	
     conn.close();
 
-=======
-	    fid_out.write(gScript);
-	    fid_out.close()	    
-    
-    # Drawing graph with gnuplot
-    subprocess.call(["gnuplot", outScr]);
-    
-    # gzip all reaults
-    outZip = "{0}project_{1}_{2}{3}.tar.gz".format(OUTPUT_HOME, prj_pkey, fName[1], para_idx);
-    subprocess.call(["tar", "czf", outZip, out_dir]);
-
-    # Update values into gui_outputs
-    conn = sqlite3.connect(DB_FILE);
-    c    = conn.cursor();
-    query = """UPDATE gui_outputs SET status = "Complete", img="{0}", txt="{1}", gzip="{2}" WHERE id = {3}""".format(imgPath, out_file, outZip, pk_output);
-    c.execute(query);
-    conn.commit();
-    conn.close();
-    #print query
-
-
-
-
-######################################## PLEASE DO NOT MODIFY BELOW THIST LINE!!!! ############################################
-# update gui_parameter & gui_job table when job completed
-etime = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
-conn = sqlite3.connect(DB_FILE);
-c    = conn.cursor();
-for i in range(len(para_pkey)):
-    query = """UPDATE gui_parameter SET status = "COMPLETE" WHERE id = {0}""".format(para_pkey[i]);
-    #print query
-    c.execute(query);
-    conn.commit();
-
-# update gui_job if every status in gui_parameter are COMPLETE
-query = """SELECT DISTINCT(status) FROM gui_parameter WHERE job_id = {0}""".format(job_pkey[0]);
-c.execute(query);
-ST = c.fetchall();
-
-#print query;
-#print "number status = {}".format(len(ST));
-#for item in ST:
-#    print "{0}".format(item[0]);
-
-
-if (len(ST) == 1) and (ST[0][0] == "COMPLETE"):
-    etime = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
-    query = """UPDATE gui_job SET status = "COMPLETE", etime = "{0}" WHERE id = {1}""".format(etime, job_pkey[0]);
-    c.execute(query);
-    conn.commit();
-
-    # making tar file
-    outZip = "{0}project_{1}.tar.gz".format(OUTPUT_HOME, prj_pkey[0]);
-    subprocess.call(["tar", "czf", outZip, OUTPUT_HOME]);
-
-    # Inserting compressed tar file for all submitted jobs
-    #final_title = "[** All JOBs **] {0}".format(job_title);
-    #query = """INSERT INTO gui_outputs (job_id, name, img, txt, gzip) VALUES ({0}, "{1}", "{2}", "{3}", "{4}")""".format(job_pkey[0], final_title, '', '', outZip);
-    #c.execute(query);
-    #conn.commit();
-    
-conn.close();
-
-try:
-    print "okay!";
->>>>>>> aa05be30ce412a3a250b73cced1ef91bb83eed20
 #///////////////////////////////////////////////////////////////////////////
 # Finalizing  job
 # -- Use following codes to make your own function

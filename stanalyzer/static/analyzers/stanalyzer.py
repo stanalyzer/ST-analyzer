@@ -293,10 +293,7 @@ def count_intervals (sequence, intervals):
         pos = bisect_left(intervals, item)
         if pos == len(intervals):
             count[None] += 1
-<<<<<<< HEAD
 	    print "WARNING: a value has been found outside min/max of system range! please increase min/max of system range!"
-=======
->>>>>>> aa05be30ce412a3a250b73cced1ef91bb83eed20
         else:
             count[intervals[pos]] += 1
     return count

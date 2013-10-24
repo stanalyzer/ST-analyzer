@@ -3169,7 +3169,7 @@ def stanalyzer_sendJob(request):
             stime     = datetime.now().strftime("%Y-%m-%d %H:%M:%S");
             query = """INSERT INTO gui_job (name, proj_id, anaz, status, output, stime, etime) \
                     VALUES ("{0}", {1}, "{2}", "{3}", "{4}", "{5}", "{6}")""".format(job_title, pkey, funcNames, 'SENT', OUTPUT_HOME, stime, 'N/A');
-            #print query
+            print query
             c.execute(query);
             conn.commit();
             #print "Job table updated!"
