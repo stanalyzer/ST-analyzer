@@ -241,12 +241,24 @@ num_uq_selatoms = len(sortlistNames);
 num_tails = num_selatoms / num_uq_selatoms;
 
 print "total {0} tails: {1} atoms and {2} unique atoms".format(num_tails, num_selatoms, num_uq_selatoms);
-#print sortlistNames
+print sortlistNames
 
 
-# defining the order of lipid tail
-dnst_min = int(sortlistNames[0][1:2]); # reading the first sroted atom and extract the first digit
-dnst_max = int(sortlistNames[len(sortlistNames)-1][2:]);
+# defining the order of lipid tail (e.g. CA1, CB1, CC1, etc. Vs. C1, C2)
+tmp_num = filter(str.isdigit, sortlistNames[0][1]);
+if len(tmp_num) > 0:
+    dnst_min = int(sortlistNames[0][1:2]); # reading the first sroted atom and extract the first digit
+else:
+    dnst_min = filter(str.isdigit, sortlistNames[0]); # reading the first sroted atom and extract the first digit
+print dnst_min
+
+tmp_num = filter(str.isdigit, sortlistNames[len(sortlistNames)-1][1]);
+if len(tmp_num) > 0:
+    dnst_max = int(sortlistNames[len(sortlistNames)-1][2:]);
+else:
+    dnst_max = filter(str.isdigit, sortlistNames[len(sortlistNames)-1]);
+print dnst_max
+
 dnst_bin = 1;
 
 print "dnst_min={}, dnst_max={}, dnst_bin={}".format(dnst_min, dnst_max, dnst_bin);
@@ -333,9 +345,9 @@ try:
 		if (cnt % frmInt) == 0:
 		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		    STMP.append(tmp_time);
-		    print "[{0}ps]selecting atoms...".format(tmp_time);
+		    #print "[{0}ps]selecting atoms...".format(tmp_time);
 		    selAtoms = u.selectAtoms(selQry);
-		    print "DONE!"
+		    #print "DONE!"
 		    if len(selAtoms) > 1:
 			# find hydrogen atoms based on the current selection
 			# get index of current atom selection

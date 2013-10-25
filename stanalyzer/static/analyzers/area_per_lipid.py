@@ -225,7 +225,7 @@ sysY 	  = float(sysY);
 print sysX
 print sysY
 
-print "Okay I am in lipid_per_area_voro.py!!!!!";
+print "Okay I am in area_per_lipid.py!!!!!";
 print "Total # atoms = {}, {}".format(num_atoms, type(num_atoms));
 
 #///////////////////////////////////////////////////////////////////////////

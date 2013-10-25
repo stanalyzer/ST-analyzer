@@ -245,8 +245,13 @@ print "total {0} tails: {1} atoms and {2} unique atoms".format(num_tails, num_se
 
 
 # defining the order of lipid tail
-dnst_min = int(sortlistNames[0][1:2]); # reading the first sroted atom and extract the first digit
-dnst_max = int(sortlistNames[len(sortlistNames)-1][2:]);
+#dnst_min = int(sortlistNames[0][1:2]); # reading the first sroted atom and extract the first digit
+dnst_min = filter(str.isdigit, sortlistNames[0]); # reading the first sroted atom and extract the first digit
+print dnst_min
+
+#dnst_max = int(sortlistNames[len(sortlistNames)-1][2:]);
+dnst_max = filter(str.isdigit, sortlistNames[len(sortlistNames)-1]);
+print dnst_max
 dnst_bin = 1;
 
 print "dnst_min={}, dnst_max={}, dnst_bin={}".format(dnst_min, dnst_max, dnst_bin);
