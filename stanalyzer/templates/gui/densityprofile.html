@@ -188,7 +188,7 @@ function density_getStructureInfo(query, async_flg) {
     });
       
     request.error(function(jqXHR, textStatus, errorThrown) {
-	$j("#vfy_msg").empty().append("Error: PDB file cannot be read!");
+	$j("#C_density #M_density #density #density_form #vfy_msg").empty().append("Error: PDB file cannot be read!");
     });
 
     return systemInfo;
@@ -204,6 +204,24 @@ var cnt_density = 0;
 $j(document).ready(function(){
 
     // show/hide gui query
+    $j("#step2 #cnt_no").attr('checked', 'checked');
+    $j("#C_density #M_density #density #density_form #txt_memb").empty().val("Define 'segid' or 'resname' to be centered! (e.g. segid MEMB)")
+    $j("#C_density #M_density #density #density_form #txt_memb").attr("disabled", "disabled");
+    $j("#C_density #M_density #density #density_form #density_center_options").hide();
+    
+    $("#C_density #M_density #density #density_form input:radio[name=opt_center]").each(function(i){
+	$j(this).click(function() {
+	    if (i == 0) {
+		$j("#C_density #M_density #density #density_form #txt_memb").removeAttr("disabled");
+		$j("#C_density #M_density #density #density_form #density_center_options").show();
+	    }
+	    else {
+		$j("#C_density #M_density #density #density_form #txt_memb").attr("disabled", "disabled");
+		$j("#C_density #M_density #density #density_form #density_center_options").hide();
+	    }
+	});
+    });
+
     $j('tr[id^="density_gui_input"]').hide();
     
     $j('input[id^="density_gquery"]').live("click", function() {
@@ -224,6 +242,9 @@ $j(document).ready(function(){
 	    if ($cnt_modules < 0) {
 		$cnt_modules = 0;
 	    }
+	    if (cnt_density < 0) {
+		cnt_density = 0;
+	    }
 	}
 	$j("#cnt_modules").empty().append($cnt_modules);
 	$j("#C_density #M_density #density #cnt_density").empty().append(cnt_density);
@@ -239,6 +260,9 @@ $j(document).ready(function(){
 	    cnt_density--;
 	    if ($cnt_modules < 0) {
 		$cnt_modules = 0;
+	    }
+	    if (cnt_density < 0) {
+		cnt_density = 0;
 	    }
 	}
 	$j("#cnt_modules").empty().append($cnt_modules);
@@ -256,6 +280,9 @@ $j(document).ready(function(){
 	    if ($cnt_modules < 0) {
 		$cnt_modules = 0;
 	    }
+	    if (cnt_density < 0) {
+		cnt_density = 0;
+	    }
 	}
 	$j("#cnt_modules").empty().append($cnt_modules);
 	$j("#C_density #M_density #density #cnt_density").empty().append(cnt_density);
@@ -271,6 +298,9 @@ $j(document).ready(function(){
 	    cnt_density--;
 	    if ($cnt_modules < 0) {
 		$cnt_modules = 0;
+	    }
+	    if (cnt_density < 0) {
+		cnt_density = 0;
 	    }
 	}
 	$j("#cnt_modules").empty().append($cnt_modules);
@@ -288,6 +318,9 @@ $j(document).ready(function(){
 	    if ($cnt_modules < 0) {
 		$cnt_modules = 0;
 	    }
+	    if (cnt_density < 0) {
+		cnt_density = 0;
+	    }
 	}
 	$j("#cnt_modules").empty().append($cnt_modules);
 	$j("#C_density #M_density #density #cnt_density").empty().append(cnt_density);
@@ -304,6 +337,9 @@ $j(document).ready(function(){
 	    if ($cnt_modules < 0) {
 		$cnt_modules = 0;
 	    }
+	    if (cnt_density < 0) {
+		cnt_density = 0;
+	    }
 	}
 	$j("#cnt_modules").empty().append($cnt_modules);
 	$j("#C_density #M_density #density #cnt_density").empty().append(cnt_density);
@@ -319,6 +355,9 @@ $j(document).ready(function(){
 	    cnt_density--;
 	    if ($cnt_modules < 0) {
 		$cnt_modules = 0;
+	    }
+	    if (cnt_density < 0) {
+		cnt_density = 0;
 	    }
 	}
 	$j("#cnt_modules").empty().append($cnt_modules);
@@ -337,7 +376,7 @@ $j(document).ready(function(){
 
     $j("#C_density #M_density #density #density_form").hide();
     $j("#C_density #M_density #density #density_title").click(function () {
-	$j("#vfy_msg").empty();
+	$j("#C_density #M_density #density #vfy_msg").empty();
 	if (this.checked) {
 	    // reading PDB file and extract information
 	    // msg = "<img src='/static/images/circle2.gif' height='20' width='20' > Reading structure information... "
@@ -831,6 +870,61 @@ $j(document).ready(function(){
     /*******************************************
      * Verification for query
      * *****************************************/
+    
+//---> Membrane centering
+    $j("#C_density #M_density #density #density_form #density_center_options #memb_btn_vfy").click(function(){
+	var query = $j("#C_density #M_density #density #density_form #density_center_options #txt_memb").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#C_density #M_density #density #density_form #density_center_options #vfy_msg").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#C_density #M_density #density #density_form #density_center_options #vfy_msg").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#C_density #M_density #density #density_form #density_center_options #vfy_msg").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#C_density #M_density #density #density_form #density_center_options #vfy_msg").empty().append(errorThrown);
+        });
+    });
+    
     //---> For all 
     $j("#density_frm_all #density_btn_vfy").click(function(){
 	var query   = $j("#C_density #M_density #density #density_frm_all #density_query").val().trim();
@@ -1416,6 +1510,46 @@ $j(document).ready(function(){
 				</tr>
 			    </table>
 			    <table id="density_form">
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<table id="density_center">
+ 					    <tr>
+						<td>
+						    <span class="module_font"><b>Need membrane centering?</b> </span>
+						    <input id="cnt_yes" type="radio" name="opt_center" value="yes">Yes
+						    <input id="cnt_no" type="radio" name="opt_center" value="no">No
+						</td>
+					    </tr>
+					</table>
+				    </td>
+				</tr>
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<table id="density_center_options">
+					    <tr>
+						<td>
+						    <span class="module_font"><b>Along which axis?</b> </span>
+						    <select id="cnt_axis" name="cnt_axis">
+							<option value="z"> z=0 </option>
+							<option value="y"> y=0 </option>
+							<option value="x"> x=0 </option>
+						    </select>
+						</td>
+						<td class="w15"></td>
+						<td>
+						    <span class="module_font"><b> Target: </b> </span>
+						</td>
+						<td>
+						    <textarea id="txt_memb" type="text" name="txt_center" rows="1"></textarea>
+						    <button id="memb_btn_vfy"><span class="module_font">Verify</span></button>
+						</td>
+					    </tr>
+					    <tr><td id="vfy_msg" class="center message_warn" colspan="4"></td></tr>
+					</table>
+				    </td>
+				</tr>
 				<tr>
 				    <td class="w_module"></td>
 				    <td>

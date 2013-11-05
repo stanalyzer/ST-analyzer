@@ -226,11 +226,14 @@ selQry = paras[7][para_idx];			# pInfo[7] : Query
 num_atoms = paras[8][para_idx];			# pInfo[8] : Total number of atoms
 num_atoms = int(num_atoms);
 
+cntQry = paras[9][para_idx];			# pInfo[9] : Centering Query
+
 print "AXIS = {}, {}".format(taxis, type(taxis));
 print "MIN = {}, {}".format(dnst_min, type(dnst_min));
 print "MAX = {}, {}".format(dnst_max, type(dnst_max));
 print "BIN = {}, {}".format(dnst_bin, type(dnst_bin));
 print "QUERY = {}, {}".format(selQry, type(selQry));
+print "Centering QUERY = {}, {}".format(cntQry, type(cntQry));
 print "Total # atoms = {}, {}".format(num_atoms, type(num_atoms));
 
 #dummy = raw_input("Pause: ");
@@ -290,6 +293,19 @@ try:
 		#tclock = cnt;
 		cnt = cnt + 1;
 		if (cnt % frmInt) == 0:
+		    #======= Centeralization =========
+		    if (cntQry != 'no') :
+			MEMB = u.selectAtoms(cntQry);
+			com_MEMB = MEMB.centerOfMass();
+			
+			box = ts.dimensions;
+			c_box = 0.5 * box[:3];
+			
+			t = c_box - com_MEMB;
+			u.atoms.translate(t);
+			stanalyzer.packintobox(ts);
+		    #==================================
+		    
 		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		    STMP.append(tmp_time);
 		    print "[{0}ps]selecting atoms...".format(tmp_time);

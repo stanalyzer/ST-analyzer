@@ -226,11 +226,17 @@ selQry = paras[7][para_idx];			# pInfo[7] : Query
 num_atoms = paras[8][para_idx];			# pInfo[8] : Total number of atoms
 num_atoms = int(num_atoms);
 
+cntQry = paras[9][para_idx];			# pInfo[9] : Centering Query
+cntAxs = paras[10][para_idx];			# pInfo[10]: Centering axis
+
 print "AXIS = {}, {}".format(taxis, type(taxis));
 print "MIN = {}, {}".format(dnst_min, type(dnst_min));
 print "MAX = {}, {}".format(dnst_max, type(dnst_max));
 print "BIN = {}, {}".format(dnst_bin, type(dnst_bin));
 print "QUERY = {}, {}".format(selQry, type(selQry));
+print "Centering QUERY = {}, {}".format(cntQry, type(cntQry));
+print "Centering Axis = {}, {}".format(cntAxs, type(cntAxs));
+
 print "Total # atoms = {}, {}".format(num_atoms, type(num_atoms));
 
 #dummy = raw_input("Pause: ");
@@ -289,13 +295,18 @@ try:
 		#tclock = cnt;
 		cnt = cnt + 1;
 		if (cnt % frmInt) == 0:
-		    MEMB = u.selectAtoms(selQry);
-		    u.atoms.translate(-MEMB.centerOfMass());
 		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		    STMP.append(tmp_time);
+		    #======= Centeralization =========
+		    print cntQry
+		    if (cntQry != 'no') :
+			#stanalyzer.centerByCOM(ts, u, cntQry);
+			stanalyzer.centerByRes(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
+		    #==================================
+		    
 		    print "[{0}ps]selecting atoms...".format(tmp_time);
 		    selAtoms = u.selectAtoms(selQry);
-		    print "DONE!"
+		    #print "DONE!"
 		    if len(selAtoms) > 1:
 			# get coordinates
 			CRDs = selAtoms.coordinates();
@@ -327,8 +338,8 @@ try:
 			# counting items based on BIN interval
 			tmpDNST = count_intervals(tcrd, BIN);
 			
-			print tmpDNST
-			print "============="
+			#print tmpDNST
+			#print "============="
 			# sort key based on numbering*
 			intKEY = [];
 			for key in sorted(tmpDNST.iterkeys()):

@@ -224,6 +224,12 @@ sysY 	  = float(sysY);
 #sysY 	  = 0.5 * float(sysY);
 print sysX
 print sysY
+qull   = paras[7][para_idx];			# pInfo[7] : Location of qull
+cntQry = paras[8][para_idx];			# pInfo[8] : Centering Query
+cntAxs = paras[9][para_idx];			# pInfo[9]: Centering axis
+print cntQry;
+print cntAxs
+
 
 print "Okay I am in area_per_lipid.py!!!!!";
 print "Total # atoms = {}, {}".format(num_atoms, type(num_atoms));
@@ -265,12 +271,17 @@ try:
 	    # read based on frame
 	    for ts in u.trajectory:
 		# turning on periodic boundary conditions
-		MEMB = u.selectAtoms(selQry);
-		u.atoms.translate(-MEMB.centerOfMass());
+		#======= Centeralization =========
+		if (cntQry != 'no') :
+		    #print "Centeralization..."
+		    #stanalyzer.centerByCOM(ts, u, cntQry);
+		    stanalyzer.centerByRes(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
+		    #print "DONE!"
+		#==================================
 		L = MDAnalysis.analysis.leaflet.LeafletFinder(u, selQry, cutoff=15.0, pbc=True);
 		cnt = cnt + 1;
 		trj_cnt = trj_cnt + 1;
-		#print "[{0}/{1}] processing...".format(cnt, len(u.trajectory));
+		print "[{0}/{1}] processing...".format(cnt, len(u.trajectory));
 		if (cnt % frmInt) == 0: #and cnt == 25:
 		    tmp_time = float(trj_cnt) * float(num_ps) - float(num_ps);
 		    STMP.append(tmp_time);

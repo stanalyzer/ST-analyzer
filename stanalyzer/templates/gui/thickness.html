@@ -213,14 +213,32 @@ $j(document).ready(function(){
     $j("#C_thickness #M_thickness #thickness #thickness_c #thickness_c_form").hide();
     $j("#C_thickness #M_thickness #thickness #thickness_head").hide();
     $j("#C_thickness #M_thickness #thickness #thickness_form_0").hide();
-    
+
+    $j("#C_thickness #M_thickness #thickness #thickness_center_all").hide();
+    $j("#C_thickness #M_thickness #thickness #thickness_center_options #thickness_txt_memb").empty().val("Define 'segid' or 'resname' to be centered! (e.g. segid MEMB)")
+    $j("#C_thickness #M_thickness #thickness #thickness_center_options #thickness_txt_memb").attr("disabled", "disabled");
+    $j("#C_thickness #M_thickness #thickness #thickness_center_options").hide();
+
     $j("#C_thickness #M_thickness #thickness #thickness_title").click(function () {
 	$j("#vfy_msg").empty();
+	$j("#C_thickness #M_thickness #thickness #thickness_center_all").toggle(this.checked);
 	$j("#C_thickness #M_thickness #thickness #thickness_p").toggle(this.checked);
 	$j("#C_thickness #M_thickness #thickness #thickness_c").toggle(this.checked);
 	$j("#C_thickness #M_thickness #thickness #thickness_head").toggle(this.checked);
     });
 
+    $("#C_thickness #M_thickness #thickness #thickness_center input:radio[name=thickness_opt_center]").each(function(i){
+	$j(this).click(function() {
+	    if (i == 0) {
+		$j("#C_thickness #M_thickness #thickness #thickness_center_options #thickness_txt_memb").removeAttr("disabled");
+		$j("#C_thickness #M_thickness #thickness #thickness_center_options").show();
+	    }
+	    else {
+		$j("#C_thickness #M_thickness #thickness #thickness_center_options #thickness_txt_memb").attr("disabled", "disabled");
+		$j("#C_thickness #M_thickness #thickness #thickness_center_options").hide();
+	    }
+	});
+    });
     /*
     $j("#C_thickness #M_thickness #thickness #thickness_head_title").click(function () {
 	$j("#C_thickness #M_thickness #thickness #thickness_form").toggle(this.checked);
@@ -231,7 +249,7 @@ $j(document).ready(function(){
     $j("#C_thickness #M_thickness #thickness #thickness_p_title").live("click", function() {
 	var chk = $j(this).prop('checked');
 	if (chk == true) {
-	    tmpSystem = thickness_getStructureInfo('all', false);
+	    //tmpSystem = thickness_getStructureInfo('all', false);
 	    $cnt_modules++;
 	    cnt_thickness++;
 	} else {
@@ -239,6 +257,9 @@ $j(document).ready(function(){
 	    cnt_thickness--;
 	    if ($cnt_modules < 0) {
 		$cnt_modules = 0;
+	    }
+	    if (cnt_thickness < 0) {
+		cnt_thickness = 0;
 	    }
 	    
 	}
@@ -250,7 +271,7 @@ $j(document).ready(function(){
     $j("#C_thickness #M_thickness #thickness #thickness_c_title").live("click", function() {
 	var chk = $j(this).prop('checked');
 	if (chk == true) {
-	    tmpSystem = thickness_getStructureInfo('all', false);
+	    //tmpSystem = thickness_getStructureInfo('all', false);
 	    $cnt_modules++;
 	    cnt_thickness++;
 	} else {
@@ -258,6 +279,9 @@ $j(document).ready(function(){
 	    cnt_thickness--;
 	    if ($cnt_modules < 0) {
 		$cnt_modules = 0;
+	    }
+	    if (cnt_thickness < 0) {
+		cnt_thickness = 0;
 	    }
 	}
 	$j("#C_thickness #M_thickness #thickness #thickness_c #thickness_c_form").toggle(this.checked);
@@ -272,6 +296,7 @@ $j(document).ready(function(){
 	    cnt_thickness++;
 	    // fill out segid
 	    $j("#C_thickness #M_thickness #thickness #thickness_form #thickness_form_0 #thickness_uq_segid0").empty().append("<option>segid</option>");
+	    //mySystem = thickness_getStructureInfo('all', false);
 	    var uq_segid = mySystem["segid"];
 	    for (var i = 0; i < uq_segid.length; i++) {
 		options = "<option>" + uq_segid[i] + "</option>";
@@ -284,8 +309,11 @@ $j(document).ready(function(){
 	    if ($cnt_modules < 0) {
 		$cnt_modules = 0;
 	    }
+	    if (cnt_thickness < 0) {
+		cnt_thickness = 0;
+	    }
 	}
-	$j("#C_thickness #M_thickness #thickness #thickness_form_0").toggle(this.checked);
+	$j("#C_thickness #M_thickness #thickness #thickness_head #thickness_form_0").toggle(this.checked);
 	$j("#cnt_modules").empty().append($cnt_modules);
 	$j("#C_thickness #M_thickness #thickness #cnt_thickness").empty().append(cnt_thickness);
     });
@@ -325,6 +353,60 @@ $j(document).ready(function(){
     });
 
     // click varification button
+    //---> Membrane centering
+    $j("#C_thickness #M_thickness #thickness #thickness_center_options #memb_btn_vfy").click(function(){
+	var query = $j("#C_thickness #M_thickness #thickness #thickness_center_options #thickness_txt_memb").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#C_thickness #M_thickness #thickness #thickness_center_options #vfy_msg").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#C_thickness #M_thickness #thickness #thickness_center_options #vfy_msg").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#C_thickness #M_thickness #thickness #thickness_center_options #vfy_msg").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#C_thickness #M_thickness #thickness #thickness_center_options #vfy_msg").empty().append(errorThrown);
+        });
+    });
+
     $j("#C_thickness #M_thickness #thickness #thickness_form button[id^='thickness_btn_vfy']").live("click", function(){
 	var bpath = $j("#proot option:selected").text().trim();
 	var stfile = $j("#stfile option:selected").text().trim();
@@ -508,6 +590,52 @@ $j(document).ready(function(){
 				    </td>
 				</tr>
 			    </table>
+			    <table id="thickness_center_all">
+				<tr>
+				    <td>
+					<table id="thickness_center">
+					    <tr>
+						<td class="w_module"></td>
+						<td></td>
+						<td>
+						    <span class="module_font"><b>Need membrane centering?</b> </span>
+						    <input id="cnt_yes" type="radio" name="thickness_opt_center" value="yes">Yes
+						    <input id="cnt_no" type="radio" name="thickness_opt_center" value="no">No
+						</td>
+					    </tr>
+					</table>
+					<table>
+					    <tr>
+						<td class="w_module"></td>
+						<td></td>
+						<td>
+						    <table id="thickness_center_options">
+							<tr>
+							    <td>
+								<span class="module_font"><b>Along which axis?</b> </span>
+								<select id="thickness_cnt_axis" name="area_cnt_axis">
+								    <option value="z"> z=0 </option>
+								    <option value="y"> y=0 </option>
+								    <option value="x"> x=0 </option>
+								</select>
+							    </td>
+							    <td class="w15"></td>
+							    <td>
+								<span class="module_font"><b> Target: </b> </span>
+							    </td>
+							    <td>
+								<textarea id="thickness_txt_memb" type="text" name="thickness_txt_center" rows="1"></textarea>
+								<button id="memb_btn_vfy"><span class="module_font">Verify</span></button>
+							    </td>
+							</tr>
+							<tr><td id="vfy_msg" class="center message_warn" colspan="4"></td></tr>
+						    </table>
+						</td>
+					    </tr>
+					</table>
+				    </td>
+				</tr>
+			    </table>
 			    <!-- thickness with phosphate atom -->
 			    <table id="thickness_p">
 				<tr>
@@ -605,8 +733,8 @@ $j(document).ready(function(){
 				<tr id="thickness_form">
 				    <td class="w_module"></td>
 				    <td>
-					<table>
-					    <tr id="thickness_form_0">
+					<table id="thickness_form_0">
+					    <tr>
 						<td class="w_module"></td>
 						<td>
 						    <table>

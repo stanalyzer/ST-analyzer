@@ -214,7 +214,23 @@ $j(document).ready(function(){
     $j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #liparea_voro_form").hide();
     $j("#C_aveperlipid #M_aveperlipid #liparea #liparea_deltri").hide();
     $j("#C_aveperlipid #M_aveperlipid #liparea #liparea_deltri #liparea_deltri_form").hide();
+    $j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #area_center_options #area_txt_memb").empty().val("Define 'segid' or 'resname' to be centered! (e.g. segid MEMB)")
+    $j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #area_center_options #area_txt_memb").attr("disabled", "disabled");
+    $j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #area_center_options").hide();
     
+    $("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #area_center input:radio[name=area_opt_center]").each(function(i){
+	$j(this).click(function() {
+	    if (i == 0) {
+		$j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #area_center_options #area_txt_memb").removeAttr("disabled");
+		$j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #area_center_options").show();
+	    }
+	    else {
+		$j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #area_center_options #area_txt_memb").attr("disabled", "disabled");
+		$j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #area_center_options").hide();
+	    }
+	});
+    });
+
     
     $j("#C_aveperlipid #M_aveperlipid #liparea #liparea_title").live("click", function () {
 	$j("#vfy_msg").empty();
@@ -238,6 +254,9 @@ $j(document).ready(function(){
 	    if ($cnt_modules < 0) {
 		$cnt_modules = 0;
 	    }
+    	    if (cnt_aveperlipid < 0) {
+		cnt_aveperlipid = 0;
+	    }
 	}
 	$j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #liparea_voro_form").toggle(this.checked);
 	$j("#cnt_modules").empty().append($cnt_modules);
@@ -256,6 +275,9 @@ $j(document).ready(function(){
 	    if ($cnt_modules < 0) {
 		$cnt_modules = 0;
 	    }
+	    if (cnt_aveperlipid < 0) {
+		cnt_aveperlipid = 0;
+	    }
 	}
 	$j("#C_aveperlipid #M_aveperlipid #liparea #liparea_deltri #liparea_deltri_form").toggle(this.checked);
 	$j("#cnt_modules").empty().append($cnt_modules);
@@ -271,6 +293,60 @@ $j(document).ready(function(){
    $j("#C_aveperlipid #M_aveperlipid #liparea #liparea_deltri #liparea_deltri_form #liparea_query_0").val("(name C2 or name C21 or name C31)").css("color", "gray");
    
    
+    //---> Membrane centering
+    $j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #liparea_qhull_form #area_center_options #memb_btn_vfy").click(function(){
+	var query = $j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #liparea_qhull_form #area_center_options #area_txt_memb").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #liparea_qhull_form #area_center_options #vfy_msg").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #liparea_qhull_form #area_center_options #vfy_msg").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #liparea_qhull_form #area_center_options #vfy_msg").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #liparea_qhull_form #area_center_options #vfy_msg").empty().append(errorThrown);
+        });
+    });
+
     // click varification button in voronoi 
     $j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #liparea_voro_form button[id^='voroLipid_btn_vfy']").live("click", function(){
 	var bpath = $j("#proot option:selected").text().trim();
@@ -430,7 +506,42 @@ $j(document).ready(function(){
 						<td class="bottom"> </td>
 						<td colspan="3"></td>
 					    </tr>
-
+					    <tr><td colspan="15" class="h5"></td></tr>
+ 					    <tr id="area_center">
+						<td class="w_module"></td>
+						<td colspan="14">
+						    <span class="module_font"><b>Need membrane centering?</b> </span>
+						    <input id="cnt_yes" type="radio" name="area_opt_center" value="yes">Yes
+						    <input id="cnt_no" type="radio" name="area_opt_center" value="no">No
+						</td>
+					    </tr>
+					    <tr><td colspan="15" class="h5"></td></tr>
+					    <tr>
+						<td class="w_module"></td>
+						<td colspan="14">
+						    <table id="area_center_options">
+							<tr>
+							    <td>
+								<span class="module_font"><b>Along which axis?</b> </span>
+								<select id="area_cnt_axis" name="area_cnt_axis">
+								    <option value="z"> z=0 </option>
+								    <option value="y"> y=0 </option>
+								    <option value="x"> x=0 </option>
+								</select>
+							    </td>
+							    <td class="w15"></td>
+							    <td>
+								<span class="module_font"><b> Target: </b> </span>
+							    </td>
+							    <td>
+								<textarea id="area_txt_memb" type="text" name="area_txt_center" rows="1"></textarea>
+								<button id="memb_btn_vfy"><span class="module_font">Verify</span></button>
+							    </td>
+							</tr>
+							<tr><td id="vfy_msg" class="center message_warn" colspan="4"></td></tr>
+						    </table>
+						</td>
+					    </tr>
 					</table>
 				    </td>
 				</tr>

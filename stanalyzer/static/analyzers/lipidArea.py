@@ -181,7 +181,7 @@ def voroArea(Atoms, qry, size_x, size_y):
     resNames   = Atoms.resnames();
     
     # initializing array 
-    areaLipids = [0] * (len(resIDs)+1);           # each array will be used for individual lipid area and last one will be the average area
+    areaLipids = [0.0] * (len(resIDs)+1);           # each array will be used for individual lipid area and last one will be the average area
     
     res_cnt   = 0;                               # residue count
     num_atoms = 0;                               # number of atoms corresponding to the current residue name

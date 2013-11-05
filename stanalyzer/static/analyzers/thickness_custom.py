@@ -218,6 +218,10 @@ segID     = paras[4][para_idx];
 resName   = paras[5][para_idx];
 tmpQry    = paras[6][para_idx];
 
+cntQry = paras[7][para_idx];			# pInfo[7] : Centering Query
+cntAxs = paras[8][para_idx];			# pInfo[8]: Centering axis
+print cntQry;
+print cntAxs
 #print "creating query..."
 selQry = "segid {0} and resname {1} and {2}".format(segID, resName, tmpQry);
 

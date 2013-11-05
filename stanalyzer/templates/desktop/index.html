@@ -156,13 +156,28 @@ function eval_step2() {
     /*----- lipid per area with voronoi diagram ------*/
     if (chk_aplipid_voro == true) {
 	voroLipidQry  = [];
+	cntQry = [];
+	cntAxs = [];
 	frmInt 	  = [];
 	outFile   = [];
 	numAtoms  = [];
 	sysX   	  = [];
 	sysY   	  = [];
 	qhull	  = [];
-	
+
+	/* Membrane Centering*/
+	var cnt_val = $("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #area_center input:radio[name=area_opt_center]:checked").val();
+	if (cnt_val == 'yes') {
+	    var query = $j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #area_center_options #area_txt_memb").val().trim();
+	    cntQry.push(query);
+	    var cnt_axs = $j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #area_center_options #area_cnt_axis option:selected").val();
+	    cntAxs.push(cnt_axs);
+	}
+	else {
+	    cntAxs.push(cnt_val); // the value of cntAxs will be ignored, but it cannot be empty due to parameter passing
+	    cntQry.push(cnt_val);
+	}
+
 	// qhull path
 	$j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #liparea_qhull_form select[name='liparea_qhull'] option:selected").each(function() {
 	    qhull.push($(this).val());
@@ -199,8 +214,8 @@ function eval_step2() {
 	});
 
 	JOBs.push('area_per_lipid');
-	para = [7, frmInt, outFile, numAtoms, voroLipidQry, sysX, sysY, qhull];
-	para_info = [idx0, 'Frame interval', 'Output name', 'Total number of atoms', 'lipid query', 'max X coordinate', 'max Y coordinate', 'qhull path'];
+	para = [9, frmInt, outFile, numAtoms, voroLipidQry, sysX, sysY, qhull, cntQry, cntAxs];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Total number of atoms', 'lipid query', 'max X coordinate', 'max Y coordinate', 'qhull path', 'Centering Query', 'Base axis'];
 	PARs.push(para);
 	PARinfo.push(para_info);
     }
@@ -214,6 +229,8 @@ function eval_step2() {
     ////////////// all ///////////////
     var chk_all = $j('#C_density #M_density #density #density_form #chk_density_all').prop('checked');
     if (chk_all == true) {
+	cntQry = [];
+	cntAxs = [];
 	frmInt = [];
 	outFile = [];
 	axis = [];
@@ -222,7 +239,20 @@ function eval_step2() {
 	dnstBin = [];
 	dnstQuery = [];
 	numAtoms = [];
-
+	
+	/* Membrane Centering*/
+	var cnt_val = $("#C_density #M_density #density #density_form input:radio[name=opt_center]:checked").val();
+	if (cnt_val == 'yes') {
+	    var query = $j("#C_density #M_density #density #density_form #txt_memb").val().trim();
+	    cntQry.push(query);
+	    var cnt_axs = $j("#C_density #M_density #density #density_form #density_center_options #cnt_axis option:selected").val();
+	    cntAxs.push(cnt_axs);
+	}
+	else {
+	    cntAxs.push(cnt_val); // the value of cntAxs will be ignored, but it cannot be empty due to parameter passing
+	    cntQry.push(cnt_val);
+	}
+	
 	/* frame interval */
 	$j("#C_density #M_density #density #density_form #density_frm_all input[name='density_frmInt']").each(function() {
 	    frmInt.push($(this).val());
@@ -259,8 +289,8 @@ function eval_step2() {
 	});
 	
 	JOBs.push('density_all');
-	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
-	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
+	para = [10, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms, cntQry, cntAxs];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms', 'Centering Query', 'Base axis'];
 	PARs.push(para);
 	PARinfo.push(para_info);
 	//alert("-ALL-outFile:" + outFile);
@@ -272,6 +302,8 @@ function eval_step2() {
     var chk_lpH = $j('#C_density #M_density #density #density_form #chk_density_lipidH').prop('checked');
     // for #density_frm_lpH
     if (chk_lpH == true) {
+	cntQry = [];
+	cntAxs = [];
 	frmInt = [];
 	outFile = [];
 	axis = [];
@@ -280,6 +312,20 @@ function eval_step2() {
 	dnstBin = [];
 	dnstQuery = [];
 	numAtoms = [];
+
+	/* Membrane Centering*/
+	var cnt_val = $("#C_density #M_density #density #density_form input:radio[name=opt_center]:checked").val();
+	if (cnt_val == 'yes') {
+	    var query = $j("#C_density #M_density #density #density_form #txt_memb").val().trim();
+	    cntQry.push(query);
+   	    var cnt_axs = $j("#C_density #M_density #density #density_form #density_center_options #cnt_axis option:selected").val();
+	    cntAxs.push(cnt_axs);
+
+	}
+	else {
+	    cntAxs.push(cnt_val); // the value of cntAxs will be ignored, but it cannot be empty due to parameter passing
+	    cntQry.push(cnt_val);
+	}
 
 	/* frame interval */
 	$j("#C_density #M_density #density #density_form #density_frm_lipidH input[name='density_frmInt']").each(function() {
@@ -317,8 +363,8 @@ function eval_step2() {
 	});
 	
 	JOBs.push('density_lpH');
-	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
-	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
+	para = [10, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms, cntQry, cntAxs];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms', 'Centering Query', 'Base axis'];
 	PARs.push(para);
 	PARinfo.push(para_info);
 	//alert("-chk_LpH-outFile:" + outFile);
@@ -330,6 +376,8 @@ function eval_step2() {
     var chk_lpT = $j('#C_density #M_density #density #density_form #chk_density_lipidT').prop('checked');
     // for #density_frm_lpT
     if (chk_lpT == true) {
+	cntQry = [];
+	cntAxs = [];
 	frmInt = [];
 	outFile = [];
 	axis = [];
@@ -338,6 +386,19 @@ function eval_step2() {
 	dnstBin = [];
 	dnstQuery = [];
 	numAtoms = [];
+
+	/* Membrane Centering*/
+	var cnt_val = $("#C_density #M_density #density #density_form input:radio[name=opt_center]:checked").val();
+	if (cnt_val == 'yes') {
+	    var query = $j("#C_density #M_density #density #density_form #txt_memb").val().trim();
+	    cntQry.push(query);
+	    var cnt_axs = $j("#C_density #M_density #density #density_form #density_center_options #cnt_axis option:selected").val();
+	    cntAxs.push(cnt_axs);
+	}
+	else {
+	    cntAxs.push(cnt_val); // the value of cntAxs will be ignored, but it cannot be empty due to parameter passing
+	    cntQry.push(cnt_val);
+	}
 
 	/* frame interval */
 	$j("#C_density #M_density #density #density_form #density_frm_lipidT input[name='density_frmInt']").each(function() {
@@ -375,8 +436,8 @@ function eval_step2() {
 	});
 	
 	JOBs.push('density_lpT');
-	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
-	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
+	para = [10, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms, cntQry, cntAxs];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms', 'Centering Query', 'Base axis'];
 	PARs.push(para);
 	PARinfo.push(para_info);
 	//alert("-chk_lpT-outFile:" + outFile);
@@ -388,6 +449,8 @@ function eval_step2() {
     var chk_water   = $j('#C_density #M_density #density #density_form #chk_density_water').prop('checked');
     // for #density_frm_water
     if (chk_water == true) {
+	cntQry = [];
+	cntAxs = [];
 	frmInt = [];
 	outFile = [];
 	axis = [];
@@ -396,6 +459,19 @@ function eval_step2() {
 	dnstBin = [];
 	dnstQuery = [];
 	numAtoms = [];
+
+	/* Membrane Centering*/
+	var cnt_val = $("#C_density #M_density #density #density_form input:radio[name=opt_center]:checked").val();
+	if (cnt_val == 'yes') {
+	    var query = $j("#C_density #M_density #density #density_form #txt_memb").val().trim();
+	    cntQry.push(query);
+	    var cnt_axs = $j("#C_density #M_density #density #density_form #density_center_options #cnt_axis option:selected").val();
+	    cntAxs.push(cnt_axs);
+	}
+	else {
+	    cntAxs.push(cnt_val); // the value of cntAxs will be ignored, but it cannot be empty due to parameter passing
+	    cntQry.push(cnt_val);
+	}
 
 	/* frame interval */
 	$j("#C_density #M_density #density #density_form #density_frm_water input[name='density_frmInt']").each(function() {
@@ -433,8 +509,8 @@ function eval_step2() {
 	});
 	
 	JOBs.push('density_water');
-	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
-	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
+	para = [10, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms, cntQry, cntAxs];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms', 'Centering Query', 'Base axis'];
 	PARs.push(para);
 	PARinfo.push(para_info);
 	//alert("-chk_water-outFile:" + outFile);
@@ -446,6 +522,8 @@ function eval_step2() {
     var chk_waterdp = $j('#C_density #M_density #density #density_form #chk_density_waterdp').prop('checked');
 
     if (chk_waterdp == true) {
+	cntQry = [];
+	cntAxs = [];
 	frmInt = [];
 	outFile = [];
 	axis = [];
@@ -454,6 +532,19 @@ function eval_step2() {
 	dnstBin = [];
 	dnstQuery = [];
 	numAtoms = [];
+
+	/* Membrane Centering*/
+	var cnt_val = $("#C_density #M_density #density #density_form input:radio[name=opt_center]:checked").val();
+	if (cnt_val == 'yes') {
+	    var query = $j("#C_density #M_density #density #density_form #txt_memb").val().trim();
+	    cntQry.push(query);
+	    var cnt_axs = $j("#C_density #M_density #density #density_form #density_center_options #cnt_axis option:selected").val();
+	    cntAxs.push(cnt_axs);
+	}
+	else {
+	    cntAxs.push(cnt_val); // the value of cntAxs will be ignored, but it cannot be empty due to parameter passing
+	    cntQry.push(cnt_val);
+	}
 
 	/* frame interval */
 	$j("#C_density #M_density #density #density_form #density_frm_waterdp input[name='density_frmInt']").each(function() {
@@ -490,8 +581,8 @@ function eval_step2() {
 	    numAtoms.push($(this).val());
 	});
 	JOBs.push('density_waterdp');
-	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
-	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
+	para = [10, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms, cntQry, cntAxs];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms', 'Centering Query', 'Bse axis'];
 	PARs.push(para);
 	PARinfo.push(para_info);
 	//alert("-chk_waterdp-outFile:" + outFile);
@@ -503,6 +594,8 @@ function eval_step2() {
     var chk_vector  = $j('#C_density #M_density #density #density_form #chk_density_vector').prop('checked');
 
     if (chk_vector == true) {
+	cntQry = [];
+	cntAxs = [];
 	frmInt = [];
 	outFile = [];
 	axis = [];
@@ -512,6 +605,18 @@ function eval_step2() {
 	dnstQuery = [];
 	numAtoms = [];
 
+	/* Membrane Centering*/
+	var cnt_val = $("#C_density #M_density #density #density_form input:radio[name=opt_center]:checked").val();
+	if (cnt_val == 'yes') {
+	    var query = $j("#C_density #M_density #density #density_form #txt_memb").val().trim();
+	    cntQry.push(query);
+	    var cnt_axs = $j("#C_density #M_density #density #density_form #density_center_options #cnt_axis option:selected").val();
+	    cntAxs.push(cnt_axs);
+	}
+	else {
+	    cntAxs.push(cnt_val); // the value of cntAxs will be ignored, but it cannot be empty due to parameter passing
+	    cntQry.push(cnt_val);
+	}
 	
 	/* frame interval */
 	$j("#C_density #M_density #density #density_form #density_frm_vector input[name='density_frmInt']").each(function() {
@@ -549,8 +654,8 @@ function eval_step2() {
 	});
 	
 	JOBs.push('vector_selection');
-	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
-	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
+	para = [10, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms, cntQry, cntAxs];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms', 'Centering Query', 'Base axis'];
 	PARs.push(para);
 	PARinfo.push(para_info);
 	//alert("-chk_vector-outFile:" + outFile);
@@ -562,6 +667,8 @@ function eval_step2() {
     var chk_custom  = $j('#C_density #M_density #density #density_form #chk_density_custom').prop('checked');
 
     if (chk_custom == true) {
+	cntQry = [];
+	cntAxs = [];
 	frmInt = [];
 	outFile = [];
 	axis = [];
@@ -571,6 +678,21 @@ function eval_step2() {
 	dnstQuery = [];
 	numAtoms = [];
 
+	/* Membrane Centering*/
+	
+	var cnt_val = $("#C_density #M_density #density #density_form input:radio[name=opt_center]:checked").val();
+	if (cnt_val == 'yes') {
+	    var query = $j("#C_density #M_density #density #density_form #density_center_options #txt_memb").val().trim();
+	    cntQry.push(query);
+	    var cnt_axs = $j("#C_density #M_density #density #density_form #density_center_options #cnt_axis option:selected").val();
+	    cntAxs.push(cnt_axs);
+	}
+	else {
+	    cntAxs.push(cnt_val); // the value of cntAxs will be ignored, but it cannot be empty due to parameter passing
+	    cntQry.push(cnt_val);
+	}
+	
+	
 	/* frame interval */
 	$j("#C_density #M_density #density #density_form #density_frm_custom input[name='density_frmInt']").each(function() {
 	    frmInt.push($(this).val());
@@ -607,10 +729,23 @@ function eval_step2() {
 	});
 	
 	JOBs.push('density_custom');
-	para = [8, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms];
-	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms'];
+	
+	// copy the array of cntQry and cntAxs making the length same as rest of them
+	tmpQry = []; tmpAxs = [];
+	for (var i = 0; i < frmInt.length; i++){
+	    tmpQry.push(cntQry[0]);
+	    tmpAxs.push(cntAxs[0]);
+	}
+	cntQry = tmpQry;
+	cntAxs = tmpAxs;
+	
+	//alert("cntQry=" + cntQry + "cntAxs=" + cntAxs);
+	para = [10, frmInt, outFile, axis, dnstMin, dnstMax, dnstBin, dnstQuery, numAtoms, cntQry, cntAxs];
+	//alert(para);
+	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Minimum value in the given axis', 'Maximum value in the given axis', 'Bin size', 'Query', 'Total number of atoms', 'Centering Query', 'Base axis'];
 	PARs.push(para);
 	PARinfo.push(para_info);
+	//alert(para);
 	//alert("numAtoms:" + numAtoms);
     }
 
@@ -961,10 +1096,25 @@ function eval_step2() {
     ////////// Using Phosphate ////////////
     var chk_thickness_pho  = $j('#C_thickness #M_thickness #thickness #thickness_p #thickness_p_title').prop('checked');
     if (chk_thickness_pho == true) {
+	cntQry = [];
+	cntAxs = [];
 	thickQry  = [];
 	frmInt 	  = [];
 	outFile   = [];
 	numAtoms  = [];
+
+	/* Membrane Centering*/
+	var cnt_val = $("#C_thickness #M_thickness #thickness input:radio[name=thickness_opt_center]:checked").val();
+	if (cnt_val == 'yes') {
+	    var query = $j("#C_thickness #M_thickness #thickness #thickness_center_options #thickness_txt_memb").val().trim();
+	    cntQry.push(query);
+	    var cnt_axs = $j("#C_thickness #M_thickness #thickness #thickness_center_options #thickness_cnt_axis option:selected").val();
+	    cntAxs.push(cnt_axs);
+	}
+	else {
+	    cntAxs.push(cnt_val); // the value of cntAxs will be ignored, but it cannot be empty due to parameter passing
+	    cntQry.push(cnt_val);
+	}
 
 	// query
 	$j("#C_thickness #M_thickness #thickness #thickness_p #thickness_p_form input[name='thickness_query']").each(function() {
@@ -987,8 +1137,8 @@ function eval_step2() {
 	});
 
 	JOBs.push('thickness_phosphate');
-	para = [4, frmInt, outFile, numAtoms, thickQry];
-	para_info = [idx0, 'Frame interval', 'Output name', 'Total number of atoms', 'thickness query'];
+	para = [6, frmInt, outFile, numAtoms, thickQry, cntQry, cntAxs];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Total number of atoms', 'thickness query', 'Centering Query', 'Base axis'];
 	PARs.push(para);
 	PARinfo.push(para_info);
     }
@@ -998,11 +1148,26 @@ function eval_step2() {
     ////////// Using Carbon ////////////
     var chk_thickness_cbn  = $j('#C_thickness #M_thickness #thickness #thickness_c #thickness_c_title').prop('checked');
     if (chk_thickness_cbn == true) {
+	cntQry = [];
+	cntAxs = [];
 	thickQry  = [];
 	frmInt 	  = [];
 	outFile   = [];
 	numAtoms  = [];
-
+	
+	/* Membrane Centering*/
+	var cnt_val = $("#C_thickness #M_thickness #thickness input:radio[name=thickness_opt_center]:checked").val();
+	if (cnt_val == 'yes') {
+	    var query = $j("#C_thickness #M_thickness #thickness #thickness_center_options #thickness_txt_memb").val().trim();
+	    cntQry.push(query);
+	    var cnt_axs = $j("#C_thickness #M_thickness #thickness #thickness_center_options #thickness_cnt_axis option:selected").val();
+	    cntAxs.push(cnt_axs);
+	}
+	else {
+	    cntAxs.push(cnt_val);
+	    cntQry.push(cnt_val);
+	}
+	
 	// query
 	$j("#C_thickness #M_thickness #thickness #thickness_c #thickness_c_form input[name='thickness_query']").each(function() {
 	    thickQry.push($(this).val());
@@ -1024,8 +1189,8 @@ function eval_step2() {
 	});
 
 	JOBs.push('thickness_carbon');
-	para = [4, frmInt, outFile, numAtoms, thickQry];
-	para_info = [idx0, 'Frame interval', 'Output name', 'Total number of atoms', 'thickness query'];
+	para = [6, frmInt, outFile, numAtoms, thickQry, cntQry, cntAxs];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Total number of atoms', 'thickness query', 'Centering Query', 'Base axis'];
 	PARs.push(para);
 	PARinfo.push(para_info);
     }
@@ -1035,6 +1200,8 @@ function eval_step2() {
     ////////// Using Custom Group ////////////
     var chk_thickness_cstm = $j('#C_thickness #M_thickness #thickness #thickness_head #thickness_head_title').prop('checked');
     if (chk_thickness_cstm == true) {
+	cntQry = [];
+	cntAxs = [];
 	frmInt 	  = [];
 	outFile   = [];
 	numAtoms  = [];
@@ -1042,6 +1209,19 @@ function eval_step2() {
 	resName = [];
 	thickQry  = [];
 
+	/* Membrane Centering*/
+	var cnt_val = $("#C_thickness #M_thickness #thickness input:radio[name=thickness_opt_center]:checked").val();
+	if (cnt_val == 'yes') {
+	    var query = $j("#C_thickness #M_thickness #thickness #thickness_center_options #thickness_txt_memb").val().trim();
+	    cntQry.push(query);
+	    var cnt_axs = $j("#C_thickness #M_thickness #thickness #thickness_center_options #thickness_cnt_axis option:selected").val();
+	    cntAxs.push(cnt_axs);
+	}
+	else {
+	    cntAxs.push(cnt_val);
+	    cntQry.push(cnt_val);
+	}
+	
 	// query
 	$j("#C_thickness #M_thickness #thickness #thickness_form input[name='thickness_query']").each(function() {
 	    thickQry.push($(this).val());
@@ -1073,8 +1253,20 @@ function eval_step2() {
 	});
 	
 	JOBs.push('thickness_custom');
-	para = [4, frmInt, outFile, numAtoms, segID, resName, thickQry];
-	para_info = [idx0, 'Frame interval', 'Output name', 'Total number of atoms', 'segment ID', 'residue ID', 'thickness query'];
+	
+	// copy the array of cntQry and cntAxs making the length same as rest of them
+	tmpQry = []; tmpAxs = [];
+	for (var i = 0; i < frmInt.length; i++){
+	    tmpQry.push(cntQry[0]);
+	    tmpAxs.push(cntAxs[0]);
+	}
+	cntQry = tmpQry;
+	cntAxs = tmpAxs;
+
+	//alert("cntQry=" + cntQry + " cntAxs=" + cntAxs);
+	para = [8, frmInt, outFile, numAtoms, segID, resName, thickQry, cntQry, cntAxs];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Total number of atoms', 'segment ID', 'residue ID', 'thickness query', 'Centering Query', 'Base axis'];
+	//alert(para)
 	PARs.push(para);
 	PARinfo.push(para_info);
     }

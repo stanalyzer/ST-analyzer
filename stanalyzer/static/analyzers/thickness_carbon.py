@@ -218,6 +218,12 @@ num_atoms = int(num_atoms);
 #print "creating query..."
 selQry = paras[4][para_idx];
 
+cntQry = paras[5][para_idx];			# pInfo[5] : Centering Query
+cntAxs = paras[6][para_idx];			# pInfo[6]: Centering axis
+print cntQry;
+print cntAxs
+
+
 print "Okay I am in thickness_carbon.py!!!!!";
 print "Total # atoms = {}, {}".format(num_atoms, type(num_atoms));
 
@@ -255,9 +261,13 @@ try:
 	    for ts in u.trajectory:
 		cnt = cnt + 1;
 		if (cnt % frmInt) == 0:
-		    # centering atoms
-		    MEMB = u.selectAtoms(selQry);
-		    u.atoms.translate(-MEMB.centerOfMass());
+		    #======= Centeralization =========
+		    if (cntQry != 'no') :
+			#print "Centeralization..."
+			#stanalyzer.centerByCOM(ts, u, cntQry);
+			stanalyzer.centerByRes(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
+			#print "DONE!"
+		    #==================================
 		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		    STMP.append(tmp_time);
 		    #print "[{0}ps]selecting atoms...".format(tmp_time);

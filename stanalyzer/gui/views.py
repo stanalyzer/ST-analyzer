@@ -3186,12 +3186,15 @@ def stanalyzer_sendJob(request):
             para_pkeys = [];
             #print job_pkey[0];
             for i in range(len(func_name)):
+		print "--------- # of Func name: {}/{}".format(i, len(func_name));
                 para_pkey = [];
                 for j in range(len(Paras[i])):
+		    print "--------- # of Paras: {}/{}".format(j, len(Paras[i]));
 		    for k in range(len(Paras[i][j])):
+			print "--------- # of Paras2: {}/{}".format(k, len(Paras[i][j]));
 			query = """INSERT INTO gui_parameter (job_id, anaz, para, val, status) \
 				VALUES ({0}, "{1}", "{2}", "{3}", "{4}")""".format(job_pkey[0], func_name[i], ParaInfo[i][j], Paras[i][j][k], 'SENT');
-			#print query;
+			print query;
 			c.execute(query);
 			conn.commit();
                 query = """SELECT id FROM gui_parameter WHERE job_id = {0} AND anaz = "{1}" """.format(job_pkey[0], func_name[i]);

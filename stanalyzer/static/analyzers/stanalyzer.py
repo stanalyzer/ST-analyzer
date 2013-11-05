@@ -398,3 +398,124 @@ def sort_str_num(myList, order):
 	afterSort.append(sList[i]);
     
     return afterSort;
+
+#********************************************************
+# *  Centeralization
+#********************************************************
+def packintobox(ts):
+    x = ts._pos;
+    L = ts.dimensions[:3];
+    x -= numpy.floor(x/L)*L;
+
+def packintobox2(ts, t_axis):
+    x = ts._pos;
+    L = ts.dimensions[:3];
+    if t_axis == 'x':
+	x[:,0] -= numpy.floor(x[:,0]/L[0])*L[0];
+    elif t_axis == 'y':
+	x[:,1] -= numpy.floor(x[:,1]/L[1])*L[1];
+    else:
+	x[:,2] -= numpy.floor(x[:,2]/L[2])*L[2];
+
+def centerByCOM(ts, u, cntQry):
+    MEMB = u.selectAtoms(cntQry);
+    com_MEMB = MEMB.centerOfMass();
+    
+    box = ts.dimensions;
+    c_box = 0.5 * box[:3];
+    
+    t = c_box - com_MEMB;
+    
+    u.atoms.translate(t);
+    packintobox(ts);
+
+    MEMB1 = u.selectAtoms(cntQry);
+    com_MEMB1 = MEMB1.centerOfMass();
+    
+    t = np.array([0,0,0]) - com_MEMB1;
+    u.atoms.translate(t);
+
+
+def centerByRes(ts, u, cntQry, ridx, t_axis):
+    
+    arr_idx = ridx - 1;
+    # move targeted segments into the box
+    MEMB = u.selectAtoms(cntQry);
+
+    # pick one residue and calculate center of mass
+    com_Res = MEMB.residues[arr_idx].centerOfMass();
+    box = ts.dimensions[:3];
+    
+    if t_axis == 'x':
+	#print "X"
+	# get box information
+	bx = 0.5 * box[0];
+	by = box[1];
+	bz = box[2];
+	# calculating distance between system and box
+	x = bx - com_Res[0];
+	y = 0.0;
+	z = 0.0;
+	t = np.array([x, y, z]);
+
+    elif t_axis == 'y':
+	#print "Y"
+	# get box information
+	bx = box[0];
+	by = 0.5 * box[1];
+	bz = box[2];
+	# calculating distance between system and box
+	x = 0.0;
+	y = by - com_Res[1];
+	z = 0.0;
+	t = np.array([x, y, z]);
+
+    else:
+	#print "Z"
+	# get box information
+	bx = box[0];
+	by = box[1];
+	bz = 0.5 * box[2];
+	# calculating distance between system and box
+	x = 0.0;
+	y = 0.0;
+	z =  bz - com_Res[2];
+	t = np.array([x, y, z]);
+
+    #pdb = MDAnalysis.Writer("center0.pdb")
+    #sf = u.selectAtoms("all")
+    #pdb.write(sf)
+    #pdb.close()
+    
+    # move system to the COM of Box and then apply PBC
+    u.atoms.translate(t);
+    packintobox2(ts, t_axis);			# apply PBC
+    
+    # move entire system by locating COM of MEMB = the COM of Box and than apply PBC
+    MEMB1 = u.selectAtoms(cntQry);
+    com_MEMB1 = MEMB1.centerOfMass();
+    
+    if t_axis == 'x':
+	t = np.array(bx - [com_MEMB1[0], 0, 0]);
+    elif t_axis == 'y':
+	t = np.array([0, by - com_MEMB1[1], 0]);
+    else:
+	t = np.array([0, 0, bz - com_MEMB1[2]]);
+    
+    u.atoms.translate(t);
+    packintobox2(ts, t_axis);
+    
+
+    # move entire system by locating COM of MEMB = 0;
+    MEMB2 = u.selectAtoms(cntQry);
+    com_MEMB2 = MEMB2.centerOfMass();
+    
+    if t_axis == 'x':
+	t = np.array([com_MEMB2[0], 0, 0]);
+    elif t_axis == 'y':
+	t = np.array([0, com_MEMB2[1], 0]);
+    else:
+	t = np.array([0, 0, com_MEMB2[2]]);
+    
+    u.atoms.translate(-t);
+    
