@@ -1,0 +1,115 @@
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+var mySystem;		// this gloabl value containing system information defined in 'index.html' when $j('.next-tab').click() is trigged!
+
+/* ##########################################
+ * Main function starts
+ * ########################################## */
+
+var cnt_TEMPLATE = 0; // total number of options in this module  
+
+$j(document).ready(function(){
+    // Read system information from index.html when $j('.next-tab').click(function(){}); is triggered
+
+/*----------------------------------------------------
+ * Control events
+ * ---------------------------------------------------*/
+    // Hide options at first until the module is checked
+    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2").hide();
+    
+    // Show and hide submun of category title 
+    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE1 #TEMPLATE_title").live("click", function () {
+	$j("#vfy_msg").empty();
+	$j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2").toggle(this.checked);
+    });
+
+    //---> Add count to total number of selected modules
+    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE #lTEMPLATE_title").live("click", function() {
+	var chk = $j(this).prop('checked');
+	if (chk == true) {
+	    $cnt_modules++; // global variable to count all selected modules
+	    cnt_TEMPLATE++; // count options in this module
+	} else {
+	    $cnt_modules--;
+	    cnt_TEMPLATE--;
+	    if ($cnt_modules < 0) {
+		$cnt_modules = 0;
+	    }
+    	    if (cnt_TEMPLATE < 0) {
+		cnt_TEMPLATE = 0;
+	    }
+	}
+	$j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE #TEMPLATE_form").toggle(this.checked);
+	$j("#cnt_modules").empty().append($cnt_modules);
+	$j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE #cnt_TEMPLATE").empty().append(cnt_TEMPLATE); // updating currently selected options in this module
+	
+    });
+    
+});
+</script>
+
+<div id="C_TEMPLATE">
+    <table>
+	<tr><td id="head_js_script"></td></tr>
+    </table>
+    <table>
+	<tr>
+	    <td colspan="2">
+		<table id="M_TEMPLATE">
+		    <!-- TEMPLATE contents start -->
+		    <tr>
+			<td>
+			    <!-- displaying the name of module -->
+			    <table id="TEMPLATE1">
+				<tr>
+				    <td class="st_color7 left">
+					<input type="checkbox" id="TEMPLATE_title">TEMPLATE MODULE (<span id="cnt_TEMPLATE" class="st_font1 st_size3 st_color5">0</span>)
+				    </td>
+				</tr>
+			    </table>
+			    <!-- options for TEMPLATE1 -->
+			    <table id="TEMPLATE2">
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<span class="module_font"><b>TEMPLATE options</b> </span>
+					<input id="cnt_radio_TEMPLATE" type="radio" name="cnt_radio_TEMPLATE" value="yes">Yes
+					<input id="cnt_radio_TEMPLATE" type="radio" name="cnt_radio_TEMPLATE" value="no">No
+				    </td>
+				</tr>
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<table>
+					    <tr>
+						<td class="bottom"><span class="module_font">Frame Interval</span></td>
+						<td class="bottom w15"></td>
+						<td class="bottom"><span class="module_font">Output File Name</span></td>
+						<td class="bottom w15"></td>
+						<td></td><td></td><td></td><td></td><td></td>
+					    </tr>
+					    <tr>
+						<td class="bottom"><input id="TEMPLATE_frmInt" class="module_txtbox_output" type="text" name="TEMPLATE_frmInt"></td>	
+						<td class="bottom w15"></td>
+						<td class="bottom" colspan=7><input id="TEMPLATE_outFile" class="module_txtbox_output2" type="text" name="TEMPLATE_outFile"></td>
+					    </tr>
+					</table>
+				    </td>
+				</tr>
+				<!-- having information about the system -->
+				<tr><td class="bottom" colspan="12"><input id="TEMPLATE_hist_tatoms" type="hidden" name="TEMPLATE_hist_tatoms"></td></tr>
+				<tr><td id="vfy_msg0" mygui="0" class="center message_warn" colspan="12"></td></tr>					    
+			    </table>
+			</td>
+		    </tr>
+		    <!-- TEMPLATE contents end  -->
+		</table>
+	    </td>
+	</tr>
+    </table>
+    <table>
+	<tr>
+	    <td id=""bottom_js_script"></td>
+	</tr>
+    </table>
+</div>

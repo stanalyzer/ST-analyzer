@@ -19,6 +19,9 @@ $j(document).ready(function(){
 	    if ($cnt_modules < 0) {
 		$cnt_modules = 0;
 	    }
+	    if ($cnt_rmsd < 0) {
+		$cnt_rmsd = 0;
+	    }
 	}
 	$j("#cnt_modules").empty().append($cnt_modules);
 	$j("#C_rmsd #M_rmsd #rmsd #cnt_rmsd").empty().append(cnt_rmsd);

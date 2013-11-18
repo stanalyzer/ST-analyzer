@@ -221,6 +221,14 @@ $j(document).ready(function(){
 
     $j("#C_thickness #M_thickness #thickness #thickness_title").click(function () {
 	$j("#vfy_msg").empty();
+	
+	// read system information 
+	var tatoms = $j("#step2 #num_atoms").text();
+	$j("#C_thickness #M_thickness #thickness #thickness_p_form #thickness_hist_tatoms").empty().val(tatoms);
+	$j("#C_thickness #M_thickness #thickness #thickness_c_form #thickness_hist_tatoms").empty().val(tatoms);
+	$j("#C_thickness #M_thickness #thickness #thickness_form #thickness_hist_tatoms").empty().val(tatoms);
+	
+	
 	$j("#C_thickness #M_thickness #thickness #thickness_center_all").toggle(this.checked);
 	$j("#C_thickness #M_thickness #thickness #thickness_p").toggle(this.checked);
 	$j("#C_thickness #M_thickness #thickness #thickness_c").toggle(this.checked);
