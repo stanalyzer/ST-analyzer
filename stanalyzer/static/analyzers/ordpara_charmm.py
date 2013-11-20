@@ -212,11 +212,15 @@ fid_in.close();
 
 #---------------------< assigned module specific parameters: defined by users >---------------------------------
 taxis	  = paras[3][para_idx];			# pInfo[3] : target axis 'ALL' 'X' 'Y' 'Z'
-num_atoms = paras[4][para_idx];			# pInfo[8] : Total number of atoms
+num_atoms = paras[4][para_idx];			# pInfo[4] : Total number of atoms
 num_atoms = int(num_atoms);
 segID     = paras[5][para_idx];
 resName   = paras[6][para_idx];
 charmm_query = paras[7][para_idx];
+cntQry = paras[8][para_idx];			# pInfo[8] : Centering Query
+cntAxs = paras[9][para_idx];			# pInfo[9]: Centering axis
+print cntQry;
+print cntAxs
 
 # Reading a trajectory to get the information about atoms
 trj = '{0}{1}'.format(base_path, trajectoryFile[0]);
@@ -280,22 +284,24 @@ print "Total # atoms = {}, {}".format(num_atoms, type(num_atoms));
 try:
     run = 1;
     if run:
-	out_file = '{0}/{1}'.format(out_dir, outFile);
-	fid_out = open(out_file, 'w')
+	#out_file = '{0}/{1}'.format(out_dir, outFile);
+	#fid_out = open(out_file, 'w')
     
 	# describing BIN
-	cmt = "# Bin ranges\n#"
-	fid_out.write(cmt);
+	cmt1 = "# Bin ranges\n#"
+	#fid_out.write(cmt);
 	
 	# calculating BIN range
 	BIN = [];
+	cmt2= '';
 	for ibin in frange(dnst_min, dnst_max, dnst_bin):
 	    BIN.append(ibin);
-	    cmt = "\t{}".format(ibin);
-	    fid_out.write(cmt);
-	fid_out.write("\n");
+	    cmt2= "{0}{1}\t".format(cmt2, ibin);
+	    #fid_out.write(cmt);
+	cmt2= "{0}\n".format(cmt2);
 	
-	fid_out.write("# Range\tDensity\n");
+	cmt = "{0}{1}# Range\tDensity\n".format(cmt1, cmt2);
+	
 	psf = '{0}{1}'.format(base_path, structure_file);
     
 	cnt = 0;
@@ -304,8 +310,12 @@ try:
 	# data based on trajectory
 	DNST = [];
 	STMP = [];
+	TOPL = [];	    # order parameter for top layer
+	BTML = [];	    # order parameter for bottom layer
 	for ibin in frange(dnst_min, dnst_max, dnst_bin):
 	    DNST.append(0.0);
+	    TOPL.append(0.0);
+	    BTML.append(0.0);
     
 	# defining unit vector
 	if taxis == 'X':
@@ -339,19 +349,55 @@ try:
 	    
 	    # read based on frame
 	    for ts in u.trajectory:
+		#======= Centeralization =========
+		if (cntQry != 'no') :
+		    #print "Centeralization..."
+		    #stanalyzer.centerByCOM(ts, u, cntQry);
+		    stanalyzer.centerByRes(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
+		    #print "DONE!"
+		#==================================
+		# calculating leaflet
+		#L = MDAnalysis.analysis.leaflet.LeafletFinder(u, selQry, cutoff=17.0, pbc=True);
+		top_selQry = "{} and (prop z > 0.0)".format(selQry);
+		btm_selQry = "{} and (prop z < 0.0)".format(selQry);
+		
+		#print top_selQry;
+		#print btm_selQry;
+		topAtoms = u.selectAtoms(top_selQry);
+		btmAtoms = u.selectAtoms(btm_selQry);
+		
 		DegT = [];
 		#tclock = cnt;
 		cnt = cnt + 1;
+		flg_top = 0;	    # set bilayer =1 mono layer = 0
+		flg_btm = 0;	    # set bilayer =1 mono layer = 0
+
 		if (cnt % frmInt) == 0:
 		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		    STMP.append(tmp_time);
 		    #print "[{0}ps]selecting atoms...".format(tmp_time);
-		    selAtoms = u.selectAtoms(selQry);
+		    #selAtoms = u.selectAtoms(selQry);
 		    #print "DONE!"
-		    if len(selAtoms) > 1:
+		    #if len(L.groups()) > 1:
+		    #	topAtoms = L.group(0);		# select atoms in the top layer
+		    #--- calculating number ripids
+		    if len(topAtoms.resnames()) > 0:
+			flg_top = 1;
+			
+			Names = topAtoms.names();					# list names of atoms based on the query
+			setNames = set(Names);						# make unique list of atoms
+			listNames = list(setNames);					# convert set to list
+			sortlistNames = stanalyzer.sort_str_num(listNames, "asc")	# sort them ascending order
+			num_selatoms = len(Names);
+			num_uq_selatoms = len(sortlistNames);
+			num_top = num_selatoms / num_uq_selatoms;
+			#num_top2 = len(topAtoms.resnames()); # length of tail
+			print 'There are {} lipids in top layer'.format(num_top);
+			#print 'There are {} lipids in top layer'.format(num_top2);
+			
 			# find hydrogen atoms based on the current selection
 			# get index of current atom selection
-			cIndex  = selAtoms.indices();
+			cIndex  = topAtoms.indices();
 			for cidx in range(len(cIndex)):
 			    h_cnt   = 0;			# hydrogen count
 			    tmp_Scd = 0;
@@ -382,57 +428,202 @@ try:
 			    total_Scd = 0.5 * (tmp_Scd / h_cnt);
 			    pos = (cidx) % len(BIN);
 			    #print "position={}, h_cnt={}".format(pos, h_cnt);
-			    DNST[pos] += total_Scd;
-			    #print DNST
+			    TOPL[pos] += total_Scd;
+			    #print TOPL
 			    #print "+----------------------------------------------------------+";
+		    #btmAtoms = L.group(1);		# select atoms in the bottom layer 
+		    if len(btmAtoms.resnames()) > 0:
+			flg_btm = 1;
+			
+			Names = btmAtoms.names();					# list names of atoms based on the query
+			setNames = set(Names);						# make unique list of atoms
+			listNames = list(setNames);					# convert set to list
+			sortlistNames = stanalyzer.sort_str_num(listNames, "asc")	# sort them ascending order
+			num_selatoms = len(Names);
+			num_uq_selatoms = len(sortlistNames);
+			num_btm = num_selatoms / num_uq_selatoms;
+			#num_btm2 = len(btmAtoms.resnames()); # length of tail
+			print 'There are {} lipids in bottom layer'.format(num_btm);
+			#print 'There are {} lipids in bottom layer'.format(num_btm2);
+
+			# find hydrogen atoms based on the current selection
+			# get index of current atom selection
+			cIndex  = btmAtoms.indices();
+			for cidx in range(len(cIndex)):
+			    h_cnt   = 0;			# hydrogen count
+			    tmp_Scd = 0;
+			    c_idx = cIndex[cidx]; # current index
+			    
+			    Cx = allCRDs[c_idx][0];
+			    Cy = allCRDs[c_idx][1];
+			    Cz = allCRDs[c_idx][2];
+			    
+			    next_idx = c_idx + 1;
+			    
+			    while (allAtoms[next_idx].name.upper()[0:1] == 'H'):
+				    h_cnt += 1;
+				    Hx = allCRDs[next_idx][0];
+				    Hy = allCRDs[next_idx][1];
+				    Hz = allCRDs[next_idx][2];
+				    
+				    x = Hx - Cx;
+				    y = Hy - Cy;
+				    z = Hz - Cz;
+				    v1 = [x, y, z];
+				    #print "v1:{}, v2:{}".format(v1, v2);
+				    cosT = getCosT(v1, v2);
+				    tmp_Scd  += (3.0 * cosT * cosT - 1.0);
+				    
+				    next_idx +=1;
+    
+			    total_Scd = 0.5 * (tmp_Scd / h_cnt);
+			    pos = (cidx) % len(BIN);
+			    #print "position={}, h_cnt={}".format(pos, h_cnt);
+			    BTML[pos] += total_Scd;
+			    #print TOPL
+			    #print "+----------------------------------------------------------+";
+	
     
     
-    
-	#print "len(STMP): {}".format(len(STMP));
-	
-	# Write down results
-	finalDNST = [];
-	for i in DNST:
-	    tmp = abs(i/(len(STMP) * num_tails));	# average through trajectory
-	    finalDNST.append(tmp);
-	
-	#print finalDNST
-	
 	# Writing final output
-	for i in range(len(finalDNST)):
-	    outStr = "{0}\t{1}\n".format(BIN[i], finalDNST[i]);
-	    fid_out.write(outStr);
-	fid_out.close()
-    
-	# -------- Drawing graphs
-	# Writing Gnuplot script
-	outScr = '{0}/gplot{1}.p'.format(out_dir, para_idx);
-	outImg  = '{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
-	imgPath = "{0}/{1}".format(out_dir, outImg);
-	fid_out = open(outScr, 'w');
-	gScript = "set terminal png\n";
-	gScript = gScript + "set xlabel 'Carbon Index'\n";
-	gScript = gScript + "set ylabel 'S_CD'\n";
-	gScript = gScript + "set output '{0}'\n".format(imgPath);
-	gScript = gScript + """plot "{0}/{1}" using 1:2 title "{2}" with lines lw 3\n""".format(out_dir, outFile, resName);
-	fid_out.write(gScript);
-	fid_out.close()
-	
-	# Drawing graph with gnuplot
-	subprocess.call(["gnuplot", outScr]);
-	
+	#-----------------------------------------
+	#------- This is for top or mono layer
+	#-----------------------------------------
+	if flg_top > 0:
+	    finalTOPL = [];
+	    for i in TOPL:
+		tmp = abs(i/(len(STMP) * num_top));	# average through trajectory
+		finalTOPL.append(tmp);
+		
+	    # write output into a file
+	    top_file = '{0}/top_{1}'.format(out_dir, outFile);
+	    fid_top = open(top_file, 'w');
+	    for i in range(len(finalTOPL)):
+		outStr = "{0}\t{1}\n".format(BIN[i], finalTOPL[i]);
+		fid_top.write(outStr);
+	    fid_top.close();
+	    
+	    # -------- Drawing graphs
+	    # Writing Gnuplot script
+	    outScr = '{0}/top_gplot{1}.p'.format(out_dir, para_idx);
+	    outImg  = 'top_{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
+	    imgPath = "{0}/{1}".format(out_dir, outImg);
+	    fid_out = open(outScr, 'w');
+	    gScript = "set terminal png\n";
+	    gScript = gScript + "set xlabel 'Carbon Index'\n";
+	    gScript = gScript + "set ylabel 'S_CD'\n";
+	    gScript = gScript + "set output '{0}'\n".format(imgPath);
+	    gScript = gScript + """plot "{0}" using 1:2 title "{1}" with lines lw 3\n""".format(top_file, resName);
+	    fid_out.write(gScript);
+	    fid_out.close();
+	    
+	    # Drawing graph with gnuplot
+	    subprocess.call(["gnuplot", outScr]);
+
+	    
+	#-----------------------------------------
+	#------- This is for bottom layer
+	#-----------------------------------------
+	if flg_btm > 0:
+	    finalBTML = [];
+	    for i in BTML:
+		tmp = abs(i/(len(STMP) * num_btm));	# average through trajectory
+		finalBTML.append(tmp);
+		
+	    # write output into a file
+	    btm_file = '{0}/btm_{1}'.format(out_dir, outFile);
+	    fid_btm = open(btm_file, 'w');
+	    for i in range(len(finalBTML)):
+		outStr = "{0}\t{1}\n".format(BIN[i], finalBTML[i]);
+		fid_btm.write(outStr);
+	    fid_btm.close();
+	    
+	    # -------- Drawing graphs
+	    # Writing Gnuplot script
+	    outScr = '{0}/btm_gplot{1}.p'.format(out_dir, para_idx);
+	    outImg  = 'btm_{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
+	    imgPath = "{0}/{1}".format(out_dir, outImg);
+	    fid_out = open(outScr, 'w');
+	    gScript = "set terminal png\n";
+	    gScript = gScript + "set xlabel 'Carbon Index'\n";
+	    gScript = gScript + "set ylabel 'S_CD'\n";
+	    gScript = gScript + "set output '{0}'\n".format(imgPath);
+	    gScript = gScript + """plot "{0}" using 1:2 title "{1}" with lines lw 3\n""".format(top_file, resName);
+	    fid_out.write(gScript);
+	    fid_out.close();
+	    
+	    # Drawing graph with gnuplot
+	    subprocess.call(["gnuplot", outScr]);
+
+	#-----------------------------------------
+	#------- This is for bilayer
+	#-----------------------------------------
+	if (flg_top + flg_btm) > 1:
+	    # calculating results
+	    finalDNST = (np.array(finalTOPL) + np.array(finalBTML)) * 0.5;
+	    
+	    # write output into a file
+	    ave_file = '{0}/ave_{1}'.format(out_dir, outFile);
+	    fid_ave = open(ave_file, 'w');
+	    for i in range(len(finalDNST)):
+		outStr = "{0}\t{1}\n".format(BIN[i], finalDNST[i]);
+		fid_ave.write(outStr);
+	    fid_ave.close()
+	    
+	    # Writing Gnuplot script
+	    outScr = '{0}/gplot{1}.gpl'.format(out_dir, para_idx);
+	    outImg  = 'ave_{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
+	    imgPath = "{0}/{1}".format(out_dir, outImg);
+	    fid_out = open(outScr, 'w');
+	    gScript = """set terminal png enhanced \n""";
+	    gScript = gScript + "set encoding iso_8859_1\n";
+	    gScript = gScript + "set output '{0}'\n".format(imgPath);
+	    gScript = gScript + "set multiplot layout 3, 1 title 'Order parameter'\n";
+	    gScript = gScript + "set tmargin 2\n";
+	    
+	    gScript = gScript + "set title 'Top Membrane'\n";
+	    gScript = gScript + """set xlabel 'Carbon Index'\n""";
+	    gScript = gScript + """set ylabel 'S_CD'\n""";
+	    gScript = gScript + """plot "{0}" using 1:2 title "{1}" with lines lw 3\n""".format(top_file, resName);
+	    
+	    gScript = gScript + "set title 'Bottom Membrane'\n";
+	    gScript = gScript + "set xlabel 'Carbon Index'\n";
+	    gScript = gScript + "set ylabel 'S_CD'\n";
+	    gScript = gScript + """plot "{0}" using 1:2 title "{1}" with lines lw 3\n""".format(btm_file, resName);
+
+	    gScript = gScript + "set title 'Both Membrane'\n";
+	    gScript = gScript + "set xlabel 'Carbon Index'\n";
+	    gScript = gScript + "set ylabel 'S_CD'\n";
+	    gScript = gScript + """plot "{0}" using 1:2 title "{1}" with lines lw 3\n""".format(ave_file, resName);
+	    
+	    gScript = gScript + "unset multiplot\n";
+	    gScript = gScript + "set output\n";
+	    fid_out.write(gScript);
+	    fid_out.close()
+	    
+	    # Drawing graph with gnuplot
+	    subprocess.call(["gnuplot", outScr]);
+
 	# gzip all reaults
+	print out_dir;
+	print "=== out zip ==="
 	outZip = "{0}project_{1}_{2}{3}.tar.gz".format(OUTPUT_HOME, prj_pkey, fName[1], para_idx);
+	print outZip
 	subprocess.call(["tar", "czf", outZip, out_dir]);
     
+	# pick one of output file names for DB usage
+	out_file = top_file;
+	
 	# Update values into gui_outputs
+	print "=== DB update ==="
 	conn = sqlite3.connect(DB_FILE);
 	c    = conn.cursor();
 	query = """UPDATE gui_outputs SET status = "Complete", img="{0}", txt="{1}", gzip="{2}" WHERE id = {3}""".format(imgPath, out_file, outZip, pk_output);
+	print query
 	c.execute(query);
 	conn.commit();
 	conn.close();
-	#print query
+	print "DB update success"
     
     
     

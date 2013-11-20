@@ -17,18 +17,24 @@ $j(document).ready(function(){
     // Hide options at first until the module is checked
     $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2").hide();
     
-    // Show and hide submun of category title 
-    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE1 #TEMPLATE_title").live("click", function () {
-	$j("#vfy_msg").empty();
-	$j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2").toggle(this.checked);
-    });
-
     //---> Add count to total number of selected modules
-    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE #lTEMPLATE_title").live("click", function() {
+    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE1 #TEMPLATE_title").live("click", function() {
+	$j("#vfy_msg").empty();
 	var chk = $j(this).prop('checked');
 	if (chk == true) {
 	    $cnt_modules++; // global variable to count all selected modules
 	    cnt_TEMPLATE++; // count options in this module
+	    
+	    /* ----- reading system information ----- */
+	    // Reading total number of atoms
+	    var num_total_atoms = $j("#step2 #num_atoms").text();	// total number of atoms in the system
+	    var num_files = $j("#step2 #num_files").text();		// total number of selected trajectory files 
+	    var frames_per_trj = $j("#step2 #num_frame").text();	// number of frames per a trajectory file (e.g. each DCD file)
+	    var ps_per_frame = $j("#step2 #num_ps").text();		// duration of simulation for each frame in picoseconds
+	    
+	    // total number of atoms are required for parameter passing
+	    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #TEMPLATE_hist_tatoms").empty().val(num_total_atoms);
+
 	} else {
 	    $cnt_modules--;
 	    cnt_TEMPLATE--;
@@ -39,10 +45,9 @@ $j(document).ready(function(){
 		cnt_TEMPLATE = 0;
 	    }
 	}
-	$j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE #TEMPLATE_form").toggle(this.checked);
-	$j("#cnt_modules").empty().append($cnt_modules);
-	$j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE #cnt_TEMPLATE").empty().append(cnt_TEMPLATE); // updating currently selected options in this module
-	
+	$j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE1 #cnt_TEMPLATE").empty().append(cnt_TEMPLATE); 	// updating currently selected options in this module
+	$j("#cnt_modules").empty().append($cnt_modules);					// updating the count for all selected modules
+	$j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2").toggle(this.checked);
     });
     
 });

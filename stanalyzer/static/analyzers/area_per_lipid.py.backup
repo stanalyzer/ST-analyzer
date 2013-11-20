@@ -243,11 +243,12 @@ try:
 	#fid_out.write("# Time(ps)\tAverage lipid per area\n");
 	psf = '{0}{1}'.format(base_path, structure_file);
     
+	flg_top = 0;	    # check bi/mono layer
+	flg_btm = 0;	    # check bi/mono layer
+    
 	timeStamp = [];         # time stamp for trajectory
     
 	# data based on trajectory
-	flg_top = 0;	    # check bi/mono layer
-	flg_btm = 0;	    # check bi/mono layer
 	STMP  = [];
 	TOP_AREA = [];	    # area of individual lipids at top layer
 	BTM_AREA = [];	    # area of individual lipids at bottom layer
@@ -277,43 +278,54 @@ try:
 		    stanalyzer.centerByRes(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
 		    #print "DONE!"
 		#==================================
-		#L = MDAnalysis.analysis.leaflet.LeafletFinder(u, selQry, cutoff=15.0, pbc=True);
-		top_selQry = "{} and (prop z > 0.0)".format(selQry);
-		btm_selQry = "{} and (prop z < 0.0)".format(selQry);
-		
-		#print top_selQry;
-		#print btm_selQry;
-		topAtoms = u.selectAtoms(top_selQry);
-		btmAtoms = u.selectAtoms(btm_selQry);
-
+		L = MDAnalysis.analysis.leaflet.LeafletFinder(u, selQry, cutoff=15.0, pbc=True);
 		cnt = cnt + 1;
 		trj_cnt = trj_cnt + 1;
 		print "[{0}/{1}] processing...".format(cnt, len(u.trajectory));
 		if (cnt % frmInt) == 0: #and cnt == 25:
 		    tmp_time = float(trj_cnt) * float(num_ps) - float(num_ps);
 		    STMP.append(tmp_time);
-		    
-		    if len(topAtoms.resnames()) > 0:
-			print "TOP: {} residues found!".format(len(topAtoms.resnames()));
-			flg_top = 1;
-			topArea 	= lipidArea.voroArea(topAtoms, selQry, sysX, sysY); 	# topArea = [resid1,...,residn];
-			top_resIDs  = topAtoms.resids();		               		# obtaining residue ids
-			top_resNames= topAtoms.resnames();
-			top_uq_resNames = lipidArea.stateLipidArea(topAtoms, topArea)[0];	# unique residue to get Average on each Residue [Res1, res2, ..., resN]
-			tmp_aveRes  = lipidArea.stateLipidArea(topAtoms, topArea)[1];		# Average area corresponding to uq_resNames [[ave, std, stderr]]
-			TOP_AREA.append(topArea);						# TOP_AREA = [topArea_1,...,topArea_n]
-			TOP_AREA_AVE.append(tmp_aveRes);					# TOP_AREA_AVE = [[ave1, std1, stderr1], [ave2, std2, stderr2], ...[aveN, stdN, stderrN]]	
+		    # for bilayer membrane
+		    #print "Query: {0}".format(selQry);
+		    #topQry = "{0} and (prop z > 0.0)".format(selQry);
+		    #print topQry
+		    #topAtoms = u.selectAtoms(topQry);
+		    if len(L.groups()) > 1:
+			topAtoms = L.group(0);
+			if len(topAtoms) > 0:
+			    flg_top = 1;
+			    topArea 	= lipidArea.voroArea(topAtoms, selQry, sysX, sysY); 	# topArea = [resid1,...,residn];
+			    top_resIDs  = topAtoms.resids();		               		# obtaining residue ids
+			    top_resNames= topAtoms.resnames();
+			    top_uq_resNames = lipidArea.stateLipidArea(topAtoms, topArea)[0];	# unique residue to get Average on each Residue [Res1, res2, ..., resN]
+			    tmp_aveRes  = lipidArea.stateLipidArea(topAtoms, topArea)[1];	# Average area corresponding to uq_resNames [[ave, std, stderr]]
+			    TOP_AREA.append(topArea);						# TOP_AREA = [topArea_1,...,topArea_n]
+			    TOP_AREA_AVE.append(tmp_aveRes);					# TOP_AREA_AVE = [[ave1, std1, stderr1], [ave2, std2, stderr2], ...[aveN, stdN, stderrN]]	
 			    
-		    if len(btmAtoms.resnames()) > 0:
-			print "BOTTOM: {} residues found!".format(len(btmAtoms.resnames()));
-			flg_btm = 1;
-			btmArea 	= lipidArea.voroArea(btmAtoms, selQry, sysX, sysY);	# btmArea = [resid1,...,residn];
-			btm_resIDs  = btmAtoms.resids();               			# obtaining residue ids
-			btm_resNames= btmAtoms.resnames();
-			btm_uq_resNames = lipidArea.stateLipidArea(btmAtoms, btmArea)[0];	# unique residue to get Average on each Residue [Res1, res2, ..., resN]
-			tmp_aveRes  = lipidArea.stateLipidArea(btmAtoms, btmArea)[1];	# Average area corresponding to uq_resNames [[ave, std, stderr]]
-			BTM_AREA.append(btmArea);						# BTM_AREA = [btmArea_1,...,btmArea_n]
-			BTM_AREA_AVE.append(tmp_aveRes);					# BTM_AREA_AVE = [[ave1, std1, stderr1], [ave2, std2, stderr2], ...[aveN, stdN, stderrN]]
+			#btmQry = "{0} and (prop z < 0.0)".format(selQry);
+			#btmAtoms = u.selectAtoms(btmQry);
+			btmAtoms = L.group(1);
+			if len(btmAtoms) > 0:
+			    flg_btm = 1;
+			    btmArea 	= lipidArea.voroArea(btmAtoms, selQry, sysX, sysY);	# btmArea = [resid1,...,residn];
+			    btm_resIDs  = btmAtoms.resids();               			# obtaining residue ids
+			    btm_resNames= btmAtoms.resnames();
+			    btm_uq_resNames = lipidArea.stateLipidArea(btmAtoms, btmArea)[0];	# unique residue to get Average on each Residue [Res1, res2, ..., resN]
+			    tmp_aveRes  = lipidArea.stateLipidArea(btmAtoms, btmArea)[1];	# Average area corresponding to uq_resNames [[ave, std, stderr]]
+			    BTM_AREA.append(btmArea);						# BTM_AREA = [btmArea_1,...,btmArea_n]
+			    BTM_AREA_AVE.append(tmp_aveRes);					# BTM_AREA_AVE = [[ave1, std1, stderr1], [ave2, std2, stderr2], ...[aveN, stdN, stderrN]]
+		    else:
+			topAtoms = L.group(0);
+			if len(topAtoms) > 0:
+			    flg_top = 1;
+			    topArea 	= lipidArea.voroArea(topAtoms, selQry, sysX, sysY); 	# topArea = [resid1,...,residn];
+			    top_resIDs  = topAtoms.resids();		               		# obtaining residue ids
+			    top_resNames= topAtoms.resnames();
+			    top_uq_resNames = lipidArea.stateLipidArea(topAtoms, topArea)[0];	# unique residue to get Average on each Residue [Res1, res2, ..., resN]
+			    tmp_aveRes  = lipidArea.stateLipidArea(topAtoms, topArea)[1];	# Average area corresponding to uq_resNames [[ave, std, stderr]]
+			    TOP_AREA.append(topArea);						# TOP_AREA = [topArea_1,...,topArea_n]
+			    TOP_AREA_AVE.append(tmp_aveRes);					# TOP_AREA_AVE = [[ave1, std1, stderr1], [ave2, std2, stderr2], ...[aveN, stdN, stderrN]]	
+		    #print "+----------------------------------------------------------+";
 	    
 	
 	# Writing final output

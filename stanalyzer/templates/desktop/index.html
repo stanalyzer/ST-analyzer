@@ -817,6 +817,8 @@ function eval_step2() {
     var chk_ordpara_charmm = $j('#C_ordpara #M_ordpara #ordpara #ordpara_charmm #ordpara_title_charmm').prop('checked');
     /*----- Order parameter ------*/
     if (chk_ordpara_charmm == true) {
+	cntQry = [];
+	cntAxs = [];
 	frmInt = [];
 	outFile = [];
 	axis = [];
@@ -824,6 +826,19 @@ function eval_step2() {
 	segID = [];
 	resName = [];
 	charmmQry = [];
+
+	/* Membrane Centering*/
+	var cnt_val = $("#C_ordpara #M_ordpara #ordpara #ordpara_charmm input:radio[name=opt_center]:checked").val();
+	if (cnt_val == 'yes') {
+	    var query = $j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm #txt_memb").val().trim();
+	    cntQry.push(query);
+	    var cnt_axs = $j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm #ordpara_center_options #cnt_axis option:selected").val();
+	    cntAxs.push(cnt_axs);
+	}
+	else {
+	    cntAxs.push(cnt_val); // the value of cntAxs will be ignored, but it cannot be empty due to parameter passing
+	    cntQry.push(cnt_val);
+	}
 	
 	/* frame interval */
 	$j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm_form input[name='ordpara_charmm_frmInt']").each(function() {
@@ -861,8 +876,8 @@ function eval_step2() {
 	});
 	
 	JOBs.push('ordpara_charmm');
-	para = [7, frmInt, outFile, axis, numAtoms, segID, resName, charmmQry];
-	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Total number of atoms', 'segment ID', 'residue name', 'charmm query'];
+	para = [9, frmInt, outFile, axis, numAtoms, segID, resName, charmmQry, cntQry, cntAxs];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Total number of atoms', 'segment ID', 'residue name', 'charmm query', 'Centering Query', 'Base axis'];
 	PARs.push(para);
 	PARinfo.push(para_info);
 	//alert("numAtoms:" + numAtoms);

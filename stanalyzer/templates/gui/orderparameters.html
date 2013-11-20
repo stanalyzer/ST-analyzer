@@ -207,6 +207,25 @@ $j(document).ready(function(){
     $j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm").hide();
     $j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm_form").hide();
     
+    // Centering options 
+    $j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm #txt_memb").empty().val("Define 'segid' or 'resname' to be centered! (e.g. segid MEMB)")
+    $j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm #txt_memb").attr("disabled", "disabled");
+    $j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm #ordpara_center_options").hide();
+    
+    $("#C_ordpara #M_ordpara #ordpara #ordpara_charmm input:radio[name=opt_center]").each(function(i){
+	$j(this).click(function() {
+	    if (i == 0) {
+		$j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm #txt_memb").removeAttr("disabled");
+		$j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm #ordpara_center_options").show();
+	    }
+	    else {
+		$j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm #txt_memb").attr("disabled", "disabled");
+		$j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm #ordpara_center_options").hide();
+	    }
+	});
+    });
+
+    
     $j("#C_ordpara #M_ordpara #ordpara #ordpara_title").click(function () {
 	$j("#vfy_msg").empty();
 	if (this.checked) {
@@ -288,6 +307,60 @@ $j(document).ready(function(){
     });
 
     // click varification button
+//---> Membrane centering
+    $j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm #ordpara_center_options #memb_btn_vfy").click(function(){
+	var query = $j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm #ordpara_center_options #txt_memb").val().trim();
+	var bpath = $j("#proot option:selected").text().trim();
+	var stfile = $j("#stfile option:selected").text().trim();
+	var pdbfile = $j("#pdbfile option:selected").text().trim();
+	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
+	var trjFile = $j("#select_trj2").val();
+	
+	var vfy = chkSyntex(query);
+	if (vfy["flag"]) {
+	    $j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm #ordpara_center_options #vfy_msg").empty().append(vfy["err"]);
+	    return false;
+	}
+	/* display waiting message */
+	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
+	
+	
+	$j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm #ordpara_center_options #vfy_msg").empty().append(msgWait);
+	    var sndData = {
+		'cmd'       : 'verify',
+		'query'	    : query,
+		'bpath'	    : bpath,
+		'stfile'    : stfile,
+		'pdbfile'   : pdbfile,
+		'trjFile[]' : trjFile,
+	    }
+
+        var request = $j.ajax({
+        type: "POST",
+        url: '/gui/verify_query/',
+        cache: false,
+        data: sndData,
+        //async: false,
+        });
+		    
+        request.done(function(Jdata) {
+            var obj = $j.parseJSON(Jdata);
+            $j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm #ordpara_center_options #vfy_msg").empty().append("Verified!");
+            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
+	    $j("#dlg_selInfo").dialog({
+		resizable: true,
+		modal: true,
+		height:500,
+                width:600,
+	    });
+
+        });
+          
+        request.error(function(jqXHR, textStatus, errorThrown) {
+            $j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm #ordpara_center_options #vfy_msg").empty().append(errorThrown);
+        });
+    });
+    
     $j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm_form button[id^='ordpara_btn_vfy']").live("click", function(){
 	var bpath = $j("#proot option:selected").text().trim();
 	var stfile = $j("#stfile option:selected").text().trim();
@@ -479,6 +552,46 @@ $j(document).ready(function(){
 			    </table>
 			    <!-- order parameter for CHARMM format -->
 			    <table id="ordpara_charmm">
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<table id="ordpara_center">
+ 					    <tr>
+						<td>
+						    <span class="module_font"><b>Need membrane centering?</b> </span>
+						    <input id="cnt_yes" type="radio" name="opt_center" value="yes">Yes
+						    <input id="cnt_no" type="radio" name="opt_center" value="no">No
+						</td>
+					    </tr>
+					</table>
+				    </td>
+				</tr>
+				<tr>
+				    <td class="w_module"></td>
+				    <td>
+					<table id="ordpara_center_options">
+					    <tr>
+						<td>
+						    <span class="module_font"><b>Along which axis?</b> </span>
+						    <select id="cnt_axis" name="cnt_axis">
+							<option value="z"> z=0 </option>
+							<option value="y"> y=0 </option>
+							<option value="x"> x=0 </option>
+						    </select>
+						</td>
+						<td class="w15"></td>
+						<td>
+						    <span class="module_font"><b> Target: </b> </span>
+						</td>
+						<td>
+						    <textarea id="txt_memb" type="text" name="txt_center" rows="1"></textarea>
+						    <button id="memb_btn_vfy"><span class="module_font">Verify</span></button>
+						</td>
+					    </tr>
+					    <tr><td id="vfy_msg" class="center message_warn" colspan="4"></td></tr>
+					</table>
+				    </td>
+				</tr>
 				<tr>
 				    <td class="w_module"></td>
 				    <td colspan=2><input type="checkbox" id="ordpara_title_charmm">CHARMM format</td>

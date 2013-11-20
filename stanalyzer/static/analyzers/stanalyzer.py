@@ -327,7 +327,7 @@ def getCosT(v1, v2):
 # *  File sort containing both string and numbers
 #********************************************************
 def getSortedList(myList, rev):
-    print "+++ getSortedList +++"
+    print "def:getSortedList"
     #i[0]: use key index, x[1]: use file name for comparision
     idx = [i[0] for i in sorted(enumerate(myList), key=lambda x:x[1], reverse=rev)]; 
     #print "** func: idx"
@@ -338,7 +338,7 @@ def getSortedList(myList, rev):
     return [idx, sList];
 
 def extStrings(myList):
-    print "+++ extStrings +++"
+    print "def:extStrings"
     # find every number and find maximum number in a certain range
     fixDigit = 7;
     newList = [];
@@ -370,7 +370,7 @@ def extStrings(myList):
     return newList;
 
 def sort_str_num(myList, order):
-    print "+++ sort_str_num +++"
+    print "def:sort_str_num"
     #print '{0}-{1}'.format(order, order.upper())
 
     if (order.upper() == 'DESC'):
