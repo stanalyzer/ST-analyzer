@@ -219,8 +219,8 @@ resName   = paras[6][para_idx];
 charmm_query = paras[7][para_idx];
 cntQry = paras[8][para_idx];			# pInfo[8] : Centering Query
 cntAxs = paras[9][para_idx];			# pInfo[9]: Centering axis
-print cntQry;
-print cntAxs
+#print cntQry;
+#print cntAxs
 
 # Reading a trajectory to get the information about atoms
 trj = '{0}{1}'.format(base_path, trajectoryFile[0]);
@@ -244,8 +244,8 @@ num_selatoms = len(Names);
 num_uq_selatoms = len(sortlistNames);
 num_tails = num_selatoms / num_uq_selatoms;
 
-print "total {0} tails: {1} atoms and {2} unique atoms".format(num_tails, num_selatoms, num_uq_selatoms);
-print sortlistNames
+#print "total {0} tails: {1} atoms and {2} unique atoms".format(num_tails, num_selatoms, num_uq_selatoms);
+#print sortlistNames
 
 
 # defining the order of lipid tail (e.g. CA1, CB1, CC1, etc. Vs. C1, C2)
@@ -254,18 +254,18 @@ if len(tmp_num) > 0:
     dnst_min = int(sortlistNames[0][1:2]); # reading the first sroted atom and extract the first digit
 else:
     dnst_min = filter(str.isdigit, sortlistNames[0]); # reading the first sroted atom and extract the first digit
-print dnst_min
+#print dnst_min
 
 tmp_num = filter(str.isdigit, sortlistNames[len(sortlistNames)-1][1]);
 if len(tmp_num) > 0:
     dnst_max = int(sortlistNames[len(sortlistNames)-1][2:]);
 else:
     dnst_max = filter(str.isdigit, sortlistNames[len(sortlistNames)-1]);
-print dnst_max
+#print dnst_max
 
 dnst_bin = 1;
 
-print "dnst_min={}, dnst_max={}, dnst_bin={}".format(dnst_min, dnst_max, dnst_bin);
+#print "dnst_min={}, dnst_max={}, dnst_bin={}".format(dnst_min, dnst_max, dnst_bin);
 
 # query selecting carbon tail
 #selQryC2 = "resname DPPE and name C2* and not name C21"; #SCD2
@@ -273,9 +273,9 @@ print "dnst_min={}, dnst_max={}, dnst_bin={}".format(dnst_min, dnst_max, dnst_bi
 #newQryC2 = "resname DPPE and (name C2* or name H*) and not name C21"; #SCD2
 #newQryC3 = "resname DXPE and (name C3* or name H*) and not name C31"; #SCD1
 
-print "Okay I am in ordpara_charmm.py!!!!!";
-print "AXIS = {}, {}".format(taxis, type(taxis));
-print "Total # atoms = {}, {}".format(num_atoms, type(num_atoms));
+print "ordpara_charmm.py is running...";
+#print "AXIS = {}, {}".format(taxis, type(taxis));
+#print "Total # atoms = {}, {}".format(num_atoms, type(num_atoms));
 
 #///////////////////////////////////////////////////////////////////////////
 # Running actual job
@@ -392,7 +392,7 @@ try:
 			num_uq_selatoms = len(sortlistNames);
 			num_top = num_selatoms / num_uq_selatoms;
 			#num_top2 = len(topAtoms.resnames()); # length of tail
-			print 'There are {} lipids in top layer'.format(num_top);
+			#print 'There are {} lipids in top layer'.format(num_top);
 			#print 'There are {} lipids in top layer'.format(num_top2);
 			
 			# find hydrogen atoms based on the current selection
@@ -443,7 +443,7 @@ try:
 			num_uq_selatoms = len(sortlistNames);
 			num_btm = num_selatoms / num_uq_selatoms;
 			#num_btm2 = len(btmAtoms.resnames()); # length of tail
-			print 'There are {} lipids in bottom layer'.format(num_btm);
+			#print 'There are {} lipids in bottom layer'.format(num_btm);
 			#print 'There are {} lipids in bottom layer'.format(num_btm2);
 
 			# find hydrogen atoms based on the current selection
