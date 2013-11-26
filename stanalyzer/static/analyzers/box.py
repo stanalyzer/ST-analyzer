@@ -250,24 +250,17 @@ out_file  = paras[2][para_idx];			# pInfo[2] : output file name (list)
 #///////////////////////////////////////////////////////////////////////////
 try:
     outFile = '{0}/{1}'.format(out_dir, out_file);
-    #print outFile
     fid_out = open(outFile, 'w')
     fieldInfo = "# ps/frame\tX-axis\tY-axis\tZ-axis\tAlpha\tBeta\tGamma\tVolumn\n";
-    #print fieldInfo;
     fid_out.write(fieldInfo)
-    #print '--- Calculating Unicell dimension and volum'
     psf = '{0}{1}'.format(base_path, structure_file);
-    #print psf;
     cnt = 0;
-    timeStamp = [];         # time stamp for trajectory 
+    timeStamp = [];         # time stamp for trajectory
+    sSize = [];
     for idx in range(len(trajectoryFile)):
         # reading trajectory
         dcd = '{0}{1}'.format(base_path, trajectoryFile[idx]);
-        #print 'Reading PSF: ' + psf
-        #print 'Reading DCD: ' + dcd
         u = Universe(psf, dcd);
-        #print '{0} is done!'.format(idx);
-        # read based on frame
         
         for ifrm in range(len(u.trajectory)):
             cnt = cnt + 1;
@@ -276,16 +269,16 @@ try:
                 # get the class MDAnalysis.coordinates.base.Timestep
                 # from MDAnalysis.coordinates.DCD.DCDReader
                 tmp_time = float(cnt) * float(num_ps) - float(num_ps);
-                #print "cnt={}, tmp_time={}".format(cnt, tmp_time);
                 timeStamp.append(tmp_time);
                 ucell = u.trajectory[ifrm]
                 outStr = '{0}'.format(tmp_time);
-                #print outStr
-                #print ucell.dimensions
+                tmp = [];
                 for j in range(len(ucell.dimensions)):
                    outStr = outStr + '\t{0}'.format(ucell.dimensions[j])
-                   #print outStr
+                   tmp.append(ucell.dimensions[j]);
                 outStr = outStr + '\t{0}\n'.format(ucell.volume)
+                tmp.append(ucell.volume);
+                sSize.append(tmp);
                 #print "Last Line--->"
                 #print outStr
                 fid_out.write(outStr)
@@ -298,16 +291,61 @@ try:
     outImg  = '{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
     imgPath = "{0}/{1}".format(out_dir, outImg);
     fid_out = open(outScr, 'w');
-    gScript = "set terminal png\n";
-    gScript = gScript + "set encoding iso_8859_1\n";
-    gScript = gScript + "set xlabel 'ps/frame'\n";
-    gScript = gScript + "set ylabel 'System size'\n";
+    gScript = """set terminal png enhanced \n""";
     gScript = gScript + "set output '{0}'\n".format(imgPath);
-    gScript = gScript + """plot "{0}/{1}" using 1:2 title "X-axis" with lines lw 3, "{2}/{1}" using 1:3 title "Y-axis" with lines lw 3, "{3}/{1}" using 1:4 title "Z-axis" with lines lw 3\n""".format(out_dir, out_file, out_dir, out_dir);
+    gScript = gScript + "set multiplot layout 3,1 rowsfirst title 'System size'\n";
+    
+    npSize = np.array(sSize);
+    max_x = npSize[:,0].max();
+    min_x = npSize[:,0].min();
+    
+    max_y = npSize[:,1].max();
+    min_y = npSize[:,1].min();
+    
+    max_z = npSize[:,2].max();
+    min_z = npSize[:,2].min();
+    
+    # For X axis
+    num_x_tics = 3.0;
+    intx = (max_x - min_x) / num_x_tics;
+    gScript = gScript + "set tmargin at screen 0.93; set bmargin at screen 0.68\n";
+    gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
+    gScript = gScript + "set xtics offset 0,0.5; unset xlabel\n";
+    if intx >= 0.0001:
+        gScript = gScript + """set ytics {0:10.4f},{1:10.4f},{2:10.4f}; unset ylabel\n""".format(min_x, intx, max_x);
+    gScript = gScript + "unset ylabel\n";
+    #gScript = gScript + """set label 1 'X-axis' at graph 0.01, 0.95 font ',8' \n""";
+    gScript = gScript + """plot "{0}" using ($1*0.001):2 title "X-axis" with lines lw 3\n""".format(outFile);
+
+    # For Y axis
+    num_y_tics = 3.0;
+    inty = (max_y - min_y) / num_y_tics;
+    gScript = gScript + "set tmargin at screen 0.63; set bmargin at screen 0.38\n";
+    gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
+    gScript = gScript + "set xtics offset 0,0.5; unset xlabel\n";
+    if inty >= 0.0001:
+        gScript = gScript + """set ytics {0:10.4f},{1:10.4f},{2:10.4f};\n""".format(min_y, inty, max_y);
+    gScript = gScript + "set ylabel 'Size (Angstrom)'\n";
+    #gScript = gScript + """set label 1 'Y-axis' at graph 0.01, 0.95 font ',8' \n""";
+    gScript = gScript + """plot "{0}" using ($1*0.001):3 title "Y-axis" with lines lw 3\n""".format(outFile);
+
+    # For Z axis
+    num_z_tics = 3.0;
+    intz = (max_z - min_z) / num_z_tics;
+    gScript = gScript + "set tmargin at screen 0.33; set bmargin at screen 0.08\n";
+    gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
+    gScript = gScript + "set xtics offset 0,0.5; set xlabel 'Time (ns)' offset 0,1\n";
+    if intz >= 0.0001:
+        gScript = gScript + """set ytics {0:10.4f},{1:10.4f},{2:10.4f}; unset ylabel\n""".format(min_z, intz, max_z);
+    gScript = gScript + "unset ylabel\n";
+    #gScript = gScript + """set label 1 'Z-axis' at graph 0.01, 0.95 font ',8' \n""";
+    gScript = gScript + """plot "{0}" using ($1*0.001):4 title "Z-axis" with lines lw 3\n""".format(outFile);
+   
+    gScript = gScript + "unset multiplot\n";
+    gScript = gScript + "set output\n";
     fid_out.write(gScript);
     fid_out.close()
-    #print gScript
-    
+
     # Drawing graph with gnuplot
     subprocess.call(["gnuplot", outScr]);
     

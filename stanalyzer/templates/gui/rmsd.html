@@ -19,19 +19,17 @@ $j(document).ready(function(){
 	    if ($cnt_modules < 0) {
 		$cnt_modules = 0;
 	    }
-	    if ($cnt_rmsd < 0) {
-		$cnt_rmsd = 0;
+	    if (cnt_rmsd < 0) {
+		cnt_rmsd = 0;
 	    }
 	}
 	$j("#cnt_modules").empty().append($cnt_modules);
 	$j("#C_rmsd #M_rmsd #rmsd #cnt_rmsd").empty().append(cnt_rmsd);
+	$j("#C_rmsd #M_rmsd #rmsd_form").toggle(this.checked);
     });
 
     //*** RMSD - hiding form and toggling
     $j("#C_rmsd #M_rmsd #rmsd_form").hide();
-    $j("#C_rmsd #M_rmsd #rmsd_title").click(function () {
-	$j("#C_rmsd #M_rmsd #rmsd_form").toggle(this.checked);
-    });
 
     //*** RMSD - initializing values
     $j("#C_rmsd #M_rmsd #rmsd #rmsd_form #rmsd_outFile").empty().val("rmsd_ouput.dat");

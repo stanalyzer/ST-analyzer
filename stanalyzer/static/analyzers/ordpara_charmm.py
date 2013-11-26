@@ -494,7 +494,11 @@ try:
 	    for i in TOPL:
 		tmp = abs(i/(len(STMP) * num_top));	# average through trajectory
 		finalTOPL.append(tmp);
-		
+
+	    Ys = np.array(finalTOPL);
+	    max_top = Ys.max();
+	    min_top = Ys.min();
+	    	
 	    # write output into a file
 	    top_file = '{0}/top_{1}'.format(out_dir, outFile);
 	    fid_top = open(top_file, 'w');
@@ -529,7 +533,11 @@ try:
 	    for i in BTML:
 		tmp = abs(i/(len(STMP) * num_btm));	# average through trajectory
 		finalBTML.append(tmp);
-		
+
+	    Ys = np.array(finalBTML);
+	    max_btm = Ys.max();
+	    min_btm = Ys.min();
+
 	    # write output into a file
 	    btm_file = '{0}/btm_{1}'.format(out_dir, outFile);
 	    fid_btm = open(btm_file, 'w');
@@ -561,6 +569,11 @@ try:
 	if (flg_top + flg_btm) > 1:
 	    # calculating results
 	    finalDNST = (np.array(finalTOPL) + np.array(finalBTML)) * 0.5;
+
+	    Ys = finalDNST;
+
+	    max_y = Ys.max();
+	    min_y = Ys.min();
 	    
 	    # write output into a file
 	    ave_file = '{0}/ave_{1}'.format(out_dir, outFile);
@@ -570,30 +583,48 @@ try:
 		fid_ave.write(outStr);
 	    fid_ave.close()
 	    
+	    
 	    # Writing Gnuplot script
 	    outScr = '{0}/gplot{1}.gpl'.format(out_dir, para_idx);
 	    outImg  = 'ave_{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
 	    imgPath = "{0}/{1}".format(out_dir, outImg);
 	    fid_out = open(outScr, 'w');
 	    gScript = """set terminal png enhanced \n""";
-	    gScript = gScript + "set encoding iso_8859_1\n";
 	    gScript = gScript + "set output '{0}'\n".format(imgPath);
-	    gScript = gScript + "set multiplot layout 3, 1 title 'Order parameter'\n";
-	    gScript = gScript + "set tmargin 2\n";
+	    gScript = gScript + "set multiplot layout 3,1 rowsfirst title 'Order parameter'\n";
 	    
-	    gScript = gScript + "set title 'Top Membrane'\n";
-	    gScript = gScript + """set xlabel 'Carbon Index'\n""";
-	    gScript = gScript + """set ylabel 'S_CD'\n""";
+	    # for top membrane
+	    num_top_tics = 3.0;
+	    intx = (max_top - min_top) / num_top_tics;
+	    gScript = gScript + "set tmargin at screen 0.93; set bmargin at screen 0.68\n";
+	    gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
+	    gScript = gScript + "set xtics offset 0,0.5; unset xlabel\n";
+	    if intx >= 0.0001:
+		gScript = gScript + "set ytics {0:10.4f},{1:10.4f},{2:10.4f}; unset ylabel\n".format(min_top, intx, max_top);
+	    gScript = gScript + """set label 1 'Top' at graph 0.01, 0.95 font ',8' \n""";
 	    gScript = gScript + """plot "{0}" using 1:2 title "{1}" with lines lw 3\n""".format(top_file, resName);
-	    
-	    gScript = gScript + "set title 'Bottom Membrane'\n";
-	    gScript = gScript + "set xlabel 'Carbon Index'\n";
+
+	    # for bottom membrane
+	    num_btm_tics = 3.0;
+	    intx = (max_btm - min_btm) / num_btm_tics;
+	    gScript = gScript + "set tmargin at screen 0.63; set bmargin at screen 0.38\n";
+	    gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
+	    gScript = gScript + "set xtics offset 0,0.5; unset xlabel\n";
+	    if intx >= 0.0001:
+		gScript = gScript + "set ytics {0:10.4f},{1:10.4f},{2:10.4f}\n".format(min_btm, intx, max_btm);
 	    gScript = gScript + "set ylabel 'S_CD'\n";
+	    gScript = gScript + """set label 1 'Bottom' at graph 0.01, 0.95 font ',8' \n""";
 	    gScript = gScript + """plot "{0}" using 1:2 title "{1}" with lines lw 3\n""".format(btm_file, resName);
 
-	    gScript = gScript + "set title 'Both Membrane'\n";
-	    gScript = gScript + "set xlabel 'Carbon Index'\n";
-	    gScript = gScript + "set ylabel 'S_CD'\n";
+	    # for both membrane
+	    num_both_tics = 3.0;
+	    intx = (max_y - min_y) / num_both_tics;
+	    gScript = gScript + "set tmargin at screen 0.33; set bmargin at screen 0.08\n";
+	    gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
+	    gScript = gScript + "set xtics offset 0,0.5; set xlabel 'Carbon number' offset 0,1\n";
+	    if intx >= 0.0001:
+		gScript = gScript + "set ytics {0:10.4f},{1:10.4f},{2:10.4f}; unset ylabel\n".format(min_y, intx, max_y);
+	    gScript = gScript + """set label 1 'Average' at graph 0.01, 0.95 font ',8' \n""";
 	    gScript = gScript + """plot "{0}" using 1:2 title "{1}" with lines lw 3\n""".format(ave_file, resName);
 	    
 	    gScript = gScript + "unset multiplot\n";

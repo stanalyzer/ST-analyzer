@@ -275,6 +275,10 @@ $j(document).ready(function(){
 	    if ($cnt_modules < 0) {
 		$cnt_modules = 0;
 	    }
+	    if (cnt_ordpara < 0) {
+		cnt_ordpara = 0;
+	    }
+
 	}
 	$j("#cnt_modules").empty().append($cnt_modules);
 	$j("#C_ordpara #M_ordpara #ordpara #cnt_ordpara").empty().append(cnt_ordpara);

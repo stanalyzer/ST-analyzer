@@ -876,6 +876,16 @@ function eval_step2() {
 	});
 	
 	JOBs.push('ordpara_charmm');
+	
+	// copy the array of cntQry and cntAxs making the length same as rest of them
+	tmpQry = []; tmpAxs = [];
+	for (var i = 0; i < frmInt.length; i++){
+	    tmpQry.push(cntQry[0]);
+	    tmpAxs.push(cntAxs[0]);
+	}
+	cntQry = tmpQry;
+	cntAxs = tmpAxs;
+	
 	para = [9, frmInt, outFile, axis, numAtoms, segID, resName, charmmQry, cntQry, cntAxs];
 	para_info = [idx0, 'Frame interval', 'Output name', 'Axis', 'Total number of atoms', 'segment ID', 'residue name', 'charmm query', 'Centering Query', 'Base axis'];
 	PARs.push(para);

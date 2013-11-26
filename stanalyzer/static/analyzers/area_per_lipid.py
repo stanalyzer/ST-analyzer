@@ -352,7 +352,10 @@ try:
 		outStr= "{0}\n".format(outStr);
 		fid_top_ave.write(outStr);
 	    fid_top_ave.close()
-    
+	    TOP_AVE_VAL = np.array(TOP_AREA_AVE);
+	    max_top = TOP_AVE_VAL[:,0][:,0].max();
+	    min_top = TOP_AVE_VAL[:,0][:,0].min();
+	    
 	    tstamp = 0;
 	    for resIdx in TOP_AREA:
 		outStr = "{0}".format(STMP[tstamp]);
@@ -385,6 +388,9 @@ try:
 		outStr= "{0}\n".format(outStr);
 		fid_btm_ave.write(outStr);
 	    fid_btm_ave.close()
+	    BTM_AVE_VAL = np.array(BTM_AREA_AVE);
+	    max_btm = BTM_AVE_VAL[:,0][:,0].max();
+	    min_btm = BTM_AVE_VAL[:,0][:,0].min();
 	    
 	    tstamp = 0;
 	    for resIdx in BTM_AREA:
@@ -398,91 +404,111 @@ try:
     
     
 	# -------- Drawing graphs
-	if (flg_top + flg_btm) > 1:
-	    # Writing Gnuplot script
-	    outScr = '{0}/gplot{1}.gpl'.format(out_dir, para_idx);
-	    #outImg  = '{0}{1}.eps'.format(exe_file[:len(exe_file)-3], para_idx);
+	if flg_top > 0:
+	    outScr = '{0}/gplot{1}.p'.format(out_dir, para_idx);
 	    outImg  = '{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
 	    imgPath = "{0}/{1}".format(out_dir, outImg);
 	    fid_out = open(outScr, 'w');
-	    #gScript = """set terminal postscript eps enhanced color font 'Helvetica' \n""";
 	    gScript = """set terminal png enhanced \n""";
-	    gScript = gScript + "set encoding iso_8859_1\n";
 	    gScript = gScript + "set output '{0}'\n".format(imgPath);
 	    gScript = gScript + "set multiplot layout 2, 1 title 'Area per lipid'\n";
-	    gScript = gScript + "set tmargin 2\n";
-	    gScript = gScript + "set title 'Top Membrane'\n";
-	    gScript = gScript + """set xlabel 'Time (ps)'\n""";
-	    #gScript = gScript + """set ylabel 'Area per Lipid [{\305}^2 ]'\n""";
-	    gScript = gScript + """set ylabel 'Area per Lipid [A^2 ]'\n""";
-	    gScript = gScript + """plot "{0}" using 1:2 title "{1}" with lines lw 3""".format(top_ave_file, top_uq_resNames[0]);
+	    
+	    # top layer
+	    num_top_tics = 3.0;
+	    intx = (max_top - min_top) / num_top_tics;
+	    gScript = gScript + """set tmargin at screen 0.93; set bmargin at screen 0.54\n""";
+	    gScript = gScript + """set lmargin at screen 0.20; set rmargin at screen 0.85\n""";
+	    gScript = gScript + """set xtics offset 0,0.5; unset xlabel\n""";
+	    
+	    if intx >= 0.0001:
+		gScript = gScript + """set ytics {0:10.4f},{1:10.4f},{2:10.4f}; unset ylabel\n""".format(min_top, intx, max_top);
+
+	    gScript = gScript + """set label 1 'Top' at graph 0.01, 0.95 font ',8'\n""";
+	    gScript = gScript + """set ylabel 'Area per Lipid [A^2 ]' offset 0,-8\n""";
+	    gScript = gScript + """plot "{0}" using ($1*0.001):2 title "{1}" with lines lw 3""".format(top_ave_file, top_uq_resNames[0]);
 	    rcnt = 2;
 	    for ridx in range(len(top_uq_resNames)-1):
 		rcnt = rcnt + 1;
-		gScript = """{0}, "{1}" using 1:{2} title "{3}" with lines lw 3""".format(gScript, top_ave_file, rcnt, top_uq_resNames[ridx+1]);
+		gScript = """{0}, "{1}" using  ($1*0.001):{2} title "{3}" with lines lw 3""".format(gScript, top_ave_file, rcnt, top_uq_resNames[ridx+1]);
 	    gScript = """{0}\n""".format(gScript);
 	    
-	    gScript = gScript + "set title 'Bottom Membrane'\n";
-	    gScript = gScript + "set xlabel 'Time (ps)'\n";
-	    gScript = gScript + "set ylabel 'Area per Lipid [A]'\n";
-	    #gScript = gScript + "set output '{0}'\n".format(imgPath);
-	    gScript = gScript + """plot "{0}" using 1:2 title "{1}" with lines lw 3""".format(btm_ave_file, btm_uq_resNames[0]);
+	if flg_btm > 0:
+	    num_btm_tics = 3.0;
+	    intx = (max_top - min_btm) / num_btm_tics;
+	    gScript = gScript + """set tmargin at screen 0.48; set bmargin at screen 0.08\n""";
+	    gScript = gScript + """set lmargin at screen 0.20; set rmargin at screen 0.85\n""";
+	    gScript = gScript + """set xtics offset 0,0.5; unset xlabel\n""";
+	    
+	    if intx >= 0.0001:
+		gScript = gScript + """set ytics {0:10.4f},{1:10.4f},{2:10.4f}; unset ylabel\n""".format(min_btm, intx, max_btm);
+	    
+	    gScript = gScript + """set label 1 'Bottom' at graph 0.01, 0.95 font ',8'\n""";
+	    gScript = gScript + """set xlabel 'Time (ns)' offset 0,1\n""";
+	    gScript = gScript + """plot "{0}" using  ($1*0.001):2 title "{1}" with lines lw 3""".format(btm_ave_file, btm_uq_resNames[0]);
 	    rcnt = 2;
 	    for ridx in range(len(btm_uq_resNames)-1):
 		rcnt = rcnt + 1;
-		gScript = """{0}, "{1}" using 1:{2} title "{3}" with lines lw 3""".format(gScript, btm_ave_file, rcnt, btm_uq_resNames[ridx+1]);
+		gScript = """{0}, "{1}" using  ($1*0.001):{2} title "{3}" with lines lw 3""".format(gScript, btm_ave_file, rcnt, btm_uq_resNames[ridx+1]);
 	    gScript = """{0}\n""".format(gScript);
 	    
 	    gScript = gScript + "unset multiplot\n";
 	    gScript = gScript + "set output\n";
 	    fid_out.write(gScript);
 	    fid_out.close()
-	else:
-	    if flg_top > 0:
-		outScr = '{0}/gplot{1}.p'.format(out_dir, para_idx);
-		#outImg  = '{0}{1}.eps'.format(exe_file[:len(exe_file)-3], para_idx);
-		outImg  = '{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
-		imgPath = "{0}/{1}".format(out_dir, outImg);
-		fid_out = open(outScr, 'w');
-		#gScript = "set terminal postscript eps enhanced color font 'Helvetica'\n";
-		gScript = """set terminal png enhanced \n""";
-		gScript = gScript + "set encoding iso_8859_1\n";
-		gScript = gScript + "set xlabel 'Time (ps)'\n";
-		#gScript = gScript + "set ylabel 'Area per Lipid [{\305}^2]'\n";
-		gScript = gScript + "set ylabel 'Area per Lipid [A^2]'\n";
-		gScript = gScript + "set title 'Top Membrane'\n";
-		gScript = gScript + "set output '{0}'\n".format(imgPath);
-		gScript = gScript + """plot "{0}" using 1:2 title "{1}" with lines lw 3""".format(top_ave_file, top_uq_resNames[0]);
-		rcnt = 2;
-		for ridx in range(len(top_uq_resNames)-1):
-		    rcnt = rcnt + 1;
-		    gScript = """{0}, "{1}" using 1:{2} title "{3}" with lines lw 3""".format(gScript, top_ave_file, rcnt, top_uq_resNames[ridx+1]);
-		gScript = """{0}\n""".format(gScript);
-		fid_out.write(gScript);
-		fid_out.close()	
-	    if flg_btm > 0:
-		outScr = '{0}/gplot{1}.p'.format(out_dir, para_idx);
-		#outImg  = '{0}{1}.eps'.format(exe_file[:len(exe_file)-3], para_idx);
-		outImg  = '{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
-		imgPath = "{0}/{1}".format(out_dir, outImg);
-		fid_out = open(outScr, 'w');
-		#gScript = "set terminal postscript eps enhanced color font 'Helvetica'\n";
-		gScript = "set terminal png enhanced\n";
-		gScript = gScript + "set encoding iso_8859_1\n";
-		gScript = gScript + "set xlabel 'Time (ps)'\n";
-		#gScript = gScript + "set ylabel 'Area per Lipid [{\305}^2]'\n";
-		gScript = gScript + "set ylabel 'Area per Lipid [A^2]'\n";
-		gScript = gScript + "set title 'Bottom Membrane'\n";
-		gScript = gScript + "set output '{0}'\n".format(imgPath);
-		gScript = gScript + """plot "{0}" using 1:2 title "{1}" with lines lw 3""".format(btm_ave_file, btm_uq_resNames[0]);
-		rcnt = 2;
-		for ridx in range(len(btm_uq_resNames)-1):
-		    rcnt = rcnt + 1;
-		    gScript = """{0}, "{1}" using 1:{2} title "{3}" with lines lw 3""".format(gScript, btm_ave_file, rcnt, btm_uq_resNames[ridx+1]);
-		gScript = """{0}\n""".format(gScript);
-		fid_out.write(gScript);
-		fid_out.close()	    
-	
+	    
+	if (flg_top + flg_btm) > 1:
+	    # Writing Gnuplot script
+	    outScr = '{0}/gplot{1}.gpl'.format(out_dir, para_idx);
+	    outImg  = '{0}{1}.png'.format(exe_file[:len(exe_file)-3], para_idx);
+	    imgPath = "{0}/{1}".format(out_dir, outImg);
+	    fid_out = open(outScr, 'w');
+	    gScript = """set terminal png enhanced \n""";
+	    gScript = gScript + "set output '{0}'\n".format(imgPath);
+	    gScript = gScript + "set multiplot layout 2, 1 title 'Area per lipid'\n";
+	    
+	    # top layer
+	    num_top_tics = 3.0;
+	    intx = (max_top - min_top) / num_top_tics;
+	    gScript = gScript + """set tmargin at screen 0.93; set bmargin at screen 0.54\n""";
+	    gScript = gScript + """set lmargin at screen 0.20; set rmargin at screen 0.85\n""";
+	    gScript = gScript + """set xtics offset 0,0.5; unset xlabel\n""";
+	    
+	    if intx >= 0.0001:
+		gScript = gScript + """set ytics {0:10.4f},{1:10.4f},{2:10.4f}; unset ylabel\n""".format(min_top, intx, max_top);
+	    
+	    gScript = gScript + """set label 1 'Top' at graph 0.01, 0.95 font ',8'\n""";
+	    gScript = gScript + """set ylabel 'Area per Lipid [A^2 ]' offset 0,-8\n""";
+	    gScript = gScript + """plot "{0}" using ($1*0.001):2 title "{1}" with lines lw 3""".format(top_ave_file, top_uq_resNames[0]);
+	    rcnt = 2;
+	    for ridx in range(len(top_uq_resNames)-1):
+		rcnt = rcnt + 1;
+		gScript = """{0}, "{1}" using  ($1*0.001):{2} title "{3}" with lines lw 3""".format(gScript, top_ave_file, rcnt, top_uq_resNames[ridx+1]);
+	    gScript = """{0}\n""".format(gScript);
+	    
+	    # bottom layer
+	    num_btm_tics = 3.0;
+	    intx = (max_btm - min_btm) / num_btm_tics;
+	    gScript = gScript + """set tmargin at screen 0.48; set bmargin at screen 0.08\n""";
+	    gScript = gScript + """set lmargin at screen 0.20; set rmargin at screen 0.85\n""";
+	    gScript = gScript + """set xtics offset 0,0.5; unset xlabel\n""";
+	    
+	    if intx >= 0.0001:
+		gScript = gScript + """set ytics {0:10.4f},{1:10.4f},{2:10.4f}; unset ylabel\n""".format(min_btm, intx, max_btm);
+	    
+	    gScript = gScript + """set label 1 'Bottom' at graph 0.01, 0.95 font ',8'\n""";
+	    gScript = gScript + """set xlabel 'Time (ns)' offset 0,1\n""";
+	    gScript = gScript + """plot "{0}" using  ($1*0.001):2 title "{1}" with lines lw 3""".format(btm_ave_file, btm_uq_resNames[0]);
+	    rcnt = 2;
+	    for ridx in range(len(btm_uq_resNames)-1):
+		rcnt = rcnt + 1;
+		gScript = """{0}, "{1}" using  ($1*0.001):{2} title "{3}" with lines lw 3""".format(gScript, btm_ave_file, rcnt, btm_uq_resNames[ridx+1]);
+	    gScript = """{0}\n""".format(gScript);
+	    
+	    gScript = gScript + "unset multiplot\n";
+	    gScript = gScript + "set output\n";
+	    fid_out.write(gScript);
+	    fid_out.close()
+
 	# Drawing graph with gnuplot
 	subprocess.call(["gnuplot", outScr]);
 	

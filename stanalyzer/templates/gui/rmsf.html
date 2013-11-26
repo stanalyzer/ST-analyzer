@@ -21,13 +21,11 @@ $j(document).ready(function(){
 	}
 	$j("#cnt_modules").empty().append($cnt_modules);
 	$j("#C_rmsf #M_rmsf #rmsf #cnt_rmsf").empty().append(cnt_rmsf);
+	$j("#C_rmsf #M_rmsf #rmsf_form").toggle(this.checked);
     });
     
     //*** RMSF - hiding form and toggling
     $j("#C_rmsf #M_rmsf #rmsf_form").hide();
-    $j("#C_rmsf #M_rmsf #rmsf_title").click(function () {
-	$j("#C_rmsf #M_rmsf #rmsf_form").toggle(this.checked);
-    });
 
     //*** RMSF - initializing values
     $j("#C_rmsf #M_rmsf #rmsf #rmsf_form #rmsf_outFile").empty().val("rmsf_ouput.dat");
