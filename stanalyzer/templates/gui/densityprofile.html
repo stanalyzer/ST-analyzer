@@ -209,7 +209,7 @@ $j(document).ready(function(){
     $j("#C_density #M_density #density #density_form #txt_memb").attr("disabled", "disabled");
     $j("#C_density #M_density #density #density_form #density_center_options").hide();
     
-    $("#C_density #M_density #density #density_form input:radio[name=opt_center]").each(function(i){
+    $("#C_density #M_density #density #density_form input:radio[name=den_center]").each(function(i){
 	$j(this).click(function() {
 	    if (i == 0) {
 		$j("#C_density #M_density #density #density_form #txt_memb").removeAttr("disabled");
@@ -1517,8 +1517,8 @@ $j(document).ready(function(){
  					    <tr>
 						<td>
 						    <span class="module_font"><b>Need membrane centering?</b> </span>
-						    <input id="cnt_yes" type="radio" name="opt_center" value="yes">Yes
-						    <input id="cnt_no" type="radio" name="opt_center" value="no">No
+						    <input id="cnt_yes" type="radio" name="den_center" value="yes">Yes
+						    <input id="cnt_no" type="radio" name="den_center" value="no">No
 						</td>
 					    </tr>
 					</table>
