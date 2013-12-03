@@ -339,26 +339,26 @@ try:
 			    
 			    # calculating cosine 
 			    if (((catom_idx + 1.0) % 3.0) == 0.0):
-				vx = Ox + (h1x-h2x)/2;
-				vy = Oy + (h1y-h2y)/2;
-				vz = Oz + (h1z-h2z)/2;
+				vx = Ox + (h1x-h2x)/2.0;
+				vy = Oy + (h1y-h2y)/2.0;
+				vz = Oz + (h1z-h2z)/2.0;
 				r2 = vx*vx + vy*vy + vz*vz;
 				cosx = vx/math.sqrt(r2);
 				cosy = vy/math.sqrt(r2);
 				cosz = vz/math.sqrt(r2);
 				
 				if taxis == 'X':
-				    tcosx = 1;
-				    tcosy = 0;
-				    tcosz = 0;
+				    tcosx = 1.0;
+				    tcosy = 0.0;
+				    tcosz = 0.0;
 				elif taxis == 'Y':
-				    tcosx = 0;
-				    tcosy = 1;
-				    tcosz = 0;
+				    tcosx = 0.0;
+				    tcosy = 1.0;
+				    tcosz = 0.0;
 				elif taxis == 'Z':
-				    tcosx = 0;
-				    tcosy = 0;
-				    tcosz = 1;
+				    tcosx = 0.0;
+				    tcosy = 0.0;
+				    tcosz = 1.0;
 	
 				# calculating cosine between two vector
 				cosT = cosx*tcosx + cosy*tcosy + cosz*tcosz;
