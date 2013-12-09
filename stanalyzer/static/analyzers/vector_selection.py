@@ -346,7 +346,7 @@ try:
 			    
 			    # calculating cosine between two vector
 			    cosT = cosx*tcosx + cosy*tcosy + cosz*tcosz;
-			    DNST[pos] += cosT / float(len(selAtoms) / 3.0);
+			    DNST[pos] += cosT / float(len(selAtoms));
 				
 	# Write down results
 	finalDNST = [];

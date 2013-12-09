@@ -265,7 +265,7 @@ try:
 	    fid_out.write(cmt);
 	fid_out.write("\n");
 	
-	fid_out.write("# Range\tDensity\n");
+	fid_out.write("# Range\tnumber density\tmass density\n");
 	psf = '{0}{1}'.format(base_path, structure_file);
     
 	cnt = 0;
@@ -273,9 +273,12 @@ try:
 	
 	# data based on trajectory
 	DNST = [];
+	mDNST = [];  # mass DNST
 	STMP = [];
+	
 	for ibin in frange(dnst_min, dnst_max, dnst_bin):
 	    DNST.append(0.0);
+	    mDNST.append(0.0);
 	
 	for idx in range(len(trajectoryFile)):
 	    
@@ -310,6 +313,7 @@ try:
 		    if len(selAtoms) > 1:
 			# get coordinates
 			CRDs = selAtoms.coordinates();
+			MASS = selAtoms.masses();
 			
 			# get coordinate X, Y, Z
 			crdX = []; crdY = []; crdZ =[];
@@ -337,20 +341,27 @@ try:
 			    
 			# counting items based on BIN interval
 			tmpDNST = count_intervals(tcrd, BIN);
-			
-			#print tmpDNST
-			#print "============="
+			tmpDNST2 = count_intervals_mass(tcrd, MASS, BIN);
+
 			# sort key based on numbering*
 			intKEY = [];
 			for key in sorted(tmpDNST.iterkeys()):
 			    intKEY.append(float(key));
-
 			intKEY.sort();
+
+			intKEY2 = [];
+			for key in sorted(tmpDNST2.iterkeys()):
+			    intKEY2.append(float(key));
+			intKEY2.sort();
 			
 			# reordering dictionary based on sorted key
 			for key in intKEY:
 			    idx_bin = BIN.index(key);
 			    DNST[idx_bin] += float(tmpDNST[key]) / float(bin_vol); # normalizing based on volume
+			    
+			for key in intKEY2:
+			    idx_bin = BIN.index(key);
+			    mDNST[idx_bin] += float(tmpDNST2[key]) / float(bin_vol); # normalizing based on volume
 			    
 	# Write down results
 	finalDNST = [];
@@ -358,9 +369,14 @@ try:
 	    tmp = i/len(STMP);
 	    finalDNST.append(tmp);
 	
+	finalDNST2 = [];
+	for i in mDNST:
+	    tmp = i/len(STMP);
+	    finalDNST2.append(tmp);
+	
 	# Writing final output
 	for i in range(len(finalDNST)):
-	    outStr = "{0}\t{1}\n".format(BIN[i], finalDNST[i]);
+	    outStr = "{0}\t{1}\t{2}\n".format(BIN[i], finalDNST[i], finalDNST2[i]);
 	    fid_out.write(outStr);
 	fid_out.close()
     
@@ -374,7 +390,7 @@ try:
 	gScript = gScript + "set xlabel 'range'\n";
 	gScript = gScript + "set ylabel 'density'\n";
 	gScript = gScript + "set output '{0}'\n".format(imgPath);
-	gScript = gScript + """plot "{0}/{1}" using 1:2 title "Density" with lines lw 3\n""".format(out_dir, outFile);
+	gScript = gScript + """plot "{0}/{1}" using 1:3 title "mass density" with lines lw 3\n""".format(out_dir, outFile);
 	fid_out.write(gScript);
 	fid_out.close()
 	

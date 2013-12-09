@@ -298,6 +298,20 @@ def count_intervals (sequence, intervals):
             count[intervals[pos]] += 1
     return count
 
+def count_intervals_mass (sequence, mass, intervals):
+    count = defaultdict(int)
+    intervals.sort();
+    cnt = 0;
+    for item in sequence:
+        pos = bisect_left(intervals, item)
+        if pos == len(intervals):
+            count[None] += mass[cnt];
+	    print "WARNING: a value has been found outside min/max of system range! please increase min/max of system range!"
+        else:
+            count[intervals[pos]] += mass[cnt];
+	cnt = cnt + 1;
+    return count
+
 # convert degree to radian
 def toRadian (fromDeg):
     rad = float(fromDeg) * math.pi / 180.0;
@@ -505,7 +519,6 @@ def centerByRes(ts, u, cntQry, ridx, t_axis):
     u.atoms.translate(t);
     packintobox2(ts, t_axis);
     
-
     # move entire system by locating COM of MEMB = 0;
     MEMB2 = u.selectAtoms(cntQry);
     com_MEMB2 = MEMB2.centerOfMass();
@@ -518,4 +531,29 @@ def centerByRes(ts, u, cntQry, ridx, t_axis):
 	t = np.array([0, 0, com_MEMB2[2]]);
     
     u.atoms.translate(-t);
+
+    ###########
+    # adjusting center for bilayer membrane by using the longiest lipid tails
+    ###########
+    if t_axis == 'z':
+	top_selQry = "{} and (prop z > 0.0)".format(cntQry);
+	btm_selQry = "{} and (prop z < 0.0)".format(cntQry);
+	
+	#print top_selQry;
+	#print btm_selQry;
+	topAtoms = u.selectAtoms(top_selQry);
+	btmAtoms = u.selectAtoms(btm_selQry);
     
+	#print "{}".format(dir(topAtoms));   
+	topCRD = topAtoms.coordinates();
+	btmCRD = btmAtoms.coordinates();
+	
+	#print "MIN and MAX"
+	topCRD[:,0].min()
+	btmCRD[:,0].max()
+	
+	ofs = (topCRD[:,2].min() + btmCRD[:,2].max()) / 2.0;
+	t = np.array([0.0, 0.0, ofs]);
+	    
+	u.atoms.translate(-t);
+

@@ -15,6 +15,9 @@ $j(document).ready(function(){
 	    if ($cnt_modules < 0) {
 		$cnt_modules = 0;
 	    }
+	    if (cnt_systemsize < 0) {
+		cnt_systemsize = 0;
+	    }
 	}
 	$j("#cnt_modules").empty().append($cnt_modules);
 	$j("#C_systemsize #M_systemsize #box #cnt_systemsize").empty().append(cnt_systemsize);

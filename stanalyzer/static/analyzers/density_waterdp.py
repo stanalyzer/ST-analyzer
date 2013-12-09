@@ -337,33 +337,41 @@ try:
 				h2y = CRDs[catom_idx][1];
 				h2z = CRDs[catom_idx][2];
 			    
-			    # calculating cosine 
-			    if (((catom_idx + 1.0) % 3.0) == 0.0):
-				vx = Ox + (h1x-h2x)/2.0;
-				vy = Oy + (h1y-h2y)/2.0;
-				vz = Oz + (h1z-h2z)/2.0;
-				r2 = vx*vx + vy*vy + vz*vz;
-				cosx = vx/math.sqrt(r2);
-				cosy = vy/math.sqrt(r2);
-				cosz = vz/math.sqrt(r2);
+			    #print "tmp_name={}:{}".format(tmp_name, (catom_idx+1) % 3.0);
+			    
+			    # calculating cosine
+			    if (((catom_idx + 1.0) % 3.0) <= 0.0):
+				qO = -0.834;
+				qH1 = 0.417;
+				qH2 = 0.417;
 				
+				x1 = qO*Ox + qH1*h1x + qH2*h2x;
+				y1 = qO*Oy + qH1*h1y + qH2*h2y;
+				z1 = qO*Oz + qH1*h1z + qH2*h2z;
+				
+				r1 = x1*x1 + y1*y1 + z1*z1;
+
 				if taxis == 'X':
-				    tcosx = 1.0;
-				    tcosy = 0.0;
-				    tcosz = 0.0;
+				    x2 = 1.0;
+				    y2 = 0.0;
+				    z2 = 0.0;
 				elif taxis == 'Y':
-				    tcosx = 0.0;
-				    tcosy = 1.0;
-				    tcosz = 0.0;
+				    x2 = 0.0;
+				    y2 = 1.0;
+				    z2 = 0.0;
 				elif taxis == 'Z':
-				    tcosx = 0.0;
-				    tcosy = 0.0;
-				    tcosz = 1.0;
-	
-				# calculating cosine between two vector
-				cosT = cosx*tcosx + cosy*tcosy + cosz*tcosz;
-				DNST[pos] += cosT / float(len(selAtoms) / 3.0);
+				    x2 = 0.0;
+				    y2 = 0.0;
+				    z2 = 1.0;
 				
+				r2 = x2*x2 + y2*y2 + z2*z2;
+				
+				# calculating cosine between two vector
+				cosT = (x1*x2 + y1*y2 + z1*z2) / (math.sqrt(r1) * math.sqrt(r2));
+				
+				#print "COS={}".format(cosT);
+				DNST[pos] += cosT / float(len(selAtoms) / 3.0);
+		
 	# Write down results
 	finalDNST = [];
 	for i in DNST:

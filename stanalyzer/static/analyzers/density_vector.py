@@ -310,60 +310,68 @@ try:
 			# get coordinates
 			CRDs = selAtoms.coordinates();
 			
-			# calculating vector start from between H1 and H2 to O
+			# calculating vector between two atoms
+			atm_cnt = 0; # atom count 
 			for catom_idx in range(len(selAtoms)):
-			    tmp_name = selAtoms[catom_idx].name;
-			    if (tmp_name == "OH2"):
-				if taxis == 'X':
-				    Ox = CRDs[catom_idx][0];
-				    pos = bisect_left(BIN, Ox); # defining location of bin
-				    Oy = CRDs[catom_idx][1];
-				    Oz = CRDs[catom_idx][2];
-				elif taxis == 'Y':
-				    Oy = CRDs[catom_idx][1];
-				    pos = bisect_left(BIN, Oy); # defining location of bin
-				    Ox = CRDs[catom_idx][0];
-				    Oz = CRDs[catom_idx][2];
-				elif taxis == 'Z':
-				    Oz = CRDs[catom_idx][2];
-				    pos = bisect_left(BIN, Oz); # defining location of bin
-				    Ox = CRDs[catom_idx][0];
-				    Oy = CRDs[catom_idx][1];
-			    elif (tmp_name == "H1"):
-				h1x = CRDs[catom_idx][0];
-				h1y = CRDs[catom_idx][1];
-				h1z = CRDs[catom_idx][2];
-			    elif (tmp_name == "H2"):
-				h2x = CRDs[catom_idx][0];
-				h2y = CRDs[catom_idx][1];
-				h2z = CRDs[catom_idx][2];
+			    atm_cnt = atm_cnt + 1;
 			    
-			    # calculating cosine 
-			    if (((catom_idx + 1.0) % 3.0) == 0.0):
-				vx = Ox + (h1x-h2x)/2;
-				vy = Oy + (h1y-h2y)/2;
-				vz = Oz + (h1z-h2z)/2;
-				r2 = vx*vx + vy*vy + vz*vz;
-				cosx = vx/math.sqrt(r2);
-				cosy = vy/math.sqrt(r2);
-				cosz = vz/math.sqrt(r2);
-				
+			    if ((atm_cnt % 2.0) == 0.0):
 				if taxis == 'X':
-				    tcosx = 1;
-				    tcosy = 0;
-				    tcosz = 0;
+				    x2 = CRDs[catom_idx][0];
+				    pos = bisect_left(BIN, ((x1+x2)*0.5)); # defining location of bin
+				    y2 = CRDs[catom_idx][1];
+				    z2 = CRDs[catom_idx][2];
+				    # normal vector
+				    x0 = 1.0;
+				    y0 = 0.0;
+				    z0 = 0.0;
 				elif taxis == 'Y':
-				    tcosx = 0;
-				    tcosy = 1;
-				    tcosz = 0;
+				    y2 = CRDs[catom_idx][1];
+				    pos = bisect_left(BIN, ((y1+y2)*0.5)); # defining location of bin
+				    x2 = CRDs[catom_idx][0];
+				    z2 = CRDs[catom_idx][2];
+				    # normal vector
+				    x0 = 0.0;
+				    y0 = 1.0;
+				    z0 = 0.0;
 				elif taxis == 'Z':
-				    tcosx = 0;
-				    tcosy = 0;
-				    tcosz = 1;
-	
+				    z2 = CRDs[catom_idx][2];
+				    pos = bisect_left(BIN, ((z1+z2)*0.5)); # defining location of bin
+				    x2 = CRDs[catom_idx][0];
+				    y2 = CRDs[catom_idx][1];
+				    # normal vector
+				    x0 = 0.0;
+				    y0 = 0.0;
+				    z0 = 1.0;
+				    
+				# calculating COS between two vector (x1, x2) and normal (x0)
 				# calculating cosine between two vector
-				cosT = cosx*tcosx + cosy*tcosy + cosz*tcosz;
-				DNST[pos] += cosT / float(len(selAtoms) / 3.0);
+				print "Z2={}, position={}".format(z2, pos);
+				x = (x1-x2);
+				y = (y1-y2);
+				z = (z1-z2);
+				r1 = x*x + y*y + z*z;
+				r2 = x0*x0 + y0*y0 + z0*z0;
+				
+				cosT = (x*x0 + y*y0 + z*z0) / (math.sqrt(r1) * math.sqrt(r2));
+				
+				#print "COS={}".format(cosT);
+				DNST[pos] += cosT / float(len(selAtoms));
+
+			    else:
+				if taxis == 'X':
+				    x1 = CRDs[catom_idx][0];
+				    y1 = CRDs[catom_idx][1];
+				    z1 = CRDs[catom_idx][2];
+				elif taxis == 'Y':
+				    y1 = CRDs[catom_idx][1];
+				    x1 = CRDs[catom_idx][0];
+				    z1 = CRDs[catom_idx][2];
+				elif taxis == 'Z':
+				    z1 = CRDs[catom_idx][2];
+				    x1 = CRDs[catom_idx][0];
+				    y1 = CRDs[catom_idx][1];
+				
 				
 	# Write down results
 	finalDNST = [];
@@ -385,7 +393,7 @@ try:
 	fid_out = open(outScr, 'w');
 	gScript = "set terminal png\n";
 	gScript = gScript + "set xlabel 'range'\n";
-	gScript = gScript + "set ylabel '<cos0>'\n";
+	gScript = gScript + "set ylabel '<COS>'\n";
 	gScript = gScript + "set output '{0}'\n".format(imgPath);
 	gScript = gScript + """plot "{0}/{1}" using 1:2 title "Density" with lines lw 3\n""".format(out_dir, outFile);
 	fid_out.write(gScript);
