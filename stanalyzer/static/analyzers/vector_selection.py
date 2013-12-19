@@ -269,10 +269,12 @@ try:
 	timeStamp = [];         # time stamp for trajectory
 	
 	# data based on trajectory
+	cntDNST = [];
 	DNST = [];
 	STMP = [];
 	for ibin in frange(dnst_min, dnst_max, dnst_bin):
 	    DNST.append(0.0);
+	    cntDNST.append(0.0);
 	
 	for idx in range(len(trajectoryFile)):
 	    
@@ -295,15 +297,12 @@ try:
 		if (cnt % frmInt) == 0:
 		    #======= Centeralization =========
 		    if (cntQry != 'no') :
-			MEMB = u.selectAtoms(cntQry);
-			com_MEMB = MEMB.centerOfMass();
-			
-			box = ts.dimensions;
-			c_box = 0.5 * box[:3];
-			
-			t = c_box - com_MEMB;
-			u.atoms.translate(t);
-			stanalyzer.packintobox(ts);
+			#print "Centeralization..."
+			#stanalyzer.centerByCOM(ts, u, cntQry);
+			stanalyzer.centerByRes(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
+			#print "DONE!"
+		    else:
+			zeroCenter(ts, u);
 		    #==================================
 		    
 		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
@@ -346,13 +345,20 @@ try:
 			    
 			    # calculating cosine between two vector
 			    cosT = cosx*tcosx + cosy*tcosy + cosz*tcosz;
-			    DNST[pos] += cosT / float(len(selAtoms));
+			    DNST[pos] += cosT;
+			    cntDNST[pos] += 1.0;
 				
 	# Write down results
 	finalDNST = [];
-	for i in DNST:
-	    tmp = i/len(STMP);	# average through trajectory
+	for i in range(len(DNST)):
+	    if cntDNST[i] > 0:
+		tmp = DNST[i]/cntDNST[i];	# average through trajectory
+		#print "<{}/{}={}>".format(DNST[i], cntDNST[i], tmp);
+	    else:
+		tmp = 0.0;
+		#print "<{}/{}={}>".format(DNST[i], cntDNST[i], tmp);
 	    finalDNST.append(tmp);
+	    
 	
 	# Writing final output
 	for i in range(len(finalDNST)):

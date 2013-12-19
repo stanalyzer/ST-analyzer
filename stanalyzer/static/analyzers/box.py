@@ -262,7 +262,7 @@ try:
         dcd = '{0}{1}'.format(base_path, trajectoryFile[idx]);
         u = Universe(psf, dcd);
         
-        for ifrm in range(len(u.trajectory)):
+        for ts in u.trajectory:
             cnt = cnt + 1;
             #print "ts.frame = {}".format(cnt);
             if (cnt % frmInt) == 0:
@@ -270,14 +270,13 @@ try:
                 # from MDAnalysis.coordinates.DCD.DCDReader
                 tmp_time = float(cnt) * float(num_ps) - float(num_ps);
                 timeStamp.append(tmp_time);
-                ucell = u.trajectory[ifrm]
                 outStr = '{0}'.format(tmp_time);
                 tmp = [];
-                for j in range(len(ucell.dimensions)):
-                   outStr = outStr + '\t{0}'.format(ucell.dimensions[j])
-                   tmp.append(ucell.dimensions[j]);
-                outStr = outStr + '\t{0}\n'.format(ucell.volume)
-                tmp.append(ucell.volume);
+                for j in ts.dimensions:
+                   outStr = outStr + '\t{0}'.format(j)
+                   tmp.append(j);
+                outStr = outStr + '\t{0}\n'.format(ts.volume)
+                tmp.append(ts.volume);
                 sSize.append(tmp);
                 #print "Last Line--->"
                 #print outStr
@@ -308,8 +307,9 @@ try:
     # For X axis
     num_x_tics = 3.0;
     intx = (max_x - min_x) / num_x_tics;
-    gScript = gScript + "set tmargin at screen 0.93; set bmargin at screen 0.68\n";
-    gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
+    # if graph is brocken then remove margins 
+    #gScript = gScript + "set tmargin at screen 0.93; set bmargin at screen 0.68\n";
+    #gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
     gScript = gScript + "set xtics offset 0,0.5; unset xlabel\n";
     if intx >= 0.0001:
         gScript = gScript + """set ytics {0:10.4f},{1:10.4f},{2:10.4f}; unset ylabel\n""".format(min_x, intx, max_x);
@@ -320,8 +320,9 @@ try:
     # For Y axis
     num_y_tics = 3.0;
     inty = (max_y - min_y) / num_y_tics;
-    gScript = gScript + "set tmargin at screen 0.63; set bmargin at screen 0.38\n";
-    gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
+    # if graph is brocken then remove margins 
+    #gScript = gScript + "set tmargin at screen 0.63; set bmargin at screen 0.38\n";
+    #gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
     gScript = gScript + "set xtics offset 0,0.5; unset xlabel\n";
     if inty >= 0.0001:
         gScript = gScript + """set ytics {0:10.4f},{1:10.4f},{2:10.4f};\n""".format(min_y, inty, max_y);
@@ -332,8 +333,9 @@ try:
     # For Z axis
     num_z_tics = 3.0;
     intz = (max_z - min_z) / num_z_tics;
-    gScript = gScript + "set tmargin at screen 0.33; set bmargin at screen 0.08\n";
-    gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
+    # if graph is brocken then remove margins 
+    #gScript = gScript + "set tmargin at screen 0.33; set bmargin at screen 0.08\n";
+    #gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
     gScript = gScript + "set xtics offset 0,0.5; set xlabel 'Time (ns)' offset 0,1\n";
     if intz >= 0.0001:
         gScript = gScript + """set ytics {0:10.4f},{1:10.4f},{2:10.4f}; unset ylabel\n""".format(min_z, intz, max_z);

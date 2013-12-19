@@ -276,7 +276,9 @@ try:
 		    #stanalyzer.centerByCOM(ts, u, cntQry);
 		    stanalyzer.centerByRes(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
 		    #print "DONE!"
-		#==================================
+		else:
+		    zeroCenter(ts, u);
+		#==================================		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		#L = MDAnalysis.analysis.leaflet.LeafletFinder(u, selQry, cutoff=15.0, pbc=True);
 		top_selQry = "{} and (prop z > 0.0)".format(selQry);
 		btm_selQry = "{} and (prop z < 0.0)".format(selQry);
@@ -416,8 +418,9 @@ try:
 	    # top layer
 	    num_top_tics = 3.0;
 	    intx = (max_top - min_top) / num_top_tics;
-	    gScript = gScript + """set tmargin at screen 0.93; set bmargin at screen 0.54\n""";
-	    gScript = gScript + """set lmargin at screen 0.20; set rmargin at screen 0.85\n""";
+	    # if graph is broken please remove margin
+	    #gScript = gScript + """set tmargin at screen 0.93; set bmargin at screen 0.54\n""";
+	    #gScript = gScript + """set lmargin at screen 0.20; set rmargin at screen 0.85\n""";
 	    gScript = gScript + """set xtics offset 0,0.5; unset xlabel\n""";
 	    
 	    if intx >= 0.0001:
@@ -435,8 +438,9 @@ try:
 	if flg_btm > 0:
 	    num_btm_tics = 3.0;
 	    intx = (max_top - min_btm) / num_btm_tics;
-	    gScript = gScript + """set tmargin at screen 0.48; set bmargin at screen 0.08\n""";
-	    gScript = gScript + """set lmargin at screen 0.20; set rmargin at screen 0.85\n""";
+	    # if graph is broken please remove margin
+	    #gScript = gScript + """set tmargin at screen 0.48; set bmargin at screen 0.08\n""";
+	    #gScript = gScript + """set lmargin at screen 0.20; set rmargin at screen 0.85\n""";
 	    gScript = gScript + """set xtics offset 0,0.5; unset xlabel\n""";
 	    
 	    if intx >= 0.0001:
@@ -469,8 +473,9 @@ try:
 	    # top layer
 	    num_top_tics = 3.0;
 	    intx = (max_top - min_top) / num_top_tics;
-	    gScript = gScript + """set tmargin at screen 0.93; set bmargin at screen 0.54\n""";
-	    gScript = gScript + """set lmargin at screen 0.20; set rmargin at screen 0.85\n""";
+	    # if graph is broken please remove margin
+	    #gScript = gScript + """set tmargin at screen 0.93; set bmargin at screen 0.54\n""";
+	    #gScript = gScript + """set lmargin at screen 0.20; set rmargin at screen 0.85\n""";
 	    gScript = gScript + """set xtics offset 0,0.5; unset xlabel\n""";
 	    
 	    if intx >= 0.0001:
@@ -488,8 +493,9 @@ try:
 	    # bottom layer
 	    num_btm_tics = 3.0;
 	    intx = (max_btm - min_btm) / num_btm_tics;
-	    gScript = gScript + """set tmargin at screen 0.48; set bmargin at screen 0.08\n""";
-	    gScript = gScript + """set lmargin at screen 0.20; set rmargin at screen 0.85\n""";
+	    # if graph is broken please remove margin
+	    #gScript = gScript + """set tmargin at screen 0.48; set bmargin at screen 0.08\n""";
+	    #gScript = gScript + """set lmargin at screen 0.20; set rmargin at screen 0.85\n""";
 	    gScript = gScript + """set xtics offset 0,0.5; unset xlabel\n""";
 	    
 	    if intx >= 0.0001:

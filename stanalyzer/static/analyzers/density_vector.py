@@ -271,9 +271,11 @@ try:
 	timeStamp = [];         # time stamp for trajectory
 	
 	# data based on trajectory
+	cntDNST = [];
 	DNST = [];
 	STMP = [];
 	for ibin in frange(dnst_min, dnst_max, dnst_bin):
+	    cntDNST.append(0.0);
 	    DNST.append(0.0);
 	
 	for idx in range(len(trajectoryFile)):
@@ -296,11 +298,14 @@ try:
 		cnt = cnt + 1;
 		if (cnt % frmInt) == 0:
 		    #======= Centeralization =========
-		    print cntQry
 		    if (cntQry != 'no') :
+			#print "Centeralization..."
 			#stanalyzer.centerByCOM(ts, u, cntQry);
 			stanalyzer.centerByRes(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
-		    #==================================
+			#print "DONE!"
+		    else:
+			zeroCenter(ts, u);
+		    #==================================		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		    STMP.append(tmp_time);
 		    print "[{0}ps]selecting atoms...".format(tmp_time);
@@ -356,7 +361,8 @@ try:
 				cosT = (x*x0 + y*y0 + z*z0) / (math.sqrt(r1) * math.sqrt(r2));
 				
 				#print "COS={}".format(cosT);
-				DNST[pos] += cosT / float(len(selAtoms));
+				DNST[pos] += cosT;
+				cntDNST[pos] += 1.0;
 
 			    else:
 				if taxis == 'X':
@@ -375,9 +381,13 @@ try:
 				
 	# Write down results
 	finalDNST = [];
-	for i in DNST:
-	    tmp = i/len(STMP);	# average through trajectory
+	for i in range(len(DNST)):
+	    if cntDNST[i] > 0:
+		tmp = DNST[i]/cntDNST[i];	# average through trajectory
+	    else:
+		tmp = 0.0;
 	    finalDNST.append(tmp);
+
 	
 	# Writing final output
 	for i in range(len(finalDNST)):

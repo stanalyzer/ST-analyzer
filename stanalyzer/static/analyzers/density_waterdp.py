@@ -271,10 +271,12 @@ try:
 	timeStamp = [];         # time stamp for trajectory
 	
 	# data based on trajectory
+	cntDNST = []; # number of atoms in each bin
 	DNST = [];
 	STMP = [];
 	for ibin in frange(dnst_min, dnst_max, dnst_bin):
 	    DNST.append(0.0);
+	    cntDNST.append(0.0);
 	
 	for idx in range(len(trajectoryFile)):
 	    
@@ -291,15 +293,24 @@ try:
 	    
 	    # read based on frame
 	    for ts in u.trajectory:
+		wcnt = 0;
 		DegT = [];
 		#tclock = cnt;
 		cnt = cnt + 1;
 		if (cnt % frmInt) == 0:
+		    # Get original coordinates of water molecular
+		    orgAtoms = u.selectAtoms(selQry);
+		    orgCRDs  = orgAtoms.coordinates();
+		    
 		    #======= Centeralization =========
 		    if (cntQry != 'no') :
+			#print "Centeralization..."
 			#stanalyzer.centerByCOM(ts, u, cntQry);
 			stanalyzer.centerByRes(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
-		    #==================================
+			#print "DONE!"
+		    else:
+			zeroCenter(ts, u);
+		    #==================================		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		    STMP.append(tmp_time);
 		    print "[{0}ps]selecting atoms...".format(tmp_time);
@@ -313,6 +324,9 @@ try:
 			for catom_idx in range(len(selAtoms)):
 			    tmp_name = selAtoms[catom_idx].name;
 			    if (tmp_name == "OH2"):
+				tOx = CRDs[catom_idx][0] - orgCRDs[catom_idx][0];
+				tOy = CRDs[catom_idx][1] - orgCRDs[catom_idx][1];
+				tOz = CRDs[catom_idx][2] - orgCRDs[catom_idx][2];
 				if taxis == 'X':
 				    Ox = CRDs[catom_idx][0];
 				    pos = bisect_left(BIN, Ox); # defining location of bin
@@ -326,21 +340,30 @@ try:
 				elif taxis == 'Z':
 				    Oz = CRDs[catom_idx][2];
 				    pos = bisect_left(BIN, Oz); # defining location of bin
+				    #print "=========================================="
+				    #print "Oz={}, POS={}, BIN={}".format(Oz, pos, BIN);
 				    Ox = CRDs[catom_idx][0];
 				    Oy = CRDs[catom_idx][1];
 			    elif (tmp_name == "H1"):
-				h1x = CRDs[catom_idx][0];
-				h1y = CRDs[catom_idx][1];
-				h1z = CRDs[catom_idx][2];
+				#h1x = CRDs[catom_idx][0];
+				#h1y = CRDs[catom_idx][1];
+				#h1z = CRDs[catom_idx][2];
+				h1x = orgCRDs[catom_idx][0] + tOx;
+				h1y = orgCRDs[catom_idx][1] + tOy;
+				h1z = orgCRDs[catom_idx][2] + tOz;
 			    elif (tmp_name == "H2"):
-				h2x = CRDs[catom_idx][0];
-				h2y = CRDs[catom_idx][1];
-				h2z = CRDs[catom_idx][2];
+				#h2x = CRDs[catom_idx][0];
+				#h2y = CRDs[catom_idx][1];
+				#h2z = CRDs[catom_idx][2];
+				h2x = orgCRDs[catom_idx][0] + tOx;
+				h2y = orgCRDs[catom_idx][1] + tOy;
+				h2z = orgCRDs[catom_idx][2] + tOz;
 			    
 			    #print "tmp_name={}:{}".format(tmp_name, (catom_idx+1) % 3.0);
 			    
 			    # calculating cosine
 			    if (((catom_idx + 1.0) % 3.0) <= 0.0):
+				wcnt = wcnt + 1;
 				qO = -0.834;
 				qH1 = 0.417;
 				qH2 = 0.417;
@@ -368,14 +391,23 @@ try:
 				
 				# calculating cosine between two vector
 				cosT = (x1*x2 + y1*y2 + z1*z2) / (math.sqrt(r1) * math.sqrt(r2));
-				
+				#print "cosT={}, len(selAtoms)={}, wcnt={}".format(cosT, len(selAtoms), wcnt);
 				#print "COS={}".format(cosT);
-				DNST[pos] += cosT / float(len(selAtoms) / 3.0);
+				#DNST[pos] += cosT / float(len(selAtoms) / 3.0);
+				DNST[pos] += cosT;
+				cntDNST[pos] += 1.0;
 		
 	# Write down results
+	#print DNST
+	#print cntDNST
 	finalDNST = [];
-	for i in DNST:
-	    tmp = i/len(STMP);	# average through trajectory
+	for i in range(len(DNST)):
+	    if cntDNST[i] > 0:
+		tmp = DNST[i]/cntDNST[i];	# average through trajectory
+		#print "<{}/{}={}>".format(DNST[i], cntDNST[i], tmp);
+	    else:
+		tmp = 0.0;
+		#print "<{}/{}={}>".format(DNST[i], cntDNST[i], tmp);
 	    finalDNST.append(tmp);
 	
 	# Writing final output
@@ -394,7 +426,7 @@ try:
 	gScript = gScript + "set xlabel 'range'\n";
 	gScript = gScript + "set ylabel '<cos0>'\n";
 	gScript = gScript + "set output '{0}'\n".format(imgPath);
-	gScript = gScript + """plot "{0}/{1}" using 1:2 title "Density" with lines lw 3\n""".format(out_dir, outFile);
+	gScript = gScript + """plot "{0}/{1}" using 1:2 title "Water Dipole" with lines lw 3\n""".format(out_dir, outFile);
 	fid_out.write(gScript);
 	fid_out.close()
 	

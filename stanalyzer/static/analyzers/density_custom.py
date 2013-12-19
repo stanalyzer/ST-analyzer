@@ -299,10 +299,13 @@ try:
 		if (cnt % frmInt) == 0:
 		    #======= Centeralization =========
 		    if (cntQry != 'no') :
+			#print "Centeralization..."
 			#stanalyzer.centerByCOM(ts, u, cntQry);
 			stanalyzer.centerByRes(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
-		    #==================================
-		    
+			#print "DONE!"
+		    else:
+			zeroCenter(ts, u);
+		    #==================================		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		    STMP.append(tmp_time);
 		    print "[{0}ps]selecting atoms...".format(tmp_time);

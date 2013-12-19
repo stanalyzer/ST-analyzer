@@ -70,8 +70,79 @@ from bisect import bisect_left
 #********************************************
 # Define global variables
 #********************************************
+# name of database
 dbName = 'stanalyzer.db';
 
+# dictionary of atomic number
+ATOMNUM1 = {'H' :1, 'C' :6, 'N' :7, 'O' :8, 'S' :16,
+	    'K' :19 };
+
+ATOMNUM2 = {'LI':3,  'NA':11, 'MG':12, 'CL':17, 'ZN':30,
+	    'RB':37, 'CD':48, 'CS':55, 'BA':56, 'HT':1,
+	    'HX':1,  'OT':8,  'OX':8, };
+
+ATOMNUM3 = {'LIT':3,  'SOD':11, 'POT':15, 'CLA':20, 'RUB':37,
+	    'CAD':48, 'CES':55, 'BAR':56, };
+
+#*******************************************************************
+# mapping atoms to thier atomic number in periodic table elements
+#*******************************************************************
+def firstNletter(N, myStr):
+    return myStr[0:N];
+
+def getNletters(N, myList):
+    newList = [firstNletter(N, myStr) for myStr in myList];
+    return newList;
+    
+def getAtomNumber(atomList):
+    # final atom values corresponding to atomList;
+    tmp_atomValues = [0] * len(atomList);
+    atomValues = np.array(tmp_atomValues);
+    
+    # calculating unique atoms     
+    uqAtoms = list(set(atomList));
+    uqAtomNum = [0] * len(uqAtoms);	# initializing values for uqAtoms
+    
+    # get atom names with length 3
+    uqAtomsL3 = getNletters(3, uqAtoms);
+    
+    # get atom names with length 2
+    uqAtomsL2 = getNletters(2, uqAtoms);
+
+    # get atom names with length 2
+    uqAtomsL1 = getNletters(1, uqAtoms);
+    
+    # find matching atoms listed in the ATOMNUM dictionary
+    for key in ATOMNUM3:
+	if (key in uqAtomsL3):
+	    Idx = findIndex(uqAtomsL3, key);
+	    for i in Idx:
+		 if uqAtomNum[i] == 0:
+		    uqAtomNum[i] = ATOMNUM3[key];
+
+    for key in ATOMNUM2:
+	if (key in uqAtomsL2):
+	    Idx = findIndex(uqAtomsL2, key);
+	    for i in Idx:
+		 if uqAtomNum[i] == 0:
+		    uqAtomNum[i] = ATOMNUM2[key];
+
+    for key in ATOMNUM1:
+	if (key in uqAtomsL1):
+	    Idx = findIndex(uqAtomsL1, key);
+	    for i in Idx:
+		 if uqAtomNum[i] == 0:
+		    uqAtomNum[i] = ATOMNUM1[key];
+    
+    # mapping all atoms to corresponding atom number
+    idx = 0;
+    for atoms in uqAtoms:
+	Idx = findIndex(atomList, atoms);
+	atomValues[Idx] = uqAtomNum[idx];
+	idx = idx + 1;
+    
+    return atomValues;
+    
 #********************************************
 # make n-digit random number 
 #********************************************
@@ -423,7 +494,7 @@ def packintobox(ts):
 
 def packintobox2(ts, t_axis):
     x = ts._pos;
-    L = ts.dimensions[:3];
+    L = ts.dimensions[:3]; # make size at centered = 0;
     if t_axis == 'x':
 	x[:,0] -= numpy.floor(x[:,0]/L[0])*L[0];
     elif t_axis == 'y':
@@ -449,15 +520,14 @@ def centerByCOM(ts, u, cntQry):
     t = np.array([0,0,0]) - com_MEMB1;
     u.atoms.translate(t);
 
-
 def centerByRes(ts, u, cntQry, ridx, t_axis):
-    
     arr_idx = ridx - 1;
     # move targeted segments into the box
     MEMB = u.selectAtoms(cntQry);
 
     # pick one residue and calculate center of mass
-    com_Res = MEMB.residues[arr_idx].centerOfMass();
+    #com_Res = MEMB.residues[arr_idx].centerOfMass();
+    com_Res = MEMB.residues[arr_idx].centerOfGeometry();
     box = ts.dimensions[:3];
     
     if t_axis == 'x':
@@ -496,18 +566,14 @@ def centerByRes(ts, u, cntQry, ridx, t_axis):
 	z =  bz - com_Res[2];
 	t = np.array([x, y, z]);
 
-    #pdb = MDAnalysis.Writer("center0.pdb")
-    #sf = u.selectAtoms("all")
-    #pdb.write(sf)
-    #pdb.close()
-    
+   
     # move system to the COM of Box and then apply PBC
     u.atoms.translate(t);
-    packintobox2(ts, t_axis);			# apply PBC
+    packintobox2(ts, t_axis);
     
     # move entire system by locating COM of MEMB = the COM of Box and than apply PBC
     MEMB1 = u.selectAtoms(cntQry);
-    com_MEMB1 = MEMB1.centerOfMass();
+    com_MEMB1 = MEMB1.centerOfGeometry();
     
     if t_axis == 'x':
 	t = np.array(bx - [com_MEMB1[0], 0, 0]);
@@ -521,7 +587,7 @@ def centerByRes(ts, u, cntQry, ridx, t_axis):
     
     # move entire system by locating COM of MEMB = 0;
     MEMB2 = u.selectAtoms(cntQry);
-    com_MEMB2 = MEMB2.centerOfMass();
+    com_MEMB2 = MEMB2.centerOfGeometry();
     
     if t_axis == 'x':
 	t = np.array([com_MEMB2[0], 0, 0]);
@@ -529,31 +595,10 @@ def centerByRes(ts, u, cntQry, ridx, t_axis):
 	t = np.array([0, com_MEMB2[1], 0]);
     else:
 	t = np.array([0, 0, com_MEMB2[2]]);
-    
+
     u.atoms.translate(-t);
-
-    ###########
-    # adjusting center for bilayer membrane by using the longiest lipid tails
-    ###########
-    if t_axis == 'z':
-	top_selQry = "{} and (prop z > 0.0)".format(cntQry);
-	btm_selQry = "{} and (prop z < 0.0)".format(cntQry);
-	
-	#print top_selQry;
-	#print btm_selQry;
-	topAtoms = u.selectAtoms(top_selQry);
-	btmAtoms = u.selectAtoms(btm_selQry);
     
-	#print "{}".format(dir(topAtoms));   
-	topCRD = topAtoms.coordinates();
-	btmCRD = btmAtoms.coordinates();
-	
-	#print "MIN and MAX"
-	topCRD[:,0].min()
-	btmCRD[:,0].max()
-	
-	ofs = (topCRD[:,2].min() + btmCRD[:,2].max()) / 2.0;
-	t = np.array([0.0, 0.0, ofs]);
-	    
-	u.atoms.translate(-t);
-
+# for trajectories produced by harmm which are already centered
+def zeroCenter(ts, u):
+    L = ts.dimensions[:3] * 0.5;
+    u.atoms.translate(-L);

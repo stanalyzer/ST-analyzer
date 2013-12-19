@@ -355,7 +355,9 @@ try:
 		    #stanalyzer.centerByCOM(ts, u, cntQry);
 		    stanalyzer.centerByRes(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
 		    #print "DONE!"
-		#==================================
+		else:
+		    zeroCenter(ts, u);
+		#==================================		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		# calculating leaflet
 		#L = MDAnalysis.analysis.leaflet.LeafletFinder(u, selQry, cutoff=17.0, pbc=True);
 		top_selQry = "{} and (prop z > 0.0)".format(selQry);
@@ -596,8 +598,9 @@ try:
 	    # for top membrane
 	    num_top_tics = 3.0;
 	    intx = (max_top - min_top) / num_top_tics;
-	    gScript = gScript + "set tmargin at screen 0.93; set bmargin at screen 0.68\n";
-	    gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
+	    # if graph is broken please remove margin
+	    #gScript = gScript + "set tmargin at screen 0.93; set bmargin at screen 0.68\n";
+	    #gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
 	    gScript = gScript + "set xtics offset 0,0.5; unset xlabel\n";
 	    if intx >= 0.0001:
 		gScript = gScript + "set ytics {0:10.4f},{1:10.4f},{2:10.4f}; unset ylabel\n".format(min_top, intx, max_top);
@@ -607,8 +610,9 @@ try:
 	    # for bottom membrane
 	    num_btm_tics = 3.0;
 	    intx = (max_btm - min_btm) / num_btm_tics;
-	    gScript = gScript + "set tmargin at screen 0.63; set bmargin at screen 0.38\n";
-	    gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
+	    # if graph is broken please remove margin
+	    #gScript = gScript + "set tmargin at screen 0.63; set bmargin at screen 0.38\n";
+	    #gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
 	    gScript = gScript + "set xtics offset 0,0.5; unset xlabel\n";
 	    if intx >= 0.0001:
 		gScript = gScript + "set ytics {0:10.4f},{1:10.4f},{2:10.4f}\n".format(min_btm, intx, max_btm);
@@ -619,8 +623,9 @@ try:
 	    # for both membrane
 	    num_both_tics = 3.0;
 	    intx = (max_y - min_y) / num_both_tics;
-	    gScript = gScript + "set tmargin at screen 0.33; set bmargin at screen 0.08\n";
-	    gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
+	    # if graph is broken please remove margin
+	    #gScript = gScript + "set tmargin at screen 0.33; set bmargin at screen 0.08\n";
+	    #gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
 	    gScript = gScript + "set xtics offset 0,0.5; set xlabel 'Carbon number' offset 0,1\n";
 	    if intx >= 0.0001:
 		gScript = gScript + "set ytics {0:10.4f},{1:10.4f},{2:10.4f}; unset ylabel\n".format(min_y, intx, max_y);
