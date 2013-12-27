@@ -74,8 +74,8 @@ from bisect import bisect_left
 dbName = 'stanalyzer.db';
 
 # dictionary of atomic number
-ATOMNUM1 = {'H' :1, 'C' :6, 'N' :7, 'O' :8, 'S' :16,
-	    'K' :19 };
+ATOMNUM1 = {'H':1,  'C':6, 'N':7, 'O':8, 'P':15,
+	    'S':16, 'K':19 };
 
 ATOMNUM2 = {'LI':3,  'NA':11, 'MG':12, 'CL':17, 'ZN':30,
 	    'RB':37, 'CD':48, 'CS':55, 'BA':56, 'HT':1,

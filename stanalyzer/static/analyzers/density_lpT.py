@@ -264,7 +264,7 @@ try:
 	    fid_out.write(cmt);
 	fid_out.write("\n");
 	
-	fid_out.write("# Range\tnumber density\tmass density\n");
+	fid_out.write("# Range\tnumber_density\tmass_density\telectron_density\n");
 	psf = '{0}{1}'.format(base_path, structure_file);
     
 	cnt = 0;
@@ -273,12 +273,14 @@ try:
 	# data based on trajectory
 	DNST = [];
 	mDNST = [];  # mass DNST
+	eDNST = [];  # electron DNST
 	STMP = [];
 	
 	for ibin in frange(dnst_min, dnst_max, dnst_bin):
 	    DNST.append(0.0);
 	    mDNST.append(0.0);
-	
+	    eDNST.append(0.0);
+	    
 	for idx in range(len(trajectoryFile)):
 	    
 	    # turning on periodic boundary conditions
@@ -315,17 +317,16 @@ try:
 			# get coordinates
 			CRDs = selAtoms.coordinates();
 			MASS = selAtoms.masses();
+			ELEC = stanalyzer.getAtomNumber(selAtoms.names());
 			
 			# get coordinate X, Y, Z
-			crdX = []; crdY = []; crdZ =[];
-			for iatom in range(len(CRDs)):
-			    crdX.append(CRDs[iatom][0]);
-			    crdY.append(CRDs[iatom][1]);
-			    crdZ.append(CRDs[iatom][2]);
-			
-			sizeX = max(crdX) - min(crdX);
-			sizeY = max(crdY) - min(crdY);
-			sizeZ = max(crdZ) - min(crdZ);
+			crdX = CRDs[:,0];
+			crdY = CRDs[:,1];
+			crdZ = CRDs[:,2];
+
+			sizeX = ts.dimensions[0];
+			sizeY = ts.dimensions[1];
+			sizeZ = ts.dimensions[2];
 			
 			if taxis == 'X':
 			    tcrd = crdX;
@@ -343,6 +344,7 @@ try:
 			# counting items based on BIN interval
 			tmpDNST = count_intervals(tcrd, BIN);
 			tmpDNST2 = count_intervals_mass(tcrd, MASS, BIN);
+			tmpDNST3 = count_intervals_mass(tcrd, ELEC, BIN);	# based on electrons
 			
 			# sort key based on numbering*
 			intKEY = [];
@@ -355,6 +357,12 @@ try:
 			    intKEY2.append(float(key));
 			intKEY2.sort();
 			
+			intKEY3 = [];
+			for key in sorted(tmpDNST3.iterkeys()):
+			    intKEY3.append(float(key));
+			intKEY3.sort();
+			
+			
 			# reordering dictionary based on sorted key
 			for key in intKEY:
 			    idx_bin = BIN.index(key);
@@ -363,6 +371,10 @@ try:
 			for key in intKEY2:
 			    idx_bin = BIN.index(key);
 			    mDNST[idx_bin] += float(tmpDNST2[key]) / float(bin_vol); # normalizing based on volume
+			
+			for key in intKEY3:
+			    idx_bin = BIN.index(key);
+			    eDNST[idx_bin] += float(tmpDNST3[key]) / float(bin_vol); # normalizing based on volume
 
 	# Write down results
 	finalDNST = [];
@@ -374,12 +386,17 @@ try:
 	for i in mDNST:
 	    tmp = i/len(STMP);
 	    finalDNST2.append(tmp);
-	
+
+	finalDNST3 = [];
+	for i in eDNST:
+	    tmp = i/len(STMP);
+	    finalDNST3.append(tmp);
+	    
 	# Writing final output
 	for i in range(len(finalDNST)):
-	    outStr = "{0}\t{1}\t{2}\n".format(BIN[i], finalDNST[i], finalDNST2[i]);
+	    outStr = "{0}\t{1}\t{2}\t{3}\n".format(BIN[i], finalDNST[i], finalDNST2[i], finalDNST3[i]);
 	    fid_out.write(outStr);
-	fid_out.close()
+	fid_out.close();
     
 	# -------- Drawing graphs
 	# Writing Gnuplot script
@@ -391,7 +408,7 @@ try:
 	gScript = gScript + "set xlabel 'range'\n";
 	gScript = gScript + "set ylabel 'density'\n";
 	gScript = gScript + "set output '{0}'\n".format(imgPath);
-	gScript = gScript + """plot "{0}/{1}" using 1:3 title "mass density" with lines lw 3\n""".format(out_dir, outFile);
+	gScript = gScript + """plot "{0}/{1}" using 1:4 title "electron density" with lines lw 3\n""".format(out_dir, outFile);
 	fid_out.write(gScript);
 	fid_out.close()
 	

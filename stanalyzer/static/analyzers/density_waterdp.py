@@ -310,12 +310,11 @@ try:
 			#print "DONE!"
 		    else:
 			zeroCenter(ts, u);
-		    #==================================		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
+		    #==================================
 		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		    STMP.append(tmp_time);
-		    print "[{0}ps]selecting atoms...".format(tmp_time);
+		    print "[{0}ps] processing...".format(tmp_time);
 		    selAtoms = u.selectAtoms(selQry);
-		    print "DONE!"
 		    if len(selAtoms) > 1:
 			# get coordinates
 			CRDs = selAtoms.coordinates();
@@ -391,9 +390,16 @@ try:
 				
 				# calculating cosine between two vector
 				cosT = (x1*x2 + y1*y2 + z1*z2) / (math.sqrt(r1) * math.sqrt(r2));
-				#print "cosT={}, len(selAtoms)={}, wcnt={}".format(cosT, len(selAtoms), wcnt);
-				#print "COS={}".format(cosT);
-				#DNST[pos] += cosT / float(len(selAtoms) / 3.0);
+				cnt_point = math.floor(len(DNST) * 0.5);
+				wcnt = 0;
+				if (pos <= (cnt_point + 5)) and (pos >= (cnt_point -5)):
+				    wcnt = wcnt + 1;
+				    fwater = '{0}/water{1}_{2}.txt'.format(out_dir, wcnt, tmp_time);
+				    fid_water = open(fwater, 'w');
+				    strWater = "[{}] Water appears {}ps at {} \n".format(wcnt, tmp_time, trj);
+				    fid_water.write(strWater);
+				    fid_water.close();
+				    
 				DNST[pos] += cosT;
 				cntDNST[pos] += 1.0;
 		

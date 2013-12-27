@@ -324,15 +324,13 @@ try:
 			ELEC = stanalyzer.getAtomNumber(selAtoms.names());
 
 			# get coordinate X, Y, Z
-			crdX = []; crdY = []; crdZ =[];
-			for iatom in range(len(CRDs)):
-			    crdX.append(CRDs[iatom][0]);
-			    crdY.append(CRDs[iatom][1]);
-			    crdZ.append(CRDs[iatom][2]);
-			
-			sizeX = max(crdX) - min(crdX);
-			sizeY = max(crdY) - min(crdY);
-			sizeZ = max(crdZ) - min(crdZ);
+			crdX = CRDs[:,0];
+			crdY = CRDs[:,1];
+			crdZ = CRDs[:,2];
+
+			sizeX = ts.dimensions[0];
+			sizeY = ts.dimensions[1];
+			sizeZ = ts.dimensions[2];
 			
 			if taxis == 'X':
 			    tcrd = crdX;
@@ -401,7 +399,7 @@ try:
 	for i in range(len(finalDNST)):
 	    outStr = "{0}\t{1}\t{2}\t{3}\n".format(BIN[i], finalDNST[i], finalDNST2[i], finalDNST3[i]);
 	    fid_out.write(outStr);
-	fid_out.close()
+	fid_out.close();
     
 	# -------- Drawing graphs
 	# Writing Gnuplot script
