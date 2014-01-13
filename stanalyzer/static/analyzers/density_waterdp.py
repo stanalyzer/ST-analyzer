@@ -293,6 +293,10 @@ try:
 	    
 	    # read based on frame
 	    for ts in u.trajectory:
+		sysX = ts.dimensions[0];
+		sysY = ts.dimensions[1];
+		sysZ = ts.dimensions[2];
+		
 		wcnt = 0;
 		DegT = [];
 		#tclock = cnt;
@@ -306,10 +310,8 @@ try:
 		    if (cntQry != 'no') :
 			#print "Centeralization..."
 			#stanalyzer.centerByCOM(ts, u, cntQry);
-			stanalyzer.centerByRes(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
+			stanalyzer.centerByRes2(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
 			#print "DONE!"
-		    else:
-			zeroCenter(ts, u);
 		    #==================================
 		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		    STMP.append(tmp_time);
@@ -362,6 +364,43 @@ try:
 			    
 			    # calculating cosine
 			    if (((catom_idx + 1.0) % 3.0) <= 0.0):
+				# ignore if bonds are brocken then relocate it (e.g. O is at Top and Hs are at Bottom)
+				if (abs(Ox - h1x) > (sysX * 0.5)):
+				    if Ox > 0:
+					h1x = h1x + sysX;
+				    else:
+					h1x = h1x - sysX;
+				    
+				if (abs(Ox - h2x) > (sysX * 0.5)):
+				    if Ox > 0:
+					h2x = h2x + sysX;
+				    else:
+					h2x = h2x - sysX;
+					
+				if (abs(Oy - h1y) > (sysY * 0.5)):
+				    if Oy > 0:
+					h1y = h1y + sysY;
+				    else:
+					h1y = h1y - sysY;
+					
+				if (abs(Oy - h2y) > (sysY * 0.5)):
+				    if Oy > 0:
+					h2y = h2y + sysY;
+				    else:
+					h2y = h2y - sysY;
+				    
+				if (abs(Oz - h1z) > (sysZ * 0.5)):
+				    if Oz > 0:
+					h1z = h1z + sysZ;
+				    else:
+					h1z = h1z - sysZ;
+					
+				if (abs(Oz - h2z) > (sysZ * 0.5)):
+				    if Oz > 0:
+					h2z = h2z + sysZ;
+				    else:
+					h2z = h2z - sysZ;
+
 				wcnt = wcnt + 1;
 				qO = -0.834;
 				qH1 = 0.417;
@@ -392,6 +431,7 @@ try:
 				cosT = (x1*x2 + y1*y2 + z1*z2) / (math.sqrt(r1) * math.sqrt(r2));
 				cnt_point = math.floor(len(DNST) * 0.5);
 				wcnt = 0;
+				"""
 				if (pos <= (cnt_point + 5)) and (pos >= (cnt_point -5)):
 				    wcnt = wcnt + 1;
 				    fwater = '{0}/water{1}_{2}.txt'.format(out_dir, wcnt, tmp_time);
@@ -399,7 +439,7 @@ try:
 				    strWater = "[{}] Water appears {}ps at {} \n".format(wcnt, tmp_time, trj);
 				    fid_water.write(strWater);
 				    fid_water.close();
-				    
+				""" 
 				DNST[pos] += cosT;
 				cntDNST[pos] += 1.0;
 		

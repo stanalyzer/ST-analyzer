@@ -78,7 +78,7 @@ ATOMNUM1 = {'H':1,  'C':6, 'N':7, 'O':8, 'P':15,
 	    'S':16, 'K':19 };
 
 ATOMNUM2 = {'LI':3,  'NA':11, 'MG':12, 'CL':17, 'ZN':30,
-	    'RB':37, 'CS':55, 'BA':56, 'HT':1,
+	    'RB':37, 'CD':48, 'CS':55, 'BA':56, 'HT':1,
 	    'HX':1,  'OT':8,  'OX':8, };
 
 ATOMNUM3 = {'LIT':3,  'SOD':11, 'POT':15, 'CLA':20, 'RUB':37,
@@ -356,47 +356,6 @@ def getCRDsWithResid(AtomGroup):
 #***************************************
 #from collections import defaultdict
 #from bisect import bisect_left
-def count_intervals2 (seq, intv ):
-    len_bin = len(intv);
-    BIN = [];
-    for i in range(len(intv)):
-	BIN.append(0.0);
-
-    for i in range(len(intv)):
-	#print "i ={}, BIN={}".format(i, BIN);
-	if i == 0:
-	    idx = np.where(seq < intv[i]);
-	    BIN[i] = BIN[i] + len(idx[0]);
-	    
-	elif (i >= len_bin - 1):
-	    idx = np.where(seq > intv[i]);
-	    BIN[i] = BIN[i] + len(idx[0]);
-	else:
-	    idx = np.where((seq >= intv[i]) & (seq < intv[i+1]));
-	    BIN[i] = BIN[i] + len(idx[0]);
-	    
-    return BIN;
-
-def count_intervals2_mass (seq, mass, intv ):
-    len_bin = len(intv);
-    BIN = [];
-    for i in range(len(intv)):
-	BIN.append(0.0);
-
-    for i in range(len(intv)):
-	#print "i ={}, BIN={}".format(i, BIN);
-	if i == 0:
-	    idx = np.where(seq < intv[i]);
-	    BIN[i] = mass[idx[0]].sum();
-	    
-	elif (i >= len_bin - 1):
-	    idx = np.where(seq > intv[i]);
-	    BIN[i] = mass[idx[0]].sum();
-	else:
-	    idx = np.where((seq >= intv[i]) & (seq < intv[i+1]));
-	    BIN[i] = mass[idx[0]].sum();
-	    
-    return BIN;
 
 def count_intervals (sequence, intervals):
     count = defaultdict(int)
@@ -533,34 +492,15 @@ def packintobox(ts):
     L = ts.dimensions[:3];
     x -= numpy.floor(x/L)*L;
 
-#loose boundary +1 Ans differences
 def packintobox2(ts, t_axis):
     x = ts._pos;
-    L = ts.dimensions[:3];
+    L = ts.dimensions[:3]; # make size at centered = 0;
     if t_axis == 'x':
 	x[:,0] -= numpy.floor(x[:,0]/L[0])*L[0];
     elif t_axis == 'y':
 	x[:,1] -= numpy.floor(x[:,1]/L[1])*L[1];
     else:
 	x[:,2] -= numpy.floor(x[:,2]/L[2])*L[2];
-
-#tight boundary exact system size
-def packintobox3(ts, t_axis):
-    x = ts._pos;
-    L = ts.dimensions[:3];
-
-    # tuple results
-    tp_pos_idx = np.where(x[:,2] > L[2]);
-    tp_neg_idx = np.where(x[:,2] < 0);
-
-    if len(tp_pos_idx[0]) > 0:
-       pos_idx = tp_pos_idx[0];
-       x[pos_idx,2] = x[pos_idx,2] - L[2];
-
-    if len(tp_neg_idx[0]) > 0:
-       neg_idx = tp_neg_idx[0];
-       x[neg_idx,2] = x[neg_idx,2] + L[2];
-
 
 def centerByCOM(ts, u, cntQry):
     MEMB = u.selectAtoms(cntQry);
@@ -580,19 +520,14 @@ def centerByCOM(ts, u, cntQry):
     t = np.array([0,0,0]) - com_MEMB1;
     u.atoms.translate(t);
 
-
 def centerByRes(ts, u, cntQry, ridx, t_axis):
-    
     arr_idx = ridx - 1;
     # move targeted segments into the box
     MEMB = u.selectAtoms(cntQry);
+
     # pick one residue and calculate center of mass
     #com_Res = MEMB.residues[arr_idx].centerOfMass();
-    #com_Res = MEMB.residues[arr_idx].centerOfGeometry();
-    mx = MEMB.residues[arr_idx].coordinates()[:,0].min();
-    my = MEMB.residues[arr_idx].coordinates()[:,1].min();
-    mz = MEMB.residues[arr_idx].coordinates()[:,2].min();
-    com_Res = [mx, my, mz];
+    com_Res = MEMB.residues[arr_idx].centerOfGeometry();
     box = ts.dimensions[:3];
     
     if t_axis == 'x':
@@ -641,13 +576,13 @@ def centerByRes(ts, u, cntQry, ridx, t_axis):
     com_MEMB1 = MEMB1.centerOfGeometry();
     
     if t_axis == 'x':
-	t1 = np.array(bx - [com_MEMB1[0], 0, 0]);
+	t = np.array(bx - [com_MEMB1[0], 0, 0]);
     elif t_axis == 'y':
-	t1 = np.array([0, by - com_MEMB1[1], 0]);
+	t = np.array([0, by - com_MEMB1[1], 0]);
     else:
-	t1 = np.array([0, 0, bz - com_MEMB1[2]]);
+	t = np.array([0, 0, bz - com_MEMB1[2]]);
     
-    u.atoms.translate(t1);
+    u.atoms.translate(t);
     packintobox2(ts, t_axis);
     
     # move entire system by locating COM of MEMB = 0;
@@ -655,239 +590,15 @@ def centerByRes(ts, u, cntQry, ridx, t_axis):
     com_MEMB2 = MEMB2.centerOfGeometry();
     
     if t_axis == 'x':
-	t2 = np.array([com_MEMB2[0], 0, 0]);
-    elif t_axis == 'y':
-	t2 = np.array([0, com_MEMB2[1], 0]);
-    else:
-	t2 = np.array([0, 0, com_MEMB2[2]]);
-
-    u.atoms.translate(-t2);
-
-# for trajectories produced by harmm which are already centered
-def zeroCenter(ts, u):
-    L = ts.dimensions[:3] * 0.5;
-    u.atoms.translate(-L);
-
-
-
-def pbc_direct(ts, t_axis, selAtoms):
-    crd = selAtoms.coordinates();
-    L = ts.dimensions[:3];
-    
-    # tuple results
-    tp_pos_idx = np.where(crd[:,2] > L[2]);
-    tp_neg_idx = np.where(crd[:,2] < 0);
-
-    if len(tp_pos_idx[0]) > 0:
-       pos_idx = tp_pos_idx[0];
-       crd[pos_idx,2] = crd[pos_idx,2] - L[2];
-
-    if len(tp_neg_idx[0]) > 0:
-       neg_idx = tp_neg_idx[0];
-       crd[neg_idx,2] = crd[neg_idx,2] + L[2];
-       
-    selAtoms.set_positions(crd);
-    
-# general solution
-def ispbc(ts, selAtoms, t_axis):
-    # ts      : current frame
-    # selAtoms: selected atoms to be checked (i.e residue)
-    # t       : threshold for number of atoms to be affected by PBC
-    flag = False;
-    L = ts.dimensions[:3]; # system size x, y, and z
-    
-    resCOM = selAtoms.centerOfGeometry();
-    if t_axis == 'x':
-	if (resCOM[0] < 0) or (resCOM[0] > L[0]):
-	    flag = True;
-    elif t_axis == 'y':
-	if (resCOM[1] < 0) or (resCOM[1] > L[1]):
-	    flag = True;
-    else:
-	if (resCOM[2] < 0) or (resCOM[2] > L[2]):
-	    flag = True;
-    
-    return flag;
-       
-       
-       
-def applypbc(ts, selAtoms, t_axis):
-    L = ts.dimensions[:3];
-    if ispbc(ts, selAtoms, t_axis):
-	# tuple results
-	CRDs = selAtoms.coordinates();
-	#print "\tMOVE entire..."
-	if (t_axis == 'x'):
-	    if CRDs[:,0].max() > L[0]:
-		CRDs[:,0] = CRDs[:,0] - L[0];
-	    else:
-		CRDs[:,0] = CRDs[:,0] + L[0];
-	    selAtoms.set_positions(CRDs);# move entire atoms
-	elif (t_axis == 'y'):
-	    if CRDs[:,1].max() > L[1]:
-		CRDs[:,1] = CRDs[:,1] - L[1];
-	    else:
-		CRDs[:,1] = CRDs[:,1] + L[1];
-	    selAtoms.set_positions(CRDs);# move entire atoms
-	else:
-	    if CRDs[:,2].max() > L[2]:
-		CRDs[:,2] = CRDs[:,2] - L[2];
-	    else:
-		CRDs[:,2] = CRDs[:,2] + L[2];
-	    selAtoms.set_positions(CRDs);# move entire atoms
-	    
-		
-def centerByRes2(ts, u, cntQry, ridx, t_axis):
-    arr_idx = ridx - 1;
-    # move targeted segments into the box
-    MEMB = u.selectAtoms(cntQry);
-
-    #com_memb = MEMB.centerOfGeometry();
-    #print "init COM = {}". format(com_memb);
-
-    # pick one residue and calculate center of mass
-    #com_Res = MEMB.residues[arr_idx].centerOfMass();
-    #com_Res = MEMB.residues[arr_idx].centerOfGeometry();
-    mx = MEMB.residues[arr_idx].coordinates()[:,0].min();
-    my = MEMB.residues[arr_idx].coordinates()[:,1].min();
-    mz = MEMB.residues[arr_idx].coordinates()[:,2].min();
-    com_Res = [mx, my, mz];
-
-    box = ts.dimensions[:3];
-    print "initial dimensions x={}, y={}, z={}".format(box[0], box[1], box[2]); 
-    print "MEMB CRDs:{}".format(MEMB.coordinates());
-    t1 = 0.2;
-    t2 = t1 * 0.5;
-    
-    if t_axis == 'x':
-	#print "X"
-	PBC = '{} and ((prop x >= {}) or (prop x <= 0))'.format(cntQry, box[0]);
-	#PBC = '({}) or ((prop x >= {}) and (prop x <= {})) or ((prop x >= {}) and (prop x <= {}))'.format(cntPBC, box[0], box[0]+t1, 0, 0+t1);
-        #PBC1 = '({}) or ((prop x >= {}) and (prop x <= {})) or ((prop x >= {}) and (prop x <= {}))'.format(cntPBC,box[0], box[0]+t2, 0, 0+t2);
-	bx = 0.5 * box[0];
-	by = box[1];
-	bz = box[2];
-	# calculating distance between system and box
-	x = bx - com_Res[0];
-	y = 0.0;
-	z = 0.0;
-	t = np.array([x, y, z]);
-
-    elif t_axis == 'y':
-	#print "Y"
-	PBC = '{} and ((prop y >= {}) or (prop y <= 0))'.format(cntQry, box[1]);
-	#PBC = '({}) or ((prop y >= {}) and (prop y <= {})) or ((prop y >= {}) and (prop y <= {}))'.format(cntPBC, box[1], box[1]+t1, 0, 0+t1);
-        #PBC1 = '({}) or ((prop y >= {}) and (prop y <= {})) or ((prop y >= {}) and (prop y <= {}))'.format(cntPBC, box[1], box[1]+t2, 0, 0+t2);
-	bx = box[0];
-	by = 0.5 * box[1];
-	bz = box[2];
-	# calculating distance between system and box
-	x = 0.0;
-	y = by - com_Res[1];
-	z = 0.0;
-	t = np.array([x, y, z]);
-
-    else:
-	#print "Z"
-	PBC = '{} and ((prop z >= {}) or (prop z <= 0))'.format(cntQry, box[2]);
-        #PBC = '({}) or ((prop z >= {}) and (prop z <= {})) or ((prop z >= {}) and (prop z <= {}))'.format(cntPBC, box[2], box[2]+t1, 0, 0+t1);
-        #PBC1 = '({}) or ((prop z >= {}) and (prop z <= {})) or ((prop z >= {}) and (prop z <= {}))'.format(cntPBC, box[2], box[2]+t2, 0, 0+t2);
-	bx = box[0];
-	by = box[1];
-	bz = 0.5 * box[2];
-	# calculating distance between system and box
-	x = 0.0;
-	y = 0.0;
-	z =  bz - com_Res[2];
-	t = np.array([x, y, z]);
-
-    print "Moving to COM_RES: offset x={}, y={}, z={}".format(t[0], t[1], t[2]);   
-
-    # move system to the COM of Box and then apply PBC
-    u.atoms.translate(t);
-    
-    #----------------------------------------------
-    # run PBC for selected Atoms
-    #----------------------------------------------
-    # select atoms outside system
-    pbcAtoms = u.selectAtoms(PBC);
-    #print "Checking PBC.... for out of system = {}".format(len(pbcAtoms.resids()));
-    resN = pbcAtoms.resnames();
-    resI = pbcAtoms.resids();
-    for ridx in range(len(resI)):
-	tmp_resid = "resname {} and resid {}".format(resN[ridx], resI[ridx]);
-	#print tmp_resid
-	selAtoms = u.selectAtoms(tmp_resid);
-	applypbc(ts, selAtoms, t_axis);
-    
-    #----------------------------------------------
-    # run PBC rest of selected atoms.
-    #----------------------------------------------
-    #subAtoms = 'all and not ({} or {})'.format(PBC1, cntQry);
-    subAtoms = 'all and not ({})'.format(cntQry);
-    subAtoms = u.selectAtoms(subAtoms);
-    pbc_direct(ts, t_axis, subAtoms);
-    
-    
-    # write PDB
-    """
-    pdb_m = MDAnalysis.Writer('./pdb/middle_new.pdb', multiframe=True);
-    selAtoms = u.selectAtoms("all");
-    pdb_m.write(selAtoms);
-    pdb_m.close();
-    """
-    
-    # move entire system by locating COM of MEMB = the COM of Box and than apply PBC
-    MEMB1 = u.selectAtoms(cntQry);
-    com_MEMB1 = MEMB1.centerOfGeometry();
-    print "MEMB1 CRDs {}".format(MEMB1.coordinates()); 
-    if t_axis == 'x':
-	t = np.array(bx - [com_MEMB1[0], 0, 0]);
-    elif t_axis == 'y':
-	t = np.array([0, by - com_MEMB1[1], 0]);
-    else:
-	t = np.array([0, 0, bz - com_MEMB1[2]]);
-    
-    print "Moving to COM_MEMB: offset x={}, y={}, z={}".format(t[0], t[1], t[2]);   
-
-    u.atoms.translate(t);
-    #packintobox2(ts, t_axis);
-    
-    #----------------------------------------------
-    # run PBC for selected Atoms
-    #----------------------------------------------
-    # select atoms outside system
-    pbcAtoms = u.selectAtoms(PBC);
-    #print "Checking PBC.... for out of system = {}".format(len(pbcAtoms.resids()));
-    resN = pbcAtoms.resnames();
-    resI = pbcAtoms.resids();
-    for ridx in range(len(resI)):
-	tmp_resid = "resname {} and resid {}".format(resN[ridx], resI[ridx]);
-	selAtoms = u.selectAtoms(tmp_resid);
-	applypbc(ts, selAtoms, t_axis);
-    
-    #----------------------------------------------
-    # run PBC rest of selected atoms.
-    #----------------------------------------------
-    #subAtoms = 'all and not ({} or {})'.format(PBC1, cntQry);
-    subAtoms = 'all and not ({})'.format(cntQry);
-    subAtoms = u.selectAtoms(subAtoms);
-    pbc_direct(ts, t_axis, subAtoms);
-        	
-    # move entire system by locating COM of MEMB = 0;
-    MEMB2 = u.selectAtoms(cntQry);
-    com_MEMB2 = MEMB2.centerOfGeometry();
-    print "MEMB2 CRDs {}". format(MEMB2.coordinates()); 
-    if t_axis == 'x':
 	t = np.array([com_MEMB2[0], 0, 0]);
     elif t_axis == 'y':
 	t = np.array([0, com_MEMB2[1], 0]);
     else:
 	t = np.array([0, 0, com_MEMB2[2]]);
 
-    print "Moving to zero: offset x={}, y={}, z={}".format(-t[0], -t[1], -t[2]);   
     u.atoms.translate(-t);
-
-    MEMB3 = u.selectAtoms(cntQry);
-    com_memb3 = MEMB3.centerOfGeometry();
-    print "final center ={}".format(com_memb3)
+    
+# for trajectories produced by harmm which are already centered
+def zeroCenter(ts, u):
+    L = ts.dimensions[:3] * 0.5;
+    u.atoms.translate(-L);

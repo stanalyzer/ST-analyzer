@@ -349,24 +349,79 @@ try:
 	    
 	    # read based on frame
 	    for ts in u.trajectory:
+				
+		# reading system size at each frame
+		sysX = ts.dimensions[0];
+		sysY = ts.dimensions[1];
+		sysZ = ts.dimensions[2];
+
 		#======= Centeralization =========
 		if (cntQry != 'no') :
 		    #print "Centeralization..."
 		    #stanalyzer.centerByCOM(ts, u, cntQry);
-		    stanalyzer.centerByRes(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
+		    stanalyzer.centerByRes2(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
 		    #print "DONE!"
-		else:
-		    zeroCenter(ts, u);
 		#==================================		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		# calculating leaflet
 		#L = MDAnalysis.analysis.leaflet.LeafletFinder(u, selQry, cutoff=17.0, pbc=True);
-		top_selQry = "{} and (prop z > 0.0)".format(selQry);
-		btm_selQry = "{} and (prop z < 0.0)".format(selQry);
+		#selQry = "segid {0} and resname {1} and {2}".format(segID, resName, charmm_query);
 		
-		#print top_selQry;
-		#print btm_selQry;
+		# defining unit vector
+		if taxis == 'X':
+		    top_cut = sysX * 0.165;
+		    btm_cut = -1.0 * top_cut;
+		    top_selQry = "segid {} and resname {} and (prop x > {})".format(segID, resName, top_cut);
+		    btm_selQry = "segid {} and resname {} and (prop x < {})".format(segID, resName, btm_cut);
+
+		elif taxis == 'Y':
+		    top_cut = sysY * 0.165;
+		    btm_cut = -1.0 * top_cut;
+		    top_selQry = "segid {} and resname {} and (prop y > {})".format(segID, resName, top_cut);
+		    btm_selQry = "segid {} and resname {} and (prop y < {})".format(segID, resName, btm_cut);
+
+		else:
+		    top_cut = sysZ * 0.165;
+		    btm_cut = -1.0 * top_cut;
+		    top_selQry = "segid {} and resname {} and (prop z > {})".format(segID, resName, top_cut);
+		    btm_selQry = "segid {} and resname {} and (prop z < {})".format(segID, resName, btm_cut);
+		
+		#print "TAXIS = {}".format(taxis);
+		#print "top_selQry: {}".format(top_selQry);
+		#print "btm_selQry: {}".format(btm_selQry);
+		
 		topAtoms = u.selectAtoms(top_selQry);
+		#print "STEP1: Top {} residues found!".format(len(topAtoms.resnames()));
+		topRes = topAtoms.resnames();
+		topResIDs = topAtoms.resids();
+		topQry = '';
+		for i in range(len(topRes)):
+		    if i == 0:
+			topQry = '((resname {} and resid {})'.format(topRes[i], topResIDs[i]);
+		    elif (i > 0) and  (i < len(topRes)-1):
+			topQry = '{} or (resname {} and resid {})'.format(topQry, topRes[i], topResIDs[i]);
+		    else:
+			topQry = '{} or (resname {} and resid {})) and ({})'.format(topQry, topRes[i], topResIDs[i], selQry);
+			
+		#print "{}".format(topQry);
+		topAtoms = u.selectAtoms(topQry);
+		#print "STEP2: Top {} residues found!".format(len(topAtoms.resnames()));
+		
 		btmAtoms = u.selectAtoms(btm_selQry);
+		#print "STEP1: Btm {} residues found!".format(len(btmAtoms.resnames()));
+		btmRes = btmAtoms.resnames();
+		btmResIDs = btmAtoms.resids();
+		btmQry = '';
+		for i in range(len(btmRes)):
+		    if i == 0:
+			btmQry = '((resname {} and resid {})'.format(btmRes[i], btmResIDs[i]);
+		    elif (i > 0) and  (i < len(btmRes)-1):
+			btmQry = '{} or (resname {} and resid {})'.format(btmQry, btmRes[i], btmResIDs[i]);
+		    else:
+			btmQry = '{} or (resname {} and resid {})) and ({})'.format(btmQry, btmRes[i], btmResIDs[i], selQry);
+			
+		#print "{}".format(btmQry);
+		btmAtoms = u.selectAtoms(btmQry);
+		#print "STEP2: Btm {} residues found!".format(len(btmAtoms.resnames()));
 		
 		DegT = [];
 		#tclock = cnt;

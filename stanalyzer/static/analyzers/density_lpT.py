@@ -303,10 +303,8 @@ try:
 		    if (cntQry != 'no') :
 			#print "Centeralization..."
 			#stanalyzer.centerByCOM(ts, u, cntQry);
-			stanalyzer.centerByRes(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
+			stanalyzer.centerByRes2(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
 			#print "DONE!"
-		    else:
-			zeroCenter(ts, u);
 		    #==================================		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		    STMP.append(tmp_time);
@@ -342,39 +340,15 @@ try:
 			    print 'crdZ is selected!';
 			    
 			# counting items based on BIN interval
-			tmpDNST = count_intervals(tcrd, BIN);
-			tmpDNST2 = count_intervals_mass(tcrd, MASS, BIN);
-			tmpDNST3 = count_intervals_mass(tcrd, ELEC, BIN);	# based on electrons
+			tmpDNST  = count_intervals2(tcrd, BIN);			# based on counting number of atoms
+			tmpDNST2 = count_intervals2_mass(tcrd, MASS, BIN);	# based on the mass of each atom
+			tmpDNST3 = count_intervals2_mass(tcrd, ELEC, BIN);	# based on electrons
 			
-			# sort key based on numbering*
-			intKEY = [];
-			for key in sorted(tmpDNST.iterkeys()):
-			    intKEY.append(float(key));
-			intKEY.sort();
+			for i in range(len(tmpDNST)):
+			    DNST[i] += float(tmpDNST[i]) / float(bin_vol); # normalizing based on volume
+			    mDNST[i] += float(tmpDNST2[i]) / float(bin_vol); # normalizing based on volume
+			    eDNST[i] += float(tmpDNST3[i]) / float(bin_vol); # normalizing based on volume
 
-			intKEY2 = [];
-			for key in sorted(tmpDNST2.iterkeys()):
-			    intKEY2.append(float(key));
-			intKEY2.sort();
-			
-			intKEY3 = [];
-			for key in sorted(tmpDNST3.iterkeys()):
-			    intKEY3.append(float(key));
-			intKEY3.sort();
-			
-			
-			# reordering dictionary based on sorted key
-			for key in intKEY:
-			    idx_bin = BIN.index(key);
-			    DNST[idx_bin] += float(tmpDNST[key]) / float(bin_vol); # normalizing based on volume
-			    
-			for key in intKEY2:
-			    idx_bin = BIN.index(key);
-			    mDNST[idx_bin] += float(tmpDNST2[key]) / float(bin_vol); # normalizing based on volume
-			
-			for key in intKEY3:
-			    idx_bin = BIN.index(key);
-			    eDNST[idx_bin] += float(tmpDNST3[key]) / float(bin_vol); # normalizing based on volume
 
 	# Write down results
 	finalDNST = [];

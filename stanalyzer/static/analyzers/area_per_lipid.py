@@ -269,15 +269,19 @@ try:
 	    
 	    # read based on frame
 	    for ts in u.trajectory:
+		
+		# reading system size at each frame
+		sysX = ts.dimensions[0];
+		sysY = ts.dimensions[1];
+		sysZ = ts.dimensions[2];
+		
 		# turning on periodic boundary conditions
 		#======= Centeralization =========
 		if (cntQry != 'no') :
 		    #print "Centeralization..."
 		    #stanalyzer.centerByCOM(ts, u, cntQry);
-		    stanalyzer.centerByRes(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
+		    stanalyzer.centerByRes2(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
 		    #print "DONE!"
-		else:
-		    zeroCenter(ts, u);
 		#==================================		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		#L = MDAnalysis.analysis.leaflet.LeafletFinder(u, selQry, cutoff=15.0, pbc=True);
 		top_selQry = "{} and (prop z > 0.0)".format(selQry);
