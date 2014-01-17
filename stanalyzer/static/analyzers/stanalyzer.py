@@ -738,6 +738,7 @@ def applypbc(ts, selAtoms, t_axis):
 	    
 		
 def centerByRes2(ts, u, cntQry, ridx, t_axis):
+    print "call: stanalyzer.centerByRes2()"
     arr_idx = ridx - 1;
     # move targeted segments into the box
     MEMB = u.selectAtoms(cntQry);
@@ -754,8 +755,8 @@ def centerByRes2(ts, u, cntQry, ridx, t_axis):
     com_Res = [mx, my, mz];
 
     box = ts.dimensions[:3];
-    print "initial dimensions x={}, y={}, z={}".format(box[0], box[1], box[2]); 
-    print "MEMB CRDs:{}".format(MEMB.coordinates());
+    #print "initial dimensions x={}, y={}, z={}".format(box[0], box[1], box[2]); 
+    #print "MEMB CRDs:{}".format(MEMB.coordinates());
     t1 = 0.2;
     t2 = t1 * 0.5;
     
@@ -801,7 +802,7 @@ def centerByRes2(ts, u, cntQry, ridx, t_axis):
 	z =  bz - com_Res[2];
 	t = np.array([x, y, z]);
 
-    print "Moving to COM_RES: offset x={}, y={}, z={}".format(t[0], t[1], t[2]);   
+    #print "Moving to COM_RES: offset x={}, y={}, z={}".format(t[0], t[1], t[2]);   
 
     # move system to the COM of Box and then apply PBC
     u.atoms.translate(t);
@@ -840,7 +841,7 @@ def centerByRes2(ts, u, cntQry, ridx, t_axis):
     # move entire system by locating COM of MEMB = the COM of Box and than apply PBC
     MEMB1 = u.selectAtoms(cntQry);
     com_MEMB1 = MEMB1.centerOfGeometry();
-    print "MEMB1 CRDs {}".format(MEMB1.coordinates()); 
+    #print "MEMB1 CRDs {}".format(MEMB1.coordinates()); 
     if t_axis == 'x':
 	t = np.array(bx - [com_MEMB1[0], 0, 0]);
     elif t_axis == 'y':
@@ -848,7 +849,7 @@ def centerByRes2(ts, u, cntQry, ridx, t_axis):
     else:
 	t = np.array([0, 0, bz - com_MEMB1[2]]);
     
-    print "Moving to COM_MEMB: offset x={}, y={}, z={}".format(t[0], t[1], t[2]);   
+    #print "Moving to COM_MEMB: offset x={}, y={}, z={}".format(t[0], t[1], t[2]);   
 
     u.atoms.translate(t);
     #packintobox2(ts, t_axis);
@@ -877,7 +878,7 @@ def centerByRes2(ts, u, cntQry, ridx, t_axis):
     # move entire system by locating COM of MEMB = 0;
     MEMB2 = u.selectAtoms(cntQry);
     com_MEMB2 = MEMB2.centerOfGeometry();
-    print "MEMB2 CRDs {}". format(MEMB2.coordinates()); 
+    #print "MEMB2 CRDs {}". format(MEMB2.coordinates()); 
     if t_axis == 'x':
 	t = np.array([com_MEMB2[0], 0, 0]);
     elif t_axis == 'y':
@@ -885,9 +886,41 @@ def centerByRes2(ts, u, cntQry, ridx, t_axis):
     else:
 	t = np.array([0, 0, com_MEMB2[2]]);
 
-    print "Moving to zero: offset x={}, y={}, z={}".format(-t[0], -t[1], -t[2]);   
+    #print "Moving to zero: offset x={}, y={}, z={}".format(-t[0], -t[1], -t[2]);   
     u.atoms.translate(-t);
 
     MEMB3 = u.selectAtoms(cntQry);
     com_memb3 = MEMB3.centerOfGeometry();
-    print "final center ={}".format(com_memb3)
+    #print "final center ={}".format(com_memb3)
+
+
+def getSeqNumber(tmpIDs):
+    # convert comma and hyphen separated numbers to list
+    # 1,3,5 = [1,3,5];
+    # 1-5 = [1,2,3,4,5];
+    tmpIDs = tmpIDs.strip(' \t\n\r');
+    listIDs = tmpIDs.split(';');
+    print "Let's see what I have got from IDs:"
+    print listIDs
+    
+    IDs = [];
+    for num in listIDs:
+	num = num.strip(' \t\n\r');		# remove white space
+	if len(num) > 0:			# remove empty list
+	    if '-' in num:
+		print "FOUND conataining '-': {}".format(num);
+		tmp = num.split('-');
+		num1 = int(tmp[0]);
+		num2 = int(tmp[1]);
+		if num1 < num2:
+		    tmp2 = range(num1,num2+1);
+		else:
+		    tmp2 = range(num2,num1+1);
+		for i in tmp2:
+		    IDs.append(i);
+	    else:
+		tmp2 = int(num);
+		IDs.append(tmp2);
+    IDs = set(IDs);				# make sure having unique IDs
+    IDs = list(IDs);
+    return IDs;

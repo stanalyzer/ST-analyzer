@@ -310,7 +310,7 @@ try:
 			#stanalyzer.centerByCOM(ts, u, cntQry);
 			stanalyzer.centerByRes2(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
 			#print "DONE!"
-		    #==================================		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
+		    #==================================
 		    
 		    print "[{0}ps]selecting atoms...".format(tmp_time);
 		    selAtoms = u.selectAtoms(selQry);

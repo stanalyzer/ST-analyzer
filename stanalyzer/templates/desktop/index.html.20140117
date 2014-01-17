@@ -148,62 +148,6 @@ function eval_step2() {
     
     //----------------- DO NOT MODIFY ABOVE THIS LINE -------------------//
     /*
-     *################################################################################################
-     * TEMPLATE MODULE: you can use this template to define your own module
-     *################################################################################################
-    */
-    /*
-    var chk_TEMPLATE = $j('#C_TEMPLATE #M_TEMPLATE #TEMPLATE1 #TEMPLATE_title').prop('checked');
-    if (chk_TEMPLATE == true) {
-	cntQry = [];            // array for storing query for the centering
-	cntAxs = [];            // array for stroing the targetted axis of centering: the default value is 'z'
-	frmInt 	  = [];         // array for storing the frame interval
-	outFile   = [];         // array for storing the name of output file
-
-        // Get the values of radio buttons
-	var cnt_val = $("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 input:radio[name=cnt_radio_TEMPLATE]:checked").val();
-	if (cnt_val == 'yes') {
-	    var query = $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #adjcenter_TEMPLATE #txt_memb").val().trim();
-	    cntQry.push(query);
-	    var cnt_axs = $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #adjcenter_TEMPLATE #cnt_axis option:selected").val();
-	    cntAxs.push(cnt_axs);
-	}
-	else {
-	    cntAxs.push(cnt_val);
-	    cntQry.push(cnt_val);
-	}
-
-        // Get the values of the frame interval
-	$j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 input[name='TEMPLATE_frmInt']").each(function() {
-	    frmInt.push($(this).val());
-	});
-	
-	// Get the values of the output file name 
-	$j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 input[name='TEMPLATE_outFile']").each(function() {
-	    outFile.push($(this).val());
-	});
-
-        // Get the values of the toal number of atoms
-	$j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 input[name='TEMPLATE_hist_tatoms']").each(function() {
-	    numAtoms.push($(this).val());
-	});
-
-        // the name of backend module (i.e., TEMPLATE.py)
-	JOBs.push('TEMPLATE');
-	
-	// Defining multip dimensional array: the first number is total number of varialbes in 'para' (i.e., 5: except it self) 
-	para = [5, frmInt, outFile, numAtoms, cntQry, cntAxs];
-	
-	// Information about the variables: the order should be same as the variables in 'para', idx0 should be included at the beginning
-	para_info = [idx0, 'Frame interval', 'Output name', 'Total number of atoms', 'Centering Query', 'Base axis'];
-	
-	// push parameters in a array PARs and PARinfo
-	PARs.push(para);
-	PARinfo.push(para_info);
-    }
-    */
-
-    /*
      *################################################
      * Average area per lipid
      *################################################
@@ -1042,60 +986,6 @@ function eval_step2() {
 	PARinfo.push(para_info);
     }
     
-    
-    /*
-     *################################################################################################
-     * PDB convert
-     *################################################################################################
-    */
-    var chk_pdbconvert = $j('#C_pdbconvert #M_pdbconvert #pdbconvert1 #pdbconvert_title').prop('checked');
-    if (chk_pdbconvert == true) {
-	cntQry  = [];
-	cntAxs  = [];
-	frmInt 	= [];
-	outFile = [];
-        numAtoms= [];
-        selQry  = [];
-        mk_single = 0;
-
-	var cnt_val = $("#C_pdbconvert #M_pdbconvert #pdbconvert2 input:radio[name=cnt_radio_pdbconvert]:checked").val();
-	if (cnt_val == 'yes') {
-	    var query = $j("#C_pdbconvert #M_pdbconvert #pdbconvert2 #adjcenter_pdbconvert #txt_memb").val().trim();
-	    cntQry.push(query);
-	    var cnt_axs = $j("#C_pdbconvert #M_pdbconvert #pdbconvert2 #adjcenter_pdbconvert #cnt_axis option:selected").val();
-	    cntAxs.push(cnt_axs);
-	}
-	else {
-	    cntAxs.push(cnt_val);
-	    cntQry.push(cnt_val);
-	}
-
-	$j("#C_pdbconvert #M_pdbconvert #pdbconvert2 input[name='pdbconvert_frmInt']").each(function() {
-	    frmInt.push($(this).val());
-	});
-	
-	$j("#C_pdbconvert #M_pdbconvert #pdbconvert2 input[name='pdbconvert_outFile']").each(function() {
-	    outFile.push($(this).val());
-	});
-
-	$j("#C_pdbconvert #M_pdbconvert #pdbconvert2 input[name='pdbconvert_hist_tatoms']").each(function() {
-	    numAtoms.push($(this).val());
-	});
-
-	$j("#C_pdbconvert #M_pdbconvert #pdbconvert2 textarea[name='pdbconvert_query']").each(function() {
-	    selQry.push($(this).val().trim());
-	});
-        
-        if ($j("#C_pdbconvert #M_pdbconvert #pdbconvert2 #define_pdbconvert #pdbconvert_single").prop('checked')) {
-            mk_single = 1;
-        }
-            
-	JOBs.push('pdbconvert');
-	para = [7, frmInt, outFile, numAtoms, cntQry, cntAxs, selQry, mk_single];
-	para_info = [idx0, 'Frame interval', 'Output name', 'Total number of atoms', 'Centering Query', 'Base axis', 'Selection Query', 'Write single PDB file'];
-	PARs.push(para);
-	PARinfo.push(para_info);
-    }
     
     
     /*

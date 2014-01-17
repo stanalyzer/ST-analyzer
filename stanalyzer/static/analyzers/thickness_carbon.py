@@ -267,7 +267,9 @@ try:
 			#stanalyzer.centerByCOM(ts, u, cntQry);
 			stanalyzer.centerByRes2(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
 			#print "DONE!"
-		    #==================================		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
+		    #==================================
+		    
+		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
 		    STMP.append(tmp_time);
 		    #print "[{0}ps]selecting atoms...".format(tmp_time);
 		    selAtoms = u.selectAtoms(selQry);
@@ -302,10 +304,10 @@ try:
 	imgPath = "{0}/{1}".format(out_dir, outImg);
 	fid_out = open(outScr, 'w');
 	gScript = "set terminal png\n";
-	gScript = gScript + "set xlabel 'Time (ps)'\n";
+	gScript = gScript + "set xlabel 'Time (ns)'\n";
 	gScript = gScript + "set ylabel 'Angstrom'\n";
 	gScript = gScript + "set output '{0}'\n".format(imgPath);
-	gScript = gScript + """plot "{0}/{1}" using 1:2 title "carbon_based thicknesss" with lines lw 3\n""".format(out_dir, outFile);
+	gScript = gScript + """plot "{0}/{1}" using ($1*0.001):2 title "carbon_based thicknesss" with lines lw 3\n""".format(out_dir, outFile);
 	fid_out.write(gScript);
 	fid_out.close()
 	

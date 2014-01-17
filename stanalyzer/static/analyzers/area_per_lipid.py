@@ -282,8 +282,8 @@ try:
 		    #stanalyzer.centerByCOM(ts, u, cntQry);
 		    stanalyzer.centerByRes2(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
 		    #print "DONE!"
-		#==================================		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
-		#L = MDAnalysis.analysis.leaflet.LeafletFinder(u, selQry, cutoff=15.0, pbc=True);
+		#==================================
+		
 		top_selQry = "{} and (prop z > 0.0)".format(selQry);
 		btm_selQry = "{} and (prop z < 0.0)".format(selQry);
 		

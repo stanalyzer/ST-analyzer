@@ -349,7 +349,7 @@ try:
 	    
 	    # read based on frame
 	    for ts in u.trajectory:
-				
+		
 		# reading system size at each frame
 		sysX = ts.dimensions[0];
 		sysY = ts.dimensions[1];
@@ -361,11 +361,9 @@ try:
 		    #stanalyzer.centerByCOM(ts, u, cntQry);
 		    stanalyzer.centerByRes2(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
 		    #print "DONE!"
-		#==================================		    tmp_time = float(cnt) * float(num_ps) - float(num_ps);
-		# calculating leaflet
-		#L = MDAnalysis.analysis.leaflet.LeafletFinder(u, selQry, cutoff=17.0, pbc=True);
-		#selQry = "segid {0} and resname {1} and {2}".format(segID, resName, charmm_query);
-		
+		#==================================
+		tmp_time = float(cnt) * float(num_ps) - float(num_ps);
+
 		# defining unit vector
 		if taxis == 'X':
 		    top_cut = sysX * 0.165;
@@ -440,17 +438,7 @@ try:
 		    #--- calculating number ripids
 		    if len(topAtoms.resnames()) > 0:
 			flg_top = 1;
-			
-			Names = topAtoms.names();					# list names of atoms based on the query
-			setNames = set(Names);						# make unique list of atoms
-			listNames = list(setNames);					# convert set to list
-			sortlistNames = stanalyzer.sort_str_num(listNames, "asc")	# sort them ascending order
-			num_selatoms = len(Names);
-			num_uq_selatoms = len(sortlistNames);
-			num_top = num_selatoms / num_uq_selatoms;
-			#num_top2 = len(topAtoms.resnames()); # length of tail
-			#print 'There are {} lipids in top layer'.format(num_top);
-			#print 'There are {} lipids in top layer'.format(num_top2);
+			num_top = len(topAtoms.resnames());
 			
 			# find hydrogen atoms based on the current selection
 			# get index of current atom selection
@@ -465,7 +453,7 @@ try:
 			    Cz = allCRDs[c_idx][2];
 			    
 			    next_idx = c_idx + 1;
-			    
+			    #print '#TOP=', allAtoms[c_idx].name
 			    while (allAtoms[next_idx].name.upper()[0:1] == 'H'):
 				    h_cnt += 1;
 				    Hx = allCRDs[next_idx][0];
@@ -477,6 +465,7 @@ try:
 				    z = Hz - Cz;
 				    v1 = [x, y, z];
 				    #print "v1:{}, v2:{}".format(v1, v2);
+				    #print 'TOP: h_cnt=', h_cnt, 'name=', allAtoms[next_idx].name
 				    cosT = getCosT(v1, v2);
 				    tmp_Scd  += (3.0 * cosT * cosT - 1.0);
 				    
@@ -491,17 +480,7 @@ try:
 		    #btmAtoms = L.group(1);		# select atoms in the bottom layer 
 		    if len(btmAtoms.resnames()) > 0:
 			flg_btm = 1;
-			
-			Names = btmAtoms.names();					# list names of atoms based on the query
-			setNames = set(Names);						# make unique list of atoms
-			listNames = list(setNames);					# convert set to list
-			sortlistNames = stanalyzer.sort_str_num(listNames, "asc")	# sort them ascending order
-			num_selatoms = len(Names);
-			num_uq_selatoms = len(sortlistNames);
-			num_btm = num_selatoms / num_uq_selatoms;
-			#num_btm2 = len(btmAtoms.resnames()); # length of tail
-			#print 'There are {} lipids in bottom layer'.format(num_btm);
-			#print 'There are {} lipids in bottom layer'.format(num_btm2);
+			num_btm = len(btmAtoms.resnames());
 
 			# find hydrogen atoms based on the current selection
 			# get index of current atom selection
@@ -516,7 +495,7 @@ try:
 			    Cz = allCRDs[c_idx][2];
 			    
 			    next_idx = c_idx + 1;
-			    
+			    #print '#BTM=', allAtoms[c_idx].name
 			    while (allAtoms[next_idx].name.upper()[0:1] == 'H'):
 				    h_cnt += 1;
 				    Hx = allCRDs[next_idx][0];
@@ -528,6 +507,7 @@ try:
 				    z = Hz - Cz;
 				    v1 = [x, y, z];
 				    #print "v1:{}, v2:{}".format(v1, v2);
+				    #print 'BTM: h_cnt=', h_cnt, 'name=', allAtoms[next_idx].name
 				    cosT = getCosT(v1, v2);
 				    tmp_Scd  += (3.0 * cosT * cosT - 1.0);
 				    
@@ -653,7 +633,7 @@ try:
 	    # for top membrane
 	    num_top_tics = 3.0;
 	    intx = (max_top - min_top) / num_top_tics;
-	    # if graph is broken please remove margin
+
 	    #gScript = gScript + "set tmargin at screen 0.93; set bmargin at screen 0.68\n";
 	    #gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
 	    gScript = gScript + "set xtics offset 0,0.5; unset xlabel\n";
@@ -665,7 +645,6 @@ try:
 	    # for bottom membrane
 	    num_btm_tics = 3.0;
 	    intx = (max_btm - min_btm) / num_btm_tics;
-	    # if graph is broken please remove margin
 	    #gScript = gScript + "set tmargin at screen 0.63; set bmargin at screen 0.38\n";
 	    #gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
 	    gScript = gScript + "set xtics offset 0,0.5; unset xlabel\n";
@@ -678,7 +657,6 @@ try:
 	    # for both membrane
 	    num_both_tics = 3.0;
 	    intx = (max_y - min_y) / num_both_tics;
-	    # if graph is broken please remove margin
 	    #gScript = gScript + "set tmargin at screen 0.33; set bmargin at screen 0.08\n";
 	    #gScript = gScript + "set lmargin at screen 0.20; set rmargin at screen 0.85\n";
 	    gScript = gScript + "set xtics offset 0,0.5; set xlabel 'Carbon number' offset 0,1\n";
