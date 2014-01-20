@@ -743,9 +743,6 @@ def centerByRes2(ts, u, cntQry, ridx, t_axis):
     # move targeted segments into the box
     MEMB = u.selectAtoms(cntQry);
 
-    #com_memb = MEMB.centerOfGeometry();
-    #print "init COM = {}". format(com_memb);
-
     # pick one residue and calculate center of mass
     #com_Res = MEMB.residues[arr_idx].centerOfMass();
     #com_Res = MEMB.residues[arr_idx].centerOfGeometry();
@@ -761,10 +758,7 @@ def centerByRes2(ts, u, cntQry, ridx, t_axis):
     t2 = t1 * 0.5;
     
     if t_axis == 'x':
-	#print "X"
 	PBC = '{} and ((prop x >= {}) or (prop x <= 0))'.format(cntQry, box[0]);
-	#PBC = '({}) or ((prop x >= {}) and (prop x <= {})) or ((prop x >= {}) and (prop x <= {}))'.format(cntPBC, box[0], box[0]+t1, 0, 0+t1);
-        #PBC1 = '({}) or ((prop x >= {}) and (prop x <= {})) or ((prop x >= {}) and (prop x <= {}))'.format(cntPBC,box[0], box[0]+t2, 0, 0+t2);
 	bx = 0.5 * box[0];
 	by = box[1];
 	bz = box[2];
@@ -775,10 +769,7 @@ def centerByRes2(ts, u, cntQry, ridx, t_axis):
 	t = np.array([x, y, z]);
 
     elif t_axis == 'y':
-	#print "Y"
 	PBC = '{} and ((prop y >= {}) or (prop y <= 0))'.format(cntQry, box[1]);
-	#PBC = '({}) or ((prop y >= {}) and (prop y <= {})) or ((prop y >= {}) and (prop y <= {}))'.format(cntPBC, box[1], box[1]+t1, 0, 0+t1);
-        #PBC1 = '({}) or ((prop y >= {}) and (prop y <= {})) or ((prop y >= {}) and (prop y <= {}))'.format(cntPBC, box[1], box[1]+t2, 0, 0+t2);
 	bx = box[0];
 	by = 0.5 * box[1];
 	bz = box[2];
@@ -789,10 +780,7 @@ def centerByRes2(ts, u, cntQry, ridx, t_axis):
 	t = np.array([x, y, z]);
 
     else:
-	#print "Z"
 	PBC = '{} and ((prop z >= {}) or (prop z <= 0))'.format(cntQry, box[2]);
-        #PBC = '({}) or ((prop z >= {}) and (prop z <= {})) or ((prop z >= {}) and (prop z <= {}))'.format(cntPBC, box[2], box[2]+t1, 0, 0+t1);
-        #PBC1 = '({}) or ((prop z >= {}) and (prop z <= {})) or ((prop z >= {}) and (prop z <= {}))'.format(cntPBC, box[2], box[2]+t2, 0, 0+t2);
 	bx = box[0];
 	by = box[1];
 	bz = 0.5 * box[2];
@@ -828,15 +816,6 @@ def centerByRes2(ts, u, cntQry, ridx, t_axis):
     subAtoms = 'all and not ({})'.format(cntQry);
     subAtoms = u.selectAtoms(subAtoms);
     pbc_direct(ts, t_axis, subAtoms);
-    
-    
-    # write PDB
-    """
-    pdb_m = MDAnalysis.Writer('./pdb/middle_new.pdb', multiframe=True);
-    selAtoms = u.selectAtoms("all");
-    pdb_m.write(selAtoms);
-    pdb_m.close();
-    """
     
     # move entire system by locating COM of MEMB = the COM of Box and than apply PBC
     MEMB1 = u.selectAtoms(cntQry);
@@ -900,15 +879,13 @@ def getSeqNumber(tmpIDs):
     # 1-5 = [1,2,3,4,5];
     tmpIDs = tmpIDs.strip(' \t\n\r');
     listIDs = tmpIDs.split(';');
-    print "Let's see what I have got from IDs:"
-    print listIDs
     
     IDs = [];
     for num in listIDs:
 	num = num.strip(' \t\n\r');		# remove white space
 	if len(num) > 0:			# remove empty list
 	    if '-' in num:
-		print "FOUND conataining '-': {}".format(num);
+		#print "FOUND conataining '-': {}".format(num);
 		tmp = num.split('-');
 		num1 = int(tmp[0]);
 		num2 = int(tmp[1]);
