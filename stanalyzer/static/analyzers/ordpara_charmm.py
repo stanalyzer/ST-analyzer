@@ -249,19 +249,36 @@ num_tails = num_selatoms / num_uq_selatoms;
 
 
 # defining the order of lipid tail (e.g. CA1, CB1, CC1, etc. Vs. C1, C2)
-tmp_num = filter(str.isdigit, sortlistNames[0][1]);
-if len(tmp_num) > 0:
-    dnst_min = int(sortlistNames[0][1:2]); # reading the first sroted atom and extract the first digit
+#tmp_num = filter(str.isdigit, sortlistNames[0][1]);
+digits = re.findall(r'\d+', sortlistNames[0])[0];			# digits extracted from number
+tmp_num = len(digits);							# count the length of numbers
+if tmp_num == 1:
+    dnst_min = int(digits[0]);
+elif tmp_num == 2:
+    dnst_min = int(digits[1]);
+elif tmp_num > 2:
+    dnst_min = int(digits[len(digits)-2:]);
 else:
-    dnst_min = filter(str.isdigit, sortlistNames[0]); # reading the first sroted atom and extract the first digit
-#print dnst_min
+    dnst_min = 1;
 
-tmp_num = filter(str.isdigit, sortlistNames[len(sortlistNames)-1][1]);
-if len(tmp_num) > 0:
-    dnst_max = int(sortlistNames[len(sortlistNames)-1][2:]);
+# 2cases are possbile in charmm forcefield. name start with one character c11, c12,... two character CA1, CA2,...
+letters = re.findall(r'[a-zA-Z]+', sortlistNames[len(sortlistNames)-1])[0];		# letters extracted from atom name
+digits = re.findall(r'\d+', sortlistNames[len(sortlistNames)-1])[0];			# digits extracted from atom name
+tmp_chr = len(letters);									# count the length of letters
+tmp_num = len(digits);									# count the length of numbers
+if tmp_chr < 2:
+    if tmp_num == 1:
+	dnst_max = int(digits[0]);
+    elif tmp_num == 2:
+	dnst_max = int(digits[1]);
+    elif tmp_num > 2:
+	dnst_max = int(digits[len(digits)-2:]);
+    else:
+	dnst_max = 1;
 else:
-    dnst_max = filter(str.isdigit, sortlistNames[len(sortlistNames)-1]);
-#print dnst_max
+    dnst_max = int(digits);
+
+print "digits={}, DNST_MAX={}".format(digits, dnst_max);
 
 dnst_bin = 1;
 
@@ -298,12 +315,13 @@ try:
 	    BIN.append(ibin);
 	    cmt2= "{0}{1}\t".format(cmt2, ibin);
 	    #fid_out.write(cmt);
+	print BIN
 	cmt2= "{0}\n".format(cmt2);
 	
 	cmt = "{0}{1}# Range\tDensity\n".format(cmt1, cmt2);
 	
 	psf = '{0}{1}'.format(base_path, structure_file);
-    
+
 	cnt = 0;
 	timeStamp = [];         # time stamp for trajectory
 	
@@ -443,6 +461,8 @@ try:
 			# find hydrogen atoms based on the current selection
 			# get index of current atom selection
 			cIndex  = topAtoms.indices();
+			rp = len(cIndex) / num_top;    # cut_point for each residue
+			pos = 0;
 			for cidx in range(len(cIndex)):
 			    h_cnt   = 0;			# hydrogen count
 			    tmp_Scd = 0;
@@ -472,9 +492,13 @@ try:
 				    next_idx +=1;
     
 			    total_Scd = 0.5 * (tmp_Scd / h_cnt);
-			    pos = (cidx) % len(BIN);
-			    #print "position={}, h_cnt={}".format(pos, h_cnt);
+			    #pos = (cidx) % len(BIN);
+			    #print "position={}, h_cnt={}, cidx={}, len(BIN)={}".format(pos, h_cnt, cidx, len(BIN));
 			    TOPL[pos] += total_Scd;
+			    pos = pos + 1;
+			    if pos >= rp:
+				#print "rp={}".format(rp);
+				pos = 0;
 			    #print TOPL
 			    #print "+----------------------------------------------------------+";
 		    #btmAtoms = L.group(1);		# select atoms in the bottom layer 
@@ -485,6 +509,8 @@ try:
 			# find hydrogen atoms based on the current selection
 			# get index of current atom selection
 			cIndex  = btmAtoms.indices();
+			rp = len(cIndex) / num_top;    # cut_point for each residue
+			pos = 0;
 			for cidx in range(len(cIndex)):
 			    h_cnt   = 0;			# hydrogen count
 			    tmp_Scd = 0;
@@ -514,9 +540,13 @@ try:
 				    next_idx +=1;
     
 			    total_Scd = 0.5 * (tmp_Scd / h_cnt);
-			    pos = (cidx) % len(BIN);
-			    #print "position={}, h_cnt={}".format(pos, h_cnt);
+			    #pos = (cidx) % len(BIN);
+			    #print "position={}, h_cnt={}, cidx={}, len(BIN)={}".format(pos, h_cnt, cidx, len(BIN));
 			    BTML[pos] += total_Scd;
+			    pos = pos + 1;
+			    if pos >= rp:
+				#print "rp={}".format(rp);
+				pos = 0;
 			    #print TOPL
 			    #print "+----------------------------------------------------------+";
 	
