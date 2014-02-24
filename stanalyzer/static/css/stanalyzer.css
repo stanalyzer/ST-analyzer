@@ -101,7 +101,9 @@ table.outline
    border:1px solid #E6F6FC;
    border-collapse:collapse;
 }
-
+td.w500 {
+   width: 500px;
+}
 td.w110 {
     width: 110px;
 }

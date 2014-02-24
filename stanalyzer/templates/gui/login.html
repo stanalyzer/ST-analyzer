@@ -23,17 +23,17 @@
 
 <body class="bgcolor2" onload="noBack();" onpageshow="if (event.persisted) noBack();" onunload="">
     <center>
-	<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+	<br/>
 	<form id="frmLogin" method='post' action='/gui/login/'>
 	   {% csrf_token %}
 	    <table>
 		<!-- <tr><td class="center"><span class="st_font1 st_size1 st_color1">Member Area</span> <span class="st_font2 st_size2 st_color2">Enter your details and get logged in.</span></td></tr> -->
-		<tr><td class="center"><span class="st_font1 st_size1 st_color1"><img src="/static/desktop/images/gui/st-analyzer-login_03.gif" width="90%"></span></td></tr>
+		<tr><td class="left"><span class="st_font1 st_size1 st_color1"><img src="/static/desktop/images/gui/st-analyzer-login_05.jpg" height="50"></span></td></tr>
 		<tr><td class="left"><span class="st_font1 st_size3 st_color3">Username:</span></td></tr>
-		<tr><td><input id="userID" name="userID" type="text" size=60></td></tr>
+		<tr><td><input id="userID" name="userID" type="text" size=28></td></tr>
 		<tr><td calss ="left"><span class="st_font1 st_size3 st_color3">Password:</span></td></tr>
-		<tr><td><input id="pwd" name="pwd" type="password" size=60></td></tr>
-		<tr><td class="right"><input type='submit' id="btnLogin" value='Login'></td></tr>
+		<tr><td><input id="pwd" name="pwd" type="password" size=28></td></tr>
+		<tr><td class="center"><input type='submit' id="btnLogin" value='Login'></td></tr>
 	    </table>
 	</form>
 	<div id="output"><span class="message_warn">{{ errMsg }}</span></div>
