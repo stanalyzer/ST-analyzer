@@ -3872,13 +3872,15 @@ def verifyQuery(request):
 	
 	res_index   = selAtoms.resids();
 	uq_resid    = list(set(res_index));
+	uq_resid    = np.array(uq_resid).tolist(); # convert numpy int64 to int ==> this cause JSON problems. 
+	
 	#print "uq_resid is Okay!"
 	# integers are converted into int64
 	# it can cause problems, so convert it to noraml Python datatype
-	tmpList = [];
-	for i in uq_resid:
-	    tmpList.append(np.asscalar(i))
-	uq_resid = tmpList;
+	#tmpList = [];
+	#for i in uq_resid:
+	#    tmpList.append(np.asscalar(i))
+	#uq_resid = tmpList;
 	
 	num_atoms   = selAtoms.numberOfAtoms();
 	names       = selAtoms.names();
