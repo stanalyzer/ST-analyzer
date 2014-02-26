@@ -218,7 +218,7 @@ $j(document).ready(function(){
     $j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #area_center_options #area_txt_memb").attr("disabled", "disabled");
     $j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #area_center_options").hide();
     
-    $("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #area_center input:radio[name=area_opt_center]").each(function(i){
+    $j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #area_center input:radio[name=area_opt_center]").each(function(i){
 	$j(this).click(function() {
 	    if (i == 0) {
 		$j("#C_aveperlipid #M_aveperlipid #liparea #liparea_voro #area_center_options #area_txt_memb").removeAttr("disabled");

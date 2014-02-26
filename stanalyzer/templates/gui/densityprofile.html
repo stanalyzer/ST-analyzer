@@ -209,7 +209,7 @@ $j(document).ready(function(){
     $j("#C_density #M_density #density #density_form #txt_memb").attr("disabled", "disabled");
     $j("#C_density #M_density #density #density_form #density_center_options").hide();
     
-    $("#C_density #M_density #density #density_form input:radio[name=den_center]").each(function(i){
+    $j("#C_density #M_density #density #density_form input:radio[name=den_center]").each(function(i){
 	$j(this).click(function() {
 	    if (i == 0) {
 		$j("#C_density #M_density #density #density_form #txt_memb").removeAttr("disabled");

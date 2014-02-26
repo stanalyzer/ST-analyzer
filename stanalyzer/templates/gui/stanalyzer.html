@@ -89,14 +89,14 @@ $j(document).ready(function(){
     });
 
     /* click button down */
-    $('#step1 #btn_down').click(function() {
-	var countOptions = $('#select_trj2 option').size();
-	var countSelected = $('#select_trj2 option:selected').size();
-	$('#select_trj2 option:selected').each( function() {
-	    var newPos = $('#select_trj2 option').index(this) + countSelected;
+    $j('#step1 #btn_down').click(function() {
+	var countOptions = $j('#select_trj2 option').size();
+	var countSelected = $j('#select_trj2 option:selected').size();
+	$j('#select_trj2 option:selected').each( function() {
+	    var newPos = $j('#select_trj2 option').index(this) + countSelected;
 	    if (newPos < countOptions) {
 		$j('#select_trj2 option').eq(newPos).after("<option value='"+$j(this).val()+"' selected='selected'>"+$j(this).text()+"</option>");
-		$(this).remove();
+		$j(this).remove();
 	    }
 	});
     });
@@ -154,7 +154,7 @@ $j(document).ready(function(){
 	var key = e.which;
 	//alert(key);
 	if (key == 13 ) {
-	    $('#step1 #toFile').focus();
+	    $j('#step1 #toFile').focus();
 	}
 	return false;
     });
@@ -163,7 +163,7 @@ $j(document).ready(function(){
 	var key = e.which;
 	//alert(key);
 	if (key == 13 ) {
-	    $('#step1 #btn_ftSel').focus();
+	    $j('#step1 #btn_ftSel').focus();
 	}
 	return false;
     });
@@ -188,7 +188,7 @@ $j(document).ready(function(){
 	$j(this).css("color","gray");;
     });
 
-    $('#step1 #btn_ftSel').live('click', function(){
+    $j('#step1 #btn_ftSel').live('click', function(){
 	var txt = $j("#fromFile").val();
 	var stFile = txt.trim();
 	if (stFile.length < 1) {

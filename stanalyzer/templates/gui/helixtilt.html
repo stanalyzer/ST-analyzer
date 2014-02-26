@@ -68,13 +68,13 @@ $j(document).ready(function(){
 	
 	/* copy option values from sigID to sigID# */
 	var new_segID = "#C_helixtilt #M_helixtilt #segID" + cnt_helix_tilt_form;
-	$('#C_helixtilt #M_helixtilt #segID option').clone().appendTo(new_segID);
+	$j('#C_helixtilt #M_helixtilt #segID option').clone().appendTo(new_segID);
 
 	var new_stRes = "#C_helixtilt #M_helixtilt #stRes" + cnt_helix_tilt_form;
-	$('#C_helixtilt #M_helixtilt #stRes option').clone().appendTo(new_stRes);
+	$j('#C_helixtilt #M_helixtilt #stRes option').clone().appendTo(new_stRes);
 
 	var new_edRes = "#C_helixtilt #M_helixtilt #edRes" + cnt_helix_tilt_form;
-	$('#C_helixtilt #M_helixtilt #edRes option').clone().appendTo(new_edRes);
+	$j('#C_helixtilt #M_helixtilt #edRes option').clone().appendTo(new_edRes);
 	
 	$j("#C_helixtilt #M_helixtilt #new_helix_tilt_frm").filter('.chzn-select').chosen(); // apply to top level elems
         $j("#C_helixtilt #M_helixtilt #new_helix_tilt_frm").find('.chzn-select').chosen();   // apply to nested elems
@@ -84,7 +84,7 @@ $j(document).ready(function(){
 
     //*** Helix tilt -  deleting forms
     $j("#C_helixtilt #M_helixtilt #new_helix_tilt_frm button[id^='helix_tilt_form_del']").live("click", function() {
-	idx = $(this).attr('num_idx');
+	idx = $j(this).attr('num_idx');
 	var del_form = "#C_helixtilt #M_helixtilt #helix_tilt_form_add_" + idx;
 	//alert("num_idx=" + idx + "del_form=" + del_form);
 	$j(del_form).remove();
@@ -95,8 +95,8 @@ $j(document).ready(function(){
 	$j("#C_helixtilt #M_helixtilt #new_helix_tilt_frm input[name='helix_tilt_outFile']").each(function() {
 	    cnt++;
 	    var new_file = "output" + cnt + ".dat";
-	    $(this).val('');
-	    $(this).val(new_file);
+	    $j(this).val('');
+	    $j(this).val(new_file);
 	    cnt_file_index = cnt;
 	    if (cnt_file_index < 0) {
 		cnt_file_index = 0;
@@ -107,8 +107,8 @@ $j(document).ready(function(){
     
     //*** Helix tilt - Live update for selecting segment
     $j("#C_helixtilt #M_helixtilt #helix_tilt_form select[name='segID']").live("change", function(){
-	//alert("This click is from..: " + $(this).attr('id'));
-	var id_num = $(this).attr("id").match(/[\d]+$/);
+	//alert("This click is from..: " + $j(this).attr('id'));
+	var id_num = $j(this).attr("id").match(/[\d]+$/);
 	//alert(id_num);
 	if (!id_num) {
 	    /*
@@ -118,7 +118,7 @@ $j(document).ready(function(){
 	    return false;
 	}
 
-	//alert("ID=" + $(this).attr('id') + ", and number is " + $(this).attr("id").match(/[\d]+$/));
+	//alert("ID=" + $j(this).attr('id') + ", and number is " + $j(this).attr("id").match(/[\d]+$/));
 	str_segID = "#C_helixtilt #M_helixtilt #segID" + id_num;
 	str_Res   = "#C_helixtilt #M_helixtilt #stRes" + id_num + ", #C_helixtilt #M_helixtilt #edRes" + id_num;
 	

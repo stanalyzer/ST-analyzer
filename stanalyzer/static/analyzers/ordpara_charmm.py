@@ -509,7 +509,7 @@ try:
 			# find hydrogen atoms based on the current selection
 			# get index of current atom selection
 			cIndex  = btmAtoms.indices();
-			rp = len(cIndex) / num_top;    # cut_point for each residue
+			rp = len(cIndex) / num_btm;    # cut_point for each residue
 			pos = 0;
 			for cidx in range(len(cIndex)):
 			    h_cnt   = 0;			# hydrogen count

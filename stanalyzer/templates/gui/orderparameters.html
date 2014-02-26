@@ -212,7 +212,7 @@ $j(document).ready(function(){
     $j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm #txt_memb").attr("disabled", "disabled");
     $j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm #ordpara_center_options").hide();
     
-    $("#C_ordpara #M_ordpara #ordpara #ordpara_charmm input:radio[name=opt_center]").each(function(i){
+    $j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm input:radio[name=opt_center]").each(function(i){
 	$j(this).click(function() {
 	    if (i == 0) {
 		$j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm #txt_memb").removeAttr("disabled");
@@ -294,7 +294,7 @@ $j(document).ready(function(){
     $j("#C_ordpara #M_ordpara #ordpara #ordpara_charmm_form select[id^='charmm_uq_segid']").live("change", function(){
 	myfrm = $j(this).attr('mygui');
 	var target_segid = "#C_ordpara #M_ordpara #ordpara #ordpara_charmm_form #charmm_uq_segid" + myfrm + " option:selected";
-	tmp = $(target_segid).text();
+	tmp = $j(target_segid).text();
 	if (tmp != 'segid') {
 	    query = "segid " + tmp;
 	    tmpSystem = ordpara_getStructureInfo(query, false);

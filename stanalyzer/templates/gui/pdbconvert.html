@@ -75,7 +75,7 @@ $j(document).ready(function(){
     });
     
     //---> show/hide the centering form upon the event of clicking yes/no radio button
-    $("#C_pdbconvert #M_pdbconvert #pdbconvert2 input:radio[name=cnt_radio_pdbconvert]").each(function(i){
+    $j("#C_pdbconvert #M_pdbconvert #pdbconvert2 input:radio[name=cnt_radio_pdbconvert]").each(function(i){
 	$j(this).click(function() {
 	    if (i == 0) {
 		$j("#C_pdbconvert #M_pdbconvert #pdbconvert2 #adjcenter_pdbconvert #txt_memb").removeAttr("disabled");
