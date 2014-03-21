@@ -356,6 +356,7 @@ def getCRDsWithResid(AtomGroup):
 #***************************************
 #from collections import defaultdict
 #from bisect import bisect_left
+# count values in seq based on intervals
 def count_intervals2 (seq, intv ):
     len_bin = len(intv);
     BIN = [];
@@ -369,7 +370,7 @@ def count_intervals2 (seq, intv ):
 	    BIN[i] = BIN[i] + len(idx[0]);
 	    
 	elif (i >= len_bin - 1):
-	    idx = np.where(seq > intv[i]);
+	    idx = np.where(seq >= intv[i]);
 	    BIN[i] = BIN[i] + len(idx[0]);
 	else:
 	    idx = np.where((seq >= intv[i]) & (seq < intv[i+1]));
@@ -390,7 +391,7 @@ def count_intervals2_mass (seq, mass, intv ):
 	    BIN[i] = mass[idx[0]].sum();
 	    
 	elif (i >= len_bin - 1):
-	    idx = np.where(seq > intv[i]);
+	    idx = np.where(seq >= intv[i]);
 	    BIN[i] = mass[idx[0]].sum();
 	else:
 	    idx = np.where((seq >= intv[i]) & (seq < intv[i+1]));

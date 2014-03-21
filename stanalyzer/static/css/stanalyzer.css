@@ -220,6 +220,12 @@ a.underline2:hover, a.underline2:active
     text-align: right;
 }
 
+.module_txtbox_digit2 {
+    width: 50px;
+    font-size: 10px;
+    text-align: right;
+}
+
 
 .st_font1 {
     /* font-family: Georgia, "Times New Roman", Times, serif; */
