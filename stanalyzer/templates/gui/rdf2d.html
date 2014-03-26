@@ -7,7 +7,7 @@ var mySystem;		// this gloabl value containing system information defined in 'in
  * Main function starts
  * ########################################## */
 
-var cnt_TEMPLATE = 0; // total number of options in this module  
+var cnt_RDF2D = 0; // total number of options in this module  
 
 $j(document).ready(function(){
   // *** Hidden processdure: Read system information from index.html when $j('.next-tab').click(function(){}); is triggered
@@ -16,25 +16,25 @@ $j(document).ready(function(){
  * Control events
  * ---------------------------------------------------*/
     // Hide options at first until the module is checked
-    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2").hide();
-    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #adjcenter_TEMPLATE").hide();
+    $j("#C_RDF2D #M_RDF2D #RDF2D2").hide();
+    $j("#C_RDF2D #M_RDF2D #RDF2D2 #adjcenter_RDF2D").hide();
     
     // defining default value of initial forms
-    $j('#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #TEMPLATE_frmInt').val('1').css("color", "gray");
-    $j('#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #TEMPLATE_outFile').val('TEMPLATE.txt').css("color", "gray");
-    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #define_TEMPLATE #TEMPLATE_hist_bin").empty().val('1').css("color", "gray");
-    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #adjcenter_TEMPLATE #txt_memb").empty().val("Define 'segid' or 'resname' to be centered! (e.g. segid MEMB)");
-    $j('#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #cnt_radio_TEMPLATE_no').attr('checked', 'checked');
-    $j('#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #TEMPLATE_single').attr('checked', 'checked');
+    $j('#C_RDF2D #M_RDF2D #RDF2D2 #RDF2D_frmInt').val('1').css("color", "gray");
+    $j('#C_RDF2D #M_RDF2D #RDF2D2 #RDF2D_outFile').val('RDF2D.txt').css("color", "gray");
+    $j("#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #RDF2D_hist_bin").empty().val('1').css("color", "gray");
+    $j("#C_RDF2D #M_RDF2D #RDF2D2 #adjcenter_RDF2D #txt_memb").empty().val("Define 'segid' or 'resname' to be centered! (e.g. segid MEMB)");
+    $j('#C_RDF2D #M_RDF2D #RDF2D2 #cnt_radio_RDF2D_no').attr('checked', 'checked');
+    $j('#C_RDF2D #M_RDF2D #RDF2D2 #RDF2D_single').attr('checked', 'checked');
     
     
     //---> Add count to total number of selected modules
-    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE1 #TEMPLATE_title").live("click", function() {
+    $j("#C_RDF2D #M_RDF2D #RDF2D1 #RDF2D_title").live("click", function() {
 	$j("#vfy_msg").empty();
 	var chk = $j(this).prop('checked');
 	if (chk == true) {
 	    $cnt_modules++; // global variable to count all selected modules
-	    cnt_TEMPLATE++; // count options in this module
+	    cnt_RDF2D++; // count options in this module
 	    
 	    /* ----- reading system information ----- */
 	    // Reading total number of atoms
@@ -44,21 +44,21 @@ $j(document).ready(function(){
 	    var ps_per_frame = $j("#step2 #num_ps").text();		// duration of simulation for each frame in picoseconds
 	    
 	    // total number of atoms are required for parameter passing
-	    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #TEMPLATE_hist_tatoms").empty().val(num_total_atoms);
+	    $j("#C_RDF2D #M_RDF2D #RDF2D2 #RDF2D_hist_tatoms").empty().val(num_total_atoms);
 
 	} else {
 	    $cnt_modules--;
-	    cnt_TEMPLATE--;
+	    cnt_RDF2D--;
 	    if ($cnt_modules < 0) {
 		$cnt_modules = 0;
 	    }
-    	    if (cnt_TEMPLATE < 0) {
-		cnt_TEMPLATE = 0;
+    	    if (cnt_RDF2D < 0) {
+		cnt_RDF2D = 0;
 	    }
 	}
-	$j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE1 #cnt_TEMPLATE").empty().append(cnt_TEMPLATE); 	// updating currently selected options in this module
-	$j("#cnt_modules").empty().append($cnt_modules);					// updating the count for all selected modules
-	$j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2").toggle(this.checked);
+	$j("#C_RDF2D #M_RDF2D #RDF2D1 #cnt_RDF2D").empty().append(cnt_RDF2D); 	// updating currently selected options in this module
+	$j("#cnt_modules").empty().append($cnt_modules);			// updating the count for all selected modules
+	$j("#C_RDF2D #M_RDF2D #RDF2D2").toggle(this.checked);
 	
 	// Get system information
 	var query = 'all';
@@ -95,7 +95,7 @@ $j(document).ready(function(){
 	    stInfo = $j.merge(key_words_tmp, obj.uq_resname); 	// unqiue residue name
 	    stInfo = $j.merge(stInfo, obj.uq_resid);		// unique residue IDs
 	    stInfo = $j.merge(stInfo, obj.uq_name);		// unique atom names
-	    stInfo = $j.merge(stInfo, obj.uq_segid);	// unique segment IDs
+	    stInfo = $j.merge(stInfo, obj.uq_segid);		// unique segment IDs
 	    stInfo = $j.merge(stInfo, obj.uq_type);		// unique types
 	    systemInfo['all']     = stInfo;
 	    systemInfo['resname'] = obj.uq_resname;
@@ -124,35 +124,35 @@ $j(document).ready(function(){
 	    var size_y = obj.size_y;
 	    var size_z = obj.size_z;
 	    
-	    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #TEMPLATE_sizeX").empty().append(size_x);
-	    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #TEMPLATE_sizeY").empty().append(size_y);
-	    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #TEMPLATE_sizeZ").empty().append(size_z);
+	    $j("#C_RDF2D #M_RDF2D #RDF2D2 #RDF2D_sizeX").empty().append(size_x);
+	    $j("#C_RDF2D #M_RDF2D #RDF2D2 #RDF2D_sizeY").empty().append(size_y);
+	    $j("#C_RDF2D #M_RDF2D #RDF2D2 #RDF2D_sizeZ").empty().append(size_z);
 	});
 	  
         request.error(function(jqXHR, textStatus, errorThrown) {
-            $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #adjcenter_TEMPLATE #vfy_msg").empty().append(errorThrown);
+            $j("#C_RDF2D #M_RDF2D #RDF2D2 #adjcenter_RDF2D #vfy_msg").empty().append(errorThrown);
         });
 
 	
     });
     
     //---> show/hide the centering form upon the event of clicking yes/no radio button
-    $("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 input:radio[name=cnt_radio_TEMPLATE]").each(function(i){
+    $("#C_RDF2D #M_RDF2D #RDF2D2 input:radio[name=cnt_radio_RDF2D]").each(function(i){
 	$j(this).click(function() {
 	    if (i == 0) {
-		$j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #adjcenter_TEMPLATE #txt_memb").removeAttr("disabled");
-		$j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #adjcenter_TEMPLATE").show();
+		$j("#C_RDF2D #M_RDF2D #RDF2D2 #adjcenter_RDF2D #txt_memb").removeAttr("disabled");
+		$j("#C_RDF2D #M_RDF2D #RDF2D2 #adjcenter_RDF2D").show();
 	    }
 	    else {
-		$j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #adjcenter_TEMPLATE #txt_memb").attr("disabled", "disabled");
-		$j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #adjcenter_TEMPLATE").hide();
+		$j("#C_RDF2D #M_RDF2D #RDF2D2 #adjcenter_RDF2D #txt_memb").attr("disabled", "disabled");
+		$j("#C_RDF2D #M_RDF2D #RDF2D2 #adjcenter_RDF2D").hide();
 	    }
 	});
     });
     
     //---> Verification of selection query in the centering form
-    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #adjcenter_TEMPLATE #memb_btn_vfy").click(function(){
-	var query = $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #adjcenter_TEMPLATE #txt_memb").val().trim();
+    $j("#C_RDF2D #M_RDF2D #RDF2D2 #adjcenter_RDF2D #memb_btn_vfy").click(function(){
+	var query = $j("#C_RDF2D #M_RDF2D #RDF2D2 #adjcenter_RDF2D #txt_memb").val().trim();
 	var bpath = $j("#proot option:selected").text().trim();
 	var stfile = $j("#stfile option:selected").text().trim();
 	var pdbfile = $j("#pdbfile option:selected").text().trim();
@@ -162,12 +162,12 @@ $j(document).ready(function(){
 	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
 
 	if (vfy["flag"]) {
-	    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #adjcenter_TEMPLATE #vfy_msg").empty().append(vfy["err"]);
+	    $j("#C_RDF2D #M_RDF2D #RDF2D2 #adjcenter_RDF2D #vfy_msg").empty().append(vfy["err"]);
 	    return false;
 	}
 	/* display waiting message */
 
-	$j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #adjcenter_TEMPLATE #vfy_msg").empty().append(msgWait);
+	$j("#C_RDF2D #M_RDF2D #RDF2D2 #adjcenter_RDF2D #vfy_msg").empty().append(msgWait);
 	    var sndData = {
 		'cmd'       : 'verify',
 		'query'	    : query,
@@ -187,7 +187,7 @@ $j(document).ready(function(){
 		    
         request.done(function(Jdata) {
             var obj = $j.parseJSON(Jdata);
-            $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #adjcenter_TEMPLATE #vfy_msg").empty().append("Verified!");
+            $j("#C_RDF2D #M_RDF2D #RDF2D2 #adjcenter_RDF2D #vfy_msg").empty().append("Verified!");
             $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
 	    $j("#dlg_selInfo").dialog({
 		resizable: true,
@@ -199,17 +199,16 @@ $j(document).ready(function(){
         });
           
         request.error(function(jqXHR, textStatus, errorThrown) {
-            $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #adjcenter_TEMPLATE #vfy_msg").empty().append(errorThrown);
+            $j("#C_RDF2D #M_RDF2D #RDF2D2 #adjcenter_RDF2D #vfy_msg").empty().append(errorThrown);
         });
     });
 
     // ---> define default query : select all atoms
-    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #define_TEMPLATE #TEMPLATE_query").val('segid MEMB and name P');
-    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #define_TEMPLATE #TEMPLATE_query2").val('segid MEMB and name N');
+    $j("#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #RDF2D_query").val('segid MEMB');
     
-    //---> Verification of selection query 1 in TEMPLATE
-    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #define_TEMPLATE #pdb_btn_vfy").click(function(){
-	var query = $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #define_TEMPLATE #TEMPLATE_query").val().trim();
+    //---> Verification of selection query in RDF2D
+    $j("#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #pdb_btn_vfy").click(function(){
+	var query = $j("#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #RDF2D_query").val().trim();
 	var bpath = $j("#proot option:selected").text().trim();
 	var stfile = $j("#stfile option:selected").text().trim();
 	var pdbfile = $j("#pdbfile option:selected").text().trim();
@@ -219,12 +218,12 @@ $j(document).ready(function(){
 	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
 
 	if (vfy["flag"]) {
-	    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #define_TEMPLATE #vfy_msg").empty().append(vfy["err"]);
+	    $j("#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #vfy_msg").empty().append(vfy["err"]);
 	    return false;
 	}
 	/* display waiting message */
 
-	$j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #define_TEMPLATE #vfy_msg").empty().append(msgWait);
+	$j("#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #vfy_msg").empty().append(msgWait);
 	    var sndData = {
 		'cmd'       : 'verify',
 		'query'	    : query,
@@ -244,7 +243,7 @@ $j(document).ready(function(){
 		    
         request.done(function(Jdata) {
             var obj = $j.parseJSON(Jdata);
-            $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #define_TEMPLATE #vfy_msg").empty().append("Verified!");
+            $j("#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #vfy_msg").empty().append("Verified!");
             $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
 	    $j("#dlg_selInfo").dialog({
 		resizable: true,
@@ -256,99 +255,44 @@ $j(document).ready(function(){
         });
           
         request.error(function(jqXHR, textStatus, errorThrown) {
-            $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #define_TEMPLATE #vfy_msg").empty().append(errorThrown);
+            $j("#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #vfy_msg").empty().append(errorThrown);
         });
     });
-    
-    //---> Verification of selection query 2 in TEMPLATE
-    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #define_TEMPLATE #pdb_btn_vfy2").click(function(){
-	var query = $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #define_TEMPLATE #TEMPLATE_query2").val().trim();
-	var bpath = $j("#proot option:selected").text().trim();
-	var stfile = $j("#stfile option:selected").text().trim();
-	var pdbfile = $j("#pdbfile option:selected").text().trim();
-	$j("#select_trj2 option").attr("selected", "selected"); 	// select all
-	var trjFile = $j("#select_trj2").val();
-	var vfy = chkSyntex(query);
-	var msgWait = "Verifying the query... <img src='/static/images/circle2.gif' height='20' width='20' >"
-
-	if (vfy["flag"]) {
-	    $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #define_TEMPLATE #vfy_msg2").empty().append(vfy["err"]);
-	    return false;
-	}
-	/* display waiting message */
-
-	$j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #define_TEMPLATE #vfy_msg2").empty().append(msgWait);
-	    var sndData = {
-		'cmd'       : 'verify',
-		'query'	    : query,
-		'bpath'	    : bpath,
-		'stfile'    : stfile,
-		'pdbfile'   : pdbfile,
-		'trjFile[]' : trjFile,
-	    }
-
-        var request = $j.ajax({
-        type: "POST",
-        url: '/gui/verify_query/',
-        cache: false,
-        data: sndData,
-        //async: false,
-        });
-		    
-        request.done(function(Jdata) {
-            var obj = $j.parseJSON(Jdata);
-            $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #define_TEMPLATE #vfy_msg2").empty().append("Verified!");
-            $j("#dlg_selInfo #dlg_msg").empty().append(obj.selInfo);
-	    $j("#dlg_selInfo").dialog({
-		resizable: true,
-		modal: true,
-		height:500,
-                width:600,
-	    });
-
-        });
-          
-        request.error(function(jqXHR, textStatus, errorThrown) {
-            $j("#C_TEMPLATE #M_TEMPLATE #TEMPLATE2 #define_TEMPLATE #vfy_msg2").empty().append(errorThrown);
-        });
-    });
-    
-
 
 });
 </script>
 
-<div id="C_TEMPLATE">
+<div id="C_RDF2D">
     <table>
 	<tr><td id="head_js_script"></td></tr>
     </table>
     <table>
 	<tr>
 	    <td colspan="2">
-		<table id="M_TEMPLATE">
-		    <!-- TEMPLATE contents start -->
+		<table id="M_RDF2D">
+		    <!-- RDF2D contents start -->
 		    <tr>
 			<td>
 			    <!-- displaying the name of module -->
-			    <table id="TEMPLATE1">
+			    <table id="RDF2D1">
 				<tr>
 				    <td class="st_color7 left">
-					<input type="checkbox" id="TEMPLATE_title">TEMPLATE (<span id="cnt_TEMPLATE" class="st_font1 st_size3 st_color5">0</span>)
+					<input type="checkbox" id="RDF2D_title">RDF 2D (<span id="cnt_RDF2D" class="st_font1 st_size3 st_color5">0</span>)
 				    </td>
 				</tr>
 			    </table>
-			    <!-- options for TEMPLATE1 -->
-			    <table id="TEMPLATE2">
+			    <!-- options for RDF2D1 -->
+			    <table id="RDF2D2">
 				<tr>
 				    <td class="w_module"></td>
 				    <td>
 					<table>
 					    <tr>
-						<td class="bottom"><span class="module_font"><b>X=</b><span id="TEMPLATE_sizeX">loading...</span></span></td>
+						<td class="bottom"><span class="module_font"><b>X=</b><span id="RDF2D_sizeX">loading...</span></span></td>
 						<td class="bottom w15"></td>
-						<td class="bottom"><span class="module_font"><b>Y=</b><span id="TEMPLATE_sizeY">loading...</span></span></td>
+						<td class="bottom"><span class="module_font"><b>Y=</b><span id="RDF2D_sizeY">loading...</span></span></td>
 						<td class="bottom w15"></td>
-						<td class="bottom"><span class="module_font"><b>Z=</b><span id="TEMPLATE_sizeZ">loading...</span></span></td>
+						<td class="bottom"><span class="module_font"><b>Z=</b><span id="RDF2D_sizeZ">loading...</span></span></td>
 					    </tr>
 					</table>
 				    </td>
@@ -358,8 +302,8 @@ $j(document).ready(function(){
 				    <td class="w_module"></td>
 				    <td>
 					<span class="module_font"><b>Need membrane centering?</b> </span>
-					<input type="radio" id="cnt_radio_TEMPLATE_yes"  name="cnt_radio_TEMPLATE" value="yes">Yes
-					<input type="radio" id="cnt_radio_TEMPLATE_no"  name="cnt_radio_TEMPLATE" value="no">No
+					<input type="radio" id="cnt_radio_RDF2D_yes"  name="cnt_radio_RDF2D" value="yes">Yes
+					<input type="radio" id="cnt_radio_RDF2D_no"  name="cnt_radio_RDF2D" value="no">No
 					
 				    </td>
 				</tr>
@@ -368,7 +312,7 @@ $j(document).ready(function(){
 				<tr>
 				    <td class="w_module"></td>
 				    <td>
-					<table id="adjcenter_TEMPLATE">
+					<table id="adjcenter_RDF2D">
 					    <tr>
 						<td>
 						    <span class="module_font"><b>Along which axis?</b> </span>
@@ -395,7 +339,7 @@ $j(document).ready(function(){
 				<tr>
 				    <td class="w_module"></td>
 				    <td>
-					<table id="define_TEMPLATE">
+					<table id="define_RDF2D">
 					    <tr>
 						<td class="bottom"><span class="module_font">Frame Interval</span></td>
 						<td class="bottom w15"></td>
@@ -406,11 +350,11 @@ $j(document).ready(function(){
 						<td></td><td></td><td></td>
 					    </tr>
 					    <tr>
-						<td class="bottom"><input id="TEMPLATE_frmInt" class="module_txtbox_output" type="text" name="TEMPLATE_frmInt"></td>	
+						<td class="bottom"><input id="RDF2D_frmInt" class="module_txtbox_output" type="text" name="RDF2D_frmInt"></td>	
 						<td class="bottom w15"></td>
-						<td class="bottom"><input id="TEMPLATE_outFile" class="module_txtbox_output2" type="text" name="TEMPLATE_outFile"></td>
+						<td class="bottom"><input id="RDF2D_outFile" class="module_txtbox_output2" type="text" name="RDF2D_outFile"></td>
 						<td class="bottom w15"></td>
-						<td class="bottom"><input id="TEMPLATE_hist_bin" class="module_txtbox_digit2" type="text" name="TEMPLATE_hist_bin"></td>
+						<td class="bottom"><input id="RDF2D_hist_bin" class="module_txtbox_digit2" type="text" name="RDF2D_hist_bin"></td>
 						<td class="bottom w15"></td>
 						<td></td><td></td><td></td>
 					    </tr>
@@ -419,31 +363,21 @@ $j(document).ready(function(){
 					    </tr>
 					    <tr>
 						<td class="bottom" colspan=9>
-						    <textarea class="bottom" id="TEMPLATE_query" name="TEMPLATE_query" rows="2" cols="50"></textarea>
+						    <textarea class="bottom" id="RDF2D_query" name="RDF2D_query" rows="2" cols="50"></textarea>
 						    <button id="pdb_btn_vfy"><span class="module_font">Verify</span></button>
 						</td>
 					    </tr>
 					    <tr><td id="vfy_msg" class="center message_warn" colspan="9"></td></tr>
-					    <tr>
-						<td class="bottom" colspan=9> <span class="module_font"><b>Selection query 2</b></span> </td>
-					    </tr>
-					    <tr>
-						<td class="bottom" colspan=9>
-						    <textarea class="bottom" id="TEMPLATE_query2" name="TEMPLATE_query2" rows="2" cols="50"></textarea>
-						    <button id="pdb_btn_vfy2"><span class="module_font">Verify</span></button>
-						</td>
-					    </tr>
-					    <tr><td id="vfy_msg2" class="center message_warn" colspan="9"></td></tr>
 					</table>
 				    </td>
 				</tr>
 				<!-- having information about the system -->
-				<tr><td class="bottom" colspan="12"><input id="TEMPLATE_hist_tatoms" type="hidden" name="TEMPLATE_hist_tatoms"></td></tr>
+				<tr><td class="bottom" colspan="12"><input id="RDF2D_hist_tatoms" type="hidden" name="RDF2D_hist_tatoms"></td></tr>
 				<tr><td id="vfy_msg0" mygui="0" class="center message_warn" colspan="12"></td></tr>					    
 			    </table>
 			</td>
 		    </tr>
-		    <!-- TEMPLATE contents end  -->
+		    <!-- RDF2D contents end  -->
 		</table>
 	    </td>
 	</tr>

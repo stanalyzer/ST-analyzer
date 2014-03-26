@@ -89,6 +89,7 @@ ST_rmodule   = "{0}{1}".format(exe_file[:len(exe_file)-3], ST_para_idx);  # runn
 #---------------------< assigned module specific parameters: fixed for every interface >---------------------------------
 ST_num_paras = paras[0][0];		# pInfo[0] : number of parameters
 ST_frmInt    = paras[1][ST_para_idx];	# pInfo[1] : Frame interval (list)
+ST_frmInt    = int(ST_frmInt);
 ST_outFile   = paras[2][ST_para_idx];	# pInfo[2] : output file name (list)
 
 # Updating DB: running Job
@@ -247,6 +248,29 @@ augX = sysX + 10.0;
 augY = sysY + 10.0;
 augZ = sysZ + 10.0;
 
+# defining top and bottom leaflet 
+if cntAxs == 'x':
+    top_cut = sysX * 0.165;
+    btm_cut = -1.0 * top_cut;
+    top_selQry1 = "{} and (prop x > {})".format(selQry1, top_cut);
+    top_selQry2 = "{} and (prop x > {})".format(selQry2, top_cut);
+    btm_selQry1 = "{} and (prop x < {})".format(selQry1, btm_cut);
+    btm_selQry2 = "{} and (prop x < {})".format(selQry2, btm_cut);
+elif cntAxs == 'y':
+    top_cut = sysY * 0.165;
+    btm_cut = -1.0 * top_cut;
+    top_selQry1 = "{} and (prop y > {})".format(selQry1, top_cut);
+    top_selQry2 = "{} and (prop y > {})".format(selQry2, top_cut);
+    btm_selQry1 = "{} and (prop y < {})".format(selQry1, btm_cut);
+    btm_selQry2 = "{} and (prop y < {})".format(selQry2, btm_cut);
+else:
+    top_cut = sysZ * 0.165;
+    btm_cut = -1.0 * top_cut;
+    top_selQry1 = "{} and (prop z > {})".format(selQry1, top_cut);
+    top_selQry2 = "{} and (prop z > {})".format(selQry2, top_cut);
+    btm_selQry1 = "{} and (prop z < {})".format(selQry1, btm_cut);
+    btm_selQry2 = "{} and (prop z < {})".format(selQry2, btm_cut);
+
 #----- creating BIN for distance density
 min_bin = 1.0;
 max_bin = math.sqrt(augX * augX + augY * augY + augY * augY);
@@ -256,7 +280,7 @@ for i in stanalyzer.frange(min_bin, max_bin, binsize):
     BIN.append(i);
 
 #----- calculating denominator for density distribution
-DEN = []; DNST = []; tmpDNST = [];
+DEN = []; topDNST = []; btmDNST = []; 
 pre_out = 0.0;
 for i in range(len(BIN)):
     if i == 0:
@@ -270,8 +294,8 @@ for i in range(len(BIN)):
 	vol = sp_out - sp_in;
 	pre_out = sp_out;
     DEN.append(vol);
-    DNST.append(0.0);
-    tmpDNST.append(0.0);
+    topDNST.append(0.0);
+    btmDNST.append(0.0);
 
 print "Okay running...."
 
@@ -282,10 +306,8 @@ try:
     run = 1;
     if run:
 	psf = '{0}{1}'.format(ST_base_path, ST_structure_file);
-	timeStamp = [];         # time stamp for trajectory
-	    
+
 	for idx in range(len(ST_trajectoryFile)):
-	    
 	    # turning on periodic boundary conditions
 	    MDAnalysis.core.flags['use_periodic_selections'] = True
 	    MDAnalysis.core.flags['use_KDTree_routines'] = False
@@ -293,7 +315,7 @@ try:
 	    # reading trajectory
 	    trj = '{0}{1}'.format(ST_base_path, ST_trajectoryFile[idx]);
 	    u = Universe(psf, trj);
-	    
+
 	    # calculating dimensions
 	    sysD = u.dimensions;
 	    csize_x = sysD[0];	# current system size of X axis
@@ -302,90 +324,253 @@ try:
 
 	    allAtoms = u.selectAtoms('all');
 	    
+	    cnt = 0;
+	    num_frm = 0.0;
+	    
 	    for ts in u.trajectory:
-		#######################################################
-		############## Write your code below ##################
-		#######################################################
-		#======= Centeralization =========
-		if (cntQry != 'no') :
-		    stanalyzer.centerByRes2(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
-		#==================================
+		# flag for top and bottom leaflet
+		top_flag = 0; btm_flag = 0;
 		
-		# get atom coordinates of each selection query
-		sAtoms = u.selectAtoms(selQry1);
-		sCRDs  = sAtoms.coordinates();
-		
-		tAtoms = u.selectAtoms(selQry2);
-		tCRDs  = tAtoms.coordinates();
+		# initializing array
+		tmp_topDNST = [0.0] * len(BIN);
+		tmp_btmDNST = [0.0] * len(BIN);
 
-		allCRDs  = np.concatenate((sCRDs, tCRDs));
+		cnt = cnt + 1;
 		
-		# considering periodic boundary for distance calculation
-		a_mid_x = 0.5 * (max(allCRDs[:,0]) + min(allCRDs[:,0]));
-		a_mid_y = 0.5 * (max(allCRDs[:,1]) + min(allCRDs[:,1]));
-		a_mid_z = 0.5 * (max(allCRDs[:,2]) + min(allCRDs[:,2]));
-		
-		# calculating distance & density calculation
-		for i in range(len(sCRDs)):
-		    for j in range(len(tCRDs)):
-			# adjusting X axis
-			if (tCRDs[j,0] >= a_mid_x):
-			    adjX = tCRDs[j,0] - csize_x;
-			else:
-			    adjX = tCRDs[j,0] + csize_x;
+		if (cnt % ST_frmInt) == 0:
+		    num_frm = num_frm + 1.0;
+		    
+		    #######################################################
+		    ############## Write your code below ##################
+		    #######################################################
+		    
+		    #======= Centeralization =========
+		    if (cntQry != 'no') :
+			stanalyzer.centerByRes2(ts, u, cntQry, 1, cntAxs); # 1st residue is always chosen for centering membrane
+		    #==================================
+    
+		    #############################################
+		    #### Calculating top and bottom layer #######
+		    #############################################
+		    # get atom coordinates of each selection query
 			    
-			# adjusting Y axis
-			if (tCRDs[j,1] >= a_mid_y):
-			    adjY = tCRDs[j,1] - csize_y;
+		    ####################
+		    #----> top leaflet
+		    ####################
+		    #---> Source Atoms
+		    top_sAtoms = u.selectAtoms(top_selQry1);
+		    top_sRes = top_sAtoms.resnames();
+		    top_sIDs = top_sAtoms.resids();
+		    top_sQry = '';
+		    for i in range(len(top_sRes)):
+			if i == 0:
+			    top_sQry = '((resname {} and resid {})'.format(top_sRes[i], top_sIDs[i]);
+			elif (i > 0) and  (i < len(top_sRes)-1):
+			    top_sQry = '{} or (resname {} and resid {})'.format(top_sQry, top_sRes[i], top_sIDs[i]);
 			else:
-			    adjY = tCRDs[j,1] + csize_y;
-			    
-			# adjusting Z axis
-			if (tCRDs[j,2] >= a_mid_z):
-			    adjZ = tCRDs[j,2] - csize_z;
+			    top_sQry = '{} or (resname {} and resid {})) and ({})'.format(top_sQry, top_sRes[i], top_sIDs[i], selQry1);
+		    #print "##### top_sAtoms: {}".format(top_sQry);
+		    top_sAtoms = u.selectAtoms(top_sQry);
+		    if len(top_sAtoms.resnames()) > 0:
+			top_sCRDs = top_sAtoms.coordinates();
+			top_flag = top_flag + 1;
+		    
+		    #---> Target Atoms
+		    top_tAtoms = u.selectAtoms(top_selQry2);
+		    top_tRes = top_tAtoms.resnames();
+		    top_tIDs = top_tAtoms.resids();
+		    top_tQry = '';
+		    for i in range(len(top_tRes)):
+			if i == 0:
+			    top_tQry = '((resname {} and resid {})'.format(top_tRes[i], top_tIDs[i]);
+			elif (i > 0) and  (i < len(top_tRes)-1):
+			    top_tQry = '{} or (resname {} and resid {})'.format(top_tQry, top_tRes[i], top_tIDs[i]);
 			else:
-			    adjZ = tCRDs[j,2] + csize_z;
-			
-			tmpCRDs = np.array([adjX, adjY, adjZ]);
-			
-			dist1 = np.sum(np.sqrt((sCRDs[i] - tCRDs[j]) ** 2));
-			dist2 = np.sum(np.sqrt((sCRDs[i] - tmpCRDs) ** 2));
-			dist  = min([dist1, dist2]);
-			
-			tmp = np.array(stanalyzer.count_intervals2(dist, BIN));
-			tmpDNST = tmpDNST + tmp;
-			
-	tmpDNST = tmpDNST / (u.trajectory.frame * len(ST_trajectoryFile));
-	DNST = tmpDNST / DEN;
+			    top_tQry = '{} or (resname {} and resid {})) and ({})'.format(top_tQry, top_tRes[i], top_tIDs[i], selQry2);
+		    #print "##### top_tAtoms: {}".format(top_tQry);
+		    top_tAtoms = u.selectAtoms(top_tQry);
+		    if len(top_tAtoms.resnames()) > 0:
+			top_tCRDs = top_tAtoms.coordinates();
+			top_flag = top_flag + 1;
+		    
+		    ######################
+		    #----> bottom leaflet
+		    ######################
+		    #---> Source Atoms
+		    btm_sAtoms = u.selectAtoms(btm_selQry1);
+		    btm_sRes = btm_sAtoms.resnames();
+		    btm_sIDs = btm_sAtoms.resids();
+		    btm_sQry = '';
+		    for i in range(len(btm_sRes)):
+			if i == 0:
+			    btm_sQry = '((resname {} and resid {})'.format(btm_sRes[i], btm_sIDs[i]);
+			elif (i > 0) and  (i < len(btm_sRes)-1):
+			    btm_sQry = '{} or (resname {} and resid {})'.format(btm_sQry, btm_sRes[i], btm_sIDs[i]);
+			else:
+			    btm_sQry = '{} or (resname {} and resid {})) and ({})'.format(btm_sQry, btm_sRes[i], btm_sIDs[i], selQry1);
+		    #print "##### btm_sAtoms: {}".format(btm_sQry);
+		    btm_sAtoms = u.selectAtoms(btm_sQry);
+		    if len(btm_sAtoms.resnames()) > 0:
+			btm_sCRDs = btm_sAtoms.coordinates();
+			btm_flag = btm_flag + 1;
+		    
+		    #---> Target Atoms
+		    btm_tAtoms = u.selectAtoms(btm_selQry2);
+		    btm_tRes = btm_tAtoms.resnames();
+		    btm_tIDs = btm_tAtoms.resids();
+		    btm_tQry = '';
+		    for i in range(len(btm_tRes)):
+			if i == 0:
+			    btm_tQry = '((resname {} and resid {})'.format(btm_tRes[i], btm_tIDs[i]);
+			elif (i > 0) and  (i < len(btm_tRes)-1):
+			    btm_tQry = '{} or (resname {} and resid {})'.format(btm_tQry, btm_tRes[i], btm_tIDs[i]);
+			else:
+			    btm_tQry = '{} or (resname {} and resid {})) and ({})'.format(btm_tQry, btm_tRes[i], btm_tIDs[i], selQry2);
+		    #print "##### btm_tAtoms: {}".format(btm_tQry);
+		    btm_tAtoms = u.selectAtoms(btm_tQry);
+		    if len(btm_tAtoms.resnames()) > 0:
+			btm_tCRDs  = btm_tAtoms.coordinates();
+			btm_flag = btm_flag + 1;
+		    
+		    # for all atoms to get the coordinates
+		    allAtoms   = u.selectAtoms('all');
+		    allCRDs	   = allAtoms.coordinates();
+		    
+		    # considering periodic boundary for distance calculation
+		    a_mid_x = 0.5 * (max(allCRDs[:,0]) + min(allCRDs[:,0]));
+		    a_mid_y = 0.5 * (max(allCRDs[:,1]) + min(allCRDs[:,1]));
+		    a_mid_z = 0.5 * (max(allCRDs[:,2]) + min(allCRDs[:,2]));
+		    
+    
+		    # calculating distance & density calculation for top layer
+		    # we calculated each of them due to uneven bilayer
+		    #print "##### top_flag = {}#####".format(top_flag);
+		    #print "##### btm_flag = {}#####".format(btm_flag);
+		    
+		    if top_flag == 2:
+			#print "---> top leaflet calculation"
+			for i in range(len(top_sCRDs)):
+			    for j in range(len(top_tCRDs)):
+				# adjusting X axis
+				if (top_tCRDs[j,0] >= a_mid_x):
+				    adjX = top_tCRDs[j,0] - csize_x;
+				else:
+				    adjX = top_tCRDs[j,0] + csize_x;
+				    
+				# adjusting Y axis
+				if (top_tCRDs[j,1] >= a_mid_y):
+				    adjY = top_tCRDs[j,1] - csize_y;
+				else:
+				    adjY = top_tCRDs[j,1] + csize_y;
+				    
+				# adjusting Z axis
+				if (top_tCRDs[j,2] >= a_mid_z):
+				    adjZ = top_tCRDs[j,2] - csize_z;
+				else:
+				    adjZ = top_tCRDs[j,2] + csize_z;
+				
+				tmpCRDs = np.array([adjX, adjY, adjZ]);
+				
+				dist1 = np.sqrt(np.sum((top_sCRDs[i] - top_tCRDs[j]) ** 2));
+				dist2 = np.sqrt(np.sum((top_sCRDs[i] - tmpCRDs) ** 2));
+				dist  = min([dist1, dist2]);
+				
+				tmp = np.array(stanalyzer.count_intervals2(dist, BIN));
+				tmp_topDNST = tmp_topDNST + tmp;
+    
+		    if btm_flag == 2:
+			#print "---> bottom leaflet calculation"
+			for i in range(len(btm_sCRDs)):
+			    for j in range(len(btm_tCRDs)):
+				# adjusting X axis
+				if (btm_tCRDs[j,0] >= a_mid_x):
+				    adjX = btm_tCRDs[j,0] - csize_x;
+				else:
+				    adjX = btm_tCRDs[j,0] + csize_x;
+				    
+				# adjusting Y axis
+				if (btm_tCRDs[j,1] >= a_mid_y):
+				    adjY = btm_tCRDs[j,1] - csize_y;
+				else:
+				    adjY = btm_tCRDs[j,1] + csize_y;
+				    
+				# adjusting Z axis
+				if (btm_tCRDs[j,2] >= a_mid_z):
+				    adjZ = btm_tCRDs[j,2] - csize_z;
+				else:
+				    adjZ = btm_tCRDs[j,2] + csize_z;
+				
+				tmpCRDs = np.array([adjX, adjY, adjZ]);
+				
+				dist1 = np.sqrt(np.sum((btm_sCRDs[i] - btm_tCRDs[j]) ** 2));
+				dist2 = np.sqrt(np.sum((btm_sCRDs[i] - tmpCRDs) ** 2));
+				dist  = min([dist1, dist2]);
+				
+				tmp = np.array(stanalyzer.count_intervals2(dist, BIN));
+				tmp_btmDNST = tmp_btmDNST + tmp;
+	    
+	    # to prevent overflow tmp_btmDNST is used
+	    if top_flag == 2:
+		topDNST = topDNST + tmp_topDNST / num_frm;
+	    
+	    if btm_flag == 2:
+		btmDNST = btmDNST + tmp_btmDNST / num_frm;
+	    
+	if top_flag == 2:
+	    topDNST = topDNST / len(ST_trajectoryFile);
+	    topDNST = topDNST / DEN;
+	
+	if btm_flag == 2:
+	    btmDNST = btmDNST / len(ST_trajectoryFile);
+	    btmDNST = btmDNST / DEN;
 			
 	########################################
 	###### Writing final output below ######
 	########################################
-	my_output_file = '{0}/{1}'.format(ST_out_dir, ST_outFile);
-	fid_my_output_file = open(my_output_file, 'w');
-	
+	ftop = '{0}/top_{1}'.format(ST_out_dir, ST_outFile);
+	fid_ftop = open(ftop, 'w');
+	fbtm = '{0}/btm_{1}'.format(ST_out_dir, ST_outFile);
+	fid_fbtm = open(fbtm, 'w');
+    
 	# pick one of output file names for DB usage
-	out_file = my_output_file;
+	out_file = ftop;
+	
 	# writing comments '#' is considered as a comment in GNUPlot	
 	cmt = "#BIN\tDistribution\n";
-	fid_my_output_file.write(cmt);
-	for i in range(len(DNST)):
-	    out_data = "{}\t{}\n".format(BIN[i], DNST[i]);
-	    fid_my_output_file.write(out_data);
-	fid_my_output_file.close()
+	fid_ftop.write(cmt);
+	fid_fbtm.write(cmt);
+	for i in range(len(topDNST)):
+	    out_data_top = "{}\t{}\n".format(BIN[i], topDNST[i]);
+	    out_data_btm = "{}\t{}\n".format(BIN[i], btmDNST[i]);
+	    fid_ftop.write(out_data_top);
+	    fid_fbtm.write(out_data_btm);
+	fid_ftop.close();
+	fid_fbtm.close();
 	
 	########################################
 	########### Drawing graphs #############
 	########################################
+	# Writing Gnuplot script
+
 	outScr = '{0}/gplot{1}.gpl'.format(ST_out_dir, ST_para_idx);
 	outImg  = '{0}{1}.png'.format(exe_file[:len(exe_file)-3], ST_para_idx);
 	imgPath = "{0}/{1}".format(ST_out_dir, outImg);
 	fid_out = open(outScr, 'w');
 	gScript = """set terminal png enhanced \n""";
-	gScript = gScript + "set xlabel 'Distance'\n";
-	gScript = gScript + "set ylabel 'Density'\n";
 	gScript = gScript + "set output '{0}'\n".format(imgPath);
-	gScript = gScript + """plot "{0}" using 1:2 title "RDF 1D" with lines lw 3""".format(my_output_file);
+	gScript = gScript + "set multiplot layout 2, 1 title 'RDF 1D'\n";
+	
+	gScript = gScript + """set xtics offset 0,0.5; unset xlabel\n""";
+	gScript = gScript + """set label 1 'Top' at graph 0.01, 0.95 font ',8'\n""";
+	gScript = gScript + """set ylabel 'Density' offset 0,-8\n""";
+	gScript = gScript + """plot "{0}" using 1:2 title "RDF 1D" with lines lw 3\n""".format(ftop);
+	
+	gScript = gScript + """set xtics offset 0,0.5; unset xlabel; unset ylabel\n""";
+	gScript = gScript + """set label 1 'Bottom' at graph 0.01, 0.95 font ',8'\n""";
+	gScript = gScript + """set xlabel 'Distance' offset 0,1\n""";
+	gScript = gScript + """plot "{0}" using 1:2 title "RDF 1D" with lines lw 3\n""".format(fbtm);
+	
+	gScript = gScript + "unset multiplot\n";
 	fid_out.write(gScript);
 	fid_out.close();
 	
