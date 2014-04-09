@@ -280,7 +280,7 @@ function eval_step2() {
     
     /*
      *################################################
-     * Density Profiles
+     * Density Profiles in 1D
      *################################################
     */
     ////////////// all ///////////////
@@ -806,8 +806,170 @@ function eval_step2() {
 	//alert("numAtoms:" + numAtoms);
     }
 
+    /*
+     *################################################
+     * Density Profiles in 2D
+     *################################################
+    */
 
+    /*** Lipid distribution ***/
+    var chk_1dRDF2D = $j('#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #chk_RDF2D_lipid').prop('checked');
+    if (chk_1dRDF2D == true) {
+	cntQry = [];            // array for storing query for the centering
+	cntAxs = [];            // array for stroing the targetted axis of centering: the default value is 'z'
+	frmInt 	  = [];         // array for storing the frame interval
+	outFile   = [];         // array for storing the name of output file
+        numAtoms  = [];         // array for storing the total number of atoms
+        binSize   = [];         // array for storing the bin size
+        selQry1   = [];         // array for storing selection query 1
+        sysX      = [];
+        sysY      = [];
+        sysZ      = [];
+        
+        // Get the values of radio buttons
+	var cnt_val = $j("#C_RDF2D #M_RDF2D #RDF2D2 input:radio[name=cnt_radio_RDF2D]:checked").val();
+	if (cnt_val == 'yes') {
+	    var query = $j("#C_RDF2D #M_RDF2D #RDF2D2 #adjcenter_RDF2D #txt_memb").val().trim();
+	    cntQry.push(query);
+	    var cnt_axs = $j("#C_RDF2D #M_RDF2D #RDF2D2 #adjcenter_RDF2D #cnt_axis option:selected").val();
+	    cntAxs.push(cnt_axs);
+	}
+	else {
+	    cntAxs.push(cnt_val);
+	    cntQry.push(cnt_val);
+	}
 
+        // Get the values of the frame interval
+	$j("#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #RDF2D_sub_lipid #define_lipid input[name='RDF2D_frmInt']").each(function() {
+	    frmInt.push($j(this).val());
+	});
+	
+	// Get the values of the output file name 
+	$j("#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #RDF2D_sub_lipid #define_lipid input[name='RDF2D_outFile']").each(function() {
+	    outFile.push($j(this).val());
+	});
+
+	// Get the values of the BIN size 
+	$j("#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #RDF2D_sub_lipid #define_lipid input[name='RDF2D_hist_bin']").each(function() {
+	    binSize.push($j(this).val());
+	});
+        
+        // Get the values of the toal number of atoms
+	$j("#C_RDF2D #M_RDF2D #RDF2D2 input[name='RDF2D_hist_tatoms']").each(function() {
+	    numAtoms.push($j(this).val());
+	});
+
+        // Get the query of selection query 1
+	$j("#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #RDF2D_sub_lipid #define_lipid textarea[name='RDF2D_query']").each(function() {
+	    selQry1.push($j(this).val().trim());
+	});
+        
+        // get structure information
+        $j("#C_RDF2D #M_RDF2D #RDF2D2 #RDF2D_sizeX").each(function() {
+            sysX.push($j(this).text().trim());
+        });
+        
+        $j("#C_RDF2D #M_RDF2D #RDF2D2 #RDF2D_sizeY").each(function() {
+            sysY.push($j(this).text().trim());
+        });
+        
+        $j("#C_RDF2D #M_RDF2D #RDF2D2 #RDF2D_sizeZ").each(function() {
+            sysZ.push($j(this).text().trim());
+        });
+            
+        // the name of backend module (i.e., TEMPLATE.py)
+	JOBs.push('density2d_lipid');
+	
+	// Defining multip dimensional array: the first number is total number of varialbes in 'para' (i.e., 5: except it self) 
+	para = [10, frmInt, outFile, numAtoms, cntQry, cntAxs, binSize, selQry1, sysX, sysY, sysZ];
+        
+	// Information about the variables: the order should be same as the variables in 'para', idx0 should be included at the beginning
+	para_info = [idx0, 'Frame interval', 'Output name', 'Total number of atoms', 'Centering Query', 'Base axis', 'Bin size', 'Selection Query', 'size X', 'size Y', 'size Z'];
+	
+	// push parameters in a array PARs and PARinfo
+	PARs.push(para);
+	PARinfo.push(para_info);
+    }
+
+        /*** Thickness distribution ***/
+    var chk_1dRDF2D = $j('#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #chk_RDF2D_thickness').prop('checked');
+    if (chk_1dRDF2D == true) {
+	cntQry = [];            // array for storing query for the centering
+	cntAxs = [];            // array for stroing the targetted axis of centering: the default value is 'z'
+	frmInt 	  = [];         // array for storing the frame interval
+	outFile   = [];         // array for storing the name of output file
+        numAtoms  = [];         // array for storing the total number of atoms
+        binSize   = [];         // array for storing the bin size
+        selQry1   = [];         // array for storing selection query 1
+        sysX      = [];
+        sysY      = [];
+        sysZ      = [];
+        
+        // Get the values of radio buttons
+	var cnt_val = $j("#C_RDF2D #M_RDF2D #RDF2D2 input:radio[name=cnt_radio_RDF2D]:checked").val();
+	if (cnt_val == 'yes') {
+	    var query = $j("#C_RDF2D #M_RDF2D #RDF2D2 #adjcenter_RDF2D #txt_memb").val().trim();
+	    cntQry.push(query);
+	    var cnt_axs = $j("#C_RDF2D #M_RDF2D #RDF2D2 #adjcenter_RDF2D #cnt_axis option:selected").val();
+	    cntAxs.push(cnt_axs);
+	}
+	else {
+	    cntAxs.push(cnt_val);
+	    cntQry.push(cnt_val);
+	}
+
+        // Get the values of the frame interval
+	$j("#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #RDF2D_sub_thickness #define_thickness input[name='RDF2D_frmInt']").each(function() {
+	    frmInt.push($j(this).val());
+	});
+	
+	// Get the values of the output file name 
+	$j("#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #RDF2D_sub_thickness #define_thickness input[name='RDF2D_outFile']").each(function() {
+	    outFile.push($j(this).val());
+	});
+
+	// Get the values of the BIN size 
+	$j("#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #RDF2D_sub_thickness #define_thickness input[name='RDF2D_hist_bin']").each(function() {
+	    binSize.push($j(this).val());
+	});
+        
+        // Get the values of the toal number of atoms
+	$j("#C_RDF2D #M_RDF2D #RDF2D2 input[name='RDF2D_hist_tatoms']").each(function() {
+	    numAtoms.push($j(this).val());
+	});
+
+        // Get the query of selection query 1
+	$j("#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #RDF2D_sub_thickness #define_thickness textarea[name='RDF2D_query']").each(function() {
+	    selQry1.push($j(this).val().trim());
+	});
+        
+        // get structure information
+        $j("#C_RDF2D #M_RDF2D #RDF2D2 #RDF2D_sizeX").each(function() {
+            sysX.push($j(this).text().trim());
+        });
+        
+        $j("#C_RDF2D #M_RDF2D #RDF2D2 #RDF2D_sizeY").each(function() {
+            sysY.push($j(this).text().trim());
+        });
+        
+        $j("#C_RDF2D #M_RDF2D #RDF2D2 #RDF2D_sizeZ").each(function() {
+            sysZ.push($j(this).text().trim());
+        });
+            
+        // the name of backend module (i.e., TEMPLATE.py)
+	JOBs.push('density2d_thickness');
+	
+	// Defining multip dimensional array: the first number is total number of varialbes in 'para' (i.e., 5: except it self) 
+	para = [10, frmInt, outFile, numAtoms, cntQry, cntAxs, binSize, selQry1, sysX, sysY, sysZ];
+        
+	// Information about the variables: the order should be same as the variables in 'para', idx0 should be included at the beginning
+	para_info = [idx0, 'Frame interval', 'Output name', 'Total number of atoms', 'Centering Query', 'Base axis', 'Bin size', 'Selection Query', 'size X', 'size Y', 'size Z'];
+	
+	// push parameters in a array PARs and PARinfo
+	PARs.push(para);
+	PARinfo.push(para_info);
+    }
+    
     /*
      *################################################
      * Helix tilt
@@ -1040,6 +1202,8 @@ function eval_step2() {
 	PARs.push(para);
 	PARinfo.push(para_info);
     }
+
+    
     
     /*
      *################################################
