@@ -28,6 +28,7 @@ $j(document).ready(function(){
     $j('#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #RDF2D_sub_lipid #RDF2D_frmInt').val('1').css("color", "gray");
     $j('#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #RDF2D_sub_lipid #RDF2D_outFile').val('density_2d_lipid.dat').css("color", "gray");
     $j('#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #RDF2D_sub_thickness #RDF2D_frmInt').val('1').css("color", "gray");
+    $j("#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #RDF2D_sub_thickness #RDF2D_bin_cut").empty().val('1').css("color", "gray");
     $j('#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #RDF2D_sub_thickness #RDF2D_outFile').val('density_2d_thickness.dat').css("color", "gray");
 
     // Show sub menus
@@ -490,7 +491,9 @@ $j(document).ready(function(){
 							    <td class="bottom w15"></td>
 							    <td class="bottom"><span class="module_font">Bin size</span></td>
 							    <td class="bottom w15"></td>
-							    <td></td><td></td><td></td>
+							    <td class="bottom"><span class="module_font">Threshould</span></td>
+							    <td class="bottom w15"></td>
+							    <td></td><td></td>
 							</tr>
 							<tr>
 							    <td class="bottom"><input id="RDF2D_frmInt" class="module_txtbox_output" type="text" name="RDF2D_frmInt"></td>	
@@ -499,14 +502,16 @@ $j(document).ready(function(){
 							    <td class="bottom w15"></td>
 							    <td class="bottom"><input id="RDF2D_hist_bin" class="module_txtbox_digit2" type="text" name="RDF2D_hist_bin"></td>
 							    <td class="bottom w15"></td>
-							    <td></td><td></td><td></td>
+    							    <td class="bottom"><input id="RDF2D_bin_cut" class="module_txtbox_digit2" type="text" name="RDF2D_bin_cut"></td>
+							    <td class="bottom w15"></td>
+							    <td></td><td></td>
 							</tr>
 							<tr>
 							    <td class="bottom" colspan=9> <span class="module_font"><b>Selection query</b></span> </td>
 							</tr>
 							<tr>
 							    <td class="bottom" colspan=9>
-								<textarea class="bottom" id="RDF2D_query" name="RDF2D_query" rows="2" cols="50"></textarea>
+								<textarea class="bottom" id="RDF2D_query" name="RDF2D_query" rows="2" cols="60"></textarea>
 								<button id="pdb_btn_vfy"><span class="module_font">Verify</span></button>
 							    </td>
 							</tr>

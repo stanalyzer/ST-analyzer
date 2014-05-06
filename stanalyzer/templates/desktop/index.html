@@ -904,6 +904,7 @@ function eval_step2() {
         sysX      = [];
         sysY      = [];
         sysZ      = [];
+        T_count   = [];
         
         // Get the values of radio buttons
 	var cnt_val = $j("#C_RDF2D #M_RDF2D #RDF2D2 input:radio[name=cnt_radio_RDF2D]:checked").val();
@@ -956,14 +957,19 @@ function eval_step2() {
             sysZ.push($j(this).text().trim());
         });
             
+	// Get the values of the threshold  
+	$j("#C_RDF2D #M_RDF2D #RDF2D2 #define_RDF2D #RDF2D_sub_thickness #define_thickness input[name='RDF2D_bin_cut']").each(function() {
+	    T_count.push($j(this).val());
+	});
+
         // the name of backend module (i.e., TEMPLATE.py)
 	JOBs.push('density2d_thickness');
 	
 	// Defining multip dimensional array: the first number is total number of varialbes in 'para' (i.e., 5: except it self) 
-	para = [10, frmInt, outFile, numAtoms, cntQry, cntAxs, binSize, selQry1, sysX, sysY, sysZ];
-        
+	para = [11, frmInt, outFile, numAtoms, cntQry, cntAxs, binSize, selQry1, sysX, sysY, sysZ, T_count];
+        alert(para);
 	// Information about the variables: the order should be same as the variables in 'para', idx0 should be included at the beginning
-	para_info = [idx0, 'Frame interval', 'Output name', 'Total number of atoms', 'Centering Query', 'Base axis', 'Bin size', 'Selection Query', 'size X', 'size Y', 'size Z'];
+	para_info = [idx0, 'Frame interval', 'Output name', 'Total number of atoms', 'Centering Query', 'Base axis', 'Bin size', 'Selection Query', 'size X', 'size Y', 'size Z', 'Threshold'];
 	
 	// push parameters in a array PARs and PARinfo
 	PARs.push(para);

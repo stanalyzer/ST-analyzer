@@ -243,6 +243,8 @@ sysY 	= round(float(sysY));
 sysZ    = paras[10][ST_para_idx];		# system size Z
 sysZ 	= round(float(sysZ));
 
+T_count = paras[11][ST_para_idx];		# threshould to consider the number of appearence in bins
+T_count = int(T_count);
 
 # defining top and bottom leaflet 
 if cntAxs == 'x':
@@ -278,7 +280,7 @@ BIN_top = [];
 BIN_btm = [];
 for i in BIN_X:
     for j in BIN_Y:
-	tmp = [i,j, 0.0];
+	tmp = [i,j, 0.0, 0.0];
 	BIN_top.append(tmp);
 	BIN_btm.append(tmp);
 
@@ -306,8 +308,9 @@ try:
 	    num_frm = 0.0;
 	    
 	    # initializing array
-	    tmp_topDNST = [[0.0, 0.0, 0.0] for i in range(len(BIN_top))];
-	    tmp_btmDNST = [[0.0, 0.0, 0.0] for i in range(len(BIN_btm))];
+	    # x= [0], y=[1], thickness=[2], count =[3];
+	    tmp_topDNST = [[0.0, 0.0, 0.0, 0.0] for i in range(len(BIN_top))];
+	    tmp_btmDNST = [[0.0, 0.0, 0.0, 0.0] for i in range(len(BIN_btm))];
 	    
 	    for ts in u.trajectory:
 		# flag for top and bottom leaflet
@@ -362,7 +365,8 @@ try:
 			    # calculating corresponding bin index 
 			    bin_idx = loc_x * len(BIN_Y) + loc_y;
 			    tmp_topDNST[bin_idx][2] = tmp_topDNST[bin_idx][2] + abs(z);
-			    print "\tBIN: x={}, y={}, thickness={}".format(BIN_top[bin_idx][0], BIN_top[bin_idx][1], tmp_topDNST[bin_idx][2]);
+			    tmp_topDNST[bin_idx][3] = tmp_topDNST[bin_idx][3] + 1.0;
+			    print "\tBIN: x={}, y={}, thickness={}, count={}".format(BIN_top[bin_idx][0], BIN_top[bin_idx][1], tmp_topDNST[bin_idx][2], tmp_topDNST[bin_idx][3]);
 		    ######################
 		    #----> bottom leaflet
 		    ######################
@@ -393,26 +397,48 @@ try:
 			    # calculating corresponding bin index 
 			    bin_idx = loc_x * len(BIN_Y) + loc_y;
 			    tmp_btmDNST[bin_idx][2] = tmp_btmDNST[bin_idx][2] + abs(z);
-			    print "\tBIN: x={}, y={}, thickness={}".format(BIN_btm[bin_idx][0], BIN_btm[bin_idx][1], tmp_btmDNST[bin_idx][2]);
+			    tmp_btmDNST[bin_idx][3] = tmp_btmDNST[bin_idx][3] + 1.0;
+			    print "\tBIN: x={}, y={}, thickness={}, count={}".format(BIN_btm[bin_idx][0], BIN_btm[bin_idx][1], tmp_btmDNST[bin_idx][2], tmp_btmDNST[bin_idx][3]);
 	    
-	    # normalizing based on the number of frame
-	    #print "#### Frame SUM ###"
-	    if top_flag > 0:
-		BIN_top = np.array(BIN_top);
-		tmp_topDNST = np.array(tmp_topDNST);
-		BIN_top[:,2] = BIN_top[:,2] + tmp_topDNST[:,2] / num_frm;
-	    
-	    if btm_flag > 0:
-		BIN_btm = np.array(BIN_btm);
-		tmp_btmDNST = np.array(tmp_btmDNST);
-		BIN_btm[:,2] = BIN_btm[:,2] + tmp_btmDNST[:,2] / num_frm;
+	#print "#### Frame SUM ###"
+	if (top_flag > 0) and (btm_flag > 0):
+	    BIN_top = np.array(BIN_top);
+	    BIN_btm = np.array(BIN_btm);
+	    tmp_topDNST = np.array(tmp_topDNST);
+	    tmp_btmDNST = np.array(tmp_btmDNST);
+	    for i in range(len(tmp_topDNST)):
+		BIN_top[i][0] = tmp_topDNST[i][0];
+		BIN_top[i][1] = tmp_topDNST[i][1];
+		BIN_top[i][3] = tmp_topDNST[i][3];
+		
+		BIN_btm[i][0] = tmp_btmDNST[i][0];
+		BIN_btm[i][1] = tmp_btmDNST[i][1];
+		BIN_btm[i][3] = tmp_btmDNST[i][3];
+		
+		if tmp_topDNST[i][3] >= T_count:
+		    BIN_top[i][2] = tmp_topDNST[i][2] / tmp_topDNST[i][3];
+		else:
+		    BIN_top[i][2] = 0.0;
+		    
+		if tmp_btmDNST[i][3] >= T_count:
+		    BIN_btm[i][2] = tmp_btmDNST[i][2] / tmp_btmDNST[i][3];
+		else:
+		    BIN_btm[i][2] = 0.0;
 
-	#print "### Trajectory SUM ###"
-	mr = 0.75;
-	if top_flag > 0:
-	    BIN_top[:,2] = BIN_top[:,2] / len(ST_trajectoryFile);
-	    top_max = np.float(np.max(BIN_top[:,2])) * mr;
-	    top_min = np.float(np.min(BIN_top[:,2])) * mr;
+	elif top_flag > 0:
+	    BIN_top = np.array(BIN_top);
+	    tmp_topDNST = np.array(tmp_topDNST);
+	    for i in range(len(tmp_topDNST)):
+		BIN_top[i][0] = tmp_topDNST[i][0];
+		BIN_top[i][1] = tmp_topDNST[i][1];
+		BIN_top[i][3] = tmp_topDNST[i][3];
+		if tmp_topDNST[i][3] >= T_count:
+		    BIN_top[i][2] = tmp_topDNST[i][2] / tmp_topDNST[i][3];
+		else:
+		    BIN_top[i][2] = 0.0;
+	    # for drawing graph 
+    	    top_max = np.float(np.max(BIN_top[:,2]));
+	    top_min = np.float(np.min(BIN_top[:,2]));
 	    top_intv = top_max / 4.0;
 	    topIntv = [];
 	    topIntv.append(0);
@@ -422,11 +448,21 @@ try:
 		topIntv.append(tmp);
 		if tmp >= top_max:
 		    break;
-	    
-	if btm_flag > 0:
-	    BIN_btm[:,2] = BIN_btm[:,2] / len(ST_trajectoryFile);
-	    btm_max = np.float(np.max(BIN_btm[:,2])) * mr;
-	    btm_min = np.float(np.min(BIN_btm[:,2])) * mr;
+
+	elif btm_flag > 0:
+	    BIN_btm = np.array(BIN_btm);
+	    tmp_btmDNST = np.array(tmp_btmDNST);
+	    for i in range(len(tmp_btmDNST)):
+		BIN_btm[i][0] = tmp_btmDNST[i][0];
+		BIN_btm[i][1] = tmp_btmDNST[i][1];
+		BIN_btm[i][3] = tmp_btmDNST[i][3];
+		if tmp_btmDNST[i][3] >= T_count:
+		    BIN_btm[i][2] = tmp_btmDNST[i][2] / tmp_btmDNST[i][3];
+		else:
+		    BIN_btm[i][2] = 0.0;
+	    # for drawing graph 
+	    btm_max = np.float(np.max(BIN_btm[:,2]));
+	    btm_min = np.float(np.min(BIN_btm[:,2]));
 	    btm_intv = btm_max / 4.0;
 	    btmIntv = [];
 	    btmIntv.append(0);

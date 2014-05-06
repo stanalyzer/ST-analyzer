@@ -274,7 +274,7 @@ try:
 		    #print "{} is in {}".format(cnt_frm, frmInt);
 		    #======= Centeralization =========
 		    if (cntQry != 'no') :
-			stanalyzer.centerByRes2(ts, u, cntQry, 1, cntAxs);
+			stanalyzer.centerByRes3(ts, u, cntQry, 1, cntAxs);
 		    #==================================
 		    selAtoms = u.selectAtoms(selQry);
 		    fid_pdb.write(selAtoms);
